@@ -51,8 +51,9 @@ type HeadersCfg struct {
 	forkValidator *engine_helpers.ForkValidator
 	notifications *shards.Notifications
 
-	syncConfig     ethconfig.Sync
-	loopBreakCheck func(int) bool
+	syncConfig          ethconfig.Sync
+	loopBreakCheck      func(int) bool
+	StageSyncUpperBound uint64
 }
 
 func StageHeadersCfg(
@@ -71,24 +72,26 @@ func StageHeadersCfg(
 	tmpdir string,
 	notifications *shards.Notifications,
 	forkValidator *engine_helpers.ForkValidator,
+	StageSyncUpperBound uint64,
 	loopBreakCheck func(int) bool) HeadersCfg {
 	return HeadersCfg{
-		db:                db,
-		hd:                headerDownload,
-		bodyDownload:      bodyDownload,
-		chainConfig:       chainConfig,
-		syncConfig:        syncConfig,
-		headerReqSend:     headerReqSend,
-		announceNewHashes: announceNewHashes,
-		penalize:          penalize,
-		batchSize:         batchSize,
-		tmpdir:            tmpdir,
-		noP2PDiscovery:    noP2PDiscovery,
-		blockReader:       blockReader,
-		blockWriter:       blockWriter,
-		forkValidator:     forkValidator,
-		notifications:     notifications,
-		loopBreakCheck:    loopBreakCheck,
+		db:                  db,
+		hd:                  headerDownload,
+		bodyDownload:        bodyDownload,
+		chainConfig:         chainConfig,
+		syncConfig:          syncConfig,
+		headerReqSend:       headerReqSend,
+		announceNewHashes:   announceNewHashes,
+		penalize:            penalize,
+		batchSize:           batchSize,
+		tmpdir:              tmpdir,
+		noP2PDiscovery:      noP2PDiscovery,
+		blockReader:         blockReader,
+		blockWriter:         blockWriter,
+		forkValidator:       forkValidator,
+		notifications:       notifications,
+		loopBreakCheck:      loopBreakCheck,
+		StageSyncUpperBound: StageSyncUpperBound,
 	}
 }
 
@@ -184,7 +187,7 @@ func HeadersPOW(
 	TEMP TESTING */
 	headerInserter := headerdownload.NewHeaderInserter(logPrefix, localTd, startProgress, cfg.blockReader)
 	cfg.hd.SetHeaderReader(&ChainReaderImpl{config: &cfg.chainConfig, tx: tx, blockReader: cfg.blockReader})
-
+	cfg.hd.SetStageSyncUpperBound(cfg.StageSyncUpperBound)
 	stopped := false
 	var noProgressCounter uint = 0
 	prevProgress := startProgress
@@ -292,6 +295,11 @@ Loop:
 			stopped = true
 		case <-logEvery.C:
 			progress := cfg.hd.Progress()
+			if cfg.StageSyncUpperBound > 0 && progress > cfg.StageSyncUpperBound {
+				stopped = true
+				log.Warn("Stage progress is over StageSyncUpperBound and stop the stage sync here")
+				return nil
+			}
 			stats := cfg.hd.ExtractStats()
 			logProgressHeaders(logPrefix, prevProgress, progress, stats, logger)
 			if prevProgress == progress {

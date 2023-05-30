@@ -263,6 +263,8 @@ type Config struct {
 	SilkwormSentry    bool
 
 	DisableTxPoolGossip bool
+
+	StageSyncUpperBound uint64
 }
 
 type Sync struct {

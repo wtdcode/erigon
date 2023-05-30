@@ -297,6 +297,7 @@ type HeaderDownload struct {
 	unsettledHeadHeight uint64                      // Height of unsettledForkChoice.headBlockHash
 	posDownloaderTip    common.Hash                 // See https://hackmd.io/GDc0maGsQeKfP8o2C7L52w
 	badPoSHeaders       map[common.Hash]common.Hash // Invalid Tip -> Last Valid Ancestor
+	stageSyncUpperBound uint64                      // Upper bound for stage sync, stop sync upon reached this height
 	logger              log.Logger
 }
 

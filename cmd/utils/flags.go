@@ -832,6 +832,11 @@ var (
 		Usage: "Port for sentinel",
 		Value: 7777,
 	}
+	StageSyncUpperBoundFlag = cli.Uint64Flag{
+		Name:  "stage.upper.bound",
+		Usage: "Upper bound for stage sync",
+		Value: 0,
+	}
 
 	OtsSearchMaxCapFlag = cli.Uint64Flag{
 		Name:  "ots.search.max.pagesize",
@@ -1777,6 +1782,10 @@ func SetEthConfig(ctx *cli.Context, nodeConfig *nodecfg.Config, cfg *ethconfig.C
 
 	if ctx.IsSet(TxPoolGossipDisableFlag.Name) {
 		cfg.DisableTxPoolGossip = ctx.Bool(TxPoolGossipDisableFlag.Name)
+	}
+
+	if ctx.IsSet(StageSyncUpperBoundFlag.Name) {
+		cfg.StageSyncUpperBound = ctx.Uint64(StageSyncUpperBoundFlag.Name)
 	}
 }
 
