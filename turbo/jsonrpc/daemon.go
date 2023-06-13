@@ -32,6 +32,7 @@ func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, m
 	dbImpl := NewDBAPIImpl() /* deprecated */
 	adminImpl := NewAdminAPI(eth)
 	parityImpl := NewParityAPIImpl(base, db)
+	bscImpl := NewBscAPI(ethImpl)
 
 	var borImpl *BorImpl
 
@@ -151,6 +152,13 @@ func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, m
 			})
 		case "clique":
 			list = append(list, clique.NewCliqueAPI(db, engine, blockReader))
+		case "bsc":
+			list = append(list, rpc.API{
+				Namespace: "bsc",
+				Public:    true,
+				Service:   BscAPI(bscImpl),
+				Version:   "1.0",
+			})
 		}
 	}
 
