@@ -22,9 +22,11 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"math"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -633,6 +635,11 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 	}
 	historyComp = NewArchiveWriter(comp, h.compression)
 
+	logEvery := time.NewTicker(5 * time.Second)
+	defer logEvery.Stop()
+
+	var m runtime.MemStats
+
 	keysCursor, err := roTx.CursorDupSort(h.indexKeysTable)
 	if err != nil {
 		return HistoryCollation{}, fmt.Errorf("create %s history cursor: %w", h.filenameBase, err)
@@ -641,6 +648,7 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 	indexBitmaps := map[string]*roaring64.Bitmap{}
 	var txKey [8]byte
 	binary.BigEndian.PutUint64(txKey[:], txFrom)
+
 	for k, v, err := keysCursor.Seek(txKey[:]); err == nil && k != nil; k, v, err = keysCursor.Next() {
 		if err != nil {
 			return HistoryCollation{}, fmt.Errorf("iterate over %s history cursor: %w", h.filenameBase, err)
@@ -660,13 +668,25 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 		select {
 		case <-ctx.Done():
 			return HistoryCollation{}, ctx.Err()
+		case <-logEvery.C:
+			var totalCard, totalRam uint64
+			for _, bm := range indexBitmaps {
+				totalCard += bm.GetCardinality()
+				totalRam += bm.GetSizeInBytes()
+			}
+			dbg.ReadMemStats(&m)
+			log.Debug("[agg] collate", "hist", h.filenameBase,
+				"keys", fmt.Sprintf("%dm", len(indexBitmaps)/1_000_000),
+				"total_cardinality", fmt.Sprintf("%dm", totalCard/1_000_000),
+				"total_ram", fmt.Sprintf("%dmb", totalRam/1024/1024),
+				"alloc", common.ByteCount(m.Alloc), "sys", common.ByteCount(m.Sys),
+			)
 		default:
 		}
 	}
 	keys := make([]string, 0, len(indexBitmaps))
-	for key, bm := range indexBitmaps {
+	for key := range indexBitmaps {
 		keys = append(keys, key)
-		bm.RunOptimize()
 	}
 	slices.Sort(keys)
 	historyCount := 0

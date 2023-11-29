@@ -14,7 +14,7 @@ type estimatedRamPerWorker datasize.ByteSize
 func (r estimatedRamPerWorker) Workers() int {
 	// 50% of TotalMemory. Better don't count on 100% because OOM Killer may have aggressive defaults and other software may need RAM
 	maxWorkersForGivenMemory := (mmap.TotalMemory() / 2) / uint64(r)
-	return cmp.Min(AlmostAllCPUs(), int(maxWorkersForGivenMemory))
+	return cmp.Max(1, cmp.Min(AlmostAllCPUs(), int(maxWorkersForGivenMemory)))
 }
 
 func (r estimatedRamPerWorker) WorkersHalf() int    { return cmp.Max(1, r.Workers()/2) }
@@ -24,6 +24,8 @@ const (
 	IndexSnapshot     = estimatedRamPerWorker(2 * datasize.GB)   //elias-fano index building is single-threaded
 	CompressSnapshot  = estimatedRamPerWorker(1 * datasize.GB)   //1-file-compression is multi-threaded
 	ReconstituteState = estimatedRamPerWorker(512 * datasize.MB) //state-reconstitution is multi-threaded
+
+	AggCollate = estimatedRamPerWorker(10 * datasize.GB)
 )
 
 // AlmostAllCPUs - return all-but-one cpus. Leaving 1 cpu for "work producer", also cloud-providers do recommend leave 1 CPU for their IO software
