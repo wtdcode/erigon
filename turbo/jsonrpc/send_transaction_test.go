@@ -80,6 +80,7 @@ func oneBlockStep(mockSentry *mock.MockSentry, require *require.Assertions, t *t
 }
 
 func TestSendRawTransaction(t *testing.T) {
+	defer t.Fail()
 	//if ethconfig.EnableHistoryV4InTest {
 	//	t.Skip("TODO: [e4] implement me")
 	//}
