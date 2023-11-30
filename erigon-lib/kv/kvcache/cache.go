@@ -280,19 +280,22 @@ func (c *Coherent) OnNewBlock(stateChanges *remote.StateChangeBatch) {
 			case remote.Action_UPSERT:
 				addr := gointerfaces.ConvertH160toAddress(sc.Changes[i].Address)
 				v := sc.Changes[i].Data
-				//fmt.Printf("set: %x,%x\n", addr, v)
+				fmt.Printf("onNewBlock1: %x,%x\n", addr, v)
 				c.add(addr[:], v, r, id)
 			case remote.Action_UPSERT_CODE:
 				addr := gointerfaces.ConvertH160toAddress(sc.Changes[i].Address)
 				v := sc.Changes[i].Data
+				fmt.Printf("onNewBlock2: %x,%x\n", addr, v)
 				c.add(addr[:], v, r, id)
 				c.hasher.Reset()
 				c.hasher.Write(sc.Changes[i].Code)
 				k := make([]byte, 32)
 				c.hasher.Sum(k)
+				fmt.Printf("onNewBlock3: %x,%x\n", addr, v)
 				c.addCode(k, sc.Changes[i].Code, r, id)
 			case remote.Action_REMOVE:
 				addr := gointerfaces.ConvertH160toAddress(sc.Changes[i].Address)
+				fmt.Printf("onNewBlock4: %x,%x\n", addr, nil)
 				c.add(addr[:], nil, r, id)
 			case remote.Action_STORAGE:
 				//skip, will check later
@@ -301,6 +304,7 @@ func (c *Coherent) OnNewBlock(stateChanges *remote.StateChangeBatch) {
 				c.hasher.Write(sc.Changes[i].Code)
 				k := make([]byte, 32)
 				c.hasher.Sum(k)
+				fmt.Printf("onNewBlock5: %x,%x\n", k, sc.Changes[i].Code)
 				c.addCode(k, sc.Changes[i].Code, r, id)
 			default:
 				panic("not implemented yet")
@@ -313,6 +317,7 @@ func (c *Coherent) OnNewBlock(stateChanges *remote.StateChangeBatch) {
 					copy(k, addr[:])
 					binary.BigEndian.PutUint64(k[20:], sc.Changes[i].Incarnation)
 					copy(k[20+8:], loc[:])
+					fmt.Printf("onNewBlock6: %x,%x\n", k, change.Data)
 					c.add(k, change.Data, r, id)
 				}
 			}
@@ -386,7 +391,7 @@ func (c *Coherent) getFromCache(k []byte, id uint64, code bool) (*Element, *Cohe
 
 	return it, r, nil
 }
-func (c *Coherent) Get(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
+func (c *Coherent) Get(k []byte, tx kv.Tx, id uint64) (v []byte, err error) {
 	it, r, err := c.getFromCache(k, id, false)
 	if err != nil {
 		return nil, err
@@ -399,11 +404,19 @@ func (c *Coherent) Get(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
 	}
 	c.miss.Inc()
 
-	v, err := tx.GetOne(kv.PlainState, k)
+	if casted, ok := tx.(kv.TemporalTx); ok {
+		if len(k) > 20 {
+			v, err = casted.DomainGet(kv.StorageDomain, k, nil)
+		} else {
+			v, err = casted.DomainGet(kv.AccountsDomain, k, nil)
+		}
+	} else {
+		v, err = tx.GetOne(kv.PlainState, k)
+	}
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("from db: %#x,%x\n", k, v)
+	fmt.Printf("ps: %x -> %x\n", k, v)
 
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -411,7 +424,7 @@ func (c *Coherent) Get(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
 	return v, nil
 }
 
-func (c *Coherent) GetCode(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
+func (c *Coherent) GetCode(k []byte, tx kv.Tx, id uint64) (v []byte, err error) {
 	it, r, err := c.getFromCache(k, id, true)
 	if err != nil {
 		return nil, err
@@ -424,11 +437,15 @@ func (c *Coherent) GetCode(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
 	}
 	c.codeMiss.Inc()
 
-	v, err := tx.GetOne(kv.Code, k)
+	if casted, ok := tx.(kv.TemporalTx); ok {
+		v, err = casted.DomainGet(kv.CodeDomain, k, nil)
+	} else {
+		v, err = tx.GetOne(kv.Code, k)
+	}
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Printf("from db: %#x,%x\n", k, v)
+	fmt.Printf("code: %x -> %x\n", k, v)
 
 	c.lock.Lock()
 	defer c.lock.Unlock()

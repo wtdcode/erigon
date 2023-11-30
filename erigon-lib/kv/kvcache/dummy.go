@@ -17,7 +17,7 @@ package kvcache
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/ledgerwatch/erigon-lib/gointerfaces/remote"
 	"github.com/ledgerwatch/erigon-lib/kv"
 )
@@ -30,15 +30,27 @@ var _ CacheView = (*DummyView)(nil) // compile-time interface check
 
 func NewDummy() *DummyCache { return &DummyCache{} }
 func (c *DummyCache) View(_ context.Context, tx kv.Tx) (CacheView, error) {
-	return &DummyView{cache: c, tx: tx}, nil
+	casted, ok := tx.(kv.TemporalTx)
+	return &DummyView{cache: c, tx: tx, ttx: casted, v3: ok}, nil
 }
 func (c *DummyCache) OnNewBlock(sc *remote.StateChangeBatch) {}
 func (c *DummyCache) Evict() int                             { return 0 }
 func (c *DummyCache) Len() int                               { return 0 }
 func (c *DummyCache) Get(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
+	if casted, ok := tx.(kv.TemporalTx); ok {
+		if len(k) > 20 {
+			return casted.DomainGet(kv.StorageDomain, k, nil)
+		} else {
+			return casted.DomainGet(kv.AccountsDomain, k, nil)
+		}
+	}
 	return tx.GetOne(kv.PlainState, k)
 }
 func (c *DummyCache) GetCode(k []byte, tx kv.Tx, id uint64) ([]byte, error) {
+	fmt.Printf("b: %x\n", k)
+	if casted, ok := tx.(kv.TemporalTx); ok {
+		return casted.DomainGet(kv.CodeDomain, k, nil)
+	}
 	return tx.GetOne(kv.Code, k)
 }
 func (c *DummyCache) ValidateCurrentRoot(_ context.Context, _ kv.Tx) (*CacheValidationResult, error) {
@@ -48,6 +60,8 @@ func (c *DummyCache) ValidateCurrentRoot(_ context.Context, _ kv.Tx) (*CacheVali
 type DummyView struct {
 	cache *DummyCache
 	tx    kv.Tx
+	ttx   kv.TemporalTx
+	v3    bool
 }
 
 func (c *DummyView) Get(k []byte) ([]byte, error)     { return c.cache.Get(k, c.tx, 0) }
