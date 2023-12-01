@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"fmt"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"math/big"
 	"sync"
@@ -251,6 +252,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
+		fmt.Printf("tx res: %d, %s, %x\n", txTask.TxIndex, err, txTask.Tx.Hash())
 		if err != nil {
 			txTask.Error = err
 		} else {
