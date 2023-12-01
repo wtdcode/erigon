@@ -735,7 +735,7 @@ Loop:
 	for _, fName := range fileNames {
 		f, ok := snaptype.ParseFileName(s.dir, fName)
 		if !ok {
-			s.logger.Trace("BorRoSnapshots.ReopenList: skip", "file", fName)
+			s.logger.Trace("[snapshots.bor] BorRoSnapshots.ReopenList: skip", "file", fName)
 			continue
 		}
 
@@ -766,7 +766,7 @@ Loop:
 					}
 				}
 				if optimistic {
-					s.logger.Warn("[bor snapshots] open segment", "err", err)
+					s.logger.Warn("[snapshots.bor] open segment", "err", err)
 					continue Loop
 				} else {
 					return err
@@ -806,7 +806,7 @@ Loop:
 					}
 				}
 				if optimistic {
-					s.logger.Warn("[bor snapshots] open segment", "err", err)
+					s.logger.Warn("[snapshots.bor] open segment", "err", err)
 					continue Loop
 				} else {
 					return err
@@ -861,6 +861,7 @@ func (s *BorRoSnapshots) ReopenFolder() error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("BorSegments: %s\n", files)
 	list := make([]string, 0, len(files))
 	for _, f := range files {
 		_, fName := filepath.Split(f.Path)
@@ -874,6 +875,7 @@ func (s *BorRoSnapshots) ReopenWithDB(db kv.RoDB) error {
 		if err != nil {
 			return err
 		}
+		fmt.Printf("ReopenWithDB: %s\n", snList)
 		return s.ReopenList(snList, true)
 	}); err != nil {
 		return err
