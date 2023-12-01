@@ -112,6 +112,7 @@ func _GetBlockNumber(requireCanonical bool, blockNrOrHash rpc.BlockNumberOrHash,
 func CreateStateReader(ctx context.Context, tx kv.Tx, blockNrOrHash rpc.BlockNumberOrHash, txnIndex int, filters *Filters, stateCache kvcache.Cache, historyV3 bool, chainName string) (state.StateReader, error) {
 	blockNumber, _, latest, err := _GetBlockNumber(true, blockNrOrHash, tx, filters)
 	if err != nil {
+		panic(err)
 		return nil, err
 	}
 	return CreateStateReaderFromBlockNumber(ctx, tx, blockNumber, latest, txnIndex, stateCache, historyV3, chainName)
