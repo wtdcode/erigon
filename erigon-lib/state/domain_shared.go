@@ -189,7 +189,7 @@ func (sd *SharedDomains) rebuildCommitment(ctx context.Context, rwTx kv.Tx, bloc
 func (sd *SharedDomains) SeekCommitment(ctx context.Context, tx kv.Tx) (txsFromBlockBeginning uint64, err error) {
 	bn, txn, ok, err := sd.Commitment.SeekCommitment(tx, sd.aggCtx.commitment, 0, math.MaxUint64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("SeekCommitment: %w", err)
 	}
 	if ok {
 		if bn > 0 {

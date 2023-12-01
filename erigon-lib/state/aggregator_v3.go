@@ -744,7 +744,7 @@ func (ac *AggregatorV3Context) CanUnwindBeforeBlockNum(blockNum uint64, tx kv.Tx
 	// not all blocks have commitment
 	blockNumWithCommitment, _, ok, err := ac.a.commitment.SeekCommitment(tx, ac.commitment, ac.CanUnwindDomainsToTxNum(), unwindToTxNum)
 	if err != nil {
-		return 0, false, err
+		return 0, false, fmt.Errorf("CanUnwindBeforeBlockNum: %w", err)
 	}
 	if !ok {
 		_minBlockNum, _ := ac.MinUnwindDomainsBlockNum(tx)
