@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"math/big"
+	"os"
 	"sync"
 	"sync/atomic"
 
@@ -259,6 +260,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 			fmt.Printf("tx logs: %d, %x, %x\n", txTask.TxIndex, b.Data, b.Topics)
 			fmt.Printf("tx logs: %d, %x, %t\n", txTask.TxIndex, b.Address, b.Removed)
 		}
+		os.Exit(1)
 		if err != nil {
 			txTask.Error = err
 		} else {
