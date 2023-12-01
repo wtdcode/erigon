@@ -382,6 +382,7 @@ func (api *PrivateDebugAPIImpl) GetRawHeader(ctx context.Context, blockNrOrHash 
 		return nil, err
 	}
 	if header == nil {
+		panic(fmt.Errorf("header not found: %d", n))
 		return nil, fmt.Errorf("header not found")
 	}
 	return rlp.EncodeToBytes(header)
