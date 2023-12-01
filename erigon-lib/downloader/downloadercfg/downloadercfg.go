@@ -17,6 +17,7 @@
 package downloadercfg
 
 import (
+	"github.com/ledgerwatch/erigon-lib/common/cmp"
 	"io/ioutil"
 	"net"
 	"net/url"
@@ -64,7 +65,7 @@ func Default() *torrent.ClientConfig {
 	// better don't increase because erigon periodically producing "new seedable files" - and adding them to downloader.
 	// it must not impact chain tip sync - so, limit resources to minimum by default.
 	// but when downloader is started as a separated process - rise it to max
-	//torrentConfig.PieceHashersPerTorrent = cmp.Max(1, runtime.NumCPU()-1)
+	torrentConfig.PieceHashersPerTorrent = 4 * cmp.Max(1, runtime.NumCPU()-1)
 
 	torrentConfig.MinDialTimeout = 6 * time.Second    //default: 3s
 	torrentConfig.HandshakesTimeout = 8 * time.Second //default: 4s
