@@ -252,8 +252,8 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		msg := txTask.TxAsMessage
 
 		logconfig := &logger.LogConfig{
-			DisableMemory:     true,
-			DisableStack:      true,
+			DisableMemory:     false,
+			DisableStack:      false,
 			DisableStorage:    false,
 			DisableReturnData: false,
 			Debug:             true,
