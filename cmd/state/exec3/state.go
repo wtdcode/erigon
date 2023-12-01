@@ -252,7 +252,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
-		fmt.Printf("tx res: %d, %s, %x\n", txTask.TxIndex, err, txTask.Tx.Hash())
+		fmt.Printf("tx res: %t, %d, %s, %x, revertRes=%x, returnData=%x\n", applyRes.Failed(), txTask.TxIndex, err, txTask.Tx.Hash(), applyRes.Revert(), applyRes.Return())
 		if err != nil {
 			txTask.Error = err
 		} else {
