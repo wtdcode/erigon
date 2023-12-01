@@ -861,7 +861,6 @@ func (s *BorRoSnapshots) ReopenFolder() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("BorSegments: %s\n", files)
 	list := make([]string, 0, len(files))
 	for _, f := range files {
 		_, fName := filepath.Split(f.Path)
@@ -875,7 +874,6 @@ func (s *BorRoSnapshots) ReopenWithDB(db kv.RoDB) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("ReopenWithDB: %s\n", snList)
 		return s.ReopenList(snList, true)
 	}); err != nil {
 		return err

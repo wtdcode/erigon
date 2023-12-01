@@ -333,12 +333,10 @@ func SnapshotsPrune(s *PruneState, initialCycle bool, cfg SnapshotsCfg, ctx cont
 		if cfg.blockRetire.HasNewFrozenFiles() || cfg.agg.HasNewFrozenFiles() {
 			ac := cfg.agg.MakeContext()
 			defer ac.Close()
-			aggFiles := ac.Files()
-			ac.Close()
-
-			if err := rawdb.WriteSnapshots(tx, cfg.blockReader.FrozenFiles(), aggFiles); err != nil {
+			if err := rawdb.WriteSnapshots(tx, cfg.blockReader.FrozenFiles(), ac.Files()); err != nil {
 				return err
 			}
+			ac.Close()
 		}
 
 		cfg.blockRetire.RetireBlocksInBackground(ctx, s.ForwardProgress, cfg.chainConfig.Bor != nil, log.LvlInfo, func(downloadRequest []services.DownloadRequest) error {
