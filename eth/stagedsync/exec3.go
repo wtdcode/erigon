@@ -714,7 +714,7 @@ Loop:
 				// use history reader instead of state reader to catch up to the tx where we left off
 				HistoryExecution: offsetFromBlockBeginning > 0 && txIndex < int(offsetFromBlockBeginning),
 			}
-			fmt.Printf("alex: %t, %d, %d\n", txTask.HistoryExecution, offsetFromBlockBeginning, execStage.BlockNumber)
+			fmt.Printf("alex: %t, %d, %d, bn=%d, exec=%d\n", txTask.HistoryExecution, offsetFromBlockBeginning, len(txs), blockNum, execStage.BlockNumber)
 
 			//if txTask.HistoryExecution { // nolint
 			//	fmt.Printf("[dbg] txNum: %d, hist=%t\n", txTask.TxNum, txTask.HistoryExecution)
