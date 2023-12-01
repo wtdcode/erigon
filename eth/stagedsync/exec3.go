@@ -236,7 +236,9 @@ func ExecV3(ctx context.Context,
 			return err
 		}
 
-		ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(applyTx, doms.TxNum())
+		inputTxNum++ // start execution from next txn
+
+		ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(applyTx, inputTxNum)
 		if err != nil {
 			return err
 		}
@@ -248,10 +250,10 @@ func ExecV3(ctx context.Context,
 			return err
 		}
 
-		if doms.TxNum() > _min {
+		if inputTxNum > _min {
 			// if stopped in the middle of the block: start from beginning of block.
 			// first part will be executed in HistoryExecution mode
-			offsetFromBlockBeginning = doms.TxNum() - _min
+			offsetFromBlockBeginning = inputTxNum - _min
 		}
 
 		inputTxNum = _min
