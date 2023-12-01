@@ -255,7 +255,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		fmt.Printf("tx res: %t, %d, %s, %x, revertRes=%x, returnData=%x\n", applyRes.Failed(), txTask.TxIndex, err, txTask.Tx.Hash(), applyRes.Revert(), applyRes.Return())
 		l := ibs.GetLogs(txHash)
 		for _, b := range l {
-			fmt.Printf("tx logs: %d, %x\n", txTask.TxIndex, b.Data)
+			fmt.Printf("tx logs: %d, %x, %x\n", txTask.TxIndex, b.Data, b.Topics)
 		}
 		if err != nil {
 			txTask.Error = err
