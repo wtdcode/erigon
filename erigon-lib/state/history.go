@@ -2225,11 +2225,11 @@ func (hc *HistoryContext) idxRangeRecent(key []byte, startTxNum, endTxNum int, a
 func (hc *HistoryContext) IdxRange(key []byte, startTxNum, endTxNum int, asc order.By, limit int, roTx kv.Tx) (iter.U64, error) {
 	frozenIt, err := hc.ic.iterateRangeFrozen(key, startTxNum, endTxNum, asc, limit)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s, %w", hc.h.filenameBase, err)
 	}
 	recentIt, err := hc.idxRangeRecent(key, startTxNum, endTxNum, asc, limit, roTx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s, %w", hc.h.filenameBase, err)
 	}
 	return iter.Union[uint64](frozenIt, recentIt, asc, limit), nil
 }
