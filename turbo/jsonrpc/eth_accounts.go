@@ -28,7 +28,7 @@ func (api *APIImpl) GetBalance(ctx context.Context, address libcommon.Address, b
 	defer tx.Rollback()
 	reader, err := rpchelper.CreateStateReader(ctx, tx, blockNrOrHash, 0, api.filters, api.stateCache, api.historyV3(tx), "")
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	acc, err := reader.ReadAccountData(address)

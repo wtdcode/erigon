@@ -122,6 +122,7 @@ func CreateStateReaderFromBlockNumber(ctx context.Context, tx kv.Tx, blockNumber
 	if latest {
 		cacheView, err := stateCache.View(ctx, tx)
 		if err != nil {
+			panic(err)
 			return nil, err
 		}
 		return state.NewCachedReader2(cacheView, tx), nil
