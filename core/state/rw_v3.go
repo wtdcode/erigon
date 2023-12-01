@@ -22,6 +22,10 @@ import (
 
 var execTxsDone = metrics.NewCounter(`exec_txs_done`)
 
+var (
+	rwV3Trace = dbg.EnvBool("RW_V3_TRACE", false)
+)
+
 type StateV3 struct {
 	domains      *libstate.SharedDomains
 	triggerLock  sync.Mutex
@@ -42,7 +46,7 @@ func NewStateV3(domains *libstate.SharedDomains, logger log.Logger) *StateV3 {
 		senderTxNums:        map[common.Address]uint64{},
 		applyPrevAccountBuf: make([]byte, 256),
 		logger:              logger,
-		//trace: true,
+		trace:               false,
 	}
 }
 

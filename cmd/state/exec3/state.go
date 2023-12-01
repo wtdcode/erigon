@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -26,6 +27,10 @@ import (
 	"github.com/ledgerwatch/erigon/core/vm"
 	"github.com/ledgerwatch/erigon/core/vm/evmtypes"
 	"github.com/ledgerwatch/erigon/turbo/services"
+)
+
+var (
+	ibsTrace = dbg.EnvBool("IBS_TRACE", false)
 )
 
 type Worker struct {
@@ -183,7 +188,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 
 	rw.ibs.Reset()
 	ibs := rw.ibs
-	//ibs.SetTrace(true)
+	ibs.SetTrace(ibsTrace)
 
 	rules := txTask.Rules
 	var err error
