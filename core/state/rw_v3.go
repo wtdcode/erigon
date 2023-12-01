@@ -46,7 +46,7 @@ func NewStateV3(domains *libstate.SharedDomains, logger log.Logger) *StateV3 {
 		senderTxNums:        map[common.Address]uint64{},
 		applyPrevAccountBuf: make([]byte, 256),
 		logger:              logger,
-		trace:               false,
+		trace:               rwV3Trace,
 	}
 }
 
