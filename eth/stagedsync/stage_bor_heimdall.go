@@ -266,7 +266,7 @@ func BorHeimdallForward(
 				return err
 			}
 			if header == nil {
-				return fmt.Errorf("["+s.LogPrefix()+"] header not found: %d", blockNum)
+				return fmt.Errorf("["+s.LogPrefix()+"] header not found: %d, %d", blockNum)
 			}
 
 			// Whitelist service is called to check if the bor chain is
