@@ -16,7 +16,6 @@ import (
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/recsplit"
 	"github.com/ledgerwatch/erigon/eth/ethconfig"
-	"github.com/ledgerwatch/log/v3"
 
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/core/types"
@@ -279,21 +278,18 @@ func (r *BlockReader) HeadersRange(ctx context.Context, walker func(header *type
 }
 
 func (r *BlockReader) HeaderByNumber(ctx context.Context, tx kv.Getter, blockHeight uint64) (h *types.Header, err error) {
-	log.Warn("[dbg] HeaderByNumber", "blockHeight", blockHeight, "r.FrozenBlocks()", r.FrozenBlocks())
 	if blockHeight >= r.FrozenBlocks() {
 		blockHash, err := rawdb.ReadCanonicalHash(tx, blockHeight)
 		if err != nil {
 			return nil, err
 		}
 		if blockHash == (common.Hash{}) {
-			log.Warn("[dbg] HeaderByNumber2", "blockHeight", blockHeight)
 			return nil, nil
 		}
 		h = rawdb.ReadHeader(tx, blockHash, blockHeight)
 		if h != nil {
 			return h, nil
 		}
-		log.Warn("[dbg] HeaderByNumber3", "blockHeight", blockHeight)
 		return nil, nil
 	}
 
@@ -301,7 +297,6 @@ func (r *BlockReader) HeaderByNumber(ctx context.Context, tx kv.Getter, blockHei
 	defer view.Close()
 	seg, ok := view.HeadersSegment(blockHeight)
 	if !ok {
-		log.Warn("[dbg] HeaderByNumber4", "blockHeight", blockHeight)
 		return
 	}
 
@@ -564,12 +559,10 @@ func (r *BlockReader) headerFromSnapshot(blockHeight uint64, sn *HeaderSegment, 
 	gg := sn.seg.MakeGetter()
 	gg.Reset(headerOffset)
 	if !gg.HasNext() {
-		log.Warn("[dbg] HeaderByNumber5", "blockHeight", blockHeight)
 		return nil, buf, nil
 	}
 	buf, _ = gg.Next(buf[:0])
 	if len(buf) == 0 {
-		log.Warn("[dbg] HeaderByNumber6", "blockHeight", blockHeight)
 		return nil, buf, nil
 	}
 	h := &types.Header{}
