@@ -15,10 +15,9 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/erigontech/mdbx-go/mdbx"
+	"github.com/ledgerwatch/erigon/core/state/temporal"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/ledgerwatch/erigon/core/state/temporal"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
@@ -768,9 +767,17 @@ Loop:
 						return fmt.Errorf("%w: %v", consensus.ErrInvalidBlock, txTask.Error) //same as in stage_exec.go
 					}
 					gasUsed += txTask.UsedGas
-					fmt.Printf("[dbg] gasUsed: %d, txnIdx=%d\n", gasUsed, txTask.TxIndex)
 					if txTask.Tx != nil {
+						//p := message.NewPrinter(language.English)
+						//p.Printf("TxnID %d, GasUsed %d\n", txTask.TxIndex, txTask.UsedGas)
+
+						//fmt.Printf("[dbg] gasUsed: %d, txnIdx=%d, getGas=%d\n", txTask.UsedGas, txTask.TxIndex, txTask.Tx.GetGas())
+						//if txTask.UsedGas != txTask.Tx.GetGas() {
+						//	fmt.Printf("alex: used=%d, limit=%d, cumulative=%d\n", txTask.UsedGas, txTask.Tx.GetGas(), gasUsed)
+						//}
 						blobGasUsed += txTask.Tx.GetBlobGas()
+					} else {
+						//fmt.Printf("[dbg] gasUsed2: %d, txnIdx=%d\n", txTask.UsedGas, txTask.TxIndex)
 					}
 					if txTask.Final {
 						if txTask.BlockNum > 0 { //Disable check for genesis. Maybe need somehow improve it in future - to satisfy TestExecutionSpec

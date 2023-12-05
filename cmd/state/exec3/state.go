@@ -2,18 +2,15 @@ package exec3
 
 import (
 	"context"
-	"fmt"
 	"math/big"
-	"os"
 	"sync"
 	"sync/atomic"
-
-	"github.com/ledgerwatch/log/v3"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/eth/consensuschain"
 	"github.com/ledgerwatch/erigon/rlp"
+	"github.com/ledgerwatch/log/v3"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 
@@ -223,7 +220,6 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 			return core.SysCallContract(contract, data, rw.chainConfig, ibs, header, rw.engine, false /* constCall */)
 		}
 
-		fmt.Printf("[dbg] withdrawals: %d\n", len(txTask.Withdrawals))
 		_, _, err := rw.engine.Finalize(rw.chainConfig, types.CopyHeader(header), ibs, txTask.Txs, txTask.Uncles, nil, txTask.Withdrawals, rw.chain, syscall, rw.logger)
 		if err != nil {
 			txTask.Error = err
@@ -243,6 +239,8 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		rw.taskGasPool.Reset(txTask.Tx.GetGas())
 		rw.callTracer.Reset()
 		//rw.vmCfg.SkipAnalysis = txTask.SkipAnalysis
+		vmConfig := vm.Config{Debug: true, Tracer: rw.callTracer, SkipAnalysis: txTask.SkipAnalysis}
+
 		ibs.SetTxContext(txHash, txTask.BlockHash, txTask.TxIndex)
 		msg := txTask.TxAsMessage
 
@@ -255,19 +253,25 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		//}
 		//rw.vmCfg.Tracer = logger.NewStructLogger(logconfig)
 
-		rw.evm.ResetBetweenBlocks(txTask.EvmBlockContext, core.NewEVMTxContext(msg), ibs, rw.vmCfg, rules)
+		blockContext := txTask.EvmBlockContext
+		if !rw.background {
+			getHashFn := core.GetHashFn(header, rw.getHeader)
+			blockContext = core.NewEVMBlockContext(header, getHashFn, rw.engine, nil /* author */)
+		}
+		rw.evm.ResetBetweenBlocks(blockContext, core.NewEVMTxContext(msg), ibs, vmConfig, rules)
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
-		fmt.Printf("[dbg] txnIdx=%d, failed=%t, reverted=%x, gas=%d, hist=%t, blockNum=%d, txHash=%x\n", txTask.TxIndex, applyRes.Failed(), applyRes.Revert(), applyRes.UsedGas, txTask.HistoryExecution, txTask.BlockNum, txHash)
 		//if ftracer, ok := rw.vmCfg.Tracer.(vm.FlushableTracer); ok {
 		//	ftracer.Flush(txTask.Tx)
 		//}
-		if txTask.TxIndex == 14 {
-			os.Exit(1)
-		}
 		if err != nil {
-			fmt.Printf("[dbg] txnIdx=%d, err=%s, hist=%t, blockNum=%d\n", txTask.TxIndex, err, txTask.HistoryExecution, txTask.BlockNum)
+			//p := message.NewPrinter(language.English)
+			//p.Printf("%d\n", 1000)
+
+			//if txTask.TxIndex == 9 {
+			//	os.Exit(1)
+			//}
 			txTask.Error = err
 		} else {
 

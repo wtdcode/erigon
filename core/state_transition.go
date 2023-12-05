@@ -419,6 +419,8 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 		st.state.SetNonce(msg.From(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = st.evm.Call(sender, st.to(), st.data, st.gas, st.value, bailout)
 	}
+	//fmt.Printf("[dbg] gas5: %d\n", st.gasUsed())
+
 	if refunds {
 		if rules.IsLondon {
 			// After EIP-3529: refunds are capped to gasUsed / 5
@@ -428,6 +430,8 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 			st.refundGas(params.RefundQuotient)
 		}
 	}
+	//fmt.Printf("[dbg] gas6: %d\n", st.gasUsed())
+
 	effectiveTip := st.gasPrice
 	if rules.IsLondon {
 		if st.gasFeeCap.Gt(st.evm.Context.BaseFee) {
