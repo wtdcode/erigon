@@ -258,14 +258,16 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
-		fmt.Printf("[dbg] txnIdx=%d, failed=%t, hist=%t, blockNum=%d\n", txTask.TxIndex, applyRes.Failed(), txTask.HistoryExecution, txTask.BlockNum)
 
 		//if ftracer, ok := rw.vmCfg.Tracer.(vm.FlushableTracer); ok {
 		//	ftracer.Flush(txTask.Tx)
 		//}
 		if err != nil {
+			fmt.Printf("[dbg] txnIdx=%d, err=%s, hist=%t, blockNum=%d\n", txTask.TxIndex, err, txTask.HistoryExecution, txTask.BlockNum)
 			txTask.Error = err
 		} else {
+			fmt.Printf("[dbg] txnIdx=%d, failed=%t, hist=%t, blockNum=%d\n", txTask.TxIndex, applyRes.Failed(), txTask.HistoryExecution, txTask.BlockNum)
+
 			//fmt.Printf("sender %v spent gas %d\n", txTask.TxAsMessage.From(), applyRes.UsedGas)
 			txTask.UsedGas = applyRes.UsedGas
 			//fmt.Printf("txn %d usedGas=%d\n", txTask.TxNum, txTask.UsedGas)
