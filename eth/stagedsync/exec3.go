@@ -243,10 +243,8 @@ func ExecV3(ctx context.Context,
 		}
 		{
 			_max, _ := rawdbv3.TxNums.Max(applyTx, _blockNum)
-			fmt.Printf("blockNum: %d\n", _blockNum)
 			if doms.TxNum() == _max {
 				_blockNum++
-				fmt.Printf("blockNum2: %d\n", _blockNum)
 			}
 		}
 		_min, err := rawdbv3.TxNums.Min(applyTx, _blockNum)
