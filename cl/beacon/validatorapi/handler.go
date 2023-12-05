@@ -85,5 +85,4 @@ func (v *ValidatorApiHandler) init(r chi.Router) {
 			})
 		})
 	})
-
 }
