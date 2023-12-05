@@ -243,6 +243,12 @@ func ExecV3(ctx context.Context,
 		if !ok {
 			return fmt.Errorf("seems broken TxNums index not filled. can't find blockNum of txNum=%d", inputTxNum)
 		}
+		{
+			_max, _ := rawdbv3.TxNums.Max(applyTx, blockNum)
+			if doms.TxNum() == _max {
+				blockNum++
+			}
+		}
 		_min, err := rawdbv3.TxNums.Min(applyTx, blockNum)
 		if err != nil {
 			return err

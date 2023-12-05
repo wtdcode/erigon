@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -221,6 +222,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 			return core.SysCallContract(contract, data, rw.chainConfig, ibs, header, rw.engine, false /* constCall */)
 		}
 
+		fmt.Printf("[dbg] withdrawals: %d\n", len(txTask.Withdrawals))
 		_, _, err := rw.engine.Finalize(rw.chainConfig, types.CopyHeader(header), ibs, txTask.Txs, txTask.Uncles, nil, txTask.Withdrawals, rw.chain, syscall, rw.logger)
 		if err != nil {
 			txTask.Error = err
@@ -256,11 +258,11 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
+		fmt.Printf("[dbg] txnIdx=%d, failed=%t, hist=%t, blockNum=%d\n", txTask.TxIndex, applyRes.Failed(), txTask.HistoryExecution, txTask.BlockNum)
 
 		//if ftracer, ok := rw.vmCfg.Tracer.(vm.FlushableTracer); ok {
 		//	ftracer.Flush(txTask.Tx)
 		//}
-
 		if err != nil {
 			txTask.Error = err
 		} else {
