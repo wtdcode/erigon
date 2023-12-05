@@ -18,6 +18,8 @@ import (
 	"github.com/ledgerwatch/erigon/core/state/temporal"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
@@ -766,8 +768,8 @@ Loop:
 					}
 					gasUsed += txTask.UsedGas
 					if txTask.Tx != nil {
-						//p := message.NewPrinter(language.English)
-						//p.Printf("TxnID %d, GasUsed %d\n", txTask.TxIndex, txTask.UsedGas)
+						p := message.NewPrinter(language.English)
+						p.Printf("TxnID %d, GasUsed %d\n", txTask.TxIndex, txTask.UsedGas)
 
 						//fmt.Printf("[dbg] gasUsed: %d, txnIdx=%d, getGas=%d\n", txTask.UsedGas, txTask.TxIndex, txTask.Tx.GetGas())
 						//if txTask.UsedGas != txTask.Tx.GetGas() {
