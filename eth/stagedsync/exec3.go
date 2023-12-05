@@ -214,7 +214,6 @@ func ExecV3(ctx context.Context,
 	doms := state2.NewSharedDomains(applyTx)
 	defer doms.Close()
 
-	blockNum = doms.BlockNum()
 	var inputTxNum = doms.TxNum()
 	var offsetFromBlockBeginning uint64
 
@@ -236,7 +235,7 @@ func ExecV3(ctx context.Context,
 			return err
 		}
 
-		ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(applyTx, doms.TxNum())
+		ok, _blockNum, err := rawdbv3.TxNums.FindBlockNum(applyTx, doms.TxNum())
 		if err != nil {
 			return err
 		}
@@ -244,12 +243,14 @@ func ExecV3(ctx context.Context,
 			return fmt.Errorf("seems broken TxNums index not filled. can't find blockNum of txNum=%d", inputTxNum)
 		}
 		{
-			_max, _ := rawdbv3.TxNums.Max(applyTx, blockNum)
+			_max, _ := rawdbv3.TxNums.Max(applyTx, _blockNum)
+			fmt.Printf("blockNum: %d\n", _blockNum)
 			if doms.TxNum() == _max {
-				blockNum++
+				_blockNum++
+				fmt.Printf("blockNum2: %d\n", _blockNum)
 			}
 		}
-		_min, err := rawdbv3.TxNums.Min(applyTx, blockNum)
+		_min, err := rawdbv3.TxNums.Min(applyTx, _blockNum)
 		if err != nil {
 			return err
 		}
@@ -265,7 +266,7 @@ func ExecV3(ctx context.Context,
 
 		//_max, _ := rawdbv3.TxNums.Max(applyTx, blockNum)
 		//fmt.Printf("[commitment] found domain.txn %d, inputTxn %d, offset %d. DB found block %d {%d, %d}\n", doms.TxNum(), inputTxNum, offsetFromBlockBeginning, blockNum, _min, _max)
-		doms.SetBlockNum(blockNum)
+		doms.SetBlockNum(_blockNum)
 		doms.SetTxNum(ctx, inputTxNum)
 		return nil
 	}
@@ -296,6 +297,9 @@ func ExecV3(ctx context.Context,
 			return nil
 		}
 	}
+
+	blockNum = doms.BlockNum()
+	outputTxNum.Store(doms.TxNum())
 
 	if applyTx != nil {
 		if dbg.DiscardHistory() {
@@ -764,6 +768,7 @@ Loop:
 						return fmt.Errorf("%w: %v", consensus.ErrInvalidBlock, txTask.Error) //same as in stage_exec.go
 					}
 					gasUsed += txTask.UsedGas
+					fmt.Printf("[dbg] gasUsed: %d, txnIdx=%d\n", gasUsed, txTask.TxIndex)
 					if txTask.Tx != nil {
 						blobGasUsed += txTask.Tx.GetBlobGas()
 					}
