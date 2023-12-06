@@ -258,11 +258,12 @@ func (sd *SharedDomains) ClearRam(resetCommitment bool) {
 
 func (sd *SharedDomains) put(table kv.Domain, key string, val []byte) {
 	if sd.trace {
-		if sd.txNum == 46508276 {
+		if sd.txNum == 46508276 && table == kv.StorageDomain {
 			fmt.Printf("[sd] put(%s): %x, %x\n", table, key, val)
 		}
 	}
-	// disable mutex - becuse work on parallel execution postponed after E3 release.
+
+	// disable msutex - becuse work on parallel execution postponed after E3 release.
 	//sd.muMaps.Lock()
 	switch table {
 	case kv.AccountsDomain:
