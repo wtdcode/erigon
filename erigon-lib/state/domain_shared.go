@@ -100,7 +100,7 @@ func NewSharedDomains(tx kv.Tx) *SharedDomains {
 		LogAddrs:    ac.a.logAddrs,
 		LogTopics:   ac.a.logTopics,
 		roTx:        tx,
-		//trace:       true,
+		trace:       true,
 	}
 	sd.Commitment.ResetFns(&SharedDomainsCommitmentContext{sd: sd})
 	sd.StartWrites()

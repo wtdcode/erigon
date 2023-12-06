@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/holiman/uint256"
@@ -160,7 +161,11 @@ func (evm *EVM) Interpreter() Interpreter {
 
 func (evm *EVM) call(typ OpCode, caller ContractRef, addr libcommon.Address, input []byte, gas uint64, value *uint256.Int, bailout bool) (ret []byte, leftOverGas uint64, err error) {
 	depth := evm.interpreter.Depth()
-
+	defer func(initalGas uint64) {
+		if typ == DELEGATECALL {
+			fmt.Printf("[dbg] call end: %s, gasUsed %d, from %x, to %x, depth %d, err %s, out=%x, in=%x\n", typ, initalGas-gas, caller.Address(), addr, depth, err, ret, input)
+		}
+	}(gas)
 	if evm.config.NoRecursion && depth > 0 {
 		return nil, gas, nil
 	}
