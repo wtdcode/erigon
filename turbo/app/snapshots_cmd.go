@@ -37,7 +37,6 @@ import (
 	"github.com/ledgerwatch/erigon/cmd/hack/tool/fromdb"
 	"github.com/ledgerwatch/erigon/cmd/utils"
 	"github.com/ledgerwatch/erigon/core/rawdb"
-	"github.com/ledgerwatch/erigon/core/rawdb/blockio"
 	"github.com/ledgerwatch/erigon/eth/ethconfig"
 	"github.com/ledgerwatch/erigon/eth/ethconfig/estimate"
 	"github.com/ledgerwatch/erigon/eth/stagedsync/stages"
@@ -472,22 +471,22 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	ctx := cliCtx.Context
 
 	dirs := datadir.New(cliCtx.String(utils.DataDirFlag.Name))
-	from := cliCtx.Uint64(SnapshotFromFlag.Name)
-	to := cliCtx.Uint64(SnapshotToFlag.Name)
-	every := cliCtx.Uint64(SnapshotEveryFlag.Name)
+	//from := cliCtx.Uint64(SnapshotFromFlag.Name)
+	//to := cliCtx.Uint64(SnapshotToFlag.Name)
+	//every := cliCtx.Uint64(SnapshotEveryFlag.Name)
 	db := mdbx.NewMDBX(logger).Label(kv.ChainDB).Path(dirs.Chaindata).MustOpen()
 	defer db.Close()
 
 	cfg := ethconfig.NewSnapCfg(true, false, true)
 	blockSnapshots := freezeblocks.NewRoSnapshots(cfg, dirs.Snap, logger)
-	borSnapshots := freezeblocks.NewBorRoSnapshots(cfg, dirs.Snap, logger)
+	//borSnapshots := freezeblocks.NewBorRoSnapshots(cfg, dirs.Snap, logger)
 	if err := blockSnapshots.ReopenFolder(); err != nil {
 		return err
 	}
-	blockReader := freezeblocks.NewBlockReader(blockSnapshots, borSnapshots)
-	blockWriter := blockio.NewBlockWriter(fromdb.HistV3(db))
+	//blockReader := freezeblocks.NewBlockReader(blockSnapshots, borSnapshots)
+	//blockWriter := blockio.NewBlockWriter(fromdb.HistV3(db))
 
-	br := freezeblocks.NewBlockRetire(estimate.CompressSnapshot.Workers(), dirs, blockReader, blockWriter, db, nil, logger)
+	//br := freezeblocks.NewBlockRetire(estimate.CompressSnapshot.Workers(), dirs, blockReader, blockWriter, db, nil, logger)
 	agg, err := libstate.NewAggregatorV3(ctx, dirs, ethconfig.HistoryV3AggregationStep, db, logger)
 	if err != nil {
 		return err
@@ -532,69 +531,69 @@ func doRetireCommand(cliCtx *cli.Context) error {
 		return nil
 	})
 
-	if to == 0 {
-		var forwardProgress uint64
-		db.View(ctx, func(tx kv.Tx) error {
-			forwardProgress, err = stages.GetStageProgress(tx, stages.Senders)
-			return err
-		})
-		from2, to2, ok := freezeblocks.CanRetire(forwardProgress, blockReader.FrozenBlocks())
-		if ok {
-			from, to, every = from2, to2, to2-from2
-		}
-	}
+	//if to == 0 {
+	//	var forwardProgress uint64
+	//	db.View(ctx, func(tx kv.Tx) error {
+	//		forwardProgress, err = stages.GetStageProgress(tx, stages.Senders)
+	//		return err
+	//	})
+	//	from2, to2, ok := freezeblocks.CanRetire(forwardProgress, blockReader.FrozenBlocks())
+	//	if ok {
+	//		from, to, every = from2, to2, to2-from2
+	//	}
+	//}
 
-	logger.Info("Params", "from", from, "to", to, "every", every)
-	{
-		logEvery := time.NewTicker(10 * time.Second)
-		defer logEvery.Stop()
-
-		for j := 0; j < 10_000; j++ { // prune happens by small steps, so need many runs
-			if err := db.Update(ctx, func(tx kv.RwTx) error {
-				if err := br.PruneAncientBlocks(tx, 100, false /* includeBor */); err != nil {
-					return err
-				}
-
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-logEvery.C:
-					firstNonGenesisHeader, err := rawdbv3.SecondKey(tx, kv.Headers)
-					if err != nil {
-						return err
-					}
-					if len(firstNonGenesisHeader) > 0 {
-						logger.Info("Prunning old blocks", "progress", binary.BigEndian.Uint64(firstNonGenesisHeader))
-					}
-				default:
-				}
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-	}
-
-	for i := from; i < to; i += every {
-		if err := br.RetireBlocks(ctx, i, i+every, log.LvlInfo, nil, nil); err != nil {
-			panic(err)
-		}
-		if err := db.Update(ctx, func(tx kv.RwTx) error {
-			ac := agg.MakeContext()
-			defer ac.Close()
-			if err := rawdb.WriteSnapshots(tx, blockReader.FrozenFiles(), ac.Files()); err != nil {
-				return err
-			}
-			for j := 0; j < 10_000; j++ { // prune happens by small steps, so need many runs
-				if err := br.PruneAncientBlocks(tx, 100, false /* includeBor */); err != nil {
-					return err
-				}
-			}
-			return nil
-		}); err != nil {
-			return err
-		}
-	}
+	//logger.Info("Params", "from", from, "to", to, "every", every)
+	//{
+	//	logEvery := time.NewTicker(10 * time.Second)
+	//	defer logEvery.Stop()
+	//
+	//	for j := 0; j < 10_000; j++ { // prune happens by small steps, so need many runs
+	//		if err := db.Update(ctx, func(tx kv.RwTx) error {
+	//			if err := br.PruneAncientBlocks(tx, 100, false /* includeBor */); err != nil {
+	//				return err
+	//			}
+	//
+	//			select {
+	//			case <-ctx.Done():
+	//				return ctx.Err()
+	//			case <-logEvery.C:
+	//				firstNonGenesisHeader, err := rawdbv3.SecondKey(tx, kv.Headers)
+	//				if err != nil {
+	//					return err
+	//				}
+	//				if len(firstNonGenesisHeader) > 0 {
+	//					logger.Info("Prunning old blocks", "progress", binary.BigEndian.Uint64(firstNonGenesisHeader))
+	//				}
+	//			default:
+	//			}
+	//			return nil
+	//		}); err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
+	//
+	//for i := from; i < to; i += every {
+	//	if err := br.RetireBlocks(ctx, i, i+every, log.LvlInfo, nil, nil); err != nil {
+	//		panic(err)
+	//	}
+	//	if err := db.Update(ctx, func(tx kv.RwTx) error {
+	//		ac := agg.MakeContext()
+	//		defer ac.Close()
+	//		if err := rawdb.WriteSnapshots(tx, blockReader.FrozenFiles(), ac.Files()); err != nil {
+	//			return err
+	//		}
+	//		for j := 0; j < 10_000; j++ { // prune happens by small steps, so need many runs
+	//			if err := br.PruneAncientBlocks(tx, 100, false /* includeBor */); err != nil {
+	//				return err
+	//			}
+	//		}
+	//		return nil
+	//	}); err != nil {
+	//		return err
+	//	}
+	//}
 
 	if !kvcfg.HistoryV3.FromDB(db) {
 		return nil
