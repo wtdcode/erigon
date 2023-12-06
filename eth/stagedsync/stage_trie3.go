@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
+	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/log/v3"
 
 	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
@@ -123,7 +124,7 @@ func countBlockByTxnum(ctx context.Context, tx kv.Tx, blockReader services.FullB
 			fmt.Printf("\r [%s] Counting block for tx %d: cur block %d cur tx %d\n", "restoreCommit", txnum, i, txCounter)
 		}
 
-		h, err := blockReader.HeaderByNumber(ctx, tx, i)
+		blockHash, err := rawdb.ReadCanonicalHash(tx, i)
 		if err != nil {
 			return blockBorders{}, err
 		}
@@ -131,7 +132,7 @@ func countBlockByTxnum(ctx context.Context, tx kv.Tx, blockReader services.FullB
 		bb.Number = i
 		bb.FirstTx = txCounter
 		txCounter++
-		_, txAmount, err := blockReader.Body(ctx, tx, h.Hash(), i)
+		_, txAmount, err := blockReader.Body(ctx, tx, blockHash, i)
 		if err != nil {
 			return blockBorders{}, err
 		}
