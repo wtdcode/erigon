@@ -6,12 +6,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ledgerwatch/log/v3"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/eth/consensuschain"
 	"github.com/ledgerwatch/erigon/rlp"
+	"github.com/ledgerwatch/log/v3"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 
@@ -267,7 +266,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 			//fmt.Printf("sender %v spent gas %d\n", txTask.TxAsMessage.From(), applyRes.UsedGas)
 			txTask.UsedGas = applyRes.UsedGas
 			//fmt.Printf("txn %d usedGas=%d\n", txTask.TxNum, txTask.UsedGas)
-			// Update the state with pending changes
+			// Update the state  with pending changes
 			ibs.SoftFinalise()
 			//txTask.Error = ibs.FinalizeTx(rules, noop)
 			txTask.Logs = ibs.GetLogs(txHash)
