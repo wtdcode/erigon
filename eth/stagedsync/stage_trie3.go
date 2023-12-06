@@ -120,8 +120,8 @@ func countBlockByTxnum(ctx context.Context, tx kv.Tx, blockReader services.FullB
 	var txCounter uint64 = 0
 
 	for i := uint64(0); i < math.MaxUint64; i++ {
-		if i%1000000 == 0 {
-			fmt.Printf("\r [%s] Counting block for tx %d: cur block %d cur tx %d\n", "restoreCommit", txnum, i, txCounter)
+		if i%1_000_000 == 0 {
+			fmt.Printf("\r [%s] Counting block for tx %d: cur block %dM cur tx %d\n", "restoreCommit", txnum, i/1_000_000, txCounter)
 		}
 
 		blockHash, err := rawdb.ReadCanonicalHash(tx, i)
