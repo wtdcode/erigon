@@ -575,6 +575,26 @@ func doRetireCommand(cliCtx *cli.Context) error {
 		}
 	}
 
+	{
+		for {
+			var f1, t1 uint64
+			var ok1 bool
+			if err := db.View(ctx, func(tx kv.Tx) error {
+				execProgress, _ := stages.GetStageProgress(tx, stages.Execution)
+				f1, t1, ok1 = freezeblocks.CanRetire(execProgress, blockReader.FrozenBorBlocks())
+				return nil
+			}); err != nil {
+				return err
+			}
+			if !ok1 {
+				break
+			}
+			if err := br.RetireBorBlocks(ctx, f1, t1, log.LvlInfo, nil, nil); err != nil {
+				panic(err)
+			}
+		}
+	}
+
 	for i := from; i < to; i += every {
 		if err := br.RetireBlocks(ctx, i, i+every, log.LvlInfo, nil, nil); err != nil {
 			panic(err)
