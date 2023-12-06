@@ -6,12 +6,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ledgerwatch/log/v3"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/eth/consensuschain"
 	"github.com/ledgerwatch/erigon/rlp"
+	"github.com/ledgerwatch/log/v3"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 
