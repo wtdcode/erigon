@@ -167,11 +167,23 @@ func RebuildPatriciaTrieBasedOnFiles(rwTx kv.RwTx, cfg TrieCfg, ctx context.Cont
 		return libcommon.Hash{}, err
 	}
 	if !ok {
-		bb, err := countBlockByTxnum(ctx, rwTx, cfg.blockReader, toTxNum)
+		bb := blockBorders{}
+		bb.FirstTx, err = rawdbv3.TxNums.Min(rwTx, blockNum)
 		if err != nil {
 			return libcommon.Hash{}, err
 		}
-		blockNum = bb.Number
+		bb.LastTx, err = rawdbv3.TxNums.Max(rwTx, blockNum)
+		if err != nil {
+			return libcommon.Hash{}, err
+		}
+		bb.CurrentTx = toTxNum
+		bb.CurrentTx = toTxNum
+		bb.Number = blockNum
+		//bb, err := countBlockByTxnum(ctx, rwTx, cfg.blockReader, toTxNum)
+		//if err != nil {
+		//	return libcommon.Hash{}, err
+		//}
+		//blockNum = bb.Number
 		foundHash = bb.Offset() != 0
 	} else {
 		firstTxInBlock, err := rawdbv3.TxNums.Min(rwTx, blockNum)
