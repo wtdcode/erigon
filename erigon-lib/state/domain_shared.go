@@ -258,7 +258,9 @@ func (sd *SharedDomains) ClearRam(resetCommitment bool) {
 
 func (sd *SharedDomains) put(table kv.Domain, key string, val []byte) {
 	if sd.trace {
-		fmt.Printf("[sd] put(%s): %x, %x\n", table, key, val)
+		if sd.txNum == 46508276 {
+			fmt.Printf("[sd] put(%s): %x, %x\n", table, key, val)
+		}
 	}
 	// disable mutex - becuse work on parallel execution postponed after E3 release.
 	//sd.muMaps.Lock()
@@ -305,6 +307,12 @@ func (sd *SharedDomains) Get(table kv.Domain, key []byte) (v []byte, ok bool) {
 }
 
 func (sd *SharedDomains) get(table kv.Domain, key []byte) (v []byte, ok bool) {
+	if sd.trace {
+		if sd.txNum == 46508276 {
+			defer fmt.Printf("[sd] get(%s): %x, %x\n", table, key, v)
+		}
+	}
+
 	keyS := *(*string)(unsafe.Pointer(&key))
 	//keyS := string(key)
 	switch table {
