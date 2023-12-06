@@ -71,7 +71,7 @@ func collectAndComputeCommitment(ctx context.Context, tx kv.RwTx, tmpDir string,
 				return err
 			}
 			logger.Info("Committing batch",
-				"processed", fmt.Sprintf("%d/%d (%.2f%%)", processed.Load(), totalKeys.Load(), float64(processed.Load())/float64(totalKeys.Load())*100),
+				"processed", fmt.Sprintf("%dM/%dM (%.2f%%)", processed.Load()/1_000_000, totalKeys.Load()/1_000_000, float64(processed.Load())/float64(totalKeys.Load())*100),
 				"intermediate root", fmt.Sprintf("%x", rh))
 		}
 		processed.Add(1)
