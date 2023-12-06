@@ -131,11 +131,11 @@ func countBlockByTxnum(ctx context.Context, tx kv.Tx, blockReader services.FullB
 		bb.Number = i
 		bb.FirstTx = txCounter
 		txCounter++
-		b, err := blockReader.BodyWithTransactions(ctx, tx, h.Hash(), i)
+		_, txAmount, err := blockReader.Body(ctx, tx, h.Hash(), i)
 		if err != nil {
 			return blockBorders{}, err
 		}
-		txCounter += uint64(len(b.Transactions))
+		txCounter += uint64(txAmount)
 		txCounter++
 		bb.LastTx = txCounter
 

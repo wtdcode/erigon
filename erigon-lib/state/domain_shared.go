@@ -258,8 +258,15 @@ func (sd *SharedDomains) ClearRam(resetCommitment bool) {
 
 func (sd *SharedDomains) put(table kv.Domain, key string, val []byte) {
 	if sd.trace {
-		if sd.txNum == 46508276 && table == kv.StorageDomain {
-			fmt.Printf("[sd] put(%s): %x, %x\n", table, key, val)
+		if sd.txNum == 46508276 && table == kv.StorageDomain && bytes.Equal([]byte(key[20:]), common.FromHex("0xf0abd848370e3d4cea8d8c5d8fba8cbe8c70f60428e4aeb9f053bf9811da06ce")) {
+			fmt.Printf(`"0x%x": {
+            "*": {
+              "from": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "to": "0x%064x"
+            }
+          },
+`, key[20:], val)
+			//fmt.Printf("[sd] put(%s): %x, %x\n", table, key[20:], val)
 		}
 	}
 
@@ -309,8 +316,8 @@ func (sd *SharedDomains) Get(table kv.Domain, key []byte) (v []byte, ok bool) {
 
 func (sd *SharedDomains) get(table kv.Domain, key []byte) (v []byte, ok bool) {
 	if sd.trace {
-		if sd.txNum == 46508276 {
-			defer fmt.Printf("[sd] get(%s): %x, %x\n", table, key, v)
+		if sd.txNum == 46508276 && table == kv.StorageDomain && bytes.Equal([]byte(key[20:]), common.FromHex("0xf0abd848370e3d4cea8d8c5d8fba8cbe8c70f60428e4aeb9f053bf9811da06ce")) {
+			defer fmt.Printf("[sd] get: %x, %x\n", key[20:], v)
 		}
 	}
 
@@ -442,6 +449,9 @@ func (sd *SharedDomains) LatestStorage(addrLoc []byte) ([]byte, error) {
 		return v0, nil
 	}
 	v, _, err := sd.aggCtx.GetLatest(kv.StorageDomain, addrLoc, nil, sd.roTx)
+	if sd.txNum == 46508276 && bytes.Equal([]byte(addrLoc[20:]), common.FromHex("0xf0abd848370e3d4cea8d8c5d8fba8cbe8c70f60428e4aeb9f053bf9811da06ce")) {
+		fmt.Printf("[dbg] GetLatest: %x, %x\n", addrLoc[20:], v)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("storage %x read error: %w", addrLoc, err)
 	}
