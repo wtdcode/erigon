@@ -213,7 +213,7 @@ func RebuildPatriciaTrieBasedOnFiles(rwTx kv.RwTx, cfg TrieCfg, ctx context.Cont
 
 		return trie.EmptyRoot, fmt.Errorf("wrong trie root")
 	}
-	logger.Info(fmt.Sprintf("[RebuildCommitment] Trie root of block %d txNum %d: %x. Could not verify with block hash because txnum of state is in the middle of the block.", blockNum, rh, toTxNum))
+	logger.Info(fmt.Sprintf("[RebuildCommitment] Trie root of block %d txNum %d: %x. Could not verify with block hash because txnum of state is in the middle of the block.", blockNum, toTxNum, rh))
 
 	if !useExternalTx {
 		if err := rwTx.Commit(); err != nil {
