@@ -1141,7 +1141,7 @@ func stagePatriciaTrie(db kv.RwDB, ctx context.Context, logger log.Logger) error
 	}
 	defer tx.Rollback()
 
-	if enabled, _ := kvcfg.HistoryV3.Enabled(tx); !enabled {
+	if !historyV3 {
 		panic("this method for v3 only")
 	}
 
