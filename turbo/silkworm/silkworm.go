@@ -2,11 +2,10 @@ package silkworm
 
 import (
 	"errors"
-	"math/big"
-
 	"github.com/erigontech/silkworm-go"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon/consensus"
+	"math/big"
 )
 
 type Silkworm = silkworm_go.Silkworm
