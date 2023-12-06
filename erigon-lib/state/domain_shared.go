@@ -257,6 +257,9 @@ func (sd *SharedDomains) ClearRam(resetCommitment bool) {
 }
 
 func (sd *SharedDomains) put(table kv.Domain, key string, val []byte) {
+	if sd.trace {
+		fmt.Printf("[sd] put(%s): %x, %x\n", table, key, val)
+	}
 	// disable mutex - becuse work on parallel execution postponed after E3 release.
 	//sd.muMaps.Lock()
 	switch table {
