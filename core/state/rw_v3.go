@@ -520,9 +520,9 @@ func (r *StateReaderV3) ReadAccountStorage(address common.Address, incarnation u
 	}
 	if r.trace {
 		if enc == nil {
-			fmt.Printf("ReadAccountStorage [%x] => [empty]\n", composite)
+			fmt.Printf("ReadStorage [%x] [%x] => [empty]\n", address, key.Bytes())
 		} else {
-			fmt.Printf("ReadAccountStorage [%x] => [%x]\n", composite, enc)
+			fmt.Printf("ReadStorage [%x] [%x] => [%x]\n", address, key.Bytes(), enc)
 		}
 	}
 	return enc, nil
