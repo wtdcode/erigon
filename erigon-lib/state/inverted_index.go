@@ -958,6 +958,11 @@ func (ic *InvertedIndexContext) CanPruneFrom(tx kv.Tx) uint64 {
 	fst, _ := kv.FirstKey(tx, ic.ii.indexKeysTable)
 	if len(fst) > 0 {
 		fstInDb := binary.BigEndian.Uint64(fst)
+		fmt.Printf("a: %s, %d, %x\n", ic.ii.filenameBase, fstInDb, fst)
+		c, _ := tx.Cursor(ic.ii.indexKeysTable)
+		defer c.Close()
+		k, v, _ := c.First()
+		fmt.Printf("b: %s, %x, %x\n", ic.ii.filenameBase, k, v)
 		return cmp.Min(fstInDb, math.MaxUint64)
 	}
 	return math.MaxUint64
