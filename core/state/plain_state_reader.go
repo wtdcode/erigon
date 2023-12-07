@@ -3,6 +3,8 @@ package state
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
@@ -38,6 +40,7 @@ func (r *PlainStateReader) ReadAccountData(address libcommon.Address) (*accounts
 	if err = a.DecodeForStorage(enc); err != nil {
 		return nil, err
 	}
+	fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x]\n", address, a.Nonce, &a.Balance, a.CodeHash)
 	return &a, nil
 }
 
@@ -46,6 +49,11 @@ func (r *PlainStateReader) ReadAccountStorage(address libcommon.Address, incarna
 	enc, err := r.db.GetOne(kv.PlainState, compositeKey)
 	if err != nil {
 		return nil, err
+	}
+	if enc == nil {
+		fmt.Printf("ReadAccountStorage [%x] => [empty]\n", compositeKey)
+	} else {
+		fmt.Printf("ReadAccountStorage [%x] => [%x]\n", compositeKey, enc)
 	}
 	if len(enc) == 0 {
 		return nil, nil
@@ -61,6 +69,7 @@ func (r *PlainStateReader) ReadAccountCode(address libcommon.Address, incarnatio
 	if len(code) == 0 {
 		return nil, nil
 	}
+	fmt.Printf("ReadAccountCode [%x] => [%x]\n", address, code)
 	return code, err
 }
 
