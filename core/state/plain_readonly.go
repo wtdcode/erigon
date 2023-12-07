@@ -210,9 +210,9 @@ func (s *PlainState) ReadAccountStorage(address libcommon.Address, incarnation u
 		return nil, err
 	}
 	if enc == nil {
-		fmt.Printf("ReadAccountStorage [%x] => [empty]\n", compositeKey)
+		fmt.Printf("ReadStorage [%x] [%x] => [empty], inc=%d\n", address, key.Bytes(), incarnation)
 	} else {
-		fmt.Printf("ReadAccountStorage [%x] => [%x]\n", compositeKey, enc)
+		fmt.Printf("ReadStorage [%x] [%x] => [%x], inc=%d\n", address, key.Bytes(), enc, incarnation)
 	}
 	if len(enc) == 0 {
 		return nil, nil
@@ -251,9 +251,7 @@ func (s *PlainState) ReadAccountIncarnation(address libcommon.Address) (uint64, 
 		return 0, err
 	}
 	if len(enc) == 0 {
-		if s.trace {
-			fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, 0)
-		}
+		fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, 0)
 		return 0, nil
 	}
 	inc, err := accounts.DecodeIncarnationFromStorage(enc)
@@ -261,14 +259,10 @@ func (s *PlainState) ReadAccountIncarnation(address libcommon.Address) (uint64, 
 		return 0, err
 	}
 	if inc == 0 {
-		if s.trace {
-			fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, 0)
-		}
+		fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, 0)
 		return 0, nil
 	}
-	if s.trace {
-		fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, inc-1)
-	}
+	fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, inc-1)
 	return inc - 1, nil
 }
 
