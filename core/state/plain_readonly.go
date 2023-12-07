@@ -20,8 +20,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 	"sort"
+
+	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	"github.com/google/btree"
 	"github.com/holiman/uint256"
@@ -174,9 +175,7 @@ func (s *PlainState) ReadAccountData(address libcommon.Address) (*accounts.Accou
 		return nil, err
 	}
 	if len(enc) == 0 {
-		if s.trace {
-			fmt.Printf("ReadAccountData [%x] => []\n", address)
-		}
+		fmt.Printf("ReadAccountData [%x] => [empty]\n", address)
 		return nil, nil
 	}
 	var a accounts.Account
@@ -200,9 +199,7 @@ func (s *PlainState) ReadAccountData(address libcommon.Address) (*accounts.Accou
 			}
 		}
 	}
-	if s.trace {
-		fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x]\n", address, a.Nonce, &a.Balance, a.CodeHash)
-	}
+	fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x]\n", address, a.Nonce, &a.Balance, a.CodeHash)
 	return &a, nil
 }
 
@@ -212,8 +209,10 @@ func (s *PlainState) ReadAccountStorage(address libcommon.Address, incarnation u
 	if err != nil {
 		return nil, err
 	}
-	if s.trace {
-		fmt.Printf("ReadAccountStorage [%x] [%x] => [%x]\n", address, *key, enc)
+	if enc == nil {
+		fmt.Printf("ReadAccountStorage [%x] => [empty]\n", compositeKey)
+	} else {
+		fmt.Printf("ReadAccountStorage [%x] => [%x]\n", compositeKey, enc)
 	}
 	if len(enc) == 0 {
 		return nil, nil
@@ -226,11 +225,14 @@ func (s *PlainState) ReadAccountCode(address libcommon.Address, incarnation uint
 		return nil, nil
 	}
 	code, err := s.tx.GetOne(kv.Code, codeHash[:])
-	if s.trace {
-		fmt.Printf("ReadAccountCode [%x %x] => [%x]\n", address, codeHash, code)
-	}
 	if err != nil {
 		return nil, err
+	}
+
+	if len(code) == 0 {
+		fmt.Printf("ReadAccountCode [%x] => [empty]\n", address)
+	} else {
+		fmt.Printf("ReadAccountCode [%x] => [%x]\n", address, code)
 	}
 	if len(code) == 0 {
 		return nil, nil
