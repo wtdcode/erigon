@@ -34,6 +34,7 @@ func (r *PlainStateReader) ReadAccountData(address libcommon.Address) (*accounts
 		return nil, err
 	}
 	if len(enc) == 0 {
+		fmt.Printf("ReadAccountData [%x] => [empty]\n", address)
 		return nil, nil
 	}
 	var a accounts.Account
