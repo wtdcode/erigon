@@ -2065,7 +2065,7 @@ func (dc *DomainContext) DomainRangeLatest(roTx kv.Tx, fromKey, toKey []byte, li
 }
 
 func (dc *DomainContext) CanPrune(tx kv.Tx) bool {
-	fmt.Printf("can prune(%s), %d, %d\n", dc.d.filenameBase, dc.hc.ic.CanPruneFrom(tx), dc.maxTxNumInDomainFiles(false))
+	fmt.Printf("can prune(%s), %d, %d, %t\n", dc.d.filenameBase, dc.hc.ic.CanPruneFrom(tx), dc.maxTxNumInDomainFiles(false))
 	return dc.hc.ic.CanPruneFrom(tx) < dc.maxTxNumInDomainFiles(false)
 }
 
