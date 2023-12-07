@@ -492,7 +492,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 	}
 	if len(enc) == 0 {
 		if r.trace {
-			fmt.Printf("ReadAccountData [%x] => [empty], txNum: %d\n", address, r.txNum)
+			fmt.Printf("ReadAccountData [%x] => [empty]\n", address)
 		}
 		return nil, nil
 	}
@@ -520,9 +520,9 @@ func (r *StateReaderV3) ReadAccountStorage(address common.Address, incarnation u
 	}
 	if r.trace {
 		if enc == nil {
-			fmt.Printf("ReadAccountStorage [%x] => [empty], txNum: %d\n", composite, r.txNum)
+			fmt.Printf("ReadAccountStorage [%x] => [empty]\n", composite)
 		} else {
-			fmt.Printf("ReadAccountStorage [%x] => [%x], txNum: %d\n", composite, enc, r.txNum)
+			fmt.Printf("ReadAccountStorage [%x] => [%x]\n", composite, enc)
 		}
 	}
 	return enc, nil
@@ -538,7 +538,7 @@ func (r *StateReaderV3) ReadAccountCode(address common.Address, incarnation uint
 		r.readLists[string(kv.CodeDomain)].Push(string(address[:]), enc)
 	}
 	if r.trace {
-		fmt.Printf("ReadAccountCode [%x] => [%x], txNum: %d\n", address, enc, r.txNum)
+		fmt.Printf("ReadAccountCode [%x] => [%x]\n", address, enc)
 	}
 	return enc, nil
 }
@@ -555,7 +555,7 @@ func (r *StateReaderV3) ReadAccountCodeSize(address common.Address, incarnation 
 	}
 	size := len(enc)
 	if r.trace {
-		fmt.Printf("ReadAccountCodeSize [%x] => [%d], txNum: %d\n", address, size, r.txNum)
+		fmt.Printf("ReadAccountCodeSize [%x] => [%d]\n", address, size)
 	}
 	return size, nil
 }
