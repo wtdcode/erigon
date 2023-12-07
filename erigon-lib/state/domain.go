@@ -1835,18 +1835,27 @@ func (dc *DomainContext) GetLatest(key1, key2 []byte, roTx kv.Tx) ([]byte, bool,
 	if err != nil {
 		return nil, false, err
 	}
+	if traceGetLatest == dc.d.filenameBase {
+		fmt.Printf("GetLatest1(%s, '%x' -> '%x') (from db=%x)\n", dc.d.filenameBase, key, v, foundInvStep)
+	}
+
 	if foundInvStep != nil {
 		copy(dc.valKeyBuf[:], key)
 		copy(dc.valKeyBuf[len(key):], foundInvStep)
 
-		valsC, err := dc.valsCursor(roTx)
-		if err != nil {
-			return nil, false, err
-		}
+		//valsC, err := dc.valsCursor(roTx)
+		//if err != nil {
+		//	return nil, false, err
+		//}
+		valsC, _ := roTx.Cursor(dc.d.valsTable)
 		_, v, err = valsC.SeekExact(dc.valKeyBuf[:len(key)+8])
 		if err != nil {
 			return nil, false, fmt.Errorf("GetLatest value: %w", err)
 		}
+		if traceGetLatest == dc.d.filenameBase {
+			fmt.Printf("GetLatest2(%s, '%x' -> '%x')\n", dc.d.filenameBase, key, v)
+		}
+
 		//if traceGetLatest == dc.d.filenameBase {
 		//	fmt.Printf("GetLatest(%s, %x) -> found in db\n", dc.d.filenameBase, key)
 		//}
