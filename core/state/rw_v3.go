@@ -502,7 +502,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 		return nil, err
 	}
 	if r.trace {
-		fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x\n", address, acc.Nonce, &acc.Balance, acc.CodeHash)
+		fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x]\n", address, acc.Nonce, &acc.Balance, acc.CodeHash)
 	}
 	return &acc, nil
 }
