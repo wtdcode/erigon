@@ -209,7 +209,7 @@ func (s *PlainState) ReadAccountStorage(address libcommon.Address, incarnation u
 	if err != nil {
 		return nil, err
 	}
-	if enc == nil {
+	if len(enc) == 0 {
 		fmt.Printf("ReadStorage [%x] [%x] => [empty], inc=%d\n", address, key.Bytes(), incarnation)
 	} else {
 		fmt.Printf("ReadStorage [%x] [%x] => [%x], inc=%d\n", address, key.Bytes(), enc, incarnation)
