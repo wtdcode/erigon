@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 	"math"
 	"strings"
+
+	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/log/v3"
@@ -1148,6 +1149,7 @@ func (api *TraceAPIImpl) doCallMany(ctx context.Context, dbtx kv.Tx, msgs []type
 	}
 
 	for txIndex, msg := range msgs {
+		fmt.Printf("------- txIdx %d ---- \n", txIndex)
 		if err := libcommon.Stopped(ctx.Done()); err != nil {
 			return nil, nil, err
 		}
