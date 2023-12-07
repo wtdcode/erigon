@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -155,6 +156,7 @@ func (rw *Worker) SetReader(reader state.ResettableStateReader) {
 }
 
 func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
+	fmt.Printf("------- txIdx %d ---- \n", txTask.TxIndex)
 	if txTask.HistoryExecution && !rw.historyMode.Load() {
 		// in case if we cancelled execution and commitment happened in the middle of the block, we have to process block
 		// from the beginning until committed txNum and only then disable history mode.
