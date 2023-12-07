@@ -1853,7 +1853,7 @@ func (dc *DomainContext) GetLatest(key1, key2 []byte, roTx kv.Tx) ([]byte, bool,
 			return nil, false, fmt.Errorf("GetLatest value: %w", err)
 		}
 		if traceGetLatest == dc.d.filenameBase {
-			fmt.Printf("GetLatest2(%s, '%x' -> '%x')\n", dc.d.filenameBase, key, v)
+			fmt.Printf("GetLatest2(%s, '%x', %d -> '%x')\n", dc.d.filenameBase, key, ^binary.BigEndian.Uint64(foundInvStep), v)
 		}
 
 		//if traceGetLatest == dc.d.filenameBase {
@@ -2065,6 +2065,7 @@ func (dc *DomainContext) DomainRangeLatest(roTx kv.Tx, fromKey, toKey []byte, li
 }
 
 func (dc *DomainContext) CanPrune(tx kv.Tx) bool {
+	fmt.Printf("can prune(%s), %d, %d\n", dc.d.filenameBase, dc.hc.ic.CanPruneFrom(tx), dc.maxTxNumInDomainFiles(false))
 	return dc.hc.ic.CanPruneFrom(tx) < dc.maxTxNumInDomainFiles(false)
 }
 
@@ -2111,7 +2112,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		limit--
 
 		seek = append(append(seek[:0], k...), v...)
-		//fmt.Printf("prune key: %x->%x [%x] step %d dom %s\n", k, v, seek, ^binary.BigEndian.Uint64(v), dc.d.filenameBase)
+		fmt.Printf("prune key: %x->%x [%x] step %d dom %s\n", k, v, seek, ^binary.BigEndian.Uint64(v), dc.d.filenameBase)
 
 		mxPruneSizeDomain.Inc()
 		prunedKeys++

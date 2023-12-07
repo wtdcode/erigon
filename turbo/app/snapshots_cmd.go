@@ -630,10 +630,8 @@ func doRetireCommand(cliCtx *cli.Context) error {
 		if err := db.UpdateNosync(ctx, func(tx kv.RwTx) error {
 			ac := agg.MakeContext()
 			defer ac.Close()
-			if ac.CanPrune(tx) {
-				if err = ac.PruneWithTimeout(ctx, time.Hour, tx); err != nil {
-					return err
-				}
+			if err = ac.Prune(ctx, tx); err != nil {
+				return err
 			}
 			return err
 		}); err != nil {
@@ -674,10 +672,8 @@ func doRetireCommand(cliCtx *cli.Context) error {
 		if err := db.UpdateNosync(ctx, func(tx kv.RwTx) error {
 			ac := agg.MakeContext()
 			defer ac.Close()
-			if ac.CanPrune(tx) {
-				if err = ac.PruneWithTimeout(ctx, time.Hour, tx); err != nil {
-					return err
-				}
+			if err = ac.Prune(ctx, tx); err != nil {
+				return err
 			}
 			return err
 		}); err != nil {
