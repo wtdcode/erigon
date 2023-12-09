@@ -556,21 +556,23 @@ func (d *Downloader) AddNewSeedableFile(ctx context.Context, name string) error 
 	return nil
 }
 
-func (d *Downloader) exists(name string) bool {
+func (d *Downloader) alreadyHaveThisName(name string) bool {
 	// Paranoic Mode on: if same file changed infoHash - skip it
-	// use-cases:
-	//	- release of re-compressed version of same file,
-	//	- ErigonV1.24 produced file X, then ErigonV1.25 released with new compression algorithm and produced X with anouther infoHash.
-	//		ErigonV1.24 node must keep using existing file instead of downloading new one.
+	// Example:
+	//  - Erigon generated file X with hash H1. User upgraded Erigon. New version has preverified file X with hash H2. Must ignore H2 (don't send to Downloader)
 	for _, t := range d.torrentClient.Torrents() {
-		if t.Name() == name {
-			return true
+		select {
+		case <-t.GotInfo():
+			if t.Name() == name {
+				return true
+			}
+		default:
 		}
 	}
 	return false
 }
 func (d *Downloader) AddInfoHashAsMagnetLink(ctx context.Context, infoHash metainfo.Hash, name string) error {
-	if d.exists(name) || !IsSnapNameAllowed(name) {
+	if d.alreadyHaveThisName(name) || !IsSnapNameAllowed(name) {
 		return nil
 	}
 
