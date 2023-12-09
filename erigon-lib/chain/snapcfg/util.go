@@ -117,22 +117,17 @@ func KnownCfg(networkName string, blockWhiteList, stateWhiteList []string) *Cfg 
 
 	whiteList := append(blockWhiteList, stateWhiteList...)
 
-	var result Preverified
-	if len(whiteList) == 0 {
-		result = c.Preverified
-	} else {
-		wlMap := make(map[string]struct{}, len(whiteList))
-		for _, fName := range whiteList {
-			wlMap[fName] = struct{}{}
-		}
+	wlMap := make(map[string]struct{}, len(whiteList))
+	for _, fName := range whiteList {
+		wlMap[fName] = struct{}{}
+	}
 
-		result = make(Preverified, 0, len(c.Preverified))
-		for _, p := range c.Preverified {
-			if _, ok := wlMap[p.Name]; !ok {
-				continue
-			}
-			result = append(result, p)
+	result := make(Preverified, 0, len(c.Preverified))
+	for _, p := range c.Preverified {
+		if _, ok := wlMap[p.Name]; !ok {
+			continue
 		}
+		result = append(result, p)
 	}
 
 	return newCfg(result)
