@@ -109,11 +109,13 @@ var KnownCfgs = map[string]*Cfg{
 }
 
 // KnownCfg return list of preverified hashes for given network, but apply whiteList filter if it's not empty
-func KnownCfg(networkName string, whiteList, whiteListHistory []string) *Cfg {
+func KnownCfg(networkName string, blockWhiteList, stateWhiteList []string) *Cfg {
 	c, ok := KnownCfgs[networkName]
 	if !ok {
 		return newCfg(Preverified{})
 	}
+
+	whiteList := append(blockWhiteList, stateWhiteList...)
 
 	var result Preverified
 	if len(whiteList) == 0 {

@@ -111,6 +111,7 @@ func WaitForDownloader(logPrefix string, ctx context.Context, histV3 bool, capli
 	if err != nil {
 		return err
 	}
+	fmt.Printf("[dbg] %s, %s\n", blockSnInDB, stateSnInDB)
 
 	dbEmpty := len(blockSnInDB) == 0
 	var existingFilesMap, borExistingFilesMap map[string]struct{}
