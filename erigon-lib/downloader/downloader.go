@@ -557,9 +557,6 @@ func (d *Downloader) AddNewSeedableFile(ctx context.Context, name string) error 
 }
 
 func (d *Downloader) alreadyHaveThisName(name string) bool {
-	// Paranoic Mode on: if same file changed infoHash - skip it
-	// Example:
-	//  - Erigon generated file X with hash H1. User upgraded Erigon. New version has preverified file X with hash H2. Must ignore H2 (don't send to Downloader)
 	for _, t := range d.torrentClient.Torrents() {
 		select {
 		case <-t.GotInfo():
@@ -571,7 +568,11 @@ func (d *Downloader) alreadyHaveThisName(name string) bool {
 	}
 	return false
 }
-func (d *Downloader) AddInfoHashAsMagnetLink(ctx context.Context, infoHash metainfo.Hash, name string) error {
+
+func (d *Downloader) AddMagnetLink(ctx context.Context, infoHash metainfo.Hash, name string) error {
+	// Paranoic Mode on: if same file changed infoHash - skip it
+	// Example:
+	//  - Erigon generated file X with hash H1. User upgraded Erigon. New version has preverified file X with hash H2. Must ignore H2 (don't send to Downloader)
 	if d.alreadyHaveThisName(name) || !IsSnapNameAllowed(name) {
 		return nil
 	}
