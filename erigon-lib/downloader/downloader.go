@@ -564,7 +564,6 @@ func (d *Downloader) alreadyHaveThisName(name string) bool {
 		select {
 		case <-t.GotInfo():
 			if t.Name() == name {
-				fmt.Printf("[dbg] skipped: %s\n", name)
 				return true
 			}
 		default:
