@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	"github.com/google/btree"
@@ -230,9 +231,9 @@ func (s *PlainState) ReadAccountCode(address libcommon.Address, incarnation uint
 	}
 
 	if len(code) == 0 {
-		fmt.Printf("ReadAccountCode [%x] => [empty]\n", address)
+		fmt.Printf("ReadAccountCode [%x] => [empty], %s\n", address, dbg.Stack())
 	} else {
-		fmt.Printf("ReadAccountCode [%x] => [%x]\n", address, code)
+		fmt.Printf("ReadAccountCode [%x] => [%x], %s\n", address, code, dbg.Stack())
 	}
 	if len(code) == 0 {
 		return nil, nil

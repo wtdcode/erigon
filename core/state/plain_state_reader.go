@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
@@ -70,7 +71,7 @@ func (r *PlainStateReader) ReadAccountCode(address libcommon.Address, incarnatio
 	if len(code) == 0 {
 		return nil, nil
 	}
-	fmt.Printf("ReadAccountCode [%x] => [%x]\n", address, code)
+	fmt.Printf("ReadAccountCode [%x] => [%x], %s\n", address, code, dbg.Stack())
 	return code, err
 }
 
