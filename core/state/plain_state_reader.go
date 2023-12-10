@@ -77,6 +77,7 @@ func (r *PlainStateReader) ReadAccountCode(address libcommon.Address, incarnatio
 
 func (r *PlainStateReader) ReadAccountCodeSize(address libcommon.Address, incarnation uint64, codeHash libcommon.Hash) (int, error) {
 	code, err := r.ReadAccountCode(address, incarnation, codeHash)
+	fmt.Printf("ReadAccountCodeSize [%x] => [%d]\n", address, len(code))
 	return len(code), err
 }
 
