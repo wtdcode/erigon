@@ -1196,6 +1196,7 @@ func (api *TraceAPIImpl) doCallMany(ctx context.Context, dbtx kv.Tx, msgs []type
 		ibs.Reset()
 		// Create initial IntraBlockState, we will compare it with ibs (IntraBlockState after the transaction)
 
+		ibs.SetTrace(true)
 		evm := vm.NewEVM(blockCtx, txCtx, ibs, chainConfig, vmConfig)
 
 		gp := new(core.GasPool).AddGas(msg.Gas()).AddBlobGas(msg.BlobGas())
