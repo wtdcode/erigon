@@ -194,7 +194,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 	case txTask.TxIndex == -1:
 		if txTask.BlockNum == 0 {
 			// Genesis block
-			// fmt.Printf("txNum=%d, blockNum=%d, Genesis\n", txTask.TxNum, txTask.BlockNum)
+			//fmt.Printf("txNum=%d, blockNum=%d, Genesis\n", txTask.TxNum, txTask.BlockNum)
 			_, ibs, err = core.GenesisToBlock(rw.genesis, rw.dirs.Tmp)
 			if err != nil {
 				panic(err)
@@ -242,13 +242,29 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		rw.vmCfg.SkipAnalysis = txTask.SkipAnalysis
 		ibs.SetTxContext(txHash, txTask.BlockHash, txTask.TxIndex)
 		msg := txTask.TxAsMessage
+
+		//logconfig := &logger.LogConfig{
+		//	DisableMemory:     true,
+		//	DisableStack:      true,
+		//	DisableStorage:    false,
+		//	DisableReturnData: false,
+		//	Debug:             true,
+		//}
+		//rw.vmCfg.Tracer = logger.NewStructLogger(logconfig)
+
 		rw.evm.ResetBetweenBlocks(txTask.EvmBlockContext, core.NewEVMTxContext(msg), ibs, rw.vmCfg, rules)
 
 		// MA applytx
 		applyRes, err := core.ApplyMessage(rw.evm, msg, rw.taskGasPool, true /* refunds */, false /* gasBailout */)
+
+		//if ftracer, ok := rw.vmCfg.Tracer.(vm.FlushableTracer); ok {
+		//	ftracer.Flush(txTask.Tx)
+		//}
+
 		if err != nil {
 			txTask.Error = err
 		} else {
+			//fmt.Printf("sender %v spent gas %d\n", txTask.TxAsMessage.From(), applyRes.UsedGas)
 			txTask.UsedGas = applyRes.UsedGas
 			//fmt.Printf("txn %d usedGas=%d\n", txTask.TxNum, txTask.UsedGas)
 			// Update the state with pending changes

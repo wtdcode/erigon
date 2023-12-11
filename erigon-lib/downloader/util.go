@@ -24,20 +24,23 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
+	"github.com/ledgerwatch/log/v3"
+	"golang.org/x/sync/errgroup"
+
 	common2 "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	dir2 "github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/erigon-lib/downloader/downloadercfg"
 	"github.com/ledgerwatch/erigon-lib/downloader/snaptype"
 	"github.com/ledgerwatch/erigon-lib/kv"
-	"github.com/ledgerwatch/log/v3"
-	"golang.org/x/sync/errgroup"
 )
 
 // udpOrHttpTrackers - torrent library spawning several goroutines and producing many requests for each tracker. So we limit amout of trackers by 7
@@ -98,20 +101,7 @@ func seedableSnapshotsBySubDir(dir, subDir string) ([]string, error) {
 	res := make([]string, 0, len(files))
 	for _, fPath := range files {
 		_, name := filepath.Split(fPath)
-		subs := historyFileRegex.FindStringSubmatch(name)
-		if len(subs) != 6 {
-			continue
-		}
-		// Check that it's seedable
-		from, err := strconv.ParseUint(subs[3], 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("ParseFileName: %w", err)
-		}
-		to, err := strconv.ParseUint(subs[4], 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("ParseFileName: %w", err)
-		}
-		if (to-from)%snaptype.Erigon3SeedableSteps != 0 {
+		if !e3seedable(name) {
 			continue
 		}
 		res = append(res, filepath.Join(subDir, name))
@@ -119,6 +109,25 @@ func seedableSnapshotsBySubDir(dir, subDir string) ([]string, error) {
 	return res, nil
 }
 
+func e3seedable(name string) bool {
+	subs := historyFileRegex.FindStringSubmatch(name)
+	if len(subs) != 6 {
+		return false
+	}
+	// Check that it's seedable
+	from, err := strconv.ParseUint(subs[3], 10, 64)
+	if err != nil {
+		return false
+	}
+	to, err := strconv.ParseUint(subs[4], 10, 64)
+	if err != nil {
+		return false
+	}
+	if (to-from)%snaptype.Erigon3SeedableSteps != 0 {
+		return false
+	}
+	return true
+}
 func ensureCantLeaveDir(fName, root string) (string, error) {
 	if filepath.IsAbs(fName) {
 		newFName, err := filepath.Rel(root, fName)
@@ -149,10 +158,10 @@ func BuildTorrentIfNeed(ctx context.Context, fName, root string) (torrentFilePat
 
 	fPath := filepath.Join(root, fName)
 	if dir2.FileExist(fPath + ".torrent") {
-		return
+		return fPath, nil
 	}
 	if !dir2.FileExist(fPath) {
-		return
+		return fPath, nil
 	}
 
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fName}
@@ -261,6 +270,9 @@ func AllTorrentPaths(dirs datadir.Dirs) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	if dbg.DownloaderOnlyBlocks {
+		return files, nil
+	}
 	l1, err := dir2.ListFiles(dirs.SnapIdx, ".torrent")
 	if err != nil {
 		return nil, err
@@ -283,9 +295,12 @@ func AllTorrentSpecs(dirs datadir.Dirs) (res []*torrent.TorrentSpec, err error) 
 		return nil, err
 	}
 	for _, fPath := range files {
+		if len(fPath) == 0 {
+			continue
+		}
 		a, err := loadTorrent(fPath)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("AllTorrentSpecs: %w", err)
 		}
 		res = append(res, a)
 	}
@@ -301,6 +316,18 @@ func loadTorrent(torrentFilePath string) (*torrent.TorrentSpec, error) {
 	return torrent.TorrentSpecFromMetaInfoErr(mi)
 }
 
+// if $DOWNLOADER_ONLY_BLOCKS!="" filters out all non-v1 snapshots
+func IsSnapNameAllowed(name string) bool {
+	if dbg.DownloaderOnlyBlocks {
+		for _, p := range []string{"domain", "history", "idx"} {
+			if strings.HasPrefix(name, p) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 // addTorrentFile - adding .torrent file to torrentClient (and checking their hashes), if .torrent file
 // added first time - pieces verification process will start (disk IO heavy) - Progress
 // kept in `piece completion storage` (surviving reboot). Once it done - no disk IO needed again.
@@ -310,6 +337,10 @@ func addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient 
 	case <-ctx.Done():
 		return ctx.Err()
 	default:
+	}
+
+	if !IsSnapNameAllowed(ts.DisplayName) {
+		return nil
 	}
 	wsUrls, ok := webseeds.ByFileName(ts.DisplayName)
 	if ok {

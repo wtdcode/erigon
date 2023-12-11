@@ -65,12 +65,12 @@ func collectAndComputeCommitment(ctx context.Context, tx kv.RwTx, tmpDir string,
 
 	loadKeys := func(k, v []byte, table etl.CurrentTableReader, next etl.LoadNextFunc) error {
 		if domains.Commitment.Size() >= batchSize {
-			rh, err := domains.ComputeCommitment(ctx, true, false, domains.BlockNum())
+			rh, err := domains.ComputeCommitment(ctx, true, false, domains.BlockNum(), "")
 			if err != nil {
 				return err
 			}
 			logger.Info("Committing batch",
-				"processed", fmt.Sprintf("%d/%d (%.2f%%)", processed.Load(), totalKeys.Load(), float64(processed.Load())/float64(totalKeys.Load())*100),
+				"processed", fmt.Sprintf("%dM/%dM (%.2f%%)", processed.Load()/1_000_000, totalKeys.Load()/1_000_000, float64(processed.Load())/float64(totalKeys.Load())*100),
 				"intermediate root", fmt.Sprintf("%x", rh))
 		}
 		processed.Add(1)
@@ -84,7 +84,7 @@ func collectAndComputeCommitment(ctx context.Context, tx kv.RwTx, tmpDir string,
 	}
 	collector.Close()
 
-	rh, err := domains.ComputeCommitment(ctx, true, false, domains.BlockNum())
+	rh, err := domains.ComputeCommitment(ctx, true, false, domains.BlockNum(), "")
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func countBlockByTxnum(ctx context.Context, tx kv.Tx, blockReader services.FullB
 
 	for i := uint64(0); i < math.MaxUint64; i++ {
 		if i%1000000 == 0 {
-			fmt.Printf("\r [%s] Counting block for tx %d: cur block %d cur tx %d\n", "restoreCommit", txnum, i, txCounter)
+			fmt.Printf("\r [%s] Counting block for tx %d: cur block %dM cur tx %d\n", "restoreCommit", txnum, i/1_000_000, txCounter)
 		}
 
 		h, err := blockReader.HeaderByNumber(ctx, tx, i)
@@ -212,7 +212,7 @@ func RebuildPatriciaTrieBasedOnFiles(rwTx kv.RwTx, cfg TrieCfg, ctx context.Cont
 
 		return trie.EmptyRoot, fmt.Errorf("wrong trie root")
 	}
-	logger.Info(fmt.Sprintf("[RebuildCommitment] Trie root of block %d txNum %d: %x. Could not verify with block hash because txnum of state is in the middle of the block.", blockNum, rh, toTxNum))
+	logger.Info(fmt.Sprintf("[RebuildCommitment] Trie root of block %d txNum %d: %x. Could not verify with block hash because txnum of state is in the middle of the block.", blockNum, toTxNum, rh))
 
 	if !useExternalTx {
 		if err := rwTx.Commit(); err != nil {

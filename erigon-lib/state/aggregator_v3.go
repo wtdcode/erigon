@@ -498,7 +498,6 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(a.collateAndBuildWorkers)
-	log.Warn("[dbg] collate and build", "step", step, "workers", a.collateAndBuildWorkers)
 	for _, d := range []*Domain{a.accounts, a.storage, a.code, a.commitment.Domain} {
 		d := d
 
@@ -1269,6 +1268,7 @@ func (a *AggregatorV3) BuildFilesInBackground(txNum uint64) chan struct{} {
 	}
 
 	step := a.minimaxTxNumInFiles.Load() / a.aggregationStep
+	log.Info("[agg] collate and build", "step", step, "collate_workers", a.collateAndBuildWorkers, "merge_workers", a.mergeWorkers, "compress_workers", a.accounts.compressWorkers)
 	a.wg.Add(1)
 	go func() {
 		defer a.wg.Done()
@@ -1331,6 +1331,8 @@ func (ac *AggregatorV3Context) IndexRange(name kv.InvertedIdx, k []byte, fromTs,
 		return ac.storage.hc.IdxRange(k, fromTs, toTs, asc, limit, tx)
 	case kv.CodeHistoryIdx:
 		return ac.code.hc.IdxRange(k, fromTs, toTs, asc, limit, tx)
+	case kv.CommitmentHistoryIdx:
+		return ac.commitment.hc.IdxRange(k, fromTs, toTs, asc, limit, tx)
 	case kv.LogTopicIdx:
 		return ac.logTopics.IdxRange(k, fromTs, toTs, asc, limit, tx)
 	case kv.LogAddrIdx:
@@ -1490,6 +1492,47 @@ func (ac *AggregatorV3Context) GetLatest(domain kv.Domain, k, k2 []byte, tx kv.T
 	default:
 		panic(fmt.Sprintf("unexpected: %s", domain))
 	}
+}
+
+// search key in all files of all domains and print file names
+func (ac *AggregatorV3Context) DebugKey(domain kv.Domain, k []byte) error {
+	switch domain {
+	case kv.AccountsDomain:
+		l, err := ac.account.DebugKVFilesWithKey(k)
+		if err != nil {
+			return err
+		}
+		if len(l) > 0 {
+			log.Info("[dbg] found in", "files", l)
+		}
+	case kv.StorageDomain:
+		l, err := ac.code.DebugKVFilesWithKey(k)
+		if err != nil {
+			return err
+		}
+		if len(l) > 0 {
+			log.Info("[dbg] found in", "files", l)
+		}
+	case kv.CodeDomain:
+		l, err := ac.storage.DebugKVFilesWithKey(k)
+		if err != nil {
+			return err
+		}
+		if len(l) > 0 {
+			log.Info("[dbg] found in", "files", l)
+		}
+	case kv.CommitmentDomain:
+		l, err := ac.commitment.DebugKVFilesWithKey(k)
+		if err != nil {
+			return err
+		}
+		if len(l) > 0 {
+			log.Info("[dbg] found in", "files", l)
+		}
+	default:
+		panic(fmt.Sprintf("unexpected: %s", domain))
+	}
+	return nil
 }
 
 // --- Domain part END ---

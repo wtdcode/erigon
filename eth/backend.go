@@ -32,6 +32,7 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru/arc/v2"
+
 	"github.com/ledgerwatch/erigon-lib/chain/networkname"
 	"github.com/ledgerwatch/erigon-lib/diagnostics"
 	"github.com/ledgerwatch/erigon-lib/downloader/downloadergrpc"
@@ -345,8 +346,8 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 	backend.gasPrice, _ = uint256.FromBig(config.Miner.GasPrice)
 
-	if config.SilkwormLibraryPath != "" {
-		backend.silkworm, err = silkworm.New(config.SilkwormLibraryPath, config.Dirs.DataDir)
+	if config.SilkwormExecution || config.SilkwormRpcDaemon || config.SilkwormSentry {
+		backend.silkworm, err = silkworm.New(config.Dirs.DataDir)
 		if err != nil {
 			return nil, err
 		}
@@ -387,7 +388,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 			MaxPeers:    p2pConfig.MaxPeers,
 		}
 
-		silkwormSentryService := backend.silkworm.NewSentryService(settings)
+		silkwormSentryService := silkworm.NewSentryService(backend.silkworm, settings)
 		backend.silkwormSentryService = &silkwormSentryService
 
 		sentryClient, err := sentry_multi_client.GrpcClient(backend.sentryCtx, apiAddr)
@@ -598,11 +599,12 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 	} else {
 		//cacheConfig := kvcache.DefaultCoherentCacheConfig
 		//cacheConfig.MetricsLabel = "txpool"
+		//cacheConfig.StateV3 = config.HistoryV3w
 
 		backend.newTxs = make(chan types2.Announcements, 1024)
 		//defer close(newTxs)
 		backend.txPoolDB, backend.txPool, backend.txPoolFetch, backend.txPoolSend, backend.txPoolGrpcServer, err = txpooluitl.AllComponents(
-			ctx, config.TxPool, kvcache.NewDummy(), backend.newTxs, chainKv, backend.sentriesClient.Sentries(), stateDiffClient, logger,
+			ctx, config.TxPool, kvcache.NewDummy(config.HistoryV3), backend.newTxs, chainKv, backend.sentriesClient.Sentries(), stateDiffClient, logger,
 		)
 		if err != nil {
 			return nil, err
@@ -831,7 +833,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 			return nil, err
 		}
 
-		rawBeaconBlockChainDb := persistence.AferoRawBeaconBlockChainFromOsPath(beaconCfg, dirs.CaplinHistory)
+		rawBeaconBlockChainDb, _ := persistence.AferoRawBeaconBlockChainFromOsPath(beaconCfg, dirs.CaplinHistory)
 
 		client, err := service.StartSentinelService(&sentinel.SentinelConfig{
 			IpAddr:        config.LightClientDiscoveryAddr,
@@ -856,7 +858,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 		go func() {
 			eth1Getter := getters.NewExecutionSnapshotReader(ctx, blockReader, chainKv)
-			if err := caplin1.RunCaplinPhase1(ctx, client, engine, beaconCfg, genesisCfg, state, nil, dirs, config.BeaconRouter, eth1Getter, backend.downloaderClient, config.CaplinConfig.Backfilling); err != nil {
+			if err := caplin1.RunCaplinPhase1(ctx, client, engine, beaconCfg, genesisCfg, state, nil, dirs, config.BeaconRouter, eth1Getter, backend.downloaderClient, config.CaplinConfig.Backfilling, config.CaplinConfig.Archive); err != nil {
 				logger.Error("could not start caplin", "err", err)
 			}
 			ctxCancel()
@@ -915,7 +917,7 @@ func (s *Ethereum) Init(stack *node.Node, config *ethconfig.Config) error {
 	s.apiList = jsonrpc.APIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, s.agg, &httpRpcCfg, s.engine, s.logger)
 
 	if config.SilkwormRpcDaemon && httpRpcCfg.Enabled {
-		silkwormRPCDaemonService := s.silkworm.NewRpcDaemonService(chainKv)
+		silkwormRPCDaemonService := silkworm.NewRpcDaemonService(s.silkworm, chainKv)
 		s.silkwormRPCDaemonService = &silkwormRPCDaemonService
 	} else {
 		go func() {
@@ -1207,13 +1209,13 @@ func (s *Ethereum) setUpSnapDownloader(ctx context.Context, downloaderCfg *downl
 		events := s.notifications.Events
 		events.OnNewSnapshot()
 		if s.downloaderClient != nil {
-			req := &proto_downloader.DownloadRequest{Items: make([]*proto_downloader.DownloadItem, 0, len(frozenFileNames))}
+			req := &proto_downloader.AddRequest{Items: make([]*proto_downloader.AddItem, 0, len(frozenFileNames))}
 			for _, fName := range frozenFileNames {
-				req.Items = append(req.Items, &proto_downloader.DownloadItem{
+				req.Items = append(req.Items, &proto_downloader.AddItem{
 					Path: filepath.Join("history", fName),
 				})
 			}
-			if _, err := s.downloaderClient.Download(ctx, req); err != nil {
+			if _, err := s.downloaderClient.Add(ctx, req); err != nil {
 				s.logger.Warn("[snapshots] notify downloader", "err", err)
 			}
 		}
@@ -1387,7 +1389,9 @@ func (s *Ethereum) Stop() error {
 		}
 	}
 	if s.silkworm != nil {
-		s.silkworm.Close()
+		if err := s.silkworm.Close(); err != nil {
+			s.logger.Error("silkworm.Close error", "err", err)
+		}
 	}
 
 	return nil
