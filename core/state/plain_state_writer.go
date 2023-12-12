@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/holiman/uint256"
 
@@ -46,6 +47,7 @@ func (w *PlainStateWriter) SetAccumulator(accumulator *shards.Accumulator) *Plai
 
 func (w *PlainStateWriter) UpdateAccountData(address libcommon.Address, original, account *accounts.Account) error {
 	//fmt.Printf("balance,%x,%d\n", address, &account.Balance)
+	fmt.Printf("upd: %d -> %d, %x\n", original.Incarnation, account.Incarnation, address)
 	if w.csw != nil {
 		if err := w.csw.UpdateAccountData(address, original, account); err != nil {
 			return err
