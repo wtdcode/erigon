@@ -61,7 +61,6 @@ func applyTransaction(config *chain.Config, engine consensus.EngineReader, gp *G
 	evm.Reset(txContext, ibs)
 
 	result, err := ApplyMessage(evm, msg, gp, true /* refunds */, false /* gasBailout */)
-	fmt.Printf("------- GasUsed %d ----\n", result.UsedGas)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,6 +96,7 @@ func applyTransaction(config *chain.Config, engine consensus.EngineReader, gp *G
 		receipt.BlockNumber = header.Number
 		receipt.TransactionIndex = uint(ibs.TxIndex())
 	}
+	fmt.Printf("------- GasUsed %d ----\n", result.UsedGas)
 
 	return receipt, result.ReturnData, err
 }
