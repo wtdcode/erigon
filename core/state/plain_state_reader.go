@@ -3,6 +3,8 @@ package state
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
@@ -75,7 +77,9 @@ func (r *PlainStateReader) ReadAccountIncarnation(address libcommon.Address) (ui
 		return 0, err
 	}
 	if len(b) == 0 {
+		fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, 0)
 		return 0, nil
 	}
+	fmt.Printf("ReadAccountIncarnation [%x] => [%d]\n", address, binary.BigEndian.Uint64(b))
 	return binary.BigEndian.Uint64(b), nil
 }
