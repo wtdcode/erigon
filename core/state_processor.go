@@ -17,6 +17,8 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/ledgerwatch/erigon-lib/chain"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 
@@ -59,6 +61,7 @@ func applyTransaction(config *chain.Config, engine consensus.EngineReader, gp *G
 	evm.Reset(txContext, ibs)
 
 	result, err := ApplyMessage(evm, msg, gp, true /* refunds */, false /* gasBailout */)
+	fmt.Printf("------- GasUsed %d ----\n", result.UsedGas)
 	if err != nil {
 		return nil, nil, err
 	}
