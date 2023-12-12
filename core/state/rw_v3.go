@@ -406,10 +406,9 @@ func (w *StateWriterBufferedV3) UpdateAccountData(address common.Address, origin
 	}
 	if account.Incarnation == 0 && original.Incarnation > 0 {
 		//del, before create: to clanup code/storage
-		w.rs.domains.IterateStoragePrefix(address[:], func(k, v []byte) error {
-			w.writeLists[string(kv.StorageDomain)].Push(string(k), nil)
-			return nil
-		})
+		if err := w.rs.domains.DomainDelPrefix(kv.StorageDomain, address[:]); err != nil {
+			return err
+		}
 	}
 
 	value := accounts.SerialiseV3(account)
