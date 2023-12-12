@@ -549,15 +549,18 @@ func (sdb *IntraBlockState) CreateAccount(addr libcommon.Address, contractCreati
 	previous := sdb.getStateObject(addr)
 	if previous != nil && previous.selfdestructed {
 		prevInc = previous.data.Incarnation
+		fmt.Printf("[dbg] prevInc1 = %d, %x\n", prevInc, addr)
 	} else {
 		if inc, err := sdb.stateReader.ReadAccountIncarnation(addr); err == nil {
 			prevInc = inc
+			fmt.Printf("[dbg] prevInc2 = %d, %x\n", prevInc, addr)
 		} else {
 			sdb.savedErr = err
 		}
 	}
 	if previous != nil && prevInc < previous.data.PrevIncarnation {
 		prevInc = previous.data.PrevIncarnation
+		fmt.Printf("[dbg] prevInc3 = %d, %x\n", prevInc, addr)
 	}
 
 	newObj := sdb.createObject(addr, previous)
@@ -566,6 +569,7 @@ func (sdb *IntraBlockState) CreateAccount(addr libcommon.Address, contractCreati
 	}
 	newObj.data.Initialised = true
 	newObj.data.PrevIncarnation = prevInc
+	fmt.Printf("[dbg] prevInc4 = %d, %x\n", prevInc, addr)
 
 	if contractCreation {
 		newObj.createdContract = true
