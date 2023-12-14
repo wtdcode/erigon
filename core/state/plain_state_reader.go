@@ -3,6 +3,8 @@ package state
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
+
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
@@ -38,6 +40,7 @@ func (r *PlainStateReader) ReadAccountData(address libcommon.Address) (*accounts
 	if err = a.DecodeForStorage(enc); err != nil {
 		return nil, err
 	}
+	fmt.Printf("ReadAccountData: %x, %s\n", address, a.Balance.String())
 	return &a, nil
 }
 
