@@ -679,9 +679,11 @@ func (ms *MockSentry) insertPoSBlocks(chain *core.ChainPack) error {
 
 	for i := n; i < chain.Length(); i++ {
 		if err := chain.Blocks[i].HashCheck(); err != nil {
+			fmt.Printf("err: %s\n", err)
 			return err
 		}
 	}
+	fmt.Printf("b1\n")
 	if err := wr.InsertBlocksAndWait(chain.Blocks); err != nil {
 		return err
 	}
