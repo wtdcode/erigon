@@ -629,7 +629,7 @@ func (r *StateReaderV3) ReadAccountStorage(address common.Address, incarnation u
 	//var composite [20 + 32]byte
 	//copy(composite[:], address[:])
 	//copy(composite[20:], key.Bytes())
-	enc, err := r.rs.domains.LatestStorage(r.composite)
+	enc, err := r.rs.domains.LatestStorage(r.composite, r.tx)
 	if err != nil {
 		return nil, err
 	}

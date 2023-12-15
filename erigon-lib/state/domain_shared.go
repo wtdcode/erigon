@@ -419,14 +419,14 @@ func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
 	return true
 }
 
-func (sd *SharedDomains) LatestStorage(addrLoc []byte) ([]byte, error) {
+func (sd *SharedDomains) LatestStorage(addrLoc []byte, tx kv.Tx) ([]byte, error) {
 	if v, ok := sd.Get(kv.StorageDomain, addrLoc); ok {
 		if bytes.Equal(addrLoc, TraceSt) {
 			fmt.Printf("LatestStorage1: v: %x\n", v)
 		}
 		return v, nil
 	}
-	v, ok, err := sd.aggCtx.GetLatest(kv.StorageDomain, addrLoc, nil, sd.roTx)
+	v, ok, err := sd.aggCtx.GetLatest(kv.StorageDomain, addrLoc, nil, tx)
 	if bytes.Equal(addrLoc, TraceSt) {
 		fmt.Printf("LatestStorage2: v: %x, %t\n", v, ok)
 	}
@@ -554,7 +554,7 @@ func (sd *SharedDomains) ComputeCommitment(ctx context.Context, saveStateAfter b
 // inside the domain. Another version of this for public API use needs to be created, that uses
 // roTx instead and supports ending the iterations before it reaches the end.
 func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v []byte) error) error {
-	lv, err2 := sd.LatestStorage(TraceSt)
+	lv, err2 := sd.LatestStorage(TraceSt, sd.roTx)
 	if err2 != nil {
 		panic(err2)
 	}
@@ -827,7 +827,7 @@ func (sd *SharedDomains) DomainGet(name kv.Domain, k, k2 []byte) (v []byte, err 
 		if k2 != nil {
 			k = append(k, k2...)
 		}
-		return sd.LatestStorage(k)
+		return sd.LatestStorage(k, sd.roTx)
 	case kv.CodeDomain:
 		return sd.LatestCode(k)
 	case kv.CommitmentDomain:
@@ -1037,7 +1037,7 @@ func (sdc *SharedDomainsCommitmentContext) GetAccount(plainKey []byte, cell *com
 
 func (sdc *SharedDomainsCommitmentContext) GetStorage(plainKey []byte, cell *commitment.Cell) error {
 	// Look in the summary table first
-	enc, err := sdc.sd.LatestStorage(plainKey)
+	enc, err := sdc.sd.LatestStorage(plainKey, sdc.sd.roTx)
 	if err != nil {
 		return err
 	}
