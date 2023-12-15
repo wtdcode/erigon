@@ -542,12 +542,12 @@ func (w *StateWriterV3) WriteAccountStorage(address common.Address, incarnation 
 	if *original == *value {
 		return nil
 	}
+	if w.trace {
+		fmt.Printf("storage: %x,%x,%x\n", address, *key, value.Bytes())
+	}
 	composite := append(address.Bytes(), key.Bytes()...)
 	if bytes.Equal(composite, libstate.TraceSt) {
 		fmt.Printf("WriteAccountStorage: %x, %x\n", composite, value.Bytes())
-	}
-	if w.trace {
-		fmt.Printf("storage: %x,%x,%x\n", address, *key, value.Bytes())
 	}
 	v := value.Bytes()
 	if len(v) == 0 {
