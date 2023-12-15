@@ -629,11 +629,14 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 			case RAM_CURSOR:
 				if ci1.iter.Next() {
 					k = []byte(ci1.iter.Key())
+					if bytes.Equal(k, TraceSt) {
+						fmt.Printf("ram1: v: %x\n", ci1.val)
+					}
 					if k != nil && bytes.HasPrefix(k, prefix) {
 						ci1.key = common.Copy(k)
 						ci1.val = common.Copy(ci1.iter.Value())
 						if bytes.Equal(k, TraceSt) {
-							fmt.Printf("ram: v: %x\n", ci1.val)
+							fmt.Printf("ram2: v: %x\n", ci1.val)
 						}
 						heap.Push(cpPtr, ci1)
 					}
