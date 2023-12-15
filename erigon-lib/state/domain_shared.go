@@ -421,9 +421,15 @@ func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
 
 func (sd *SharedDomains) LatestStorage(addrLoc []byte) ([]byte, error) {
 	if v, ok := sd.Get(kv.StorageDomain, addrLoc); ok {
+		if bytes.Equal(addrLoc, TraceSt) {
+			fmt.Printf("LatestStorage1: v: %x\n", v)
+		}
 		return v, nil
 	}
-	v, _, err := sd.aggCtx.GetLatest(kv.StorageDomain, addrLoc, nil, sd.roTx)
+	v, ok, err := sd.aggCtx.GetLatest(kv.StorageDomain, addrLoc, nil, sd.roTx)
+	if bytes.Equal(addrLoc, TraceSt) {
+		fmt.Printf("LatestStorage2: v: %x, %t\n", v, ok)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("storage %x read error: %w", addrLoc, err)
 	}
