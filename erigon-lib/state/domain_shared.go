@@ -593,7 +593,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 		copy(keySuffix, k)
 		copy(keySuffix[len(k):], v)
 		step := ^binary.BigEndian.Uint64(v)
-		txNum := step*sd.Storage.aggregationStep - 1 // !important: .kv files have semantic [from, t)
+		txNum := step * sd.Storage.aggregationStep
 		if v, err = roTx.GetOne(sd.Storage.valsTable, keySuffix); err != nil {
 			return err
 		}
