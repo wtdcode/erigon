@@ -757,6 +757,7 @@ Loop:
 				if txTask.Error != nil {
 					break Loop
 				}
+				fmt.Printf("-- RunTxTaskNoLock %d, %d\n", txTask.BlockNum, txTask.TxIndex)
 				applyWorker.RunTxTaskNoLock(txTask)
 				if err := func() error {
 					if errors.Is(txTask.Error, context.Canceled) {
