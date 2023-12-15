@@ -680,14 +680,11 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 				if err != nil {
 					return err
 				}
-
-				step := ^binary.BigEndian.Uint64(v)
-				ci1.endTxNum = step * sd.Storage.aggregationStep
-				if bytes.Equal(k, TraceSt) {
-					fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
-				}
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
+					step := ^binary.BigEndian.Uint64(v)
+					ci1.endTxNum = step * sd.Storage.aggregationStep
+
 					keySuffix := make([]byte, len(k)+8)
 					copy(keySuffix, k)
 					copy(keySuffix[len(k):], v)
@@ -696,7 +693,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					}
 					ci1.val = common.Copy(v)
 					if bytes.Equal(k, TraceSt) {
-						fmt.Printf("db2:  v:  %x\n", ci1.val)
+						fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
 					}
 					heap.Push(cpPtr, ci1)
 				}
