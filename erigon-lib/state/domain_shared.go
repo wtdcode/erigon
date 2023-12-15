@@ -659,9 +659,12 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 			}
 		}
 		if len(lastVal) > 0 {
+			fmt.Printf("iter: %x, %d, %t\n", k, len(v), v == nil)
 			if err := it(lastKey, lastVal); err != nil {
 				return err
 			}
+		} else {
+			fmt.Printf("iter, skip empty: %x, %d, %t\n", k, len(v), v == nil)
 		}
 	}
 	return nil
@@ -878,7 +881,6 @@ func (sd *SharedDomains) DomainDelPrefix(domain kv.Domain, prefix []byte) error 
 	type pair struct{ k, v []byte }
 	tombs := make([]pair, 0, 8)
 	if err := sd.IterateStoragePrefix(prefix, func(k, v []byte) error {
-		fmt.Printf("del: %x, %d, %t\n", k, len(v), v == nil)
 		tombs = append(tombs, pair{k, v})
 		return nil
 	}); err != nil {
