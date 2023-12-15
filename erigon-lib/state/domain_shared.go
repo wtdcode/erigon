@@ -681,6 +681,8 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
+				step := ^binary.BigEndian.Uint64(v)
+				ci1.endTxNum = step * sd.Storage.aggregationStep
 				if bytes.Equal(k, TraceSt) {
 					fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
 				}
