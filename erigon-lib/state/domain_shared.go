@@ -548,8 +548,11 @@ func (sd *SharedDomains) ComputeCommitment(ctx context.Context, saveStateAfter b
 // inside the domain. Another version of this for public API use needs to be created, that uses
 // roTx instead and supports ending the iterations before it reaches the end.
 func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v []byte) error) error {
-	sc := sd.Storage.MakeContext()
-	defer sc.Close()
+	lv, err2 := sd.LatestStorage(TraceSt)
+	if err2 != nil {
+		panic(err2)
+	}
+	fmt.Printf("latest: %x\n", lv)
 
 	sd.Storage.stats.FilesQueries.Add(1)
 
@@ -659,10 +662,6 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
-				if bytes.Equal(k, TraceSt) {
-					fmt.Printf("db: k, v: %x, %x\n", k, v)
-				}
-
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
 					keySuffix := make([]byte, len(k)+8)
@@ -671,11 +670,10 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					if v, err = roTx.GetOne(sd.Storage.valsTable, keySuffix); err != nil {
 						return err
 					}
-					if bytes.Equal(k, TraceSt) {
-						fmt.Printf("db: v1: %x\n", v)
-					}
-
 					ci1.val = common.Copy(v)
+					if bytes.Equal(k, TraceSt) {
+						fmt.Printf("file: k, v: %x, %x\n", ci1.key, ci1.val)
+					}
 					heap.Push(cpPtr, ci1)
 				}
 			}
