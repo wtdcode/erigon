@@ -632,7 +632,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 		lastKey := common.Copy(cp[0].key)
 		lastVal := common.Copy(cp[0].val)
 		if bytes.Equal(lastKey, TraceSt) {
-			fmt.Printf("iter.copy: v: %x, %d\n", lastVal, cp[0].t)
+			fmt.Printf("iter.copy: v: %x, %d, %d\n", lastVal, cp[0].t, cp[0].endTxNum)
 		}
 		// Advance all the items that have this key (including the top)
 		for cp.Len() > 0 && bytes.Equal(cp[0].key, lastKey) {
@@ -642,7 +642,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 				if ci1.iter.Next() {
 					k = []byte(ci1.iter.Key())
 					if bytes.Equal(k, TraceSt) {
-						fmt.Printf("ram1: v: %x\n", ci1.val)
+						fmt.Printf("ram1: v: %x, %d\n", ci1.val, ci1.endTxNum)
 					}
 					if k != nil && bytes.HasPrefix(k, prefix) {
 						ci1.key = common.Copy(k)
@@ -660,7 +660,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 						if ci1.key != nil && bytes.HasPrefix(ci1.key, prefix) {
 							ci1.val = ci1.btCursor.Value()
 							if bytes.Equal(k, TraceSt) {
-								fmt.Printf("file: v: %x, %s\n", ci1.val, ci1.btCursor.getter.FileName())
+								fmt.Printf("file: v: %x, %s, %d\n", ci1.val, ci1.btCursor.getter.FileName(), ci1.endTxNum)
 							}
 							heap.Push(cpPtr, ci1)
 						}
@@ -684,7 +684,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 				}
 
 				if bytes.Equal(k, TraceSt) {
-					fmt.Printf("db1: v: %x\n", v)
+					fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
 				}
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
