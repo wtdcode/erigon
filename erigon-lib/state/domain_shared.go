@@ -645,6 +645,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
+				fmt.Printf("k, v: %x, %x\n", k, v)
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
 					keySuffix := make([]byte, len(k)+8)
@@ -653,18 +654,17 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					if v, err = roTx.GetOne(sd.Storage.valsTable, keySuffix); err != nil {
 						return err
 					}
+					fmt.Printf("v1: %x\n", v)
+
 					ci1.val = common.Copy(v)
 					heap.Push(cpPtr, ci1)
 				}
 			}
 		}
 		if len(lastVal) > 0 {
-			fmt.Printf("iter: %x, %d, %t\n", k, len(v), v == nil)
 			if err := it(lastKey, lastVal); err != nil {
 				return err
 			}
-		} else {
-			fmt.Printf("iter, skip empty: %x, %d, %t\n", k, len(v), v == nil)
 		}
 	}
 	return nil
