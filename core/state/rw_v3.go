@@ -546,14 +546,17 @@ func (w *StateWriterV3) WriteAccountStorage(address common.Address, incarnation 
 		fmt.Printf("storage: %x,%x,%x\n", address, *key, value.Bytes())
 	}
 	composite := append(address.Bytes(), key.Bytes()...)
-	if bytes.Equal(composite, libstate.TraceSt) {
-		fmt.Printf("WriteAccountStorage: %x, %x\n", composite, value.Bytes())
-	}
 	v := value.Bytes()
 	if len(v) == 0 {
+		if bytes.Equal(composite, libstate.TraceSt) {
+			fmt.Printf("WriteAccountStorage, del: %x\n", composite)
+		}
 		return w.rs.domains.DomainDel(kv.StorageDomain, composite, nil, original.Bytes())
 	}
-	return w.rs.domains.DomainPut(kv.StorageDomain, composite, nil, value.Bytes(), original.Bytes())
+	if bytes.Equal(composite, libstate.TraceSt) {
+		fmt.Printf("WriteAccountStorage, upd: %x, %x\n", composite, v)
+	}
+	return w.rs.domains.DomainPut(kv.StorageDomain, composite, nil, v, original.Bytes())
 }
 
 func (w *StateWriterV3) CreateContract(address common.Address) error {
