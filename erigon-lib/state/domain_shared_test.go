@@ -222,6 +222,22 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		defer domains.Close()
 		require.Equal(int(stepSize*2-3), iterCount(domains))
 	}
+	{ // add in RAM more delete markers
+		err = domains.Flush(ctx, rwTx)
+		require.NoError(err)
+		domains.Close()
+
+		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
+		defer domains.Close()
+		domains.SetTxNum(stepSize*2 + 3)
+		if err := domains.DomainDel(kv.StorageDomain, addr, st(4), nil); err != nil {
+			panic(err)
+		}
+		if err := domains.DomainDel(kv.StorageDomain, addr, st(5), nil); err != nil {
+			panic(err)
+		}
+		require.Equal(int(stepSize*2-4), iterCount(domains))
+	}
 	{ // delete everything - must see 0
 		err = domains.Flush(ctx, rwTx)
 		require.NoError(err)
@@ -231,6 +247,15 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		defer domains.Close()
 		err := domains.DomainDelPrefix(kv.StorageDomain, []byte{})
 		require.NoError(err)
+		require.Equal(0, iterCount(domains))
+	}
+	{ // flush deletes to db - still must see 0
+		err = domains.Flush(ctx, rwTx)
+		require.NoError(err)
+		domains.Close()
+
+		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
+		defer domains.Close()
 		require.Equal(0, iterCount(domains))
 	}
 }
