@@ -885,7 +885,7 @@ func (sd *SharedDomains) DomainDel(domain kv.Domain, k1, k2 []byte, prevVal []by
 	}
 }
 
-var TraceSt = common.FromHex("1337a43dc134a437fa24d26decc6f4f3cba7cad30c1f742e818e77c5df48f8041949818e71988554af9f3e5c91cc374583770762")
+var TraceSt = common.FromHex("1337a43dc134a437fa24d26decc6f4f3cba7cad3f8d4b0f21fffa20f0b9ff79b61ccb1872d3cd49f077d9f23d10f69cea8f22b68")
 
 func (sd *SharedDomains) DomainDelPrefix(domain kv.Domain, prefix []byte) error {
 	if domain != kv.StorageDomain {
