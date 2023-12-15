@@ -874,6 +874,8 @@ func (sd *SharedDomains) DomainDel(domain kv.Domain, k1, k2 []byte, prevVal []by
 	}
 }
 
+var TraceSt = common.FromHex("1337a43dc134a437fa24d26decc6f4f3cba7cad30c1f742e818e77c5df48f8041949818e71988554af9f3e5c91cc374583770762")
+
 func (sd *SharedDomains) DomainDelPrefix(domain kv.Domain, prefix []byte) error {
 	if domain != kv.StorageDomain {
 		return fmt.Errorf("DomainDelPrefix: not supported")
@@ -881,12 +883,18 @@ func (sd *SharedDomains) DomainDelPrefix(domain kv.Domain, prefix []byte) error 
 	type pair struct{ k, v []byte }
 	tombs := make([]pair, 0, 8)
 	if err := sd.IterateStoragePrefix(prefix, func(k, v []byte) error {
+		if bytes.Equal(k, TraceSt) {
+			fmt.Printf("iter: %x, %d, %t\n", k, len(v), v == nil)
+		}
 		tombs = append(tombs, pair{k, v})
 		return nil
 	}); err != nil {
 		return err
 	}
 	for _, tomb := range tombs {
+		if bytes.Equal(tomb.k, TraceSt) {
+			fmt.Printf("del: %x, %d, %t\n", tomb.k, len(tomb.v), tomb.v == nil)
+		}
 		if err := sd.DomainDel(kv.StorageDomain, tomb.k, nil, tomb.v); err != nil {
 			return err
 		}
@@ -895,7 +903,9 @@ func (sd *SharedDomains) DomainDelPrefix(domain kv.Domain, prefix []byte) error 
 	//assert
 	cnt := 0
 	if err := sd.IterateStoragePrefix(prefix, func(k, v []byte) error {
-		fmt.Printf("see: %x, %d, %t\n", k, len(v), v == nil)
+		if bytes.Equal(k, TraceSt) {
+			fmt.Printf("see: %x, %d, %t\n", k, len(v), v == nil)
+		}
 		cnt++
 		return nil
 	}); err != nil {
