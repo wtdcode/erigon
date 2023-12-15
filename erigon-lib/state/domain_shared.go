@@ -694,6 +694,10 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 			if err := it(lastKey, lastVal); err != nil {
 				return err
 			}
+		} else {
+			if bytes.Equal(k, TraceSt) {
+				fmt.Printf("iter: skip empty value\n")
+			}
 		}
 	}
 	return nil
