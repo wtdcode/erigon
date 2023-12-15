@@ -621,7 +621,8 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 			if bytes.Equal(key, TraceSt) {
 				fmt.Printf("file0: v: %x\n", val)
 			}
-			heap.Push(cpPtr, &CursorItem{t: FILE_CURSOR, key: key, val: val, btCursor: cursor, endTxNum: item.endTxNum - 1, reverse: true})
+			txNum := item.endTxNum - 1 // !important: .kv files have semantic [from, t)
+			heap.Push(cpPtr, &CursorItem{t: FILE_CURSOR, key: key, val: val, btCursor: cursor, endTxNum: txNum, reverse: true})
 		}
 	}
 
@@ -680,8 +681,6 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
-				step := ^binary.BigEndian.Uint64(v)
-				ci1.endTxNum = step*sd.Storage.aggregationStep - 1
 				if bytes.Equal(k, TraceSt) {
 					fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
 				}
