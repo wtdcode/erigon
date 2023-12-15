@@ -575,9 +575,6 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 		k = []byte(kx)
 
 		if len(kx) > 0 && bytes.HasPrefix(k, prefix) {
-			if bytes.Equal(k, TraceSt) {
-				fmt.Printf("ram0: v: %x\n", v)
-			}
 			heap.Push(cpPtr, &CursorItem{t: RAM_CURSOR, key: common.Copy(k), val: common.Copy(v), iter: iter, endTxNum: sd.txNum, reverse: true})
 		}
 	}
@@ -596,7 +593,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 		copy(keySuffix, k)
 		copy(keySuffix[len(k):], v)
 		step := ^binary.BigEndian.Uint64(v)
-		txNum := step * sd.Storage.aggregationStep
+		txNum := step*sd.Storage.aggregationStep - 1 // !important: .kv files have semantic [from, t)
 		if v, err = roTx.GetOne(sd.Storage.valsTable, keySuffix); err != nil {
 			return err
 		}
@@ -683,6 +680,8 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
+				step := ^binary.BigEndian.Uint64(v)
+				ci1.endTxNum = step*sd.Storage.aggregationStep - 1
 				if bytes.Equal(k, TraceSt) {
 					fmt.Printf("db1: v: %x, %d\n", v, ci1.endTxNum)
 				}
