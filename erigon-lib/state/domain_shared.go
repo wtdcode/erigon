@@ -672,7 +672,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 				}
 
 				if bytes.Equal(k, TraceSt) {
-					fmt.Printf("db1: k, v: %x, %x\n", ci1.key, ci1.val)
+					fmt.Printf("db1: v: %x\n", v)
 				}
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
@@ -684,7 +684,7 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					}
 					ci1.val = common.Copy(v)
 					if bytes.Equal(k, TraceSt) {
-						fmt.Printf("db2: k, v: %x, %x\n", ci1.key, ci1.val)
+						fmt.Printf("db2:  v:  %x\n", ci1.val)
 					}
 					heap.Push(cpPtr, ci1)
 				}
