@@ -622,6 +622,9 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 	for cp.Len() > 0 {
 		lastKey := common.Copy(cp[0].key)
 		lastVal := common.Copy(cp[0].val)
+		if bytes.Equal(lastKey, TraceSt) {
+			fmt.Printf("iter.copy: v: %x, %d\n", lastVal, cp[0].t)
+		}
 		// Advance all the items that have this key (including the top)
 		for cp.Len() > 0 && bytes.Equal(cp[0].key, lastKey) {
 			ci1 := heap.Pop(cpPtr).(*CursorItem)
