@@ -1670,16 +1670,25 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			//}
 			if dc.files[i].src.existence != nil {
 				if !dc.files[i].src.existence.ContainsHash(hi) {
+					if bytes.Equal(filekey, TraceSt) {
+						fmt.Printf("GetLatest(%s, %x) -> existence index %s -> false\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
+					}
 					if traceGetLatest == dc.d.filenameBase {
 						fmt.Printf("GetLatest(%s, %x) -> existence index %s -> false\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
 					}
 					continue
 				} else {
+					if bytes.Equal(filekey, TraceSt) {
+						fmt.Printf("GetLatest(%s, %x) -> existence index %s -> true\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
+					}
 					if traceGetLatest == dc.d.filenameBase {
 						fmt.Printf("GetLatest(%s, %x) -> existence index %s -> true\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
 					}
 				}
 			} else {
+				if bytes.Equal(filekey, TraceSt) {
+					fmt.Printf("GetLatest(%s, %x) -> existence index is nil %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+				}
 				if traceGetLatest == dc.d.filenameBase {
 					fmt.Printf("GetLatest(%s, %x) -> existence index is nil %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 				}
@@ -1692,17 +1701,26 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			return nil, false, err
 		}
 		if !found {
+			if bytes.Equal(filekey, TraceSt) {
+				fmt.Printf("GetLatest(%s, %x) -> not found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+			}
 			if traceGetLatest == dc.d.filenameBase {
 				fmt.Printf("GetLatest(%s, %x) -> not found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 			}
 			//	LatestStateReadGrindNotFound.ObserveDuration(t)
 			continue
 		}
+		if bytes.Equal(filekey, TraceSt) {
+			fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+		}
 		if traceGetLatest == dc.d.filenameBase {
 			fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 		}
 		//LatestStateReadGrind.ObserveDuration(t)
 		return v, true, nil
+	}
+	if bytes.Equal(filekey, TraceSt) {
+		fmt.Printf("GetLatest(%s, %x) -> not found in %d files\n", dc.d.filenameBase, filekey, len(dc.files))
 	}
 	if traceGetLatest == dc.d.filenameBase {
 		fmt.Printf("GetLatest(%s, %x) -> not found in %d files\n", dc.d.filenameBase, filekey, len(dc.files))
@@ -1847,6 +1865,10 @@ func (dc *DomainContext) GetLatest(key1, key2 []byte, roTx kv.Tx) ([]byte, bool,
 	if err != nil {
 		return nil, false, err
 	}
+	if bytes.Equal(key, TraceSt) {
+		fmt.Printf("DomainContext.GetLates11: v: %x\n", foundInvStep)
+	}
+
 	if foundInvStep != nil {
 		copy(dc.valKeyBuf[:], key)
 		copy(dc.valKeyBuf[len(key):], foundInvStep)
@@ -1859,6 +1881,10 @@ func (dc *DomainContext) GetLatest(key1, key2 []byte, roTx kv.Tx) ([]byte, bool,
 		if err != nil {
 			return nil, false, fmt.Errorf("GetLatest value: %w", err)
 		}
+		if bytes.Equal(key, TraceSt) {
+			fmt.Printf("DomainContext.GetLates12: v: %x\n", v)
+		}
+
 		//if traceGetLatest == dc.d.filenameBase {
 		//	fmt.Printf("GetLatest(%s, %x) -> found in db\n", dc.d.filenameBase, key)
 		//}
