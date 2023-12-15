@@ -615,6 +615,9 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					if k != nil && bytes.HasPrefix(k, prefix) {
 						ci1.key = common.Copy(k)
 						ci1.val = common.Copy(ci1.iter.Value())
+						if bytes.Equal(k, TraceSt) {
+							fmt.Printf("ram: k, v: %x, %x\n", ci1.key, ci1.val)
+						}
 						heap.Push(cpPtr, ci1)
 					}
 				}
@@ -624,6 +627,9 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 						ci1.key = ci1.btCursor.Key()
 						if ci1.key != nil && bytes.HasPrefix(ci1.key, prefix) {
 							ci1.val = ci1.btCursor.Value()
+							if bytes.Equal(k, TraceSt) {
+								fmt.Printf("file: k, v: %x, %x\n", ci1.key, ci1.val)
+							}
 							heap.Push(cpPtr, ci1)
 						}
 					}
@@ -645,7 +651,10 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					return err
 				}
 
-				//fmt.Printf("k, v: %x, %x\n", k, v)
+				if bytes.Equal(k, TraceSt) {
+					fmt.Printf("db: k, v: %x, %x\n", k, v)
+				}
+
 				if k != nil && bytes.HasPrefix(k, prefix) {
 					ci1.key = common.Copy(k)
 					keySuffix := make([]byte, len(k)+8)
@@ -654,7 +663,9 @@ func (sd *SharedDomains) IterateStoragePrefix(prefix []byte, it func(k []byte, v
 					if v, err = roTx.GetOne(sd.Storage.valsTable, keySuffix); err != nil {
 						return err
 					}
-					//fmt.Printf("v1: %x\n", v)
+					if bytes.Equal(k, TraceSt) {
+						fmt.Printf("db: v1: %x\n", v)
+					}
 
 					ci1.val = common.Copy(v)
 					heap.Push(cpPtr, ci1)
