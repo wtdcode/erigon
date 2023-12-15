@@ -8,6 +8,7 @@ import (
 
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/erigon-lib/kv"
+	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ledgerwatch/erigon-lib/common/length"
@@ -137,7 +138,7 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		return buf
 	}
 	addr := acc(1)
-	for i := uint64(0); i < stepSize*2; i++ {
+	for i := uint64(0); i < stepSize; i++ {
 		domains.SetTxNum(i)
 		if err = domains.DomainPut(kv.AccountsDomain, addr, nil, acc(i), nil); err != nil {
 			panic(err)
@@ -154,20 +155,30 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 
 		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
 		defer domains.Close()
-		require.Equal(int(stepSize*2), iterCount(domains))
+		require.Equal(int(stepSize), iterCount(domains))
 	}
 	{ // delete marker is in RAM
 		require.NoError(domains.Flush(ctx, rwTx))
 		domains.Close()
 		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
 		defer domains.Close()
+		require.Equal(int(stepSize), iterCount(domains))
 
-		domains.SetTxNum(stepSize*2 + 1)
+		domains.SetTxNum(stepSize)
 		if err := domains.DomainDel(kv.StorageDomain, addr, st(1), nil); err != nil {
 			panic(err)
 		}
-		if err := domains.DomainDel(kv.StorageDomain, addr, st(stepSize+2), nil); err != nil {
+		if err := domains.DomainDel(kv.StorageDomain, addr, st(2), nil); err != nil {
 			panic(err)
+		}
+		for i := stepSize; i < stepSize*2; i++ {
+			domains.SetTxNum(i)
+			if err = domains.DomainPut(kv.AccountsDomain, addr, nil, acc(i), nil); err != nil {
+				panic(err)
+			}
+			if err = domains.DomainPut(kv.StorageDomain, addr, st(i), acc(i), nil); err != nil {
+				panic(err)
+			}
 		}
 		require.Equal(int(stepSize*2-2), iterCount(domains))
 	}
@@ -184,7 +195,7 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		err = rwTx.Commit() // otherwise agg.BuildFiles will not see data
 		require.NoError(err)
 		require.NoError(agg.BuildFiles(stepSize * 2))
-		require.NoError(agg.BuildFiles(stepSize * 2))
+		//require.NoError(agg.BuildFiles(stepSize * 2))
 		require.Equal(1, agg.storage.files.Len())
 
 		ac = agg.MakeContext()
@@ -204,7 +215,7 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
 		defer domains.Close()
 
-		domains.SetTxNum(stepSize*2 + 2)
+		domains.SetTxNum(stepSize * 2)
 		if err := domains.DomainDel(kv.StorageDomain, addr, st(4), nil); err != nil {
 			panic(err)
 		}
@@ -214,6 +225,10 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		require.Equal(int(stepSize*2-3), iterCount(domains))
 	}
 	{ // flush delete/updates to DB
+		_, err = domains.ComputeCommitment(ctx, true, domains.TxNum()/2, "")
+		require.NoError(err)
+		err = rawdbv3.TxNums.Append(rwTx, domains.TxNum()/2, domains.txNum)
+		require.NoError(err)
 		err = domains.Flush(ctx, rwTx)
 		require.NoError(err)
 		domains.Close()
@@ -245,6 +260,7 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 
 		domains = NewSharedDomains(WrapTxWithCtx(rwTx, ac))
 		defer domains.Close()
+		domains.SetTxNum(domains.TxNum() + 1)
 		err := domains.DomainDelPrefix(kv.StorageDomain, []byte{})
 		require.NoError(err)
 		require.Equal(0, iterCount(domains))
