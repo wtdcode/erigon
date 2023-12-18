@@ -152,6 +152,7 @@ TooBigJumpStep:
 	tooBigJump := finishProgressBefore > 0 && fcuHeader.Number.Uint64()-finishProgressBefore > 1_000
 	e.logger.Warn("[dbg] tooBigJump", "t", tooBigJump, "finishProgressBefore", finishProgressBefore, "fcuHeader", fcuHeader.Number.Uint64())
 	if tooBigJump { //jump forward by 1K blocks
+		isSynced = false
 		blockHash, err = e.blockReader.CanonicalHash(ctx, tx, finishProgressBefore+1_000)
 		if err != nil {
 			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
