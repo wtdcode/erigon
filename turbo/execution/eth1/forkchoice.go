@@ -379,6 +379,7 @@ TooBigJumpStep:
 	status := execution.ExecutionStatus_Success
 	if headHash != blockHash {
 		status = execution.ExecutionStatus_BadBlock
+		e.logger.Warn("[dbg] before commit0")
 		if log {
 			e.logger.Warn("bad forkchoice", "head", headHash, "hash", blockHash)
 		}
@@ -389,6 +390,7 @@ TooBigJumpStep:
 			return
 		}
 		if !valid {
+			e.logger.Warn("[dbg] before commit1")
 			sendForkchoiceReceiptWithoutWaiting(outcomeCh, &execution.ForkChoiceReceipt{
 				Status:          execution.ExecutionStatus_InvalidForkchoice,
 				LatestValidHash: gointerfaces.ConvertHashToH256(libcommon.Hash{}),
@@ -396,10 +398,12 @@ TooBigJumpStep:
 			return
 		}
 		if err := rawdb.TruncateCanonicalChain(ctx, tx, *headNumber+1); err != nil {
+			e.logger.Warn("[dbg] before commit2", "err", err)
 			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
 			return
 		}
 
+		e.logger.Warn("[dbg] before commit3")
 		if err := tx.Commit(); err != nil {
 			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
 			return
