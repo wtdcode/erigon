@@ -15,6 +15,8 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/ledgerwatch/erigon/core/state/temporal"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/urfave/cli/v2"
 
@@ -440,7 +442,8 @@ func openSnaps(ctx context.Context, cfg ethconfig.BlocksFreezing, dirs datadir.D
 
 	blockReader := freezeblocks.NewBlockReader(blockSnaps, borSnaps)
 	blockWriter := blockio.NewBlockWriter(fromdb.HistV3(chainDB))
-	br = freezeblocks.NewBlockRetire(estimate.CompressSnapshot.Workers(), dirs, blockReader, blockWriter, chainDB, nil, logger)
+	chainConfig := fromdb.ChainConfig(chainDB)
+	br = freezeblocks.NewBlockRetire(estimate.CompressSnapshot.Workers(), dirs, blockReader, blockWriter, chainDB, chainConfig, nil, logger)
 	return
 }
 
@@ -586,10 +589,6 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	if err := br.BuildMissedIndicesIfNeed(ctx, "retire", nil, chainConfig); err != nil {
 		return err
 	}
-	//db, err = temporal.New(db, agg, systemcontracts.SystemContractCodeLookup[cc.ChainName])
-	//if err != nil {
-	//	return err
-	//}
 
 	//agg.KeepStepsInDB(0)
 
@@ -607,7 +606,7 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	}
 
 	logger.Info("Params", "from", from, "to", to, "every", every)
-	if err := br.RetireBlocks(ctx, forwardProgress, true, log.LvlInfo, nil, nil); err != nil {
+	if err := br.RetireBlocks(ctx, forwardProgress, log.LvlInfo, nil, nil); err != nil {
 		return err
 	}
 
@@ -625,7 +624,7 @@ func doRetireCommand(cliCtx *cli.Context) error {
 
 	for j := 0; j < 10_000; j++ { // prune happens by small steps, so need many runs
 		if err := db.UpdateNosync(ctx, func(tx kv.RwTx) error {
-			if err := br.PruneAncientBlocks(tx, 100, true /* includeBor */); err != nil {
+			if err := br.PruneAncientBlocks(tx, 100); err != nil {
 				return err
 			}
 			return nil
@@ -638,6 +637,10 @@ func doRetireCommand(cliCtx *cli.Context) error {
 		return nil
 	}
 
+	db, err = temporal.New(db, agg, systemcontracts.SystemContractCodeLookup[chainConfig.ChainName])
+	if err != nil {
+		return err
+	}
 	logger.Info("Compute commitment")
 	if err = db.Update(ctx, func(tx kv.RwTx) error {
 		if casted, ok := tx.(kv.CanWarmupDB); ok {
