@@ -164,12 +164,12 @@ func ExecV3(ctx context.Context,
 		agg.SetCollateAndBuildWorkers(estimate.StateV3Collate.Workers())
 		defer agg.SetCollateAndBuildWorkers(1)
 
-		if err := agg.BuildOptionalMissedIndices(ctx, estimate.IndexSnapshot.Workers()); err != nil {
-			return err
-		}
-		if err := agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.Workers()); err != nil {
-			return err
-		}
+		//if err := agg.BuildOptionalMissedIndices(ctx, estimate.IndexSnapshot.Workers()); err != nil {
+		//	return err
+		//}
+		//if err := agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.Workers()); err != nil {
+		//	return err
+		//}
 
 		if !parallel {
 			var err error
