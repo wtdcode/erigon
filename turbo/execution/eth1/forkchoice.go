@@ -384,23 +384,25 @@ TooBigJumpStep:
 			e.logger.Warn("bad forkchoice", "head", headHash, "hash", blockHash)
 		}
 	} else {
-		valid, err := e.verifyForkchoiceHashes(ctx, tx, blockHash, finalizedHash, safeHash)
-		if err != nil {
-			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
-			return
-		}
-		if !valid {
-			e.logger.Warn("[dbg] before commit1")
-			sendForkchoiceReceiptWithoutWaiting(outcomeCh, &execution.ForkChoiceReceipt{
-				Status:          execution.ExecutionStatus_InvalidForkchoice,
-				LatestValidHash: gointerfaces.ConvertHashToH256(libcommon.Hash{}),
-			})
-			return
-		}
-		if err := rawdb.TruncateCanonicalChain(ctx, tx, *headNumber+1); err != nil {
-			e.logger.Warn("[dbg] before commit2", "err", err)
-			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
-			return
+		if !tooBigJump {
+			valid, err := e.verifyForkchoiceHashes(ctx, tx, blockHash, finalizedHash, safeHash)
+			if err != nil {
+				sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
+				return
+			}
+			if !valid {
+				e.logger.Warn("[dbg] before commit1")
+				sendForkchoiceReceiptWithoutWaiting(outcomeCh, &execution.ForkChoiceReceipt{
+					Status:          execution.ExecutionStatus_InvalidForkchoice,
+					LatestValidHash: gointerfaces.ConvertHashToH256(libcommon.Hash{}),
+				})
+				return
+			}
+			if err := rawdb.TruncateCanonicalChain(ctx, tx, *headNumber+1); err != nil {
+				e.logger.Warn("[dbg] before commit2", "err", err)
+				sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
+				return
+			}
 		}
 
 		e.logger.Warn("[dbg] before commit3")
