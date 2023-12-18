@@ -293,7 +293,7 @@ func (f *Fetch) handleInboundMessage(ctx context.Context, req *sentry.InboundMes
 		for i := 0; i < len(hashes); i += hashSize {
 			if responseSize >= p2pTxPacketLimit {
 				processed = i
-				log.Debug("txpool.Fetch.handleInboundMessage PooledTransactions reply truncated to fit p2pTxPacketLimit", "requested", len(hashes), "processed", processed)
+				log.Debug("[txpool.fetch] PooledTransactions reply truncated to fit p2pTxPacketLimit", "requested", len(hashes), "processed", processed)
 				break
 			}
 
@@ -312,7 +312,7 @@ func (f *Fetch) handleInboundMessage(ctx context.Context, req *sentry.InboundMes
 
 		encodedRequest = types2.EncodePooledTransactions66(txs, requestID, nil)
 		if len(encodedRequest) > p2pTxPacketLimit {
-			log.Debug("txpool.Fetch.handleInboundMessage PooledTransactions reply exceeds p2pTxPacketLimit", "requested", len(hashes), "processed", processed)
+			log.Debug("[txpool.fetch] PooledTransactions reply exceeds p2pTxPacketLimit", "requested", len(hashes), "processed", processed)
 		}
 
 		if _, err := sentryClient.SendMessageById(f.ctx, &sentry.SendMessageByIdRequest{
