@@ -160,7 +160,7 @@ func (fv *ForkValidator) ValidatePayload(tx kv.Tx, header *types.Header, body *t
 		}
 		var extendingFork kv.RwTx
 		if histV3 {
-			m := state.NewSharedDomains(tx)
+			m := state.NewSharedDomains(tx).WithMemBatch()
 			defer m.Close()
 			extendingFork = m
 		} else {
@@ -248,17 +248,13 @@ func (fv *ForkValidator) ValidatePayload(tx kv.Tx, header *types.Header, body *t
 	if unwindPoint == fv.currentHeight {
 		unwindPoint = 0
 	}
-	//histV3, err := kvcfg.HistoryV3.Enabled(tx)
-	//if err != nil {
-	//	return "", [32]byte{}, nil, err
-	//}
 	var batch kv.RwTx
 	histV3, err := kvcfg.HistoryV3.Enabled(tx)
 	if err != nil {
 		return "", [32]byte{}, nil, err
 	}
 	if histV3 {
-		sd := state.NewSharedDomains(tx)
+		sd := state.NewSharedDomains(tx).WithMemBatch()
 		defer sd.Close()
 		batch = sd
 	} else {
