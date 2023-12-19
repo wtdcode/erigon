@@ -154,20 +154,20 @@ func (fv *ForkValidator) ValidatePayload(tx kv.Tx, header *types.Header, body *t
 
 	log.Debug("Execution ForkValidator.ValidatePayload", "extendCanonical", extendCanonical)
 	if extendCanonical {
-		//histV3, err := kvcfg.HistoryV3.Enabled(tx)
-		//if err != nil {
-		//	return "", [32]byte{}, nil, err
-		//}
+		histV3, err := kvcfg.HistoryV3.Enabled(tx)
+		if err != nil {
+			return "", [32]byte{}, nil, err
+		}
 		var extendingFork kv.RwTx
-		//if histV3 {
-		//	m := state.NewSharedDomains(tx)
-		//	defer m.Close()
-		//	extendingFork = m
-		//} else {
-		m := membatchwithdb.NewMemoryBatch(tx, fv.tmpDir)
-		defer m.Close()
-		extendingFork = m
-		//}
+		if histV3 {
+			m := state.NewSharedDomains(tx)
+			defer m.Close()
+			extendingFork = m
+		} else {
+			m := membatchwithdb.NewMemoryBatch(tx, fv.tmpDir)
+			defer m.Close()
+			extendingFork = m
+		}
 		fv.extendingForkNotifications = &shards.Notifications{
 			Events:      shards.NewEvents(),
 			Accumulator: shards.NewAccumulator(),
