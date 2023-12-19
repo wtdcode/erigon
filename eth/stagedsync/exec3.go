@@ -309,7 +309,7 @@ func ExecV3(ctx context.Context,
 
 	log.Warn("execv3 starting",
 		"inputTxNum", inputTxNum, "restored_block", blockNum,
-		"restored_txNum", doms.TxNum(), "offsetFromBlockBeginning", offsetFromBlockBeginning)
+		"restored_txNum", doms.TxNum(), "offsetFromBlockBeginning", offsetFromBlockBeginning, "initialCycle", initialCycle)
 
 	if initialCycle && blocksFreezeCfg.Produce {
 		log.Info(fmt.Sprintf("[snapshots] db has steps amount: %s", agg.StepsRangeInDBAsStr(applyTx)))
