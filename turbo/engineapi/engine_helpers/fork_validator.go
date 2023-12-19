@@ -21,7 +21,9 @@ import (
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/kv"
+	"github.com/ledgerwatch/erigon-lib/kv/kvcfg"
 	"github.com/ledgerwatch/erigon-lib/kv/membatchwithdb"
+	"github.com/ledgerwatch/erigon-lib/state"
 	"github.com/ledgerwatch/erigon/cl/phase1/core/state/lru"
 	"github.com/ledgerwatch/erigon/common/math"
 	"github.com/ledgerwatch/erigon/consensus"
@@ -251,14 +253,19 @@ func (fv *ForkValidator) ValidatePayload(tx kv.Tx, header *types.Header, body *t
 	//	return "", [32]byte{}, nil, err
 	//}
 	var batch kv.RwTx
-	//if histV3 {
-	//	sd := state.NewSharedDomains(tx)
-	//	defer sd.Close()
-	//	batch = sd
-	//} else {
-	batch = membatchwithdb.NewMemoryBatch(tx, fv.tmpDir)
-	defer batch.Rollback()
-	//}
+	histV3, err := kvcfg.HistoryV3.Enabled(tx)
+	if err != nil {
+		return "", [32]byte{}, nil, err
+	}
+	var batch kv.RwTx
+	if histV3 {
+		sd := state.NewSharedDomains(tx)
+		defer sd.Close()
+		batch = sd
+	} else {
+		batch = membatchwithdb.NewMemoryBatch(tx, fv.tmpDir)
+		defer batch.Rollback()
+	}
 	notifications := &shards.Notifications{
 		Events:      shards.NewEvents(),
 		Accumulator: shards.NewAccumulator(),
