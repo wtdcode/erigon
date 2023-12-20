@@ -644,6 +644,7 @@ Loop:
 			return err
 		}
 		if b == nil {
+			log.Warn("[dbg] exit 4", "blockNum", blockNum)
 			// TODO: panic here and see that overall process deadlock
 			return fmt.Errorf("nil block %d", blockNum)
 		}

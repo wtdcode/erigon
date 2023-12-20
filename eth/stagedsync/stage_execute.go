@@ -265,6 +265,7 @@ func ExecBlockV3(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint64, ctx cont
 
 	prevStageProgress, err := senderStageProgress(tx, cfg.db)
 	if err != nil {
+		log.Warn("[dbg] exit 0")
 		return err
 	}
 
@@ -275,6 +276,7 @@ func ExecBlockV3(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint64, ctx cont
 	}
 	log.Warn("[dbg] E3", "prevStageProgress", prevStageProgress, "toBlock", toBlock, "to", to, "s.BlockNumber", s.BlockNumber)
 	if to < s.BlockNumber {
+		log.Warn("[dbg] exit 1")
 		return nil
 	}
 	if to > s.BlockNumber+16 {
@@ -283,6 +285,7 @@ func ExecBlockV3(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint64, ctx cont
 
 	parallel := tx == nil
 	if err := ExecV3(ctx, s, u, workersCount, cfg, tx, parallel, to, logger, initialCycle); err != nil {
+		log.Warn("[dbg] exit 2")
 		return fmt.Errorf("ExecV3: %w", err)
 	}
 	return nil
