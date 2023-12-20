@@ -271,21 +271,25 @@ func AllTorrentPaths(dirs datadir.Dirs) ([]string, error) {
 		return nil, err
 	}
 	if dbg.DownloaderOnlyBlocks {
+		panic(1)
 		return files, nil
 	}
 	l1, err := dir2.ListFiles(dirs.SnapIdx, ".torrent")
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("[dbg] l1: %s\n", l1)
 	l2, err := dir2.ListFiles(dirs.SnapHistory, ".torrent")
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("[dbg] l2: %s\n", l2)
 	l3, err := dir2.ListFiles(dirs.SnapDomain, ".torrent")
 	if err != nil {
 		return nil, err
 	}
 	files = append(append(append(files, l1...), l2...), l3...)
+	fmt.Printf("[dbg] l3: %s\n", l3)
 	return files, nil
 }
 
