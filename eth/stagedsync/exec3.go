@@ -229,7 +229,7 @@ func ExecV3(ctx context.Context,
 		if err != nil {
 			return false, err
 		}
-		log.Warn("[dbg] E3.nothingToExec", "lastBlockNum", lb, "lastTxNum", lastTxNum)
+		log.Warn("[dbg] E3.nothingToExec", "lastBlockNum", lb, "lastTxNum", lastTxNum, "inputTxNum", inputTxNum)
 		return lastTxNum == inputTxNum, nil
 	}
 	log.Warn("[dbg] E3.31")
