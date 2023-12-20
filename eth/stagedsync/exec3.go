@@ -330,6 +330,7 @@ func ExecV3(ctx context.Context,
 	var lock sync.RWMutex
 
 	rs := state.NewStateV3(doms, logger)
+	log.Warn("[dbg] E3.4")
 
 	////TODO: owner of `resultCh` is main goroutine, but owner of `retryQueue` is applyLoop.
 	// Now rwLoop closing both (because applyLoop we completely restart)
@@ -355,6 +356,7 @@ func ExecV3(ctx context.Context,
 
 	applyLoopWg := sync.WaitGroup{} // to wait for finishing of applyLoop after applyCtx cancel
 	defer applyLoopWg.Wait()
+	log.Warn("[dbg] E3.5")
 
 	applyLoopInner := func(ctx context.Context) error {
 		tx, err := chainDb.BeginRo(ctx)
@@ -585,6 +587,8 @@ func ExecV3(ctx context.Context,
 		})
 	}
 
+	log.Warn("[dbg] E3.6")
+
 	if blockNum < cfg.blockReader.FrozenBlocks() {
 		defer agg.KeepStepsInDB(0).KeepStepsInDB(1)
 	}
@@ -614,12 +618,13 @@ func ExecV3(ctx context.Context,
 		applyWorker.ResetTx(applyTx)
 		doms.SetTx(applyTx)
 	}
+	log.Warn("[dbg] E3.7")
 
 	slowDownLimit := time.NewTicker(time.Second)
 	defer slowDownLimit.Stop()
 
 	stateStream := !initialCycle && cfg.stateStream && maxBlockNum-blockNum < stateStreamLimit
-	log.Warn("[dbg] E3.4")
+	log.Warn("[dbg] E3.8")
 
 	var readAhead chan uint64
 	if !parallel {
