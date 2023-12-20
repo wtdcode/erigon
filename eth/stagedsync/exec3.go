@@ -225,12 +225,14 @@ func ExecV3(ctx context.Context,
 	log.Warn("[dbg] E3.3")
 
 	nothingToExec := func(applyTx kv.Tx) (bool, error) {
-		_, lastTxNum, err := rawdbv3.TxNums.Last(applyTx)
+		lb, lastTxNum, err := rawdbv3.TxNums.Last(applyTx)
 		if err != nil {
 			return false, err
 		}
+		log.Warn("[dbg] E3.nothingToExec", "lastBlockNum", lb, "lastTxNum", lastTxNum)
 		return lastTxNum == inputTxNum, nil
 	}
+	log.Warn("[dbg] E3.31")
 
 	// Cases:
 	//  1. Snapshots > ExecutionStage: snapshots can have half-block data `10.4`. Get right txNum from SharedDomains (after SeekCommitment)
