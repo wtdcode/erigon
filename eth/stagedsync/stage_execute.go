@@ -279,6 +279,7 @@ func ExecBlockV3(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint64, ctx cont
 	if to > s.BlockNumber+16 {
 		logger.Info(fmt.Sprintf("[%s] Blocks execution", logPrefix), "from", s.BlockNumber, "to", to)
 	}
+	log.Warn("[dbg] E3", "prevStageProgress", prevStageProgress, "toBlock", toBlock, "to", to)
 
 	parallel := tx == nil
 	if err := ExecV3(ctx, s, u, workersCount, cfg, tx, parallel, to, logger, initialCycle); err != nil {
@@ -421,6 +422,7 @@ func SpawnExecuteBlocksStage(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint
 	if to > s.BlockNumber+16 {
 		logger.Info(fmt.Sprintf("[%s] Blocks execution", logPrefix), "from", s.BlockNumber, "to", to)
 	}
+	log.Warn("[dbg] E3", "prevStageProgress", prevStageProgress, "toBlock", toBlock, "to", to)
 	stateStream := !initialCycle && cfg.stateStream && to-s.BlockNumber < stateStreamLimit
 
 	// changes are stored through memory buffer
