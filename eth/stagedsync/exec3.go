@@ -620,6 +620,7 @@ func ExecV3(ctx context.Context,
 
 	blocksInSnapshots := cfg.blockReader.FrozenBlocks()
 	//fmt.Printf("exec blocks: %d -> %d\n", blockNum, maxBlockNum)
+	log.Warn("[dbg] E3, here", "blockNum", blockNum, "maxBlockNum", maxBlockNum)
 
 	var b *types.Block
 Loop:
