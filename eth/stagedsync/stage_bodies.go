@@ -208,7 +208,7 @@ func BodiesForward(
 				return false, fmt.Errorf("WriteRawBodyIfNotExists: %w", err)
 			}
 			if cfg.historyV3 && ok {
-				if err := rawdb.AppendCanonicalTxNums(tx, blockHeight); err != nil {
+				if err := rawdb.AppendCanonicalTxNums(tx, blockHeight, false); err != nil {
 					return false, err
 				}
 			}

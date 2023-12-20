@@ -59,7 +59,7 @@ func (w *BlockWriter) FillHeaderNumberIndex(logPrefix string, tx kv.RwTx, tmpDir
 
 func (w *BlockWriter) MakeBodiesCanonical(tx kv.RwTx, from uint64) error {
 	if w.historyV3 {
-		if err := rawdb.AppendCanonicalTxNums(tx, from); err != nil {
+		if err := rawdb.AppendCanonicalTxNums(tx, from, false); err != nil {
 			return err
 		}
 	}

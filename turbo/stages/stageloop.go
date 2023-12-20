@@ -403,7 +403,7 @@ func addAndVerifyBlockStep(batch kv.RwTx, engine consensus.Engine, chainReader c
 		return err
 	}
 	if histV3 && ok {
-		if err := rawdb.AppendCanonicalTxNums(batch, currentHeight); err != nil {
+		if err := rawdb.AppendCanonicalTxNums(batch, currentHeight, false); err != nil {
 			return err
 		}
 	}

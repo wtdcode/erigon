@@ -306,11 +306,11 @@ func FillDBFromSnapshots(logPrefix string, ctx context.Context, tx kv.RwTx, dirs
 					return fmt.Errorf("build txNum => blockNum mapping: %w", err)
 				}
 				if blockReader.FrozenBlocks() > 0 {
-					if err := rawdb.AppendCanonicalTxNums(tx, blockReader.FrozenBlocks()+1); err != nil {
+					if err := rawdb.AppendCanonicalTxNums(tx, blockReader.FrozenBlocks()+1, false); err != nil {
 						return err
 					}
 				} else {
-					if err := rawdb.AppendCanonicalTxNums(tx, 0); err != nil {
+					if err := rawdb.AppendCanonicalTxNums(tx, 0, false); err != nil {
 						return err
 					}
 				}

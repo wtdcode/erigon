@@ -684,7 +684,7 @@ func DeleteBody(db kv.Deleter, hash common.Hash, number uint64) {
 	}
 }
 
-func AppendCanonicalTxNums(tx kv.RwTx, from uint64) (err error) {
+func AppendCanonicalTxNums(tx kv.RwTx, from uint64, trace bool) (err error) {
 	nextBaseTxNum := 0
 	if from > 0 {
 		nextBaseTxNumFromDb, err := rawdbv3.TxNums.Max(tx, from-1)
@@ -700,11 +700,17 @@ func AppendCanonicalTxNums(tx kv.RwTx, from uint64) (err error) {
 			return err
 		}
 		if h == (common.Hash{}) {
+			if trace {
+				log.Warn("[dbg] AppendCanonicalTxNums1")
+			}
 			break
 		}
 
 		data := ReadStorageBodyRLP(tx, h, blockNum)
 		if len(data) == 0 {
+			if trace {
+				log.Warn("[dbg] AppendCanonicalTxNums2")
+			}
 			break
 		}
 		bodyForStorage := types.BodyForStorage{}
@@ -713,6 +719,9 @@ func AppendCanonicalTxNums(tx kv.RwTx, from uint64) (err error) {
 		}
 
 		nextBaseTxNum += int(bodyForStorage.TxAmount)
+		if trace {
+			log.Warn("[dbg] AppendCanonicalTxNums3", "blockNum", blockNum, "nextBaseTxNum-1", nextBaseTxNum-1)
+		}
 		err = rawdbv3.TxNums.Append(tx, blockNum, uint64(nextBaseTxNum-1))
 		if err != nil {
 			return err
