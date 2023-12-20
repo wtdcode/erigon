@@ -156,6 +156,7 @@ func ExecV3(ctx context.Context,
 	agg, engine := cfg.agg, cfg.engine
 	chainConfig, genesis := cfg.chainConfig, cfg.genesis
 	blocksFreezeCfg := cfg.blockReader.FreezingCfg()
+	log.Warn("[dbg] E3.2")
 
 	useExternalTx := applyTx != nil
 	if !useExternalTx {
@@ -216,6 +217,7 @@ func ExecV3(ctx context.Context,
 		blockNum, maxTxNum       uint64
 	)
 	blockComplete.Store(true)
+	log.Warn("[dbg] E3.3")
 
 	nothingToExec := func(applyTx kv.Tx) (bool, error) {
 		_, lastTxNum, err := rawdbv3.TxNums.Last(applyTx)
@@ -607,6 +609,7 @@ func ExecV3(ctx context.Context,
 	defer slowDownLimit.Stop()
 
 	stateStream := !initialCycle && cfg.stateStream && maxBlockNum-blockNum < stateStreamLimit
+	log.Warn("[dbg] E3.4")
 
 	var readAhead chan uint64
 	if !parallel {

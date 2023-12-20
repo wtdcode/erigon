@@ -284,8 +284,9 @@ func ExecBlockV3(s *StageState, u Unwinder, tx kv.RwTx, toBlock uint64, ctx cont
 	}
 
 	parallel := tx == nil
+	log.Warn("[dbg] E3.1")
 	if err := ExecV3(ctx, s, u, workersCount, cfg, tx, parallel, to, logger, initialCycle); err != nil {
-		log.Warn("[dbg] exit 2")
+		log.Warn("[dbg] exit 2", "err", err)
 		return fmt.Errorf("ExecV3: %w", err)
 	}
 	return nil
