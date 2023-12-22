@@ -342,6 +342,7 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 	var have bool
 	t, have = torrentClient.Torrent(ts.InfoHash)
 	if !have {
+		defer func(t time.Time) { fmt.Printf("util.go:345: %s, %s\n", time.Since(t), ts.DisplayName) }(time.Now())
 		t, _, err := torrentClient.AddTorrentSpec(ts)
 		if err != nil {
 			return nil, false, fmt.Errorf("addTorrentFile %s: %w", ts.DisplayName, err)
@@ -351,8 +352,10 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 
 	select {
 	case <-t.GotInfo():
+		defer func(t time.Time) { fmt.Printf("util.go:355: %s, %s\n", time.Since(t), ts.DisplayName) }(time.Now())
 		t.AddWebSeeds(ts.Webseeds)
 	default:
+		defer func(t time.Time) { fmt.Printf("util.go:358: %s, %s\n", time.Since(t), ts.DisplayName) }(time.Now())
 		t, _, err = torrentClient.AddTorrentSpec(ts)
 		if err != nil {
 			return t, true, fmt.Errorf("addTorrentFile %s: %w", ts.DisplayName, err)
