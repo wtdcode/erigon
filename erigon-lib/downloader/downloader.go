@@ -407,7 +407,7 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 			noMetadata = append(noMetadata, t.Name())
 		}
 
-		d.logger.Warn("[dbg] information", "name", t.Name())
+		d.logger.Warn("[dbg] information", "name", t.Name(), "completed", t.Complete.Bool())
 		stats.Completed = stats.Completed && t.Complete.Bool()
 	}
 
