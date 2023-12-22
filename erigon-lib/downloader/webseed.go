@@ -60,7 +60,7 @@ func (d *WebSeeds) downloadWebseedTomlFromProviders(ctx context.Context, s3Provi
 		}
 		response, err := d.callHttpProvider(ctx, webSeedProviderURL)
 		if err != nil { // don't fail on error
-			d.logger.Debug("[snapshots.webseed] get from HTTP provider", "err", err, "url", webSeedProviderURL.EscapedPath())
+			d.logger.Error("[snapshots.webseed] get from HTTP provider", "err", err, "url", webSeedProviderURL.EscapedPath())
 			continue
 		}
 		list = append(list, response)
@@ -74,7 +74,7 @@ func (d *WebSeeds) downloadWebseedTomlFromProviders(ctx context.Context, s3Provi
 		}
 		response, err := d.callS3Provider(ctx, webSeedProviderURL)
 		if err != nil { // don't fail on error
-			d.logger.Debug("[snapshots.webseed] get from S3 provider", "err", err)
+			d.logger.Error("[snapshots.webseed] get from S3 provider", "err", err)
 			continue
 		}
 		list = append(list, response)
@@ -83,7 +83,7 @@ func (d *WebSeeds) downloadWebseedTomlFromProviders(ctx context.Context, s3Provi
 	for _, webSeedFile := range diskProviders {
 		response, err := d.readWebSeedsFile(webSeedFile)
 		if err != nil { // don't fail on error
-			d.logger.Debug("[snapshots.webseed] get from File provider", "err", err)
+			d.logger.Error("[snapshots.webseed] get from File provider", "err", err)
 			continue
 		}
 		list = append(list, response)
@@ -101,10 +101,11 @@ func (d *WebSeeds) downloadWebseedTomlFromProviders(ctx context.Context, s3Provi
 			}
 			uri, err := url.ParseRequestURI(wUrl)
 			if err != nil {
-				d.logger.Debug("[snapshots] url is invalid", "url", wUrl, "err", err)
+				d.logger.Error("[snapshots] url is invalid", "url", wUrl, "err", err)
 				continue
 			}
 			torrentUrls[name] = append(torrentUrls[name], uri)
+			d.logger.Info("Torrent uri to add", "uri", uri)
 		}
 	}
 
