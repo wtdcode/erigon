@@ -239,6 +239,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	}
 	var addedNew int
 	e, ctx := errgroup.WithContext(ctx)
+	e.SetLimit(1024)
 	urlsByName := d.TorrentUrls()
 	//TODO:
 	// - what to do if node already synced?
@@ -254,7 +255,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 			strings.HasSuffix(name, ".ef.torrent")
 		if !whiteListed {
 			_, fName := filepath.Split(name)
-			d.logger.Log(d.verbosity, "[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
+			d.logger.Warn("[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
 			continue
 		}
 		//Erigon3 doesn't provide history of commitment (.v, .ef files), but does provide .kv:
@@ -263,11 +264,12 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		e3blackListed := strings.Contains(name, "commitment") && (strings.HasSuffix(name, ".v.torrent") || strings.HasSuffix(name, ".ef.torrent"))
 		if e3blackListed {
 			_, fName := filepath.Split(name)
-			d.logger.Log(d.verbosity, "[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
+			d.logger.Warn("[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
 			continue
 		}
 		name := name
 		tUrls := tUrls
+		d.logger.Warn("[snapshots] before call", "name", name, "tUrls", tUrls)
 		e.Go(func() error {
 			for _, url := range tUrls {
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
