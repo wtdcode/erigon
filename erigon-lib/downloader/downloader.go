@@ -131,12 +131,14 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 	// means we can start adding weebseeds without waiting for `<-t.GotInfo()`
 	d.wg.Add(1)
 
+	fmt.Printf("WebSeedUrls: %s, WebSeedFiles: %s\n", d.cfg.WebSeedUrls, d.cfg.WebSeedFiles)
+
 	go func() {
 		defer d.wg.Done()
 		if !discover {
 			return
 		}
-		fmt.Printf("WebSeedUrls: %s, WebSeedFiles: %s\n", d.cfg.WebSeedUrls, d.cfg.WebSeedFiles)
+		fmt.Printf("goroutine WebSeedUrls: %s, WebSeedFiles: %s\n", d.cfg.WebSeedUrls, d.cfg.WebSeedFiles)
 		d.webseeds.Discover(d.ctx, d.cfg.WebSeedS3Tokens, d.cfg.WebSeedUrls, d.cfg.WebSeedFiles, d.cfg.Dirs.Snap)
 		// webseeds.Discover may create new .torrent files on disk
 		if err := d.addTorrentFilesFromDisk(true); err != nil && !errors.Is(err, context.Canceled) {
