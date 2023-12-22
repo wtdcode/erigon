@@ -50,7 +50,7 @@ func (d *WebSeeds) Discover(ctx context.Context, s3tokens []string, urls []*url.
 }
 
 func (d *WebSeeds) downloadWebseedTomlFromProviders(ctx context.Context, s3Providers []string, httpProviders []*url.URL, diskProviders []string) {
-	log.Debug("[snapshots] webseed providers", "http", len(httpProviders), "s3", len(s3Providers), "disk", len(diskProviders))
+	log.Info("[snapshots] webseed providers", "http", len(httpProviders), "s3", len(s3Providers), "disk", len(diskProviders))
 	list := make([]snaptype.WebSeedsFromProvider, 0, len(httpProviders)+len(diskProviders))
 	for _, webSeedProviderURL := range httpProviders {
 		select {
