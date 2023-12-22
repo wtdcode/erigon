@@ -298,6 +298,7 @@ func (d *WebSeeds) callTorrentHttpProvider(ctx context.Context, url *url.URL, fi
 	request = request.WithContext(ctx)
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
+		log.Warn("[dbg] call fail", "f", fileName, "host", url.Hostname(), "err", err)
 		return nil, fmt.Errorf("webseed.downloadTorrentFile: host=%s, url=%s, %w", url.Hostname(), url.EscapedPath(), err)
 	}
 	defer resp.Body.Close()
@@ -307,11 +308,14 @@ func (d *WebSeeds) callTorrentHttpProvider(ctx context.Context, url *url.URL, fi
 	}
 	res, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Warn("[dbg] call fail", "f", fileName, "host", url.Hostname(), "err", err)
 		return nil, fmt.Errorf("webseed.downloadTorrentFile: host=%s, url=%s, %w", url.Hostname(), url.EscapedPath(), err)
 	}
 	if err = validateTorrentBytes(fileName, res, d.torrentsWhitelist); err != nil {
+		log.Warn("[dbg] validation fail", "f", fileName, "host", url.Hostname())
 		return nil, fmt.Errorf("webseed.downloadTorrentFile: host=%s, url=%s, %w", url.Hostname(), url.EscapedPath(), err)
 	}
+	log.Warn("[dbg] validation pass", "f", fileName, "host", url.Hostname())
 	return res, nil
 }
 
