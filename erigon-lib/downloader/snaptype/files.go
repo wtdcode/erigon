@@ -164,10 +164,10 @@ const Erigon3SeedableSteps = 64
 //   - avoiding having too much files:
 //     more files(shards) - means "more metadata", "more lookups for non-indexed queries", "more dictionaries", "more bittorrent connections", ...
 //     less files - means small files will be removed after merge (no peers for this files).
-const Erigon2MergeLimit = 100_000
+const Erigon2MergeLimit = 500_000
 const Erigon2MinSegmentSize = 1_000
 
-var MergeSteps = []uint64{100_000, 10_000}
+var MergeSteps = []uint64{500_000, 100_000, 10_000}
 
 // FileInfo - parsed file metadata
 type FileInfo struct {
