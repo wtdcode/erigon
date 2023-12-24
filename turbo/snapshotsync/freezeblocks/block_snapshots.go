@@ -1239,6 +1239,7 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, forwardProgress uint64,
 	if len(rangesToMerge) == 0 {
 		return ok, nil
 	}
+	ok = true // have something to merge
 	onMerge := func(r Range) error {
 		if notifier != nil && !reflect.ValueOf(notifier).IsNil() { // notify about new snapshots of any size
 			notifier.OnNewSnapshot()
@@ -1299,7 +1300,7 @@ func (br *BlockRetire) RetireBlocksInBackground(ctx context.Context, forwardProg
 	}()
 }
 
-func (br *BlockRetire) RetireBlocks(ctx context.Context, forwardProgress uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDeleteSnapshots func(l []string) error) error {
+func (br *BlockRetire) RetireBlocks(ctx context.Context, forwardProgress uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDeleteSnapshots func(l []string) error) (err error) {
 	includeBor := br.chainConfig.Bor != nil
 	if includeBor {
 		// if bor snapshots are behind, let's align them
@@ -1314,20 +1315,21 @@ func (br *BlockRetire) RetireBlocks(ctx context.Context, forwardProgress uint64,
 		}
 	}
 
+	var ok, okBor bool
 	for {
-		ok, err := br.retireBlocks(ctx, forwardProgress, lvl, seedNewSnapshots, onDeleteSnapshots)
+		ok, err = br.retireBlocks(ctx, forwardProgress, lvl, seedNewSnapshots, onDeleteSnapshots)
 		if err != nil {
 			return err
 		}
-		if !ok {
-			break
-		}
-
 		if includeBor {
-			_, err := br.retireBorBlocks(ctx, forwardProgress, lvl, seedNewSnapshots, onDeleteSnapshots)
+			okBor, err = br.retireBorBlocks(ctx, forwardProgress, lvl, seedNewSnapshots, onDeleteSnapshots)
 			if err != nil {
 				return err
 			}
+		}
+		haveMore := ok || okBor
+		if !haveMore {
+			break
 		}
 	}
 	return nil

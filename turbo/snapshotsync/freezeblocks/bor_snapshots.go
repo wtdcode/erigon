@@ -196,6 +196,7 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, forwardProgress uint
 	if len(rangesToMerge) == 0 {
 		return ok, nil
 	}
+	ok = true // have something to merge
 	onMerge := func(r Range) error {
 		if notifier != nil && !reflect.ValueOf(notifier).IsNil() { // notify about new snapshots of any size
 			notifier.OnNewSnapshot()
