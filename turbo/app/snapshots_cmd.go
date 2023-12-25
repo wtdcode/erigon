@@ -287,7 +287,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 	{
 		i := 0
 		var minStep uint64 = math.MaxUint64
-		keys, err := view.DomainRangeLatest(tx, domain, nil, nil, -1)
+		keys, err := view.DomainRangeLatest(tx, domain, []byte{1}, nil, -1)
 		if err != nil {
 			return err
 		}
