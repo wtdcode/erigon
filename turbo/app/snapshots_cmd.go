@@ -298,7 +298,6 @@ func doDebugKey(cliCtx *cli.Context) error {
 				return err
 			}
 			for it.HasNext() {
-
 				txNum, _ := it.Next()
 				ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
 				if err != nil {
@@ -310,7 +309,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 				_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 				if txNum == _min {
 					minStep = min(minStep, txNum/agg.StepSize())
-					log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d, key=%x", txNum/agg.StepSize(), blockNum, key))
+					log.Warn(fmt.Sprintf("[dbg] step=%d, txNum=%d, blockNum=%d, key=%x", txNum/agg.StepSize(), txNum, blockNum, key))
 					break
 				}
 
