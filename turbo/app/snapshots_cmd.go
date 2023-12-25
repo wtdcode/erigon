@@ -287,9 +287,6 @@ func doDebugKey(cliCtx *cli.Context) error {
 				return err
 			}
 			defer tx.Rollback()
-			if _, _, err := view.GetLatest(domain, key, nil, tx); err != nil {
-				return err
-			}
 			{
 				var minStep uint64 = math.MaxUint64
 				keys, err := view.DomainRangeLatest(tx, domain, []byte{byte(j)}, []byte{byte(j + 1)}, -1)
