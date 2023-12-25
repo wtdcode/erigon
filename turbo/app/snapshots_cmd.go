@@ -306,6 +306,9 @@ func doDebugKey(cliCtx *cli.Context) error {
 				if !ok {
 					panic(txNum)
 				}
+				if blockNum == 0 {
+					continue
+				}
 				_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 				if txNum == _min {
 					minStep = min(minStep, txNum/agg.StepSize())
