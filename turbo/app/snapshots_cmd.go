@@ -311,10 +311,11 @@ func doDebugKey(cliCtx *cli.Context) error {
 				if txNum == _min {
 					minStep = min(minStep, _min)
 				}
-			}
-			i++
-			if i%100 == 0 {
-				log.Warn(fmt.Sprintf("[dbg] step=%d, txNum=%x", minStep, key))
+
+				i++
+				if i%10_000 == 0 {
+					log.Warn(fmt.Sprintf("[dbg] step=%d, txNum=%x", minStep, key))
+				}
 			}
 		}
 		log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
