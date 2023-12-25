@@ -313,7 +313,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 				}
 			}
 			i++
-			if i%1_000 == 0 {
+			if i%100 == 0 {
 				log.Warn(fmt.Sprintf("[dbg] step=%d, txNum=%x", minStep, key))
 			}
 		}
