@@ -149,7 +149,7 @@ func CheckChangeSets(ctx context.Context, genesis *types.Genesis, snapshotVersio
 		if b == nil {
 			break
 		}
-		reader := state.NewPlainState(historyTx, blockNum, systemcontracts.SystemContractCodeLookup[chainConfig.ChainName])
+		reader := state.NewPlainState(historyTx, b.Time(), blockNum, systemcontracts.SystemContractCodeLookup[chainConfig.ChainName])
 		//reader.SetTrace(blockNum == uint64(block))
 		intraBlockState := state.New(reader)
 		csw := state.NewChangeSetWriterPlain(nil /* db */, blockNum)

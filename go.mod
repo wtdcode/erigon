@@ -23,6 +23,7 @@ require (
 	github.com/anacrolix/torrent v1.52.6-0.20231201115409-7ea994b6bbd8
 	github.com/benesch/cgosymbolizer v0.0.0-20190515212042-bec6fe6e597b
 	github.com/bnb-chain/ics23 v0.1.0
+	github.com/btcsuite/btcd v0.22.3
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b
 	github.com/cometbft/cometbft v0.0.0-00010101000000-000000000000

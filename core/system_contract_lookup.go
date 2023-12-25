@@ -12,8 +12,8 @@ import (
 )
 
 func init() {
-	// Initialise SystemContractCodeLookup
-	for _, chainName := range []string{networkname.BSCChainName, networkname.ChapelChainName, networkname.BorMainnetChainName, networkname.MumbaiChainName, networkname.AmoyChainName, networkname.BorDevnetChainName} {
+	// Initialise systemContractCodeLookup
+	for _, chainName := range []string{networkname.BSCChainName, networkname.ChapelChainName, networkname.RialtoChainName, networkname.BorMainnetChainName, networkname.MumbaiChainName, networkname.BorDevnetChainName} {
 		byChain := map[libcommon.Address][]libcommon.CodeRecord{}
 		systemcontracts.SystemContractCodeLookup[chainName] = byChain
 		// Apply genesis with the block number 0
