@@ -292,7 +292,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 		//	k,_,_:=keys.Next()
 		//}
 
-		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
+		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, 100, tx)
 		if err != nil {
 			return err
 		}
