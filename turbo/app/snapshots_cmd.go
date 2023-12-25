@@ -281,50 +281,49 @@ func doDebugKey(cliCtx *cli.Context) error {
 	for j := 0; j < 255; j++ {
 		j := j
 		g.Go(func() error {
-
 			tx, err := chainDB.BeginRo(ctx)
 			if err != nil {
 				return err
 			}
 			defer tx.Rollback()
-			{
-				var minStep uint64 = math.MaxUint64
-				keys, err := view.DomainRangeLatest(tx, domain, []byte{byte(j)}, []byte{byte(j + 1)}, -1)
+
+			var minStep uint64 = math.MaxUint64
+			keys, err := view.DomainRangeLatest(tx, domain, []byte{byte(j)}, []byte{byte(j + 1)}, -1)
+			if err != nil {
+				return err
+			}
+			for keys.HasNext() {
+				key, _, _ := keys.Next()
+
+				it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
 				if err != nil {
 					return err
 				}
-				for keys.HasNext() {
-					key, _, _ := keys.Next()
-
-					it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
+				for it.HasNext() {
+					txNum, _ := it.Next()
+					ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
 					if err != nil {
 						return err
 					}
-					for it.HasNext() {
-						txNum, _ := it.Next()
-						ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
-						if err != nil {
-							return err
-						}
-						if !ok {
-							panic(txNum)
-						}
-						if blockNum == 0 {
-							continue
-						}
-						_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
-						if txNum == _min {
-							minStep = min(minStep, txNum/agg.StepSize())
-							log.Warn(fmt.Sprintf("[dbg] minStep=%d, step=%d, txNum=%d, blockNum=%d, key=%x", minStep, txNum/agg.StepSize(), txNum, blockNum, key))
-							break
-						}
-
+					if !ok {
+						panic(txNum)
 					}
-					it.(kv.Closer).Close()
+					if blockNum == 0 {
+						continue
+					}
+					_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
+					if txNum == _min {
+						minStep = min(minStep, txNum/agg.StepSize())
+						log.Warn(fmt.Sprintf("[dbg] minStep=%d, step=%d, txNum=%d, blockNum=%d, key=%x", minStep, txNum/agg.StepSize(), txNum, blockNum, key))
+						break
+					}
+
 				}
-				log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
+				it.(kv.Closer).Close()
 			}
-			return err
+			log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
+
+			return nil
 		})
 	}
 	if err := g.Wait(); err != nil {
