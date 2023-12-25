@@ -292,7 +292,8 @@ func doDebugKey(cliCtx *cli.Context) error {
 		//	k,_,_:=keys.Next()
 		//}
 
-		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, 100, tx)
+		var minStep uint64
+		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
 		if err != nil {
 			return err
 		}
@@ -307,6 +308,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 			}
 			_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 			if txNum == _min {
+				minStep = min(minStep, _min)
 				log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d,txNum=%d", txNum/agg.StepSize(), blockNum, txNum))
 			}
 		}
