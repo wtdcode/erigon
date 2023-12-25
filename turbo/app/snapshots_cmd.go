@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/ledgerwatch/erigon-lib/kv/order"
 	"github.com/ledgerwatch/erigon/core/state/temporal"
 	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"github.com/ledgerwatch/log/v3"
@@ -273,6 +274,37 @@ func doDebugKey(cliCtx *cli.Context) error {
 	}
 	if err := view.DebugEFKey(domain, key); err != nil {
 		return err
+	}
+	if err := view.DebugEFKey(domain, key); err != nil {
+		return err
+	}
+	tx, err := chainDB.BeginRo(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, _, err := view.GetLatest(domain, key, nil, tx); err != nil {
+		return err
+	}
+	{
+		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
+		if err != nil {
+			return err
+		}
+		for it.HasNext() {
+			txNum, _ := it.Next()
+			ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				panic(txNum)
+			}
+			_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
+			if txNum == _min {
+				panic(fmt.Sprintf("txNum=%d, blockNum=%d\n", txNum, blockNum))
+			}
+		}
 	}
 	return nil
 }
