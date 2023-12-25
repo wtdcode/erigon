@@ -284,34 +284,39 @@ func doDebugKey(cliCtx *cli.Context) error {
 		return err
 	}
 	{
-		//keys,err:=		view.DomainRangeLatest(tx, domain,nil,nil, -1)
-		//if err!= nil{
-		//	return err
-		//}
-		//for keys.HasNext() {
-		//	k,_,_:=keys.Next()
-		//}
-
+		i := 0
 		var minStep uint64
-		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
+		keys, err := view.DomainRangeLatest(tx, domain, nil, nil, -1)
 		if err != nil {
 			return err
 		}
-		for it.HasNext() {
-			txNum, _ := it.Next()
-			ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
+		for keys.HasNext() {
+			key, _, _ := keys.Next()
+
+			it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
 			if err != nil {
 				return err
 			}
-			if !ok {
-				panic(txNum)
+			for it.HasNext() {
+				txNum, _ := it.Next()
+				ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
+				if err != nil {
+					return err
+				}
+				if !ok {
+					panic(txNum)
+				}
+				_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
+				if txNum == _min {
+					minStep = min(minStep, _min)
+				}
 			}
-			_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
-			if txNum == _min {
-				minStep = min(minStep, _min)
-				log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d,txNum=%d", txNum/agg.StepSize(), blockNum, txNum))
+			i++
+			if i%1_000 == 0 {
+				log.Warn(fmt.Sprintf("[dbg] step=%d, txNum=%x", minStep, key))
 			}
 		}
+		log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
 	}
 	return nil
 }
