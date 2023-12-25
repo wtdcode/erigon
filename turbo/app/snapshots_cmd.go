@@ -302,7 +302,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 			}
 			_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 			if txNum == _min {
-				panic(fmt.Sprintf("txNum=%d, blockNum=%d\n", txNum, blockNum))
+				panic(fmt.Sprintf("txNum=%d, step=%d, blockNum=%d\n", txNum, txNum/agg.StepSize(), blockNum))
 			}
 		}
 	}
