@@ -310,7 +310,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 				_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 				if txNum == _min {
 					minStep = min(minStep, txNum/agg.StepSize())
-					log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d, key=%x", minStep, blockNum, key))
+					log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d, key=%x", txNum/agg.StepSize(), blockNum, key))
 					break
 				}
 
