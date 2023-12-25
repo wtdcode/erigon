@@ -284,6 +284,14 @@ func doDebugKey(cliCtx *cli.Context) error {
 		return err
 	}
 	{
+		//keys,err:=		view.DomainRangeLatest(tx, domain,nil,nil, -1)
+		//if err!= nil{
+		//	return err
+		//}
+		//for keys.HasNext() {
+		//	k,_,_:=keys.Next()
+		//}
+
 		it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
 		if err != nil {
 			return err
@@ -299,7 +307,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 			}
 			_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
 			if txNum == _min {
-				log.Warn("[dbg] " + fmt.Sprintf("step=%d, blockNum=%d,txNum=%d\n", txNum/agg.StepSize(), blockNum, txNum))
+				log.Warn(fmt.Sprintf("[dbg] step=%d, blockNum=%d,txNum=%d", txNum/agg.StepSize(), blockNum, txNum))
 			}
 		}
 	}
