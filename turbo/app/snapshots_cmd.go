@@ -270,12 +270,12 @@ func doDebugKey(cliCtx *cli.Context) error {
 
 	view := agg.MakeContext()
 	defer view.Close()
-	//if err := view.DebugKey(domain, key); err != nil {
-	//	return err
-	//}
-	//if err := view.DebugEFKey(domain, key); err != nil {
-	//	return err
-	//}
+	if err := view.DebugKey(domain, key); err != nil {
+		return err
+	}
+	if err := view.DebugEFKey(domain, key); err != nil {
+		return err
+	}
 	tx, err := chainDB.BeginRo(ctx)
 	if err != nil {
 		return err
