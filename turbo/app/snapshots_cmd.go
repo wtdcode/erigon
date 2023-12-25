@@ -314,13 +314,13 @@ func doDebugKey(cliCtx *cli.Context) error {
 				}
 
 				i++
-				if i%100_000 == 0 {
+				if i%10_000 == 0 {
 					log.Warn(fmt.Sprintf("[dbg] step=%d, key=%x", minStep, key))
 				}
 			}
 			it.(kv.Closer).Close()
 			i++
-			if i%100_000 == 0 {
+			if i%10_000 == 0 {
 				log.Warn(fmt.Sprintf("[dbg] step=%d, key=%x", minStep, key))
 			}
 		}
