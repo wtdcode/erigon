@@ -269,8 +269,6 @@ func doDebugKey(cliCtx *cli.Context) error {
 		return err
 	}
 
-	view := agg.MakeContext()
-	defer view.Close()
 	//if err := view.DebugKey(domain, key); err != nil {
 	//	return err
 	//}
@@ -289,6 +287,8 @@ func doDebugKey(cliCtx *cli.Context) error {
 			defer tx.Rollback()
 
 			var minStep uint64 = math.MaxUint64
+			view := agg.MakeContext()
+			defer view.Close()
 			keys, err := view.DomainRangeLatest(tx, domain, []byte{byte(j)}, []byte{byte(j + 1)}, -1)
 			if err != nil {
 				return err
