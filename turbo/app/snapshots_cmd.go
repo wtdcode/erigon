@@ -277,6 +277,7 @@ func doDebugKey(cliCtx *cli.Context) error {
 	//if err := view.DebugEFKey(domain, key); err != nil {
 	//	return err
 	//}
+	_ = key
 	g := &errgroup.Group{}
 	for j := 0; j < 255; j++ {
 		j := j
