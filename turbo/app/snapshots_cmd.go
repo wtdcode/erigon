@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -16,13 +15,6 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
-	"github.com/ledgerwatch/erigon-lib/kv/order"
-	"github.com/ledgerwatch/erigon/core/state/temporal"
-	"github.com/ledgerwatch/erigon/core/systemcontracts"
-	"github.com/ledgerwatch/log/v3"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
@@ -34,6 +26,11 @@ import (
 	"github.com/ledgerwatch/erigon-lib/kv/mdbx"
 	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	libstate "github.com/ledgerwatch/erigon-lib/state"
+	"github.com/ledgerwatch/erigon/core/state/temporal"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
+	"github.com/ledgerwatch/erigon/eth/integrity"
+	"github.com/ledgerwatch/log/v3"
+	"github.com/urfave/cli/v2"
 
 	"github.com/ledgerwatch/erigon/cmd/hack/tool/fromdb"
 	"github.com/ledgerwatch/erigon/cmd/utils"
@@ -276,60 +273,9 @@ func doDebugKey(cliCtx *cli.Context) error {
 	//	return err
 	//}
 	_ = key
-	g := &errgroup.Group{}
-	for j := 0; j < 255; j++ {
-		j := j
-		g.Go(func() error {
-			tx, err := chainDB.BeginRo(ctx)
-			if err != nil {
-				return err
-			}
-			defer tx.Rollback()
+	_ = domain
 
-			var minStep uint64 = math.MaxUint64
-			view := agg.MakeContext()
-			defer view.Close()
-			keys, err := view.DomainRangeLatest(tx, domain, []byte{byte(j)}, []byte{byte(j + 1)}, -1)
-			if err != nil {
-				return err
-			}
-			for keys.HasNext() {
-				key, _, err := keys.Next()
-				if err != nil {
-					return err
-				}
-				it, err := view.IndexRange(idx, key, -1, -1, order.Asc, -1, tx)
-				if err != nil {
-					return err
-				}
-				for it.HasNext() {
-					txNum, _ := it.Next()
-					ok, blockNum, err := rawdbv3.TxNums.FindBlockNum(tx, txNum)
-					if err != nil {
-						return err
-					}
-					if !ok {
-						panic(txNum)
-					}
-					if blockNum == 0 {
-						continue
-					}
-					_min, _ := rawdbv3.TxNums.Min(tx, blockNum)
-					if txNum == _min {
-						minStep = min(minStep, txNum/agg.StepSize())
-						log.Warn(fmt.Sprintf("[dbg] minStep=%d, step=%d, txNum=%d, blockNum=%d, key=%x", minStep, txNum/agg.StepSize(), txNum, blockNum, key))
-						break
-					}
-
-				}
-				it.(kv.Closer).Close()
-			}
-			log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
-
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
+	if err := integrity.E3HistoryNoSystemTxs(ctx, chainDB, agg); err != nil {
 		return err
 	}
 
