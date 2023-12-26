@@ -22,6 +22,6 @@ import (
 
 // LoudPanic panics in a way that gets all goroutine stacks printed on stderr.
 func LoudPanic(x interface{}) {
-	debug.SetTraceback("1")
+	debug.SetTraceback("0")
 	panic(x)
 }
