@@ -390,6 +390,12 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 				d.logger.Log(d.verbosity, "[snapshots] bittorrent peers", rates...)
 			}
 
+			d.logger.Warn("[snapshots] progress", "file", torrentName, "progress", fmt.Sprintf("%.2f%%", progress), "peers", len(peersOfThisFile), "webseeds", len(weebseedPeersOfThisFile), "active", fmt.Sprintf("%+v", t))
+			var ms runtime.MemStats
+			runtime.ReadMemStats(&ms)
+			numThread, _ := runtime.ThreadCreateProfile(nil)
+			d.logger.Warn("[dbg] runtime", "goroutines", runtime.NumGoroutine(), "threads", numThread, "alloc", common.ByteCount(ms.Alloc), "frees", ms.Frees)
+
 			isDiagEnabled := diagnostics.TypeOf(diagnostics.SegmentDownloadStatistics{}).Enabled()
 			if isDiagEnabled {
 				diagnostics.Send(diagnostics.SegmentDownloadStatistics{
