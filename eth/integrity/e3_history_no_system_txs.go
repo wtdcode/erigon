@@ -13,6 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// E3 History - usually don't have anything attributed to 1-st system txs (except genesis)
 func E3HistoryNoSystemTxs(ctx context.Context, chainDB kv.RoDB, agg *state.AggregatorV3) error {
 	g := &errgroup.Group{}
 	for j := 0; j < 255; j++ {
@@ -60,7 +61,9 @@ func E3HistoryNoSystemTxs(ctx context.Context, chainDB kv.RoDB, agg *state.Aggre
 					}
 
 				}
-				it.(kv.Closer).Close()
+				if casted, ok := it.(kv.Closer); ok {
+					casted.Close()
+				}
 			}
 			log.Warn(fmt.Sprintf("[dbg] step=%d", minStep))
 
