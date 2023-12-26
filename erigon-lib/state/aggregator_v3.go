@@ -821,16 +821,16 @@ func (ac *AggregatorV3Context) Prune(ctx context.Context, tx kv.RwTx) error {
 	if err := ac.commitment.Prune(ctx, tx, step, txFrom, txTo, limit, logEvery); err != nil {
 		return err
 	}
-	if err := ac.logAddrs.Prune(ctx, tx, txFrom, txTo, limit, logEvery); err != nil {
+	if err := ac.logAddrs.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
 		return err
 	}
-	if err := ac.logTopics.Prune(ctx, tx, txFrom, txTo, limit, logEvery); err != nil {
+	if err := ac.logTopics.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
 		return err
 	}
-	if err := ac.tracesFrom.Prune(ctx, tx, txFrom, txTo, limit, logEvery); err != nil {
+	if err := ac.tracesFrom.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
 		return err
 	}
-	if err := ac.tracesTo.Prune(ctx, tx, txFrom, txTo, limit, logEvery); err != nil {
+	if err := ac.tracesTo.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
 		return err
 	}
 	return nil
@@ -1551,6 +1551,33 @@ func (ac *AggregatorV3Context) DebugKey(domain kv.Domain, k []byte) error {
 	}
 	return nil
 }
+func (ac *AggregatorV3Context) DebugEFKey(domain kv.Domain, k []byte) error {
+	switch domain {
+	case kv.AccountsDomain:
+		err := ac.account.DebugEFKey(k)
+		if err != nil {
+			return err
+		}
+	case kv.StorageDomain:
+		err := ac.code.DebugEFKey(k)
+		if err != nil {
+			return err
+		}
+	case kv.CodeDomain:
+		err := ac.storage.DebugEFKey(k)
+		if err != nil {
+			return err
+		}
+	case kv.CommitmentDomain:
+		err := ac.commitment.DebugEFKey(k)
+		if err != nil {
+			return err
+		}
+	default:
+		panic(fmt.Sprintf("unexpected: %s", domain))
+	}
+	return nil
+}
 
 // --- Domain part END ---
 
@@ -1608,6 +1635,7 @@ type AggregatorStep struct {
 	keyBuf     []byte
 }
 
+func (a *AggregatorV3) StepSize() uint64 { return a.aggregationStep }
 func (a *AggregatorV3) MakeSteps() ([]*AggregatorStep, error) {
 	frozenAndIndexed := a.EndTxNumDomainsFrozen()
 	accountSteps := a.accounts.MakeSteps(frozenAndIndexed)

@@ -32,22 +32,22 @@ import (
 	"time"
 
 	bloomfilter "github.com/holiman/bloomfilter/v2"
+	"github.com/ledgerwatch/erigon-lib/recsplit/eliasfano32"
 	"github.com/ledgerwatch/log/v3"
 	btree2 "github.com/tidwall/btree"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/background"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
-	"github.com/ledgerwatch/erigon-lib/kv/iter"
-	"github.com/ledgerwatch/erigon-lib/kv/order"
-	"github.com/ledgerwatch/erigon-lib/metrics"
-
-	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/erigon-lib/compress"
 	"github.com/ledgerwatch/erigon-lib/etl"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/kv/bitmapdb"
+	"github.com/ledgerwatch/erigon-lib/kv/iter"
+	"github.com/ledgerwatch/erigon-lib/kv/order"
+	"github.com/ledgerwatch/erigon-lib/metrics"
 	"github.com/ledgerwatch/erigon-lib/recsplit"
 )
 
@@ -58,8 +58,6 @@ var (
 	LatestStateReadGrindNotFound = metrics.GetOrCreateSummary(`latest_state_read{type="grind",found="no"}`)  //nolint
 	LatestStateReadCold          = metrics.GetOrCreateSummary(`latest_state_read{type="cold",found="yes"}`)  //nolint
 	LatestStateReadColdNotFound  = metrics.GetOrCreateSummary(`latest_state_read{type="cold",found="no"}`)   //nolint
-	LatestStateReadDB            = metrics.GetOrCreateSummary(`latest_state_read{type="db",found="yes"}`)    //nolint
-	LatestStateReadDBNotFound    = metrics.GetOrCreateSummary(`latest_state_read{type="db",found="no"}`)     //nolint
 
 	mxRunningMerges        = metrics.GetOrCreateGauge("domain_running_merges")
 	mxRunningFilesBuilding = metrics.GetOrCreateGauge("domain_running_files_building")
@@ -1068,6 +1066,49 @@ func (dc *DomainContext) DebugKVFilesWithKey(k []byte) (res []string, err error)
 	}
 	return res, nil
 }
+func (dc *DomainContext) DebugEFKey(k []byte) error {
+	dc.hc.ic.ii.files.Walk(func(items []*filesItem) bool {
+		for _, item := range items {
+			if item.decompressor == nil {
+				continue
+			}
+			idx := item.index
+			if idx == nil {
+				fPath := dc.d.efAccessorFilePath(item.startTxNum/dc.d.aggregationStep, item.endTxNum/dc.d.aggregationStep)
+				if dir.FileExist(fPath) {
+					var err error
+					idx, err = recsplit.OpenIndex(fPath)
+					if err != nil {
+						_, fName := filepath.Split(fPath)
+						dc.d.logger.Warn("[agg] InvertedIndex.openFiles", "err", err, "f", fName)
+						continue
+					}
+					defer idx.Close()
+				} else {
+					continue
+				}
+			}
+
+			offset := idx.GetReaderFromPool().Lookup(k)
+			g := item.decompressor.MakeGetter()
+			g.Reset(offset)
+			key, _ := g.NextUncompressed()
+			if !bytes.Equal(k, key) {
+				continue
+			}
+			eliasVal, _ := g.NextUncompressed()
+			ef, _ := eliasfano32.ReadEliasFano(eliasVal)
+
+			last2 := uint64(0)
+			if ef.Count() > 2 {
+				last2 = ef.Get(ef.Count() - 2)
+			}
+			log.Warn(fmt.Sprintf("[dbg] see1: %s, min=%d,max=%d, before_max=%d, all: %d\n", item.decompressor.FileName(), ef.Min(), ef.Max(), last2, iter.ToArrU64Must(ef.Iterator())))
+		}
+		return true
+	})
+	return nil
+}
 
 func (d *Domain) collectFilesStats() (datsz, idxsz, files uint64) {
 	d.History.files.Walk(func(items []*filesItem) bool {
@@ -1620,7 +1661,7 @@ func (dc *DomainContext) Unwind(ctx context.Context, rwTx kv.RwTx, step, txNumUn
 
 	logEvery := time.NewTicker(time.Second * 30)
 	defer logEvery.Stop()
-	if err := dc.hc.Prune(ctx, rwTx, txNumUnindTo, math.MaxUint64, math.MaxUint64, true, logEvery); err != nil {
+	if err := dc.hc.Prune(ctx, rwTx, txNumUnindTo, math.MaxUint64, math.MaxUint64, true, true, logEvery); err != nil {
 		return fmt.Errorf("[domain][%s] unwinding, prune history to txNum=%d, step %d: %w", dc.d.filenameBase, txNumUnindTo, step, err)
 	}
 	return restored.flush(ctx, rwTx)
@@ -2108,7 +2149,19 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		seek          = make([]byte, 0, 256)
 	)
 
-	for k, v, err := keysCursor.Last(); k != nil; k, v, err = keysCursor.Prev() {
+	prunedStep, _, err := GetExecV3PruneProgress(rwTx, dc.d.keysTable)
+	if err != nil {
+		dc.d.logger.Error("get domain pruning progress", "name", dc.d.filenameBase, "error", err)
+	}
+
+	if prunedStep != 0 {
+		step = ^prunedStep
+	}
+
+	k, v, err := keysCursor.Last()
+	//fmt.Printf("prune domain %s from %x|%x step %d\n", dc.d.filenameBase, k, v, step)
+
+	for ; k != nil; k, v, err = keysCursor.Prev() {
 		if err != nil {
 			return fmt.Errorf("iterate over %s domain keys: %w", dc.d.filenameBase, err)
 		}
@@ -2127,7 +2180,6 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		mxPruneSizeDomain.Inc()
 		prunedKeys++
 
-		//fmt.Printf("prune value: %x step %d dom %s\n", seek, ^binary.BigEndian.Uint64(v), dc.d.filenameBase)
 		err = rwTx.Delete(dc.d.valsTable, seek)
 		if err != nil {
 			return fmt.Errorf("prune domain value: %w", err)
@@ -2150,8 +2202,14 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 
 		select {
 		case <-ctx.Done():
+			if err := SaveExecV3PruneProgress(rwTx, dc.d.keysTable, ^step, nil); err != nil {
+				dc.d.logger.Error("save domain pruning progress", "name", dc.d.filenameBase, "error", err)
+			}
 			return ctx.Err()
 		case <-logEvery.C:
+			if err := SaveExecV3PruneProgress(rwTx, dc.d.keysTable, ^step, nil); err != nil {
+				dc.d.logger.Error("save domain pruning progress", "name", dc.d.filenameBase, "error", err)
+			}
 			dc.d.logger.Info("[snapshots] prune domain", "name", dc.d.filenameBase, "step", step,
 				"steps", fmt.Sprintf("%.2f-%.2f", float64(txFrom)/float64(dc.d.aggregationStep), float64(txTo)/float64(dc.d.aggregationStep)))
 		default:
@@ -2161,10 +2219,14 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		prunedMinStep = 0
 	} // minMax pruned step doesn't mean that we pruned all kv pairs for those step - we just pruned some keys of those steps.
 
+	if err := SaveExecV3PruneProgress(rwTx, dc.d.keysTable, 0, nil); err != nil {
+		dc.d.logger.Error("reset domain pruning progress", "name", dc.d.filenameBase, "error", err)
+	}
+
 	dc.d.logger.Info("[snapshots] prune domain", "name", dc.d.filenameBase, "step range", fmt.Sprintf("[%d, %d] requested %d", prunedMinStep, prunedMaxStep, step), "pruned keys", prunedKeys)
 	mxPruneTookDomain.ObserveDuration(st)
 
-	if err := dc.hc.Prune(ctx, rwTx, txFrom, txTo, limit, false, logEvery); err != nil {
+	if err := dc.hc.Prune(ctx, rwTx, txFrom, txTo, limit, false, false, logEvery); err != nil {
 		return fmt.Errorf("prune history at step %d [%d, %d): %w", step, txFrom, txTo, err)
 	}
 	return nil
