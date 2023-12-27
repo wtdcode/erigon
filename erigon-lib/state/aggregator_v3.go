@@ -93,6 +93,7 @@ type AggregatorV3 struct {
 	wg sync.WaitGroup // goroutines spawned by Aggregator, to ensure all of them are finish at agg.Close
 
 	onFreeze OnFreezeFunc
+	onDelete OnDeleteFunc
 
 	ps *background.ProgressSet
 
@@ -104,6 +105,7 @@ type AggregatorV3 struct {
 }
 
 type OnFreezeFunc func(frozenFileNames []string)
+type OnDeleteFunc func(deletedFileNames []string)
 
 func NewAggregatorV3(ctx context.Context, dirs datadir.Dirs, aggregationStep uint64, db kv.RoDB, logger log.Logger) (*AggregatorV3, error) {
 	tmpdir := dirs.Tmp
@@ -217,6 +219,7 @@ func getIndicesSalt(baseDir string) (salt *uint32, err error) {
 }
 
 func (a *AggregatorV3) OnFreeze(f OnFreezeFunc) { a.onFreeze = f }
+func (a *AggregatorV3) OnDelte(f OnDeleteFunc)  { a.onDelete = f }
 func (a *AggregatorV3) DisableFsync() {
 	a.accounts.DisableFsync()
 	a.storage.DisableFsync()
@@ -1405,6 +1408,8 @@ func (a *AggregatorV3) Stats() FilesStats22 {
 	var fs FilesStats22
 	return fs
 }
+func (a *AggregatorV3) afterDeleteHook(deletedList []string) {
+}
 
 // AggregatorV3Context guarantee consistent View of files ("snapshots isolation" level https://en.wikipedia.org/wiki/Snapshot_isolation):
 //   - long-living consistent view of all files (no limitations)
@@ -1425,6 +1430,8 @@ type AggregatorV3Context struct {
 
 	id      uint64 // auto-increment id of ctx for logs
 	_leakID uint64 // set only if TRACE_AGG=true
+
+	onDelete OnDeleteFunc
 }
 
 func (a *AggregatorV3) MakeContext() *AggregatorV3Context {
@@ -1441,10 +1448,13 @@ func (a *AggregatorV3) MakeContext() *AggregatorV3Context {
 
 		id:      a.ctxAutoIncrement.Add(1),
 		_leakID: a.leakDetector.Add(),
+
+		onDelete: a.onDelete,
 	}
 
 	return ac
 }
+
 func (ac *AggregatorV3Context) ViewID() uint64 { return ac.id }
 
 // --- Domain part START ---
@@ -1588,14 +1598,18 @@ func (ac *AggregatorV3Context) Close() {
 	ac.a.leakDetector.Del(ac._leakID)
 	ac.a = nil
 
-	ac.account.Close()
-	ac.storage.Close()
-	ac.code.Close()
-	ac.commitment.Close()
+	var deletedList []string
+	deletedList = append(deletedList, ac.account.Close()...)
+	deletedList = append(deletedList, ac.storage.Close()...)
+	deletedList = append(deletedList, ac.code.Close()...)
+	deletedList = append(deletedList, ac.commitment.Close()...)
 	ac.logAddrs.Close()
 	ac.logTopics.Close()
 	ac.tracesFrom.Close()
 	ac.tracesTo.Close()
+	if len(deletedList) > 0 && ac.onDelete != nil {
+		ac.onDelete(deletedList)
+	}
 }
 
 // BackgroundResult - used only indicate that some work is done
