@@ -456,6 +456,15 @@ func (w *StateWriterBufferedV3) CreateContract(address common.Address) error {
 	if w.trace {
 		fmt.Printf("create contract: %x\n", address)
 	}
+
+	//seems don't need delete code here - tests starting fail
+	//err := w.rs.domains.IterateStoragePrefix(address[:], func(k, v []byte) error {
+	//	w.writeLists[string(kv.StorageDomain)].Push(string(k), nil)
+	//	return nil
+	//})
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
 
