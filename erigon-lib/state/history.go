@@ -655,6 +655,9 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 			bitmap = bitmapdb.NewBitmap64()
 			indexBitmaps[ks] = bitmap
 		}
+		if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
+			panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
+		}
 		bitmap.Add(txNum)
 
 		select {
@@ -933,6 +936,9 @@ func (h *History) buildFiles(ctx context.Context, step uint64, collation History
 			kb := []byte(key)
 			for it.HasNext() {
 				txNum := it.Next()
+				if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
+					panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
+				}
 				binary.BigEndian.PutUint64(txKey[:], txNum)
 				historyKey = append(append(historyKey[:0], txKey[:]...), kb...)
 				if err = rs.AddKey(historyKey, valOffset); err != nil {

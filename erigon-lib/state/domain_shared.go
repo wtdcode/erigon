@@ -885,6 +885,11 @@ func (sd *SharedDomains) DomainGet(name kv.Domain, k, k2 []byte) (v []byte, err 
 //   - user can append k2 into k1, then underlying methods will not preform append
 //   - if `val == nil` it will call DomainDel
 func (sd *SharedDomains) DomainPut(domain kv.Domain, k1, k2 []byte, val, prevVal []byte) error {
+	if sd.txNum == 1554564851 || sd.txNum == 1553506055 || sd.txNum == 1554468165 {
+		sd.trace = true
+		defer func() { sd.trace = false }()
+	}
+
 	if val == nil {
 		return fmt.Errorf("DomainPut: %s, trying to put nil value. not allowed", domain)
 	}
@@ -918,6 +923,10 @@ func (sd *SharedDomains) DomainPut(domain kv.Domain, k1, k2 []byte, val, prevVal
 //   - user can append k2 into k1, then underlying methods will not preform append
 //   - if `val == nil` it will call DomainDel
 func (sd *SharedDomains) DomainDel(domain kv.Domain, k1, k2 []byte, prevVal []byte) error {
+	if sd.txNum == 1554564851 || sd.txNum == 1553506055 || sd.txNum == 1554468165 {
+		sd.trace = true
+		defer func() { sd.trace = false }()
+	}
 
 	if prevVal == nil {
 		var err error

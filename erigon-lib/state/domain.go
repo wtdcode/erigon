@@ -727,6 +727,9 @@ func (dc *DomainContext) PutWithPrev(key1, key2, val, preval []byte) error {
 	if tracePutWithPrev == dc.d.filenameBase {
 		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, val, preval)
 	}
+	if dc.hc.ic.txNum == 1554564851 || dc.hc.ic.txNum == 1553506055 || dc.hc.ic.txNum == 1554468165 {
+		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, val, preval)
+	}
 	if err := dc.hc.AddPrevValue(key1, key2, preval); err != nil {
 		return err
 	}
@@ -736,6 +739,9 @@ func (dc *DomainContext) PutWithPrev(key1, key2, val, preval []byte) error {
 func (dc *DomainContext) DeleteWithPrev(key1, key2, prev []byte) (err error) {
 	// This call to update needs to happen before d.tx.Delete() later, because otherwise the content of `original`` slice is invalidated
 	if tracePutWithPrev == dc.d.filenameBase {
+		fmt.Printf("DeleteWithPrev(%s, tx %d, key[%x][%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, prev)
+	}
+	if dc.hc.ic.txNum == 1554564851 || dc.hc.ic.txNum == 1553506055 || dc.hc.ic.txNum == 1554468165 {
 		fmt.Printf("DeleteWithPrev(%s, tx %d, key[%x][%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, prev)
 	}
 	if err := dc.hc.AddPrevValue(key1, key2, prev); err != nil {
