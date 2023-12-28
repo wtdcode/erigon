@@ -650,6 +650,7 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 		if txNum >= txTo { // [txFrom; txTo)
 			break
 		}
+		log.Warn("[dbg] see", "txnum", txNum, "k", fmt.Sprintf("%x", k))
 		ks := string(v)
 		bitmap, ok := indexBitmaps[ks]
 		if !ok {
