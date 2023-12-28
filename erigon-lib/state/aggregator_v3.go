@@ -55,15 +55,20 @@ var (
 )
 
 type AggregatorV3 struct {
-	db               kv.RoDB
-	accounts         *Domain
-	storage          *Domain
-	code             *Domain
-	commitment       *Domain
-	tracesTo         *InvertedIndex
-	logAddrs         *InvertedIndex
-	logTopics        *InvertedIndex
-	tracesFrom       *InvertedIndex
+	db kv.RoDB
+
+	//domains    [kv.DomainLen]*Domain
+	//indices    [kv.IdxLen]*InvertedIndex
+
+	accounts   *Domain
+	storage    *Domain
+	code       *Domain
+	commitment *Domain
+	tracesTo   *InvertedIndex
+	logAddrs   *InvertedIndex
+	logTopics  *InvertedIndex
+	tracesFrom *InvertedIndex
+
 	backgroundResult *BackgroundResult
 	dirs             datadir.Dirs
 	tmpdir           string
@@ -1416,7 +1421,10 @@ func (a *AggregatorV3) Stats() FilesStats22 {
 //   - user will not see "partial writes" or "new files appearance"
 //   - last reader removing garbage files inside `Close` method
 type AggregatorV3Context struct {
-	a          *AggregatorV3
+	a *AggregatorV3
+	//domains    [kv.DomainLen]*DomainContext
+	//indices    [kv.IdxLen]*InvertedIndexContext
+
 	account    *DomainContext
 	storage    *DomainContext
 	code       *DomainContext
@@ -1482,6 +1490,8 @@ func (ac *AggregatorV3Context) DomainRangeLatest(tx kv.Tx, domain kv.Domain, fro
 }
 
 func (ac *AggregatorV3Context) DomainGetAsOf(tx kv.Tx, name kv.Domain, key []byte, ts uint64) (v []byte, ok bool, err error) {
+	//v, err := ac.domains[name].GetAsOf(key, ts, tx)
+	//return v, v != nil, err
 	switch name {
 	case kv.AccountsDomain:
 		v, err := ac.account.GetAsOf(key, ts, tx)
@@ -1500,6 +1510,8 @@ func (ac *AggregatorV3Context) DomainGetAsOf(tx kv.Tx, name kv.Domain, key []byt
 	}
 }
 func (ac *AggregatorV3Context) GetLatest(domain kv.Domain, k, k2 []byte, tx kv.Tx) (v []byte, ok bool, err error) {
+	//return ac.domains[domain].GetLatest(k, k2, tx)
+
 	switch domain {
 	case kv.AccountsDomain:
 		return ac.account.GetLatest(k, k2, tx)
