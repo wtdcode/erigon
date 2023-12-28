@@ -219,7 +219,7 @@ func getIndicesSalt(baseDir string) (salt *uint32, err error) {
 }
 
 func (a *AggregatorV3) OnFreeze(f OnFreezeFunc) { a.onFreeze = f }
-func (a *AggregatorV3) OnDelte(f OnDeleteFunc)  { a.onDelete = f }
+func (a *AggregatorV3) OnDelete(f OnDeleteFunc) { a.onDelete = f }
 func (a *AggregatorV3) DisableFsync() {
 	a.accounts.DisableFsync()
 	a.storage.DisableFsync()
@@ -1430,8 +1430,6 @@ type AggregatorV3Context struct {
 
 	id      uint64 // auto-increment id of ctx for logs
 	_leakID uint64 // set only if TRACE_AGG=true
-
-	onDelete OnDeleteFunc
 }
 
 func (a *AggregatorV3) MakeContext() *AggregatorV3Context {
@@ -1448,8 +1446,6 @@ func (a *AggregatorV3) MakeContext() *AggregatorV3Context {
 
 		id:      a.ctxAutoIncrement.Add(1),
 		_leakID: a.leakDetector.Add(),
-
-		onDelete: a.onDelete,
 	}
 
 	return ac
