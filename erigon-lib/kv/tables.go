@@ -902,7 +902,7 @@ const (
 	CodeDomain       Domain = 2
 	CommitmentDomain Domain = 3
 
-	DomainLen
+	DomainLen Domain = 4
 )
 
 const (

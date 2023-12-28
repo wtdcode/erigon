@@ -541,6 +541,7 @@ type (
 type TemporalGetter interface {
 	DomainGet(name Domain, k, k2 []byte) (v []byte, err error)
 }
+
 type TemporalTx interface {
 	Tx
 	TemporalGetter
