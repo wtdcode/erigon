@@ -542,7 +542,11 @@ func (s *KvServer) HistoryGet(ctx context.Context, req *remote.HistoryGetReq) (r
 		if !ok {
 			return fmt.Errorf("server DB doesn't implement kv.Temporal interface")
 		}
-		reply.V, reply.Ok, err = ttx.HistoryGet(kv.History(req.Table), req.K, req.Ts)
+		histName, err := kv.String2Hist(req.Table)
+		if err != nil {
+			return err
+		}
+		reply.V, reply.Ok, err = ttx.HistoryGet(histName, req.K, req.Ts)
 		if err != nil {
 			return err
 		}

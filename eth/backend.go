@@ -1227,7 +1227,8 @@ func (s *Ethereum) setUpSnapDownloader(ctx context.Context, downloaderCfg *downl
 			req := &proto_downloader.AddRequest{Items: make([]*proto_downloader.AddItem, 0, len(frozenFileNames))}
 			for _, fName := range frozenFileNames {
 				req.Items = append(req.Items, &proto_downloader.AddItem{
-					Path: fName,
+					//Path: fName,
+					Path: filepath.Join("history", fName),
 				})
 			}
 			if _, err := s.downloaderClient.Add(ctx, req); err != nil {
@@ -1236,17 +1237,18 @@ func (s *Ethereum) setUpSnapDownloader(ctx context.Context, downloaderCfg *downl
 		}
 	})
 	s.agg.OnDelete(func(deletedList []string) {
-		events := s.notifications.Events
-		events.OnNewSnapshot()
-		if s.downloaderClient != nil {
-			req := &proto_downloader.DeleteRequest{}
-			for _, fName := range deletedList {
-				req.Paths = append(req.Paths, fName)
-			}
-			if _, err := s.downloaderClient.Delete(ctx, req); err != nil {
-				s.logger.Warn("[snapshots] notify downloader", "err", err)
-			}
-		}
+		return
+		//events := s.notifications.Events
+		//events.OnNewSnapshot()
+		//if s.downloaderClient != nil {
+		//	req := &proto_downloader.DeleteRequest{}
+		//	for _, fName := range deletedList {
+		//		req.Paths = append(req.Paths, fName)
+		//	}
+		//	if _, err := s.downloaderClient.Delete(ctx, req); err != nil {
+		//		s.logger.Warn("[snapshots] notify downloader", "err", err)
+		//	}
+		//}
 	})
 	return err
 }

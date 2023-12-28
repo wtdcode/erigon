@@ -1408,8 +1408,6 @@ func (a *AggregatorV3) Stats() FilesStats22 {
 	var fs FilesStats22
 	return fs
 }
-func (a *AggregatorV3) afterDeleteHook(deletedList []string) {
-}
 
 // AggregatorV3Context guarantee consistent View of files ("snapshots isolation" level https://en.wikipedia.org/wiki/Snapshot_isolation):
 //   - long-living consistent view of all files (no limitations)
@@ -1450,7 +1448,6 @@ func (a *AggregatorV3) MakeContext() *AggregatorV3Context {
 
 	return ac
 }
-
 func (ac *AggregatorV3Context) ViewID() uint64 { return ac.id }
 
 // --- Domain part START ---

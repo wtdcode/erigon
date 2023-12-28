@@ -1805,7 +1805,6 @@ func (dc *DomainContext) Close() {
 			files[i].src.closeFilesAndRemove()
 		}
 	}
-
 	//for _, r := range dc.readers {
 	//	r.Close()
 	//}

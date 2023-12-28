@@ -904,10 +904,12 @@ const (
 )
 
 const (
-	AccountsHistory   History = "AccountsHistory"
-	StorageHistory    History = "StorageHistory"
-	CodeHistory       History = "CodeHistory"
-	CommitmentHistory History = "CommitmentHistory"
+	AccountsHistory   History = 0
+	StorageHistory    History = 1
+	CodeHistory       History = 2
+	CommitmentHistory History = 3
+
+	HistLen History = 4
 )
 
 const (
@@ -943,7 +945,7 @@ func (i InvertedIdx) String() string {
 	case TracesToIdx:
 		return "TracesToIdx"
 	default:
-		return "unknown"
+		return "unknown inverted index"
 	}
 }
 func String2Idx(in string) (InvertedIdx, error) {
@@ -965,6 +967,35 @@ func String2Idx(in string) (InvertedIdx, error) {
 	case "TracesToIdx":
 		return TracesToIdx, nil
 	default:
-		return 0, fmt.Errorf("unknown index name: %s", in)
+		return 0, fmt.Errorf("unknown inverted index name: %s", in)
+	}
+}
+
+func (h History) String() string {
+	switch h {
+	case AccountsHistory:
+		return "AccountsHistory"
+	case StorageHistory:
+		return "StorageHistory"
+	case CodeHistory:
+		return "CodeHistory"
+	case CommitmentHistory:
+		return "CommitmentHistory"
+	default:
+		return "unknown history"
+	}
+}
+func String2Hist(in string) (History, error) {
+	switch in {
+	case "AccountsHistory":
+		return AccountsHistory, nil
+	case "StorageHistory":
+		return StorageHistory, nil
+	case "CodeHistory":
+		return CodeHistory, nil
+	case "CommitmentHistory":
+		return CommitmentHistory, nil
+	default:
+		return 0, fmt.Errorf("unknown history name: %s", in)
 	}
 }
