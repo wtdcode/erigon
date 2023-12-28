@@ -557,21 +557,25 @@ func (h *historyWAL) addPrevValue(key1, key2, original []byte) error {
 		return nil
 	}
 
-	ic := h.hc.ic
+	txNumBytes := h.hc.ic.txNumBytes[:]
 	//defer func() {
 	//	fmt.Printf("addPrevValue: %x tx %x %x lv=%t buffered=%t\n", key1, ic.txNumBytes, original, h.largeValues, h.buffered)
 	//}()
+	if h.hc.ic.txNum == 1554564851 || h.hc.ic.txNum == 1553506055 || h.hc.ic.txNum == 1554468165 {
+		fmt.Printf("historyWAL.addPrevValue(%s, tx %d, key[%x][%x] original[%x])\n", h.hc.h.filenameBase, h.hc.ic.txNum, key1, key2, original)
+		panic(h.hc.ic.txNum)
+	}
 
 	if h.largeValues {
 		lk := len(key1) + len(key2)
 
-		h.historyKey = append(append(append(h.historyKey[:0], key1...), key2...), ic.txNumBytes[:]...)
+		h.historyKey = append(append(append(h.historyKey[:0], key1...), key2...), txNumBytes...)
 		historyKey := h.historyKey[:lk+8]
 
 		if err := h.historyVals.Collect(historyKey, original); err != nil {
 			return err
 		}
-		if err := ic.wal.indexKeys.Collect(ic.txNumBytes[:], historyKey[:lk]); err != nil {
+		if err := h.hc.ic.wal.indexKeys.Collect(txNumBytes, historyKey[:lk]); err != nil {
 			return err
 		}
 		return nil
@@ -582,7 +586,7 @@ func (h *historyWAL) addPrevValue(key1, key2, original []byte) error {
 	}
 
 	lk := len(key1) + len(key2)
-	h.historyKey = append(append(append(append(h.historyKey[:0], key1...), key2...), ic.txNumBytes[:]...), original...)
+	h.historyKey = append(append(append(append(h.historyKey[:0], key1...), key2...), txNumBytes...), original...)
 	historyKey := h.historyKey[:lk+8+len(original)]
 	historyKey1 := historyKey[:lk]
 	historyVal := historyKey[lk:]
@@ -591,7 +595,7 @@ func (h *historyWAL) addPrevValue(key1, key2, original []byte) error {
 	if err := h.historyVals.Collect(historyKey1, historyVal); err != nil {
 		return err
 	}
-	if err := ic.wal.indexKeys.Collect(ic.txNumBytes[:], invIdxVal); err != nil {
+	if err := h.hc.ic.wal.indexKeys.Collect(txNumBytes, invIdxVal); err != nil {
 		return err
 	}
 	return nil
@@ -650,7 +654,6 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 		if txNum >= txTo { // [txFrom; txTo)
 			break
 		}
-		log.Warn("[dbg] see", "txnum", txNum, "k", fmt.Sprintf("%x", k))
 		ks := string(v)
 		bitmap, ok := indexBitmaps[ks]
 		if !ok {
@@ -658,6 +661,7 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 			indexBitmaps[ks] = bitmap
 		}
 		if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
+			log.Warn("[dbg] see", "txnum", txNum, "k", fmt.Sprintf("%x, %x", k, v))
 			panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
 		}
 		bitmap.Add(txNum)
