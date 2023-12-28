@@ -255,7 +255,7 @@ func filesItemLess(i, j *filesItem) bool {
 	}
 	return i.endTxNum < j.endTxNum
 }
-func (i *filesItem) closeFilesAndRemove(cb func(name string)) {
+func (i *filesItem) closeFilesAndRemove() {
 	if i.decompressor != nil {
 		i.decompressor.Close()
 		// paranoic-mode on: don't delete frozen files
@@ -265,9 +265,6 @@ func (i *filesItem) closeFilesAndRemove(cb func(name string)) {
 			}
 			if err := os.Remove(i.decompressor.FilePath() + ".torrent"); err != nil {
 				log.Trace("remove after close", "err", err, "file", i.decompressor.FileName()+".torrent")
-			}
-			if cb != nil {
-				cb(i.decompressor.FileName())
 			}
 		}
 		i.decompressor = nil
@@ -1792,7 +1789,7 @@ func (dc *DomainContext) GetAsOf(key []byte, txNum uint64, roTx kv.Tx) ([]byte, 
 	return v, nil
 }
 
-func (dc *DomainContext) Close() (deletedList []string) {
+func (dc *DomainContext) Close() {
 	if dc.files == nil { // invariant: it's safe to call Close multiple times
 		return
 	}
@@ -1805,9 +1802,7 @@ func (dc *DomainContext) Close() (deletedList []string) {
 		refCnt := files[i].src.refcount.Add(-1)
 		//GC: last reader responsible to remove useles files: close it and delete
 		if refCnt == 0 && files[i].src.canDelete.Load() {
-			files[i].src.closeFilesAndRemove(func(name string) {
-				deletedList = append(deletedList, name)
-			})
+			files[i].src.closeFilesAndRemove()
 		}
 	}
 
@@ -1815,7 +1810,6 @@ func (dc *DomainContext) Close() (deletedList []string) {
 	//	r.Close()
 	//}
 	dc.hc.Close()
-	return deletedList
 }
 
 func (dc *DomainContext) statelessGetter(i int) ArchiveGetter {

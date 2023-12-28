@@ -1598,18 +1598,14 @@ func (ac *AggregatorV3Context) Close() {
 	ac.a.leakDetector.Del(ac._leakID)
 	ac.a = nil
 
-	var deletedList []string
-	deletedList = append(deletedList, ac.account.Close()...)
-	deletedList = append(deletedList, ac.storage.Close()...)
-	deletedList = append(deletedList, ac.code.Close()...)
-	deletedList = append(deletedList, ac.commitment.Close()...)
+	ac.account.Close()
+	ac.storage.Close()
+	ac.code.Close()
+	ac.commitment.Close()
 	ac.logAddrs.Close()
 	ac.logTopics.Close()
 	ac.tracesFrom.Close()
 	ac.tracesTo.Close()
-	if len(deletedList) > 0 && ac.onDelete != nil {
-		ac.onDelete(deletedList)
-	}
 }
 
 // BackgroundResult - used only indicate that some work is done
