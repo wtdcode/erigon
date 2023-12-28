@@ -897,10 +897,12 @@ func reinit() {
 // Temporal
 
 const (
-	AccountsDomain   Domain = "AccountsDomain"
-	StorageDomain    Domain = "StorageDomain"
-	CodeDomain       Domain = "CodeDomain"
-	CommitmentDomain Domain = "CommitmentDomain"
+	AccountsDomain   Domain = 0
+	StorageDomain    Domain = 1
+	CodeDomain       Domain = 2
+	CommitmentDomain Domain = 3
+
+	DomainLen
 )
 
 const (
@@ -995,6 +997,36 @@ func String2Hist(in string) (History, error) {
 		return CodeHistory, nil
 	case "CommitmentHistory":
 		return CommitmentHistory, nil
+	default:
+		return 0, fmt.Errorf("unknown history name: %s", in)
+	}
+}
+
+func (d Domain) String() string {
+	switch d {
+	case AccountsDomain:
+		return "AccountsDomain"
+	case StorageDomain:
+		return "StorageDomain"
+	case CodeDomain:
+		return "CodeDomain"
+	case CommitmentDomain:
+		return "CommitmentDomain"
+	default:
+		return "unknown domain"
+	}
+}
+
+func String2Domain(in string) (Domain, error) {
+	switch in {
+	case "AccountsDomain":
+		return AccountsDomain, nil
+	case "StorageDomain":
+		return StorageDomain, nil
+	case "CodeDomain":
+		return CodeDomain, nil
+	case "CommitmentDomain":
+		return CommitmentDomain, nil
 	default:
 		return 0, fmt.Errorf("unknown history name: %s", in)
 	}

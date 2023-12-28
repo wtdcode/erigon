@@ -533,7 +533,7 @@ type RwCursorDupSort interface {
 // ---- Temporal part
 
 type (
-	Domain      string
+	Domain      uint16
 	History     uint16
 	InvertedIdx uint16
 )
