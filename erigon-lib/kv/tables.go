@@ -911,13 +911,60 @@ const (
 )
 
 const (
-	AccountsHistoryIdx   InvertedIdx = "AccountsHistoryIdx"
-	StorageHistoryIdx    InvertedIdx = "StorageHistoryIdx"
-	CodeHistoryIdx       InvertedIdx = "CodeHistoryIdx"
-	CommitmentHistoryIdx InvertedIdx = "CommitmentHistoryIdx"
+	AccountsHistoryIdx   InvertedIdx = 0
+	StorageHistoryIdx    InvertedIdx = 1
+	CodeHistoryIdx       InvertedIdx = 2
+	CommitmentHistoryIdx InvertedIdx = 3
 
-	LogTopicIdx   InvertedIdx = "LogTopicIdx"
-	LogAddrIdx    InvertedIdx = "LogAddrIdx"
-	TracesFromIdx InvertedIdx = "TracesFromIdx"
-	TracesToIdx   InvertedIdx = "TracesToIdx"
+	LogTopicIdx   InvertedIdx = 4
+	LogAddrIdx    InvertedIdx = 5
+	TracesFromIdx InvertedIdx = 6
+	TracesToIdx   InvertedIdx = 7
+
+	IdxLen InvertedIdx = 8
 )
+
+func (i InvertedIdx) String() string {
+	switch i {
+	case AccountsHistoryIdx:
+		return "AccountsHistoryIdx"
+	case StorageHistoryIdx:
+		return "StorageHistoryIdx"
+	case CodeHistoryIdx:
+		return "CodeHistoryIdx"
+	case CommitmentHistoryIdx:
+		return "CommitmentHistoryIdx"
+	case LogTopicIdx:
+		return "LogTopicIdx"
+	case LogAddrIdx:
+		return "LogAddrIdx"
+	case TracesFromIdx:
+		return "TracesFromIdx"
+	case TracesToIdx:
+		return "TracesToIdx"
+	default:
+		return "unknown"
+	}
+}
+func String2Idx(in string) (InvertedIdx, error) {
+	switch in {
+	case "AccountsHistoryIdx":
+		return AccountsHistoryIdx, nil
+	case "StorageHistoryIdx":
+		return StorageHistoryIdx, nil
+	case "CodeHistoryIdx":
+		return CodeHistoryIdx, nil
+	case "CommitmentHistoryIdx":
+		return CommitmentHistoryIdx, nil
+	case "LogTopicIdx":
+		return LogTopicIdx, nil
+	case "LogAddrIdx":
+		return LogAddrIdx, nil
+	case "TracesFromIdx":
+		return TracesFromIdx, nil
+	case "TracesToIdx":
+		return TracesToIdx, nil
+	default:
+		return 0, fmt.Errorf("unknown index name: %s", in)
+	}
+}

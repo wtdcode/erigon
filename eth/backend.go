@@ -1227,7 +1227,7 @@ func (s *Ethereum) setUpSnapDownloader(ctx context.Context, downloaderCfg *downl
 			req := &proto_downloader.AddRequest{Items: make([]*proto_downloader.AddItem, 0, len(frozenFileNames))}
 			for _, fName := range frozenFileNames {
 				req.Items = append(req.Items, &proto_downloader.AddItem{
-					Path: filepath.Join("history", fName),
+					Path: fName,
 				})
 			}
 			if _, err := s.downloaderClient.Add(ctx, req); err != nil {
@@ -1239,13 +1239,11 @@ func (s *Ethereum) setUpSnapDownloader(ctx context.Context, downloaderCfg *downl
 		events := s.notifications.Events
 		events.OnNewSnapshot()
 		if s.downloaderClient != nil {
-			req := &proto_downloader.AddRequest{Items: make([]*proto_downloader.AddItem, 0, len(frozenFileNames))}
-			for _, fName := range frozenFileNames {
-				req.Items = append(req.Items, &proto_downloader.AddItem{
-					Path: filepath.Join("history", fName),
-				})
+			req := &proto_downloader.DeleteRequest{}
+			for _, fName := range deletedList {
+				req.Paths = append(req.Paths, fName)
 			}
-			if _, err := s.downloaderClient.Add(ctx, req); err != nil {
+			if _, err := s.downloaderClient.Delete(ctx, req); err != nil {
 				s.logger.Warn("[snapshots] notify downloader", "err", err)
 			}
 		}
@@ -1276,7 +1274,6 @@ func setUpBlockReader(ctx context.Context, db kv.RwDB, dirs datadir.Dirs, snConf
 	if err = agg.OpenFolder(false); err != nil {
 		return nil, nil, nil, nil, err
 	}
-	agg.OnFreeze()
 	return blockReader, blockWriter, allSnapshots, agg, nil
 }
 

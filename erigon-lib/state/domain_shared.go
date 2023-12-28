@@ -514,13 +514,13 @@ func (sd *SharedDomains) delAccountStorage(addr, loc []byte, preVal []byte) erro
 
 func (sd *SharedDomains) IndexAdd(table kv.InvertedIdx, key []byte) (err error) {
 	switch table {
-	case kv.LogAddrIdx, kv.TblLogAddressIdx:
+	case kv.LogAddrIdx:
 		err = sd.aggCtx.logAddrs.Add(key)
-	case kv.LogTopicIdx, kv.TblLogTopicsIdx, kv.LogTopicIndex:
+	case kv.LogTopicIdx:
 		err = sd.aggCtx.logTopics.Add(key)
-	case kv.TblTracesToIdx:
+	case kv.TracesToIdx:
 		err = sd.aggCtx.tracesTo.Add(key)
-	case kv.TblTracesFromIdx:
+	case kv.TracesFromIdx:
 		err = sd.aggCtx.tracesFrom.Add(key)
 	default:
 		panic(fmt.Errorf("unknown shared index %s", table))

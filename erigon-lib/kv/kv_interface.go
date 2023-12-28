@@ -535,7 +535,7 @@ type RwCursorDupSort interface {
 type (
 	Domain      string
 	History     string
-	InvertedIdx string
+	InvertedIdx uint16
 )
 
 type TemporalGetter interface {
