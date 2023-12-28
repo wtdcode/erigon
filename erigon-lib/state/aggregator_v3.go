@@ -535,7 +535,7 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 				return err
 			}
 
-			switch kv.Domain(d.valsTable) {
+			switch d.valsTable {
 			case kv.TblAccountVals:
 				static.accounts = sf
 			case kv.TblStorageVals:
@@ -575,7 +575,7 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 				return err
 			}
 
-			switch kv.Domain(d.indexKeysTable) {
+			switch d.indexKeysTable {
 			case kv.TblLogTopicsKeys:
 				static.logTopics = sf
 			case kv.TblLogAddressKeys:

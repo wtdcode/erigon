@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/holiman/uint256"
+	"github.com/ledgerwatch/erigon-lib/kv"
 
 	"github.com/ledgerwatch/erigon-lib/state"
 
@@ -43,8 +44,8 @@ type TxTask struct {
 	HistoryExecution bool // use history reader for that tx instead of state reader
 
 	BalanceIncreaseSet map[libcommon.Address]uint256.Int
-	ReadLists          map[string]*state.KvList
-	WriteLists         map[string]*state.KvList
+	ReadLists          map[kv.Domain]*state.KvList
+	WriteLists         map[kv.Domain]*state.KvList
 	AccountPrevs       map[string][]byte
 	AccountDels        map[string]*accounts.Account
 	StoragePrevs       map[string][]byte

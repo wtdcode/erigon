@@ -30,9 +30,9 @@ func (hr *HistoryReaderV3) SetTx(tx kv.Tx) {
 func (hr *HistoryReaderV3) SetTxNum(txNum uint64) { hr.txNum = txNum }
 func (hr *HistoryReaderV3) SetTrace(trace bool)   { hr.trace = trace }
 
-func (hr *HistoryReaderV3) ReadSet() map[string]*state.KvList { return nil }
-func (hr *HistoryReaderV3) ResetReadSet()                     {}
-func (hr *HistoryReaderV3) DiscardReadList()                  {}
+func (hr *HistoryReaderV3) ReadSet() map[kv.Domain]*state.KvList { return nil }
+func (hr *HistoryReaderV3) ResetReadSet()                        {}
+func (hr *HistoryReaderV3) DiscardReadList()                     {}
 
 func (hr *HistoryReaderV3) ReadAccountData(address common.Address) (*accounts.Account, error) {
 	enc, ok, err := hr.ttx.DomainGetAsOf(kv.AccountsDomain, address[:], nil, hr.txNum)
@@ -108,7 +108,7 @@ type ResettableStateReader interface {
 	SetTx(tx kv.Tx)
 	SetTxNum(txn uint64)
 	DiscardReadList()
-	ReadSet() map[string]*state.KvList
+	ReadSet() map[kv.Domain]*state.KvList
 	ResetReadSet()
 }
 

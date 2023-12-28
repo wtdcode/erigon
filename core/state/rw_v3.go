@@ -112,13 +112,13 @@ func (rs *StateV3) applyState(txTask *TxTask, domains *libstate.SharedDomains) e
 
 	//maps are unordered in Go! don't iterate over it. SharedDomains.deleteAccount will call GetLatest(Code) and expecting it not been delete yet
 	if txTask.WriteLists != nil {
-		for _, table := range []string{string(kv.AccountsDomain), string(kv.CodeDomain), string(kv.StorageDomain)} {
+		for _, table := range []kv.Domain{kv.AccountsDomain, kv.CodeDomain, kv.StorageDomain} {
 			list, ok := txTask.WriteLists[table]
 			if !ok {
 				continue
 			}
 
-			switch kv.Domain(table) {
+			switch table {
 			case kv.AccountsDomain:
 				for i, key := range list.Keys {
 					if list.Vals[i] == nil {
@@ -356,7 +356,7 @@ func (rs *StateV3) SizeEstimate() (r uint64) {
 	return r
 }
 
-func (rs *StateV3) ReadsValid(readLists map[string]*libstate.KvList) bool {
+func (rs *StateV3) ReadsValid(readLists map[kv.Domain]*libstate.KvList) bool {
 	return rs.domains.ReadsValid(readLists)
 }
 
@@ -364,7 +364,7 @@ func (rs *StateV3) ReadsValid(readLists map[string]*libstate.KvList) bool {
 type StateWriterBufferedV3 struct {
 	rs           *StateV3
 	trace        bool
-	writeLists   map[string]*libstate.KvList
+	writeLists   map[kv.Domain]*libstate.KvList
 	accountPrevs map[string][]byte
 	accountDels  map[string]*accounts.Account
 	storagePrevs map[string][]byte
@@ -394,7 +394,7 @@ func (w *StateWriterBufferedV3) ResetWriteSet() {
 	w.codePrevs = nil
 }
 
-func (w *StateWriterBufferedV3) WriteSet() map[string]*libstate.KvList {
+func (w *StateWriterBufferedV3) WriteSet() map[kv.Domain]*libstate.KvList {
 	return w.writeLists
 }
 
@@ -412,14 +412,14 @@ func (w *StateWriterBufferedV3) UpdateAccountData(address common.Address, origin
 			return err
 		}
 		if err := w.rs.domains.IterateStoragePrefix(address[:], func(k, v []byte) error {
-			w.writeLists[string(kv.StorageDomain)].Push(string(k), nil)
+			w.writeLists[kv.StorageDomain].Push(string(k), nil)
 			return nil
 		}); err != nil {
 			return err
 		}
 	}
 	value := accounts.SerialiseV3(account)
-	w.writeLists[string(kv.AccountsDomain)].Push(string(address[:]), value)
+	w.writeLists[kv.AccountsDomain].Push(string(address[:]), value)
 
 	return nil
 }
@@ -428,7 +428,7 @@ func (w *StateWriterBufferedV3) UpdateAccountCode(address common.Address, incarn
 	if w.trace {
 		fmt.Printf("code: %x, %x, valLen: %d\n", address.Bytes(), codeHash, len(code))
 	}
-	w.writeLists[string(kv.CodeDomain)].Push(string(address[:]), code)
+	w.writeLists[kv.CodeDomain].Push(string(address[:]), code)
 	return nil
 }
 
@@ -436,7 +436,7 @@ func (w *StateWriterBufferedV3) DeleteAccount(address common.Address, original *
 	if w.trace {
 		fmt.Printf("del acc: %x\n", address)
 	}
-	w.writeLists[string(kv.AccountsDomain)].Push(string(address.Bytes()), nil)
+	w.writeLists[kv.AccountsDomain].Push(string(address.Bytes()), nil)
 	return nil
 }
 
@@ -445,7 +445,7 @@ func (w *StateWriterBufferedV3) WriteAccountStorage(address common.Address, inca
 		return nil
 	}
 	compositeS := string(append(address.Bytes(), key.Bytes()...))
-	w.writeLists[string(kv.StorageDomain)].Push(compositeS, value.Bytes())
+	w.writeLists[kv.StorageDomain].Push(compositeS, value.Bytes())
 	if w.trace {
 		fmt.Printf("storage: %x,%x,%x\n", address, *key, value.Bytes())
 	}
@@ -490,7 +490,7 @@ func (w *StateWriterV3) SetTx(tx kv.Tx) { w.tx = tx }
 
 func (w *StateWriterV3) ResetWriteSet() {}
 
-func (w *StateWriterV3) WriteSet() map[string]*libstate.KvList {
+func (w *StateWriterV3) WriteSet() map[kv.Domain]*libstate.KvList {
 	return nil
 }
 
@@ -577,7 +577,7 @@ type StateReaderV3 struct {
 	composite []byte
 
 	discardReadList bool
-	readLists       map[string]*libstate.KvList
+	readLists       map[kv.Domain]*libstate.KvList
 }
 
 func NewStateReaderV3(sd *libstate.SharedDomains) *StateReaderV3 {
@@ -589,12 +589,12 @@ func NewStateReaderV3(sd *libstate.SharedDomains) *StateReaderV3 {
 	}
 }
 
-func (r *StateReaderV3) DiscardReadList()                     { r.discardReadList = true }
-func (r *StateReaderV3) SetTxNum(txNum uint64)                { r.txNum = txNum }
-func (r *StateReaderV3) SetTx(tx kv.Tx)                       {}
-func (r *StateReaderV3) ReadSet() map[string]*libstate.KvList { return r.readLists }
-func (r *StateReaderV3) SetTrace(trace bool)                  { r.trace = trace }
-func (r *StateReaderV3) ResetReadSet()                        { r.readLists = newReadList() }
+func (r *StateReaderV3) DiscardReadList()                        { r.discardReadList = true }
+func (r *StateReaderV3) SetTxNum(txNum uint64)                   { r.txNum = txNum }
+func (r *StateReaderV3) SetTx(tx kv.Tx)                          {}
+func (r *StateReaderV3) ReadSet() map[kv.Domain]*libstate.KvList { return r.readLists }
+func (r *StateReaderV3) SetTrace(trace bool)                     { r.trace = trace }
+func (r *StateReaderV3) ResetReadSet()                           { r.readLists = newReadList() }
 
 func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Account, error) {
 	enc, err := r.sd.LatestAccount(address[:])
@@ -603,7 +603,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 	}
 	if !r.discardReadList {
 		// lifecycle of `r.readList` is less than lifecycle of `r.rs` and `r.tx`, also `r.rs` and `r.tx` do store data immutable way
-		r.readLists[string(kv.AccountsDomain)].Push(string(address[:]), enc)
+		r.readLists[kv.AccountsDomain].Push(string(address[:]), enc)
 	}
 	if len(enc) == 0 {
 		if r.trace {
@@ -629,7 +629,7 @@ func (r *StateReaderV3) ReadAccountStorage(address common.Address, incarnation u
 		return nil, err
 	}
 	if !r.discardReadList {
-		r.readLists[string(kv.StorageDomain)].Push(string(r.composite), enc)
+		r.readLists[kv.StorageDomain].Push(string(r.composite), enc)
 	}
 	if r.trace {
 		if enc == nil {
@@ -648,7 +648,7 @@ func (r *StateReaderV3) ReadAccountCode(address common.Address, incarnation uint
 	}
 
 	if !r.discardReadList {
-		r.readLists[string(kv.CodeDomain)].Push(string(address[:]), enc)
+		r.readLists[kv.CodeDomain].Push(string(address[:]), enc)
 	}
 	if r.trace {
 		fmt.Printf("ReadAccountCode [%x] => [%x], txNum: %d\n", address, enc, r.txNum)
@@ -664,7 +664,7 @@ func (r *StateReaderV3) ReadAccountCodeSize(address common.Address, incarnation 
 	var sizebuf [8]byte
 	binary.BigEndian.PutUint64(sizebuf[:], uint64(len(enc)))
 	if !r.discardReadList {
-		r.readLists[libstate.CodeSizeTableFake].Push(string(address[:]), sizebuf[:])
+		//r.readLists[libstate.CodeSizeTableFake].Push(string(address[:]), sizebuf[:])
 	}
 	size := len(enc)
 	if r.trace {
@@ -679,23 +679,23 @@ func (r *StateReaderV3) ReadAccountIncarnation(address common.Address) (uint64, 
 
 var writeListPool = sync.Pool{
 	New: func() any {
-		return map[string]*libstate.KvList{
-			string(kv.AccountsDomain): {},
-			string(kv.StorageDomain):  {},
-			string(kv.CodeDomain):     {},
+		return map[kv.Domain]*libstate.KvList{
+			kv.AccountsDomain: {},
+			kv.StorageDomain:  {},
+			kv.CodeDomain:     {},
 		}
 	},
 }
 
-func newWriteList() map[string]*libstate.KvList {
-	v := writeListPool.Get().(map[string]*libstate.KvList)
+func newWriteList() map[kv.Domain]*libstate.KvList {
+	v := writeListPool.Get().(map[kv.Domain]*libstate.KvList)
 	for _, tbl := range v {
 		tbl.Keys, tbl.Vals = tbl.Keys[:0], tbl.Vals[:0]
 	}
 	return v
 	//return writeListPool.Get().(map[string]*libstate.KvList)
 }
-func returnWriteList(v map[string]*libstate.KvList) {
+func returnWriteList(v map[kv.Domain]*libstate.KvList) {
 	if v == nil {
 		return
 	}
@@ -709,24 +709,24 @@ func returnWriteList(v map[string]*libstate.KvList) {
 
 var readListPool = sync.Pool{
 	New: func() any {
-		return map[string]*libstate.KvList{
-			string(kv.AccountsDomain):  {},
-			string(kv.CodeDomain):      {},
-			libstate.CodeSizeTableFake: {},
-			string(kv.StorageDomain):   {},
+		return map[kv.Domain]*libstate.KvList{
+			kv.AccountsDomain: {},
+			kv.CodeDomain:     {},
+			//libstate.CodeSizeTableFake: {},
+			kv.StorageDomain: {},
 		}
 	},
 }
 
-func newReadList() map[string]*libstate.KvList {
-	v := readListPool.Get().(map[string]*libstate.KvList)
+func newReadList() map[kv.Domain]*libstate.KvList {
+	v := readListPool.Get().(map[kv.Domain]*libstate.KvList)
 	for _, tbl := range v {
 		tbl.Keys, tbl.Vals = tbl.Keys[:0], tbl.Vals[:0]
 	}
 	return v
 	//return readListPool.Get().(map[string]*libstate.KvList)
 }
-func returnReadList(v map[string]*libstate.KvList) {
+func returnReadList(v map[kv.Domain]*libstate.KvList) {
 	if v == nil {
 		return
 	}

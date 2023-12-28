@@ -386,15 +386,15 @@ func (sd *SharedDomains) LatestAccount(addr []byte) ([]byte, error) {
 	return v, nil
 }
 
-const CodeSizeTableFake = "CodeSize"
+//const CodeSizeTableFake = "CodeSize"
 
-func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
+func (sd *SharedDomains) ReadsValid(readLists map[kv.Domain]*KvList) bool {
 	//sd.muMaps.RLock()
 	//defer sd.muMaps.RUnlock()
 
 	for table, list := range readLists {
 		switch table {
-		case string(kv.AccountsDomain):
+		case kv.AccountsDomain:
 			m := sd.account
 			for i, key := range list.Keys {
 				if val, ok := m[key]; ok {
@@ -403,7 +403,7 @@ func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
 					}
 				}
 			}
-		case string(kv.CodeDomain):
+		case kv.CodeDomain:
 			m := sd.code
 			for i, key := range list.Keys {
 				if val, ok := m[key]; ok {
@@ -412,7 +412,7 @@ func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
 					}
 				}
 			}
-		case string(kv.StorageDomain):
+		case kv.StorageDomain:
 			m := sd.storage
 			for i, key := range list.Keys {
 				if val, ok := m.Get(key); ok {
@@ -421,15 +421,15 @@ func (sd *SharedDomains) ReadsValid(readLists map[string]*KvList) bool {
 					}
 				}
 			}
-		case CodeSizeTableFake:
-			m := sd.code
-			for i, key := range list.Keys {
-				if val, ok := m[key]; ok {
-					if binary.BigEndian.Uint64(list.Vals[i]) != uint64(len(val)) {
-						return false
-					}
-				}
-			}
+		//case CodeSizeTableFake:
+		//	m := sd.code
+		//	for i, key := range list.Keys {
+		//		if val, ok := m[key]; ok {
+		//			if binary.BigEndian.Uint64(list.Vals[i]) != uint64(len(val)) {
+		//				return false
+		//			}
+		//		}
+		//	}
 		default:
 			panic(table)
 		}
