@@ -305,7 +305,7 @@ func ExecV3(ctx context.Context,
 	blockNum = doms.BlockNum()
 	outputTxNum.Store(doms.TxNum())
 
-	for j := uint64(0); j < blockNum; j++ {
+	for j := uint64(1); j < blockNum; j++ {
 		_min, _ := rawdbv3.TxNums.Min(applyTx, j)
 		rawdbv3.DebugTxNumsMin[_min] = j
 	}
