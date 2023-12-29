@@ -83,10 +83,6 @@ func NewMDBX(log log.Logger) MdbxOpts {
 		log:        log,
 		pageSize:   kv.DefaultPageSize(),
 
-		// default is (TOTAL_RAM+AVAILABLE_RAM)/42/pageSize
-		// but for reproducibility of benchmarks - please don't rely on Available RAM
-		//dirtySpace: 2 * (memory.TotalMemory() / 42),
-
 		mapSize:         DefaultMapSize,
 		growthStep:      DefaultGrowthStep,
 		mergeThreshold:  3 * 8192,
