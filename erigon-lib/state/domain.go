@@ -713,9 +713,9 @@ func (w *domainBufferedWriter) PutWithPrev(key1, key2, val, preval []byte) error
 	if tracePutWithPrev != "" && tracePutWithPrev == w.h.ii.filenameBase {
 		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, val, preval)
 	}
-	if dc.hc.ic.txNum == 1554564851 || dc.hc.ic.txNum == 1553506055 || dc.hc.ic.txNum == 1554468165 {
-		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, val, preval)
-		panic(dc.hc.ic.txNum)
+	if w.h.ii.txNum == 1554564851 || w.h.ii.txNum == 1553506055 || w.h.ii.txNum == 1554468165 {
+		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, val, preval)
+		panic(w.h.ii.txNum)
 	}
 	if err := w.h.AddPrevValue(key1, key2, preval); err != nil {
 		return err
