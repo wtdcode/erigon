@@ -47,7 +47,7 @@ func E3HistoryNoSystemTxs(ctx context.Context, chainDB kv.RwDB, agg *state.Aggre
 					if err != nil {
 						return err
 					}
-					it, err := tx.IndexRange(kv.AccountsHistoryIdx, key, -1, -1, order.Desc, -1)
+					it, err := tx.IndexRange(kv.AccountsHistoryIdx, key, -1, 1_100_000_000, order.Desc, -1)
 					if err != nil {
 						return err
 					}
