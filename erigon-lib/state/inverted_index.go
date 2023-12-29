@@ -32,7 +32,7 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
-	"github.com/ledgerwatch/erigon-lib/common"
+	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/spaolacci/murmur3"
 	btree2 "github.com/tidwall/btree"
@@ -648,8 +648,8 @@ func loadFunc(k, v []byte, table etl.CurrentTableReader, next etl.LoadNextFunc) 
 	return next(k, k, v)
 }
 func loadFunc2(k, v []byte, table etl.CurrentTableReader, next etl.LoadNextFunc) error {
-	if bytes.Equal(k, common.FromHex("000000005c989f07")) {
-		fmt.Printf("loadFunc2: %x, %s\n", k, dbg.Stack())
+	if _blockNum, ok := rawdbv3.DebugTxNumsMin[binary.BigEndian.Uint64(k)]; ok {
+		fmt.Printf("loadFunc2: %d, %d, %s\n", binary.BigEndian.Uint64(k), _blockNum, dbg.Stack())
 	}
 	return next(k, k, v)
 }
