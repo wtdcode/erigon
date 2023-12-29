@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
+	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	btree2 "github.com/tidwall/btree"
 	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
@@ -558,6 +559,13 @@ func (h *historyWAL) addPrevValue(key1, key2, original []byte) error {
 	}
 
 	txNumBytes := h.hc.ic.txNumBytes[:]
+	if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[h.hc.ic.txNum]; ok {
+		panic(fmt.Sprintf("%s, %x, %d %d\n", h.hc.h.filenameBase, key1, h.hc.ic.txNum, _fondBlockNum))
+	}
+	if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[binary.BigEndian.Uint64(txNumBytes)]; ok {
+		panic(fmt.Sprintf("%s, %x, %d %d\n", h.hc.h.filenameBase, key1, h.hc.ic.txNum, _fondBlockNum))
+	}
+
 	//defer func() {
 	//	fmt.Printf("addPrevValue: %x tx %x %x lv=%t buffered=%t\n", key1, ic.txNumBytes, original, h.largeValues, h.buffered)
 	//}()
@@ -660,6 +668,10 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 			bitmap = bitmapdb.NewBitmap64()
 			indexBitmaps[ks] = bitmap
 		}
+		if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[txNum]; ok {
+			panic(fmt.Sprintf("%s, %d %d\n", h.filenameBase, txNum, _fondBlockNum))
+		}
+
 		if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
 			log.Warn("[dbg] see", "txnum", txNum, "k", fmt.Sprintf("%x, %x", k, v))
 			panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
