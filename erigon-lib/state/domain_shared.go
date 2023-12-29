@@ -893,8 +893,7 @@ func (sd *SharedDomains) DomainGet(name kv.Domain, k, k2 []byte) (v []byte, err 
 //   - if `val == nil` it will call DomainDel
 func (sd *SharedDomains) DomainPut(domain kv.Domain, k1, k2 []byte, val, prevVal []byte) error {
 	if sd.txNum == 1554564851 || sd.txNum == 1553506055 || sd.txNum == 1554468165 {
-		sd.trace = true
-		defer func() { sd.trace = false }()
+		fmt.Printf("DomainPut(%s, %x, %x) %s\n", domain, k1, val, dbg.Stack())
 	}
 
 	if val == nil {
@@ -931,8 +930,7 @@ func (sd *SharedDomains) DomainPut(domain kv.Domain, k1, k2 []byte, val, prevVal
 //   - if `val == nil` it will call DomainDel
 func (sd *SharedDomains) DomainDel(domain kv.Domain, k1, k2 []byte, prevVal []byte) error {
 	if sd.txNum == 1554564851 || sd.txNum == 1553506055 || sd.txNum == 1554468165 {
-		sd.trace = true
-		defer func() { sd.trace = false }()
+		fmt.Printf("DomainDel(%s, %x) %s\n", domain, k1, dbg.Stack())
 	}
 
 	if prevVal == nil {
