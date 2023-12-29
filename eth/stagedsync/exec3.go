@@ -310,6 +310,8 @@ func ExecV3(ctx context.Context,
 		rawdbv3.DebugTxNumsMin[_min] = j
 	}
 
+	fmt.Printf("dbg: %d\n", len(rawdbv3.DebugTxNumsMin))
+	panic(1)
 	if applyTx != nil {
 		if dbg.DiscardHistory() {
 			doms.DiscardHistory()
