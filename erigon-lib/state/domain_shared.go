@@ -539,6 +539,13 @@ func (sd *SharedDomains) StepSize() uint64 {
 // SetTxNum sets txNum for all domains as well as common txNum for all domains
 // Requires for sd.rwTx because of commitment evaluation in shared domains if aggregationStep is reached
 func (sd *SharedDomains) SetTxNum(txNum uint64) {
+	if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
+		fmt.Printf("SetTxNum(%d) %s\n", txNum, dbg.Stack())
+	}
+	if txNum == 1554564851+1 || txNum == 1553506055+1 || txNum == 1554468165+1 {
+		fmt.Printf("SetTxNum(%d) %s\n", txNum, dbg.Stack())
+	}
+
 	sd.txNum = txNum
 	sd.aggCtx.account.SetTxNum(txNum)
 	sd.aggCtx.code.SetTxNum(txNum)
