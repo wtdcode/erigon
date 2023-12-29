@@ -732,6 +732,7 @@ func (dc *DomainContext) PutWithPrev(key1, key2, val, preval []byte) error {
 	}
 	if dc.hc.ic.txNum == 1554564851 || dc.hc.ic.txNum == 1553506055 || dc.hc.ic.txNum == 1554468165 {
 		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", dc.d.filenameBase, dc.hc.ic.txNum, key1, key2, val, preval)
+		panic(dc.hc.ic.txNum)
 	}
 	if err := dc.hc.AddPrevValue(key1, key2, preval); err != nil {
 		return err
