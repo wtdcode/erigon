@@ -875,9 +875,12 @@ func (r *BlockReader) IntegrityTxnID() {
 	for _, snb := range view.Bodies() {
 		firstBlockNum := snb.idxBodyNumber.BaseDataID()
 		sn, _ := view.TxsSegment(snb.idxBodyNumber.BaseDataID())
-		_, baseID, _, _, _ := r.bodyFromSnapshot(firstBlockNum, snb, nil)
-		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, baseID, sn.Seg.Count(), nextFirstTxnID)
-		if baseID != nextFirstTxnID {
+		b, _, err := r.bodyForStorageFromSnapshot(firstBlockNum, snb, nil)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), nextFirstTxnID)
+		if b.BaseTxId != nextFirstTxnID {
 			panic(firstBlockNum)
 		}
 		nextFirstTxnID = baseID + uint64(sn.Seg.Count()) + 1
