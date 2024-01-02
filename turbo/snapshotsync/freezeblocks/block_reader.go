@@ -906,8 +906,11 @@ func (r *BlockReader) IntegrityTxnID() {
 	}
 
 	fmt.Printf("segment1: b.BaseTxId=%d, b.TxAmount=%d, next=%d\n", b.BaseTxId, uint64(b.TxAmount), next)
-	_, base, txsAmount, _, _ := r.bodyFromSnapshot(14500000, sn, buf)
-	fmt.Printf("segment2: b.BaseTxId=%d, b.TxAmount=%d\n", base, txsAmount)
+	b2, _, err := r.bodyForStorageFromSnapshot(14500000, sn, buf)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("segment2: b.BaseTxId=%d, b.TxAmount=%d\n", b2.BaseTxId, b.TxAmount)
 	fmt.Printf("sn: BaseDataID=%d\n", sn.idxBodyNumber.BaseDataID())
 
 }
