@@ -732,7 +732,7 @@ Loop:
 			doms.SetTxNum(txTask.TxNum)
 			doms.SetBlockNum(txTask.BlockNum)
 
-			if txTask.TxNum == 1553506055 {
+			if txTask.TxNum == 1553506055 || txTask.TxNum == 1553506054 {
 				_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
 				_max, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
 				fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d, in ram:=%d\n", blockNum, _min, _max, inputTxNum)
