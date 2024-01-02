@@ -871,7 +871,12 @@ func (r *BlockReader) AssertBodies() {
 	view := r.sn.View()
 	defer view.Close()
 
-	sn, _ := view.BodiesSegment(14500000)
+	sn, _ := view.BodiesSegment(14000000 - 1)
+	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
+	sn, _ = view.BodiesSegment(14500000 - 1)
+	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
+	sn, _ = view.BodiesSegment(14500000)
+	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
 
 	var buf []byte
 	var next uint64
