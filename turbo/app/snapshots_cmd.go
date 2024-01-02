@@ -323,7 +323,21 @@ func doIntegrity(cliCtx *cli.Context) error {
 	dirs := datadir.New(cliCtx.String(utils.DataDirFlag.Name))
 	chainDB := dbCfg(kv.ChainDB, dirs.Chaindata).MustOpen()
 	defer chainDB.Close()
-	agg := openAgg(ctx, dirs, chainDB, logger)
+
+	cfg := ethconfig.NewSnapCfg(true, false, true)
+	chainConfig := fromdb.ChainConfig(chainDB)
+	blockSnaps, borSnaps, blockRetire, agg, err := openSnaps(ctx, cfg, dirs, snapcfg.KnownCfg(chainConfig.ChainName, 0).Version, chainDB, logger)
+	if err != nil {
+		return err
+	}
+	defer blockSnaps.Close()
+	defer borSnaps.Close()
+	defer agg.Close()
+
+	blockReader, _ := blockRetire.IO()
+	if err := blockReader.(*freezeblocks.BlockReader).IntegrityTxnID(); err != nil {
+		return err
+	}
 
 	if err := integrity.E3HistoryNoSystemTxs(ctx, chainDB, agg); err != nil {
 		return err
@@ -423,7 +437,6 @@ func doIndicesCommand(cliCtx *cli.Context) error {
 	cfg := ethconfig.NewSnapCfg(true, false, true)
 	chainConfig := fromdb.ChainConfig(chainDB)
 	blockSnaps, borSnaps, br, agg, err := openSnaps(ctx, cfg, dirs, snapcfg.KnownCfg(chainConfig.ChainName, 0).Version, chainDB, logger)
-
 	if err != nil {
 		return err
 	}

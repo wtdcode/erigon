@@ -867,53 +867,26 @@ func (r *BlockReader) IterateFrozenBodiesForStorage(f func(blockNum, baseTxNum, 
 	}
 	return nil
 }
-func (r *BlockReader) IntegrityTxnID() {
+func (r *BlockReader) IntegrityTxnID() error {
 	view := r.sn.View()
 	defer view.Close()
 
-	var nextFirstTxnID uint64
+	var expectedFirstTxnID uint64
 	for _, snb := range view.Bodies() {
 		firstBlockNum := snb.idxBodyNumber.BaseDataID()
 		sn, _ := view.TxsSegment(snb.idxBodyNumber.BaseDataID())
 		b, _, err := r.bodyForStorageFromSnapshot(firstBlockNum, snb, nil)
 		if err != nil {
-			panic(err)
+			return err
 		}
-		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), nextFirstTxnID)
-		if b.BaseTxId != nextFirstTxnID {
-			panic(firstBlockNum)
+		if b.BaseTxId != expectedFirstTxnID {
+			return fmt.Errorf("[integrity] IntegrityTxnID: bn=%d, baseID=%d, cnt=%d, expectedFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), expectedFirstTxnID)
 		}
-		nextFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count())
+		expectedFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count())
 	}
-
-	{
-		sn, _ := view.TxsSegment(14000000 - 1)
-		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
-		sn, _ = view.TxsSegment(14500000 - 1)
-		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
-		sn, _ = view.TxsSegment(14500000)
-		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
-	}
-
-	sn, _ := view.BodiesSegment(14500000)
-	var buf []byte
-	var next uint64
-	g := sn.seg.MakeGetter()
-	var b types.BodyForStorage
-	buf, next = g.Next(buf[:0])
-	if err := rlp.DecodeBytes(buf, &b); err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("segment1: b.BaseTxId=%d, b.TxAmount=%d, next=%d\n", b.BaseTxId, uint64(b.TxAmount), next)
-	b2, _, err := r.bodyForStorageFromSnapshot(14500000, sn, buf)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("segment2: b.BaseTxId=%d, b.TxAmount=%d\n", b2.BaseTxId, b.TxAmount)
-	fmt.Printf("sn: BaseDataID=%d\n", sn.idxBodyNumber.BaseDataID())
-
+	return nil
 }
+
 func (r *BlockReader) BadHeaderNumber(ctx context.Context, tx kv.Getter, hash common.Hash) (blockHeight *uint64, err error) {
 	return rawdb.ReadBadHeaderNumber(tx, hash)
 }
