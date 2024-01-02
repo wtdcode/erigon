@@ -658,7 +658,7 @@ func ExecV3(ctx context.Context,
 	}); err != nil {
 		return fmt.Errorf("build txNum => blockNum mapping: %w", err)
 	}
-	blockReader.(*freezeblocks.BlockReader).AssertBodies()
+	blockReader.(*freezeblocks.BlockReader).IntegrityTxnID()
 	for i := uint64(0); i <= maxBlockNum; i++ {
 		h, _ := blockReader.CanonicalHash(ctx, applyTx, i)
 		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, i)

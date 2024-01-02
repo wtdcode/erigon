@@ -867,7 +867,7 @@ func (r *BlockReader) IterateFrozenBodies(f func(blockNum, baseTxNum, txAmount u
 	}
 	return nil
 }
-func (r *BlockReader) AssertBodies() {
+func (r *BlockReader) IntegrityTxnID() {
 	view := r.sn.View()
 	defer view.Close()
 
@@ -876,11 +876,11 @@ func (r *BlockReader) AssertBodies() {
 		firstBlockNum := snb.idxBodyNumber.BaseDataID()
 		sn, _ := view.TxsSegment(snb.idxBodyNumber.BaseDataID())
 		_, baseID, _, _, _ := r.bodyFromSnapshot(firstBlockNum, snb, nil)
+		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, baseID, sn.Seg.Count(), nextFirstTxnID)
 		if baseID != nextFirstTxnID {
 			panic(firstBlockNum)
 		}
 		nextFirstTxnID = baseID + uint64(sn.Seg.Count()) + 1
-		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, baseID, sn.Seg.Count(), nextFirstTxnID)
 	}
 
 	{
