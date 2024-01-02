@@ -767,6 +767,9 @@ Loop:
 			//	fmt.Printf("[dbg] txNum: %d, hist=%t\n", txTask.TxNum, txTask.HistoryExecution)
 			//}
 			if txIndex >= 0 && txIndex < len(txs) {
+				if txTask.TxNum > 1553325652 {
+					fmt.Printf("[dbg] iter: txIndex=%d, inputTxNum=%d\n", txIndex, inputTxNum)
+				}
 				if txTask.TxNum == 1553506055 {
 					panic(1553506055)
 				}
