@@ -871,13 +871,28 @@ func (r *BlockReader) AssertBodies() {
 	view := r.sn.View()
 	defer view.Close()
 
-	sn, _ := view.BodiesSegment(14000000 - 1)
-	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
-	sn, _ = view.BodiesSegment(14500000 - 1)
-	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
-	sn, _ = view.BodiesSegment(14500000)
-	fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.idxBodyNumber.BaseDataID(), sn.seg.Count(), sn.idxBodyNumber.BaseDataID()+uint64(sn.seg.Count()))
+	var nextFirstTxnID uint64
+	for _, snb := range view.Bodies() {
+		firstBlockNum := snb.idxBodyNumber.BaseDataID()
+		sn, _ := view.TxsSegment(snb.idxBodyNumber.BaseDataID())
+		_, baseID, _, _, _ := r.bodyFromSnapshot(firstBlockNum, snb, nil)
+		if baseID != nextFirstTxnID {
+			panic(firstBlockNum)
+		}
+		nextFirstTxnID = baseID + uint64(sn.Seg.Count()) + 1
+		fmt.Printf("[dbg] bn=%d, baseID=%d, cnt=%d, nextFirstTxnID=%d\n", firstBlockNum, baseID, sn.Seg.Count(), nextFirstTxnID)
+	}
 
+	{
+		sn, _ := view.TxsSegment(14000000 - 1)
+		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
+		sn, _ = view.TxsSegment(14500000 - 1)
+		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
+		sn, _ = view.TxsSegment(14500000)
+		fmt.Printf("[dbg]: sn.idxBodyNumber.BaseDataID()=%d + sn.seg.Count()=%d =%d\n", sn.IdxTxnHash2BlockNum.BaseDataID(), sn.Seg.Count(), sn.IdxTxnHash2BlockNum.BaseDataID()+uint64(sn.Seg.Count()))
+	}
+
+	sn, _ := view.BodiesSegment(14500000)
 	var buf []byte
 	var next uint64
 	g := sn.seg.MakeGetter()
