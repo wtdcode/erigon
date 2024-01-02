@@ -883,7 +883,7 @@ func (r *BlockReader) IntegrityTxnID() {
 		if b.BaseTxId != nextFirstTxnID {
 			panic(firstBlockNum)
 		}
-		nextFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count()) + 1
+		nextFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count())
 	}
 
 	{
