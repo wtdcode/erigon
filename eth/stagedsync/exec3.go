@@ -759,7 +759,7 @@ Loop:
 			if txTask.TxNum > 1553325653 {
 				_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
 				_max, _ := rawdbv3.TxNums.Max(applyTx, txTask.BlockNum)
-				fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d, in ram:=%d\n", blockNum, _min, _max, inputTxNum)
+				fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d=%d, in ram:=%d\n", blockNum, _min, _max, _max-_min+1, inputTxNum)
 				fmt.Printf("[dbg] alex: txIndex:=%d, len(txs):=%d\n", txIndex, len(txs))
 			}
 
