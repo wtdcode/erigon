@@ -335,7 +335,7 @@ func doIntegrity(cliCtx *cli.Context) error {
 	defer agg.Close()
 
 	blockReader, _ := blockRetire.IO()
-	if err := blockReader.(*freezeblocks.BlockReader).IntegrityTxnID(); err != nil {
+	if err := blockReader.(*freezeblocks.BlockReader).IntegrityTxnID(false); err != nil {
 		return err
 	}
 
