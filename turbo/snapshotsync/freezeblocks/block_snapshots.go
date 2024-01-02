@@ -2483,8 +2483,6 @@ func (v *View) TxsSegment(blockNum uint64) (*TxnSegment, bool) {
 }
 
 func (v *View) AssertBodies() {
-
-	return nil
 }
 
 func (m *Merger) filesByRange(snapshots *RoSnapshots, from, to uint64) (map[snaptype.Type][]string, error) {
