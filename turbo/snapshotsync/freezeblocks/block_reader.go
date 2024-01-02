@@ -867,6 +867,27 @@ func (r *BlockReader) IterateFrozenBodies(f func(blockNum, baseTxNum, txAmount u
 	}
 	return nil
 }
+func (r *BlockReader) AssertBodies() {
+	view := r.sn.View()
+	defer view.Close()
+
+	sn, _ := view.BodiesSegment(14500000)
+
+	var buf []byte
+	var next uint64
+	g := sn.seg.MakeGetter()
+	var b types.BodyForStorage
+	buf, next = g.Next(buf[:0])
+	if err := rlp.DecodeBytes(buf, &b); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("segment1: b.BaseTxId=%d, b.TxAmount=%d, next=%d\n", b.BaseTxId, uint64(b.TxAmount), next)
+	_, base, txsAmount, _, _ := r.bodyFromSnapshot(14500000, sn, buf)
+	fmt.Printf("segment2: b.BaseTxId=%d, b.TxAmount=%d\n", base, txsAmount)
+	fmt.Printf("sn: BaseDataID=%d\n", sn.idxBodyNumber.BaseDataID())
+
+}
 func (r *BlockReader) BadHeaderNumber(ctx context.Context, tx kv.Getter, hash common.Hash) (blockHeight *uint64, err error) {
 	return rawdb.ReadBadHeaderNumber(tx, hash)
 }
