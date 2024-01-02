@@ -869,6 +869,31 @@ func (r *BlockReader) IterateFrozenBodiesForStorage(f func(blockNum, baseTxNum, 
 	return nil
 }
 func (r *BlockReader) IntegrityTxnID(failFast bool) error {
+	defer log.Info("[integrity] IntegrityTxnID done")
+	view := r.sn.View()
+	defer view.Close()
+
+	var expectedFirstTxnID uint64
+	for _, snb := range view.Bodies() {
+		firstBlockNum := snb.idxBodyNumber.BaseDataID()
+		sn, _ := view.TxsSegment(snb.idxBodyNumber.BaseDataID())
+		b, _, err := r.bodyForStorageFromSnapshot(firstBlockNum, snb, nil)
+		if err != nil {
+			return err
+		}
+		if b.BaseTxId != expectedFirstTxnID {
+			err := fmt.Errorf("[integrity] IntegrityTxnID: bn=%d, baseID=%d, cnt=%d, expectedFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), expectedFirstTxnID)
+			if failFast {
+				return err
+			} else {
+				log.Error(err.Error())
+			}
+		}
+		expectedFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count())
+	}
+	return nil
+}
+func (r *BlockReader) IntegrityTxnID(failFast bool) error {
 	view := r.sn.View()
 	defer view.Close()
 
