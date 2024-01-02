@@ -645,9 +645,9 @@ func ExecV3(ctx context.Context,
 	//}
 
 	type IterBody interface {
-		IterateFrozenBodies(f func(blockNum, baseTxNum, txAmount uint64) error) error
+		IterateFrozenBodiesForStorage(f func(blockNum, baseTxNum, txAmount uint64) error) error
 	}
-	if err := blockReader.(IterBody).IterateFrozenBodies(func(blockNum, baseTxNum, txAmount uint64) error {
+	if err := blockReader.(IterBody).IterateFrozenBodiesForStorage(func(blockNum, baseTxNum, txAmount uint64) error {
 		if blockNum == 14500000-1 {
 			fmt.Printf("[dbg] see data: blockNum=%d, baseTxNum:=%d, txAmount:=%d\n", blockNum, baseTxNum, txAmount)
 		}
