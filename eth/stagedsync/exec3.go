@@ -721,6 +721,13 @@ Loop:
 			}
 		}
 
+		{
+			_min, _ := rawdbv3.TxNums.Min(applyTx, blockNum)
+			if inputTxNum != _min {
+				panic(inputTxNum)
+			}
+		}
+
 		rules := chainConfig.Rules(blockNum, b.Time())
 		var gasUsed, blobGasUsed uint64
 		for txIndex := -1; txIndex <= len(txs); txIndex++ {
