@@ -21,6 +21,7 @@ import (
 	"github.com/ledgerwatch/erigon/eth/ethconfig"
 	"github.com/ledgerwatch/erigon/rlp"
 	"github.com/ledgerwatch/erigon/turbo/services"
+	"github.com/ledgerwatch/log/v3"
 )
 
 type RemoteBlockReader struct {
@@ -867,7 +868,7 @@ func (r *BlockReader) IterateFrozenBodiesForStorage(f func(blockNum, baseTxNum, 
 	}
 	return nil
 }
-func (r *BlockReader) IntegrityTxnID() error {
+func (r *BlockReader) IntegrityTxnID(failFast bool) error {
 	view := r.sn.View()
 	defer view.Close()
 
@@ -880,7 +881,12 @@ func (r *BlockReader) IntegrityTxnID() error {
 			return err
 		}
 		if b.BaseTxId != expectedFirstTxnID {
-			return fmt.Errorf("[integrity] IntegrityTxnID: bn=%d, baseID=%d, cnt=%d, expectedFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), expectedFirstTxnID)
+			err := fmt.Errorf("[integrity] IntegrityTxnID: bn=%d, baseID=%d, cnt=%d, expectedFirstTxnID=%d\n", firstBlockNum, b.BaseTxId, sn.Seg.Count(), expectedFirstTxnID)
+			if failFast {
+				return err
+			} else {
+				log.Error(err.Error())
+			}
 		}
 		expectedFirstTxnID = b.BaseTxId + uint64(sn.Seg.Count())
 	}
