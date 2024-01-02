@@ -2482,6 +2482,11 @@ func (v *View) TxsSegment(blockNum uint64) (*TxnSegment, bool) {
 	return nil, false
 }
 
+func (v *View) AssertBodies() {
+
+	return nil
+}
+
 func (m *Merger) filesByRange(snapshots *RoSnapshots, from, to uint64) (map[snaptype.Type][]string, error) {
 	toMerge := map[snaptype.Type][]string{}
 	view := snapshots.View()

@@ -15,6 +15,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/erigontech/mdbx-go/mdbx"
+	"github.com/ledgerwatch/erigon/turbo/snapshotsync/freezeblocks"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -643,14 +644,32 @@ func ExecV3(ctx context.Context,
 	//	fmt.Printf("[dbg] alex1: bn:=%d, in db:=%d-%d=%d, body:=%d, block_txs_am=%d\n", 14500978, _min, _max, _max-_min+1, txsAmount, b.Transactions().Len())
 	//}
 
+	type IterBody interface {
+		IterateFrozenBodies(f func(blockNum, baseTxNum, txAmount uint64) error) error
+	}
+	if err := blockReader.(IterBody).IterateFrozenBodies(func(blockNum, baseTxNum, txAmount uint64) error {
+		if blockNum == 14500000-1 {
+			fmt.Printf("[dbg] see data: blockNum=%d, baseTxNum:=%d, txAmount:=%d\n", blockNum, baseTxNum, txAmount)
+		}
+		if blockNum == 14500000 {
+			fmt.Printf("[dbg] see data: blockNum=%d, baseTxNum:=%d, txAmount:=%d\n", blockNum, baseTxNum, txAmount)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("build txNum => blockNum mapping: %w", err)
+	}
+
+	view := blockReader.Snapshots().(*freezeblocks.RoSnapshots).View()
+	defer view.Close()
+	view.AssertBodies()
 	for i := uint64(0); i <= maxBlockNum; i++ {
 		h, _ := blockReader.CanonicalHash(ctx, applyTx, i)
 		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, i)
 		_min, _ := rawdbv3.TxNums.Min(applyTx, i)
 		_max, _ := rawdbv3.TxNums.Max(applyTx, i)
-		if _max-_min+1 != uint64(txsAmount+2) {
-			fmt.Printf(
-				"[dbg] invariant broken: bn:=%d, in db:=%d-%d=%d, txsAmount:=%d\n", i, _min, _max, _max-_min+1, txsAmount)
+		expect := _max - _min - 1
+		if expect != uint64(txsAmount) {
+			fmt.Printf("[dbg] invariant broken: bn:=%d, in db:=%d-%d=%d, txsAmount:=%d, expect=%d\n", i, _min, _max, _max-_min+1, txsAmount, expect)
 			panic(1)
 		}
 		select {
