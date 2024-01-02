@@ -209,7 +209,7 @@ func (api *ErigonImpl) GetBalanceChangesInBlock(ctx context.Context, blockNrOrHa
 	defer tx.Rollback()
 
 	balancesMapping := make(map[common.Address]*hexutil.Big)
-	latestState, err := rpchelper.CreateStateReader(ctx, tx, blockNrOrHash, 0, api.filters, api.stateCache, api.historyV3(tx), "")
+	latestState, err := rpchelper.CreateStateReader(ctx, tx, blockNrOrHash, 0, api.filters, api.stateCache, api.historyV3(tx), api._blockReader, "")
 	if err != nil {
 		return nil, err
 	}

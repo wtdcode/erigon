@@ -279,15 +279,6 @@ func (api *PrivateDebugAPIImpl) TraceCall(ctx context.Context, args ethapi.CallA
 		return err
 	}
 
-	var stateReader state.StateReader
-	if config.TxIndex == nil || isLatest {
-		stateReader, err = rpchelper.CreateStateReader(ctx, dbtx, blockNrOrHash, 0, api.filters, api.stateCache, api.historyV3(dbtx), chainConfig.ChainName)
-	} else {
-		stateReader, err = rpchelper.CreateHistoryStateReader(dbtx, blockNumber, int(*config.TxIndex), api.historyV3(dbtx), chainConfig.ChainName)
-	}
-	if err != nil {
-		return fmt.Errorf("create state reader: %v", err)
-	}
 	header, err := api._blockReader.Header(context.Background(), dbtx, hash, blockNumber)
 	if err != nil {
 		return fmt.Errorf("could not fetch header %d(%x): %v", blockNumber, hash, err)
@@ -295,6 +286,17 @@ func (api *PrivateDebugAPIImpl) TraceCall(ctx context.Context, args ethapi.CallA
 	if header == nil {
 		return fmt.Errorf("block %d(%x) not found", blockNumber, hash)
 	}
+
+	var stateReader state.StateReader
+	if config.TxIndex == nil || isLatest {
+		stateReader, err = rpchelper.CreateStateReader(ctx, dbtx, blockNrOrHash, 0, api.filters, api.stateCache, api.historyV3(dbtx), api._blockReader, chainConfig.ChainName)
+	} else {
+		stateReader, err = rpchelper.CreateHistoryStateReader(dbtx, blockNumber, int(*config.TxIndex), api.historyV3(dbtx), header.Time, chainConfig.ChainName)
+	}
+	if err != nil {
+		return fmt.Errorf("create state reader: %v", err)
+	}
+
 	ibs := state.New(stateReader)
 
 	if config != nil && config.StateOverrides != nil {
@@ -398,7 +400,7 @@ func (api *PrivateDebugAPIImpl) TraceCallMany(ctx context.Context, bundles []Bun
 
 	replayTransactions = block.Transactions()[:transactionIndex]
 
-	stateReader, err := rpchelper.CreateStateReader(ctx, tx, rpc.BlockNumberOrHashWithNumber(rpc.BlockNumber(blockNum-1)), 0, api.filters, api.stateCache, api.historyV3(tx), chainConfig.ChainName)
+	stateReader, err := rpchelper.CreateStateReader(ctx, tx, rpc.BlockNumberOrHashWithNumber(rpc.BlockNumber(blockNum-1)), 0, api.filters, api.stateCache, api.historyV3(tx), api._blockReader, chainConfig.ChainName)
 	if err != nil {
 		stream.WriteNil()
 		return err

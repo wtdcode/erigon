@@ -587,7 +587,7 @@ func OpcodeTracer(genesis *types.Genesis, snapshotVersion uint8, blockNum uint64
 			ot.fsumWriter = bufio.NewWriter(fsum)
 		}
 
-		dbstate, err := rpchelper.CreateHistoryStateReader(historyTx, block.NumberU64(), 0, historyV3, chainConfig.ChainName)
+		dbstate, err := rpchelper.CreateHistoryStateReader(historyTx, block.NumberU64(), 0, historyV3, block.Time(), chainConfig.ChainName)
 		if err != nil {
 			return err
 		}
