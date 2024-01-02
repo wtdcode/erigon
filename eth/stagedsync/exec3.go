@@ -628,7 +628,7 @@ func ExecV3(ctx context.Context,
 
 	{
 		_min, _ := rawdbv3.TxNums.Min(applyTx, 14500977)
-		_max, _ := rawdbv3.TxNums.Min(applyTx, 14500977)
+		_max, _ := rawdbv3.TxNums.Max(applyTx, 14500977)
 		h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500977)
 		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500977)
 		b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500977)
@@ -636,7 +636,7 @@ func ExecV3(ctx context.Context,
 	}
 	{
 		_min, _ := rawdbv3.TxNums.Min(applyTx, 14500978)
-		_max, _ := rawdbv3.TxNums.Min(applyTx, 14500978)
+		_max, _ := rawdbv3.TxNums.Max(applyTx, 14500978)
 		h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500978)
 		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500978)
 		b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500978)
@@ -751,7 +751,7 @@ Loop:
 
 			if txTask.TxNum == 1553506055 || txTask.TxNum == 1553506054 || txTask.TxNum == 1553506053 {
 				_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
-				_max, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
+				_max, _ := rawdbv3.TxNums.Max(applyTx, txTask.BlockNum)
 				fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d, in ram:=%d\n", blockNum, _min, _max, inputTxNum)
 			}
 
