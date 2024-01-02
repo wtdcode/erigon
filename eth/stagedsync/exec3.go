@@ -626,6 +626,23 @@ func ExecV3(ctx context.Context,
 	blocksInSnapshots := cfg.blockReader.FrozenBlocks()
 	//fmt.Printf("exec blocks: %d -> %d\n", blockNum, maxBlockNum)
 
+	{
+		_min, _ := rawdbv3.TxNums.Min(applyTx, 14500977)
+		_max, _ := rawdbv3.TxNums.Min(applyTx, 14500977)
+		h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500977)
+		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500977)
+		b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500977)
+		fmt.Printf("[dbg] alex1: bn:=%d, in db:=%d-%d, body:=%d, block_txs_am=%d\n", 14500977, _min, _max, txsAmount, b.Transactions().Len())
+	}
+	{
+		_min, _ := rawdbv3.TxNums.Min(applyTx, 14500978)
+		_max, _ := rawdbv3.TxNums.Min(applyTx, 14500978)
+		h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500978)
+		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500978)
+		b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500978)
+		fmt.Printf("[dbg] alex1: bn:=%d, in db:=%d-%d, body:=%d, block_txs_am=%d\n", 14500978, _min, _max, txsAmount, b.Transactions().Len())
+	}
+
 	var b *types.Block
 Loop:
 	for ; blockNum <= maxBlockNum; blockNum++ {
