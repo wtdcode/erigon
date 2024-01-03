@@ -640,6 +640,7 @@ func (hd *HeaderDownload) InsertHeaders(hf FeedHeaderFunc, headerLimit uint, ter
 		}
 
 		if headerLimit > 0 && hd.highestInDb-startHeight > uint64(headerLimit) {
+			log.Info("[dbg] headerLimit reached", "headerLimit", headerLimit)
 			break
 		}
 	}

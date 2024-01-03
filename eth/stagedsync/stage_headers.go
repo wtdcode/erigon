@@ -271,6 +271,7 @@ Loop:
 
 		if cfg.syncConfig.LoopBlockLimit > 0 {
 			if bodyProgress, err := stages.GetStageProgress(tx, stages.Bodies); err == nil {
+				log.Info("[dbg] stage_headers chk LoopBlockLimit", "hd.Progress()", cfg.hd.Progress(), "bodyProgress", bodyProgress, "diff", cfg.hd.Progress()-bodyProgress, "cfg.syncConfig.LoopBlockLimit", cfg.syncConfig.LoopBlockLimit)
 				if cfg.hd.Progress() > bodyProgress && cfg.hd.Progress()-bodyProgress > uint64(cfg.syncConfig.LoopBlockLimit*2) {
 					break
 				}
