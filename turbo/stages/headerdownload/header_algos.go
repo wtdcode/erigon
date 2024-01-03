@@ -641,8 +641,10 @@ func (hd *HeaderDownload) InsertHeaders(hf FeedHeaderFunc, headerLimit uint, ter
 		}
 
 		if headerLimit > 0 && hd.highestInDb-startHeight > uint64(headerLimit) {
-			log.Info("[dbg] headerLimit reached", "headerLimit", headerLimit)
+			log.Info("[dbg] headerLimit reached", "hd.highestInDb", hd.highestInDb, "startHeight", startHeight, "diff", hd.highestInDb-startHeight, "headerLimit", headerLimit)
 			break
+		} else {
+			log.Info("[dbg] headerLimit not-reached", "hd.highestInDb", hd.highestInDb, "startHeight", startHeight, "diff", hd.highestInDb-startHeight, "headerLimit", headerLimit)
 		}
 	}
 	if blocksToTTD > 0 {
