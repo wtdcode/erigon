@@ -15,7 +15,6 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/erigontech/mdbx-go/mdbx"
-	"github.com/ledgerwatch/erigon/turbo/snapshotsync/freezeblocks"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -626,55 +625,6 @@ func ExecV3(ctx context.Context,
 
 	blocksInSnapshots := cfg.blockReader.FrozenBlocks()
 	//fmt.Printf("exec blocks: %d -> %d\n", blockNum, maxBlockNum)
-
-	//{
-	//	_min, _ := rawdbv3.TxNums.Min(applyTx, 14500977)
-	//	_max, _ := rawdbv3.TxNums.Max(applyTx, 14500977)
-	//	h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500977)
-	//	_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500977)
-	//	b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500977)
-	//	fmt.Printf("[dbg] alex1: bn:=%d, in db:=%d-%d=%d, body:=%d, block_txs_am=%d\n", 14500977, _min, _max, _max-_min+1, txsAmount, b.Transactions().Len())
-	//}
-	//{
-	//	_min, _ := rawdbv3.TxNums.Min(applyTx, 14500978)
-	//	_max, _ := rawdbv3.TxNums.Max(applyTx, 14500978)
-	//	h, _ := blockReader.CanonicalHash(ctx, applyTx, 14500978)
-	//	_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, 14500978)
-	//	b, _, _ := blockReader.BlockWithSenders(ctx, applyTx, h, 14500978)
-	//	fmt.Printf("[dbg] alex1: bn:=%d, in db:=%d-%d=%d, body:=%d, block_txs_am=%d\n", 14500978, _min, _max, _max-_min+1, txsAmount, b.Transactions().Len())
-	//}
-
-	type IterBody interface {
-		IterateFrozenBodiesForStorage(f func(blockNum, baseTxNum, txAmount uint64) error) error
-	}
-	if err := blockReader.(IterBody).IterateFrozenBodiesForStorage(func(blockNum, baseTxNum, txAmount uint64) error {
-		if blockNum == 14500000-1 {
-			fmt.Printf("[dbg] see data: blockNum=%d, baseTxNum:=%d, txAmount:=%d\n", blockNum, baseTxNum, txAmount)
-		}
-		if blockNum == 14500000 {
-			fmt.Printf("[dbg] see data: blockNum=%d, baseTxNum:=%d, txAmount:=%d\n", blockNum, baseTxNum, txAmount)
-		}
-		return nil
-	}); err != nil {
-		return fmt.Errorf("build txNum => blockNum mapping: %w", err)
-	}
-	blockReader.(*freezeblocks.BlockReader).IntegrityTxnID(false)
-	for i := uint64(0); i <= maxBlockNum; i++ {
-		h, _ := blockReader.CanonicalHash(ctx, applyTx, i)
-		_, txsAmount, _ := blockReader.Body(ctx, applyTx, h, i)
-		_min, _ := rawdbv3.TxNums.Min(applyTx, i)
-		_max, _ := rawdbv3.TxNums.Max(applyTx, i)
-		expect := _max - _min - 1
-		if expect != uint64(txsAmount) {
-			fmt.Printf("[dbg] invariant broken: bn:=%d, in db:=%d-%d=%d, txsAmount:=%d, expect=%d\n", i, _min, _max, _max-_min+1, txsAmount, expect)
-			panic(1)
-		}
-		select {
-		case <-logEvery.C:
-			log.Info("[dbg] checking", "bn", i)
-		default:
-		}
-	}
 
 	var b *types.Block
 Loop:
