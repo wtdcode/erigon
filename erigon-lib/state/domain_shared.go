@@ -1175,6 +1175,8 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 
 	// Domain storing only 1 latest commitment (for each step). Erigon can unwind behind this - it means we must look into History (instead of Domain)
 	// IdxRange: looking into DB and Files (.ef). Using `order.Desc` to find latest txNum with commitment
+	log.Info("[dbg] IdxRange", "untilTx", untilTx, "sinceTx", sinceTx)
+
 	it, err := cd.hc.IdxRange(keyCommitmentState, int(untilTx), int(sinceTx)-1, order.Desc, -1, tx) //[from, to)
 	if err != nil {
 		return 0, 0, nil, err
