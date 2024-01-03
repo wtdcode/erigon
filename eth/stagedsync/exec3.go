@@ -892,9 +892,9 @@ Loop:
 			stageProgress = blockNum
 			inputTxNum++
 
-			if txTask.TxNum > 1553325652 {
-				fmt.Printf("[dbg] inputTxNum++ = %d\n", inputTxNum)
-			}
+			//if txTask.TxNum > 1553325652 {
+			//	fmt.Printf("[dbg] inputTxNum++ = %d\n", inputTxNum)
+			//}
 		}
 		if offsetFromBlockBeginning > 0 {
 			// after history execution no offset will be required
