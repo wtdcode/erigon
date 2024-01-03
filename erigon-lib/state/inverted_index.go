@@ -895,6 +895,7 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 	if asc {
 		for i := len(ic.files) - 1; i >= 0; i-- {
 			// [from,to) && from < to
+			log.Info("[dbg] IdxRange1", "a", ic.files[i].src.decompressor.FileName1)
 			if endTxNum >= 0 && int(ic.files[i].startTxNum) >= endTxNum {
 				continue
 			}
