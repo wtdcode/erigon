@@ -1190,8 +1190,11 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 		}
 		if len(state) >= 16 {
 			txNum, blockNum = decodeTxBlockNums(v)
+			log.Info("[dbg] LatestCommitmentState1")
 			return blockNum, txNum, v, err
 		}
+	} else {
+		log.Info("[dbg] LatestCommitmentState2")
 	}
 
 	// corner-case:
@@ -1218,6 +1221,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	}
 
 	txNum, blockNum = decodeTxBlockNums(state)
+	log.Info("[dbg] LatestCommitmentState3")
 	return blockNum, txNum, state, err
 }
 
