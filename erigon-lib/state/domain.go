@@ -602,6 +602,7 @@ func (d *Domain) openFiles() (err error) {
 			fromStep, toStep := item.startTxNum/d.aggregationStep, item.endTxNum/d.aggregationStep
 			if item.decompressor == nil {
 				fPath := d.kvFilePath(fromStep, toStep)
+				log.Info("[dbg] try open", "a", fPath)
 				if !dir.FileExist(fPath) {
 					_, fName := filepath.Split(fPath)
 					d.logger.Debug("[agg] Domain.openFiles: file does not exists", "f", fName)
