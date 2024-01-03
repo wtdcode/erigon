@@ -789,20 +789,20 @@ Loop:
 			doms.SetTxNum(txTask.TxNum)
 			doms.SetBlockNum(txTask.BlockNum)
 
-			if txTask.TxNum > 1553325652 {
-				_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
-				_max, _ := rawdbv3.TxNums.Max(applyTx, txTask.BlockNum)
-				fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d=%d, in ram:=%d\n", blockNum, _min, _max, _max-_min+1, inputTxNum)
-				fmt.Printf("[dbg] alex: txIndex:=%d, len(txs):=%d\n", txIndex, len(txs))
-			}
+			//if txTask.TxNum > 1553325652 {
+			//	_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
+			//	_max, _ := rawdbv3.TxNums.Max(applyTx, txTask.BlockNum)
+			//	fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d=%d, in ram:=%d\n", blockNum, _min, _max, _max-_min+1, inputTxNum)
+			//	fmt.Printf("[dbg] alex: txIndex:=%d, len(txs):=%d\n", txIndex, len(txs))
+			//}
 
 			//if txTask.HistoryExecution { // nolint
 			//	fmt.Printf("[dbg] txNum: %d, hist=%t\n", txTask.TxNum, txTask.HistoryExecution)
 			//}
 			if txIndex >= 0 && txIndex < len(txs) {
-				if inputTxNum > 1553325652 {
-					fmt.Printf("[dbg] iter: txIndex=%d, inputTxNum=%d\n", txIndex, inputTxNum)
-				}
+				//if inputTxNum > 1553325652 {
+				//	fmt.Printf("[dbg] iter: txIndex=%d, inputTxNum=%d\n", txIndex, inputTxNum)
+				//}
 				//if txTask.TxNum == 1553506055 {
 				//	panic(1553506055)
 				//}
