@@ -604,6 +604,7 @@ func (d *Domain) openFiles() (err error) {
 				fPath := d.kvFilePath(fromStep, toStep)
 				log.Info("[dbg] try open", "a", fPath)
 				if !dir.FileExist(fPath) {
+					log.Info("[dbg] not exists", "a", fPath)
 					_, fName := filepath.Split(fPath)
 					d.logger.Debug("[agg] Domain.openFiles: file does not exists", "f", fName)
 					invalidFileItems = append(invalidFileItems, item)
@@ -611,6 +612,7 @@ func (d *Domain) openFiles() (err error) {
 				}
 
 				if item.decompressor, err = compress.NewDecompressor(fPath); err != nil {
+					log.Info("[dbg] err", "a", fPath, "err", err)
 					_, fName := filepath.Split(fPath)
 					d.logger.Warn("[agg] Domain.openFiles", "err", err, "f", fName)
 					invalidFileItems = append(invalidFileItems, item)
@@ -633,10 +635,13 @@ func (d *Domain) openFiles() (err error) {
 				fPath := d.kvBtFilePath(fromStep, toStep)
 				if dir.FileExist(fPath) {
 					if item.bindex, err = OpenBtreeIndexWithDecompressor(fPath, DefaultBtreeM, item.decompressor, d.compression); err != nil {
+						log.Info("[dbg] err", "a", fPath, "err", err)
 						_, fName := filepath.Split(fPath)
 						d.logger.Warn("[agg] Domain.openFiles", "err", err, "f", fName)
 						// don't interrupt on error. other files may be good
 					}
+				} else {
+					log.Info("[dbg] not exists", "a", fPath)
 				}
 			}
 			if item.existence == nil {
