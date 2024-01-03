@@ -803,9 +803,9 @@ Loop:
 				if inputTxNum > 1553325652 {
 					fmt.Printf("[dbg] iter: txIndex=%d, inputTxNum=%d\n", txIndex, inputTxNum)
 				}
-				if txTask.TxNum == 1553506055 {
-					panic(1553506055)
-				}
+				//if txTask.TxNum == 1553506055 {
+				//	panic(1553506055)
+				//}
 				txTask.Tx = txs[txIndex]
 				txTask.TxAsMessage, err = txTask.Tx.AsMessage(signer, header.BaseFee, txTask.Rules)
 				if err != nil {
