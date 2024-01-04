@@ -926,7 +926,7 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 				panic(err)
 			}
 			if ic.files[i].src.index.KeyCount() == 0 {
-				log.Warn("[dbg] iterateRangeFrozen4", "ic.files[i].endTxNum", ic.files[i].endTxNum, "endTxNum", endTxNum)
+				log.Warn("[dbg] iterateRangeFrozen4", "ic.files[i].src.index", ic.files[i].src.index.FileName())
 				continue
 			}
 			it.stack = append(it.stack, ic.files[i])
