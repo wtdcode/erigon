@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"golang.org/x/sync/semaphore"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -16,6 +15,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/sync/semaphore"
 
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/log/v3"
