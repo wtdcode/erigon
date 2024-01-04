@@ -1222,6 +1222,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	}
 
 	txNum, blockNum = decodeTxBlockNums(state)
+	log.Warn("[dbg] LatestCommitmentState4", "txNum", txNum, "blockNum", blockNum)
 	return blockNum, txNum, state, err
 }
 
