@@ -1184,6 +1184,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 		if err != nil {
 			return 0, 0, nil, err
 		}
+		log.Warn("[dbg] LatestCommitmentState1", "txn", txn)
 		v, err := cd.GetAsOf(keyCommitmentState, txn+1, tx) //WHYYY +1 ???
 		if err != nil {
 			return 0, 0, nil, err
@@ -1192,6 +1193,8 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 			txNum, blockNum = decodeTxBlockNums(v)
 			return blockNum, txNum, v, err
 		}
+	} else {
+		log.Warn("[dbg] LatestCommitmentState2")
 	}
 
 	// corner-case:
@@ -1199,6 +1202,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	// in this case `IdxRange` will be empty
 	// and can fallback to reading latest commitment from .kv file
 	if err = cd.IteratePrefix(tx, keyCommitmentState, func(key, value []byte) error {
+		log.Warn("[dbg] LatestCommitmentState3", "key", key, "value", value)
 		if len(value) < 16 {
 			return fmt.Errorf("invalid state value size %d [%x]", len(value), value)
 		}
