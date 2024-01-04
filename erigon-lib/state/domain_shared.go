@@ -226,6 +226,7 @@ func (sd *SharedDomains) rebuildCommitment(ctx context.Context, roTx kv.Tx, bloc
 // SeekCommitment lookups latest available commitment and sets it as current
 func (sd *SharedDomains) SeekCommitment(ctx context.Context, tx kv.Tx) (txsFromBlockBeginning uint64, err error) {
 	bn, txn, ok, err := sd.sdCtx.SeekCommitment(tx, sd.aggCtx.commitment, 0, math.MaxUint64)
+	log.Warn("[dbg] SeekCommitment", "bn", bn, "txn", txn, "ok", ok)
 	if err != nil {
 		return 0, err
 	}
