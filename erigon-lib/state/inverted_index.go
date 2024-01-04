@@ -32,7 +32,6 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
-	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/spaolacci/murmur3"
 	btree2 "github.com/tidwall/btree"
@@ -623,12 +622,6 @@ type invertedIndexBufferedWriter struct {
 func loadFunc(k, v []byte, table etl.CurrentTableReader, next etl.LoadNextFunc) error {
 	return next(k, k, v)
 }
-func loadFunc2(k, v []byte, table etl.CurrentTableReader, next etl.LoadNextFunc) error {
-	if _blockNum, ok := rawdbv3.DebugTxNumsMin[binary.BigEndian.Uint64(k)]; ok {
-		fmt.Printf("loadFunc2: %d, %d, %s\n", binary.BigEndian.Uint64(k), _blockNum, dbg.Stack())
-	}
-	return next(k, k, v)
-}
 
 func (w *invertedIndexBufferedWriter) SetTxNum(txNum uint64) {
 	w.txNum = txNum
@@ -642,7 +635,7 @@ func (w *invertedIndexBufferedWriter) Flush(ctx context.Context, tx kv.RwTx) err
 	if err := w.index.Load(tx, w.indexTable, loadFunc, etl.TransformArgs{Quit: ctx.Done()}); err != nil {
 		return err
 	}
-	if err := w.indexKeys.Load(tx, w.indexKeysTable, loadFunc2, etl.TransformArgs{Quit: ctx.Done()}); err != nil {
+	if err := w.indexKeys.Load(tx, w.indexKeysTable, loadFunc, etl.TransformArgs{Quit: ctx.Done()}); err != nil {
 		return err
 	}
 	w.close()

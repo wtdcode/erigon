@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
-	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	btree2 "github.com/tidwall/btree"
 	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
@@ -443,13 +442,7 @@ func (w *historyBufferedWriter) AddPrevValue(key1, key2, original []byte) (err e
 	if w.discard {
 		return nil
 	}
-	txNumBytes := w.ii.txNumBytes[:]
-	if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[w.ii.txNum]; ok {
-		panic(fmt.Sprintf("%s, %x, %d %d\n", w.ii.filenameBase, key1, w.ii.txNum, _fondBlockNum))
-	}
-	if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[binary.BigEndian.Uint64(txNumBytes)]; ok {
-		panic(fmt.Sprintf("%s, %x, %d %d\n", w.ii.filenameBase, key1, w.ii.txNum, _fondBlockNum))
-	}
+
 	if original == nil {
 		original = []byte{}
 	}
@@ -601,7 +594,6 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 	indexBitmaps := map[string]*roaring64.Bitmap{}
 	var txKey [8]byte
 	binary.BigEndian.PutUint64(txKey[:], txFrom)
-	log.Warn("[dbg] from", "txnum", txFrom, "name", h.filenameBase)
 	for k, v, err := keysCursor.Seek(txKey[:]); err == nil && k != nil; k, v, err = keysCursor.Next() {
 		if err != nil {
 			return HistoryCollation{}, fmt.Errorf("iterate over %s history cursor: %w", h.filenameBase, err)
@@ -615,14 +607,6 @@ func (h *History) collate(ctx context.Context, step, txFrom, txTo uint64, roTx k
 		if !ok {
 			bitmap = bitmapdb.NewBitmap64()
 			indexBitmaps[ks] = bitmap
-		}
-		if _fondBlockNum, ok := rawdbv3.DebugTxNumsMin[txNum]; ok {
-			panic(fmt.Sprintf("%s, %d %d\n", h.filenameBase, txNum, _fondBlockNum))
-		}
-
-		if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
-			log.Warn("[dbg] see", "txnum", txNum, "k", fmt.Sprintf("%x, %x", k, v))
-			panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
 		}
 		bitmap.Add(txNum)
 
@@ -902,9 +886,6 @@ func (h *History) buildFiles(ctx context.Context, step uint64, collation History
 			kb := []byte(key)
 			for it.HasNext() {
 				txNum := it.Next()
-				if txNum == 1554564851 || txNum == 1553506055 || txNum == 1554468165 {
-					panic(fmt.Sprintf("%s, %d\n", h.filenameBase, txNum))
-				}
 				binary.BigEndian.PutUint64(txKey[:], txNum)
 				historyKey = append(append(historyKey[:0], txKey[:]...), kb...)
 				if err = rs.AddKey(historyKey, valOffset); err != nil {

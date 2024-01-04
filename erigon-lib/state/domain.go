@@ -713,10 +713,6 @@ func (w *domainBufferedWriter) PutWithPrev(key1, key2, val, preval []byte) error
 	if tracePutWithPrev != "" && tracePutWithPrev == w.h.ii.filenameBase {
 		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, val, preval)
 	}
-	if w.h.ii.txNum == 1554564851 || w.h.ii.txNum == 1553506055 || w.h.ii.txNum == 1554468165 {
-		fmt.Printf("PutWithPrev(%s, tx %d, key[%x][%x] value[%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, val, preval)
-		panic(w.h.ii.txNum)
-	}
 	if err := w.h.AddPrevValue(key1, key2, preval); err != nil {
 		return err
 	}
@@ -726,9 +722,6 @@ func (w *domainBufferedWriter) PutWithPrev(key1, key2, val, preval []byte) error
 func (w *domainBufferedWriter) DeleteWithPrev(key1, key2, prev []byte) (err error) {
 	// This call to update needs to happen before d.tx.Delete() later, because otherwise the content of `original`` slice is invalidated
 	if tracePutWithPrev != "" && tracePutWithPrev == w.h.ii.filenameBase {
-		fmt.Printf("DeleteWithPrev(%s, tx %d, key[%x][%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, prev)
-	}
-	if w.h.ii.txNum == 1554564851 || w.h.ii.txNum == 1553506055 || w.h.ii.txNum == 1554468165 {
 		fmt.Printf("DeleteWithPrev(%s, tx %d, key[%x][%x] preval[%x])\n", w.h.ii.filenameBase, w.h.ii.txNum, key1, key2, prev)
 	}
 	if err := w.h.AddPrevValue(key1, key2, prev); err != nil {

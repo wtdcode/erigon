@@ -491,19 +491,12 @@ func mergeEfs(preval, val, buf []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		if v == 1554564851 || v == 1553506055 || v == 1554468165 {
-			return nil, fmt.Errorf("mergeEf1(%d)\n", v)
-		}
-
 		newEf.AddOffset(v)
 	}
 	for efIt.HasNext() {
 		v, err := efIt.Next()
 		if err != nil {
 			return nil, err
-		}
-		if v == 1554564851 || v == 1553506055 || v == 1554468165 {
-			return nil, fmt.Errorf("mergeEf2(%d)\n", v)
 		}
 		newEf.AddOffset(v)
 	}

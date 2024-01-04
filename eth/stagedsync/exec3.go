@@ -305,11 +305,6 @@ func ExecV3(ctx context.Context,
 	blockNum = doms.BlockNum()
 	outputTxNum.Store(doms.TxNum())
 
-	for j := uint64(1); j < blockNum; j++ {
-		_min, _ := rawdbv3.TxNums.Min(applyTx, j)
-		rawdbv3.DebugTxNumsMin[_min] = j
-	}
-
 	var err error
 
 	if maxBlockNum-blockNum > 16 {
@@ -704,13 +699,6 @@ Loop:
 			}
 		}
 
-		{
-			_min, _ := rawdbv3.TxNums.Min(applyTx, blockNum)
-			if inputTxNum != _min {
-				panic(fmt.Sprintf("blockNum=%d, inputTxNum=%d, _min=%d", blockNum, inputTxNum, _min))
-			}
-		}
-
 		rules := chainConfig.Rules(blockNum, b.Time())
 		var gasUsed, blobGasUsed uint64
 		for txIndex := -1; txIndex <= len(txs); txIndex++ {
@@ -739,23 +727,10 @@ Loop:
 			doms.SetTxNum(txTask.TxNum)
 			doms.SetBlockNum(txTask.BlockNum)
 
-			//if txTask.TxNum > 1553325652 {
-			//	_min, _ := rawdbv3.TxNums.Min(applyTx, txTask.BlockNum)
-			//	_max, _ := rawdbv3.TxNums.Max(applyTx, txTask.BlockNum)
-			//	fmt.Printf("[dbg] alex: bn:=%d, in db:=%d-%d=%d, in ram:=%d\n", blockNum, _min, _max, _max-_min+1, inputTxNum)
-			//	fmt.Printf("[dbg] alex: txIndex:=%d, len(txs):=%d\n", txIndex, len(txs))
-			//}
-
 			//if txTask.HistoryExecution { // nolint
 			//	fmt.Printf("[dbg] txNum: %d, hist=%t\n", txTask.TxNum, txTask.HistoryExecution)
 			//}
 			if txIndex >= 0 && txIndex < len(txs) {
-				//if inputTxNum > 1553325652 {
-				//	fmt.Printf("[dbg] iter: txIndex=%d, inputTxNum=%d\n", txIndex, inputTxNum)
-				//}
-				//if txTask.TxNum == 1553506055 {
-				//	panic(1553506055)
-				//}
 				txTask.Tx = txs[txIndex]
 				txTask.TxAsMessage, err = txTask.Tx.AsMessage(signer, header.BaseFee, txTask.Rules)
 				if err != nil {
@@ -841,10 +816,6 @@ Loop:
 			}
 			stageProgress = blockNum
 			inputTxNum++
-
-			//if txTask.TxNum > 1553325652 {
-			//	fmt.Printf("[dbg] inputTxNum++ = %d\n", inputTxNum)
-			//}
 		}
 		if offsetFromBlockBeginning > 0 {
 			// after history execution no offset will be required
