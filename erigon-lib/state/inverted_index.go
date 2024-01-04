@@ -892,7 +892,6 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 		limit:       limit,
 		ef:          eliasfano32.NewEliasFano(1, 1),
 	}
-	log.Warn("[dbg] iterateRangeFrozen", "len(ic.files)", len(ic.files))
 
 	if asc {
 		for i := len(ic.files) - 1; i >= 0; i-- {
@@ -915,9 +914,11 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 		for i := 0; i < len(ic.files); i++ {
 			// [from,to) && from > to
 			if endTxNum >= 0 && int(ic.files[i].endTxNum) <= endTxNum {
+				log.Warn("[dbg] iterateRangeFrozen2", "ic.files[i].endTxNum", ic.files[i].endTxNum, "endTxNum", endTxNum)
 				continue
 			}
 			if startTxNum >= 0 && ic.files[i].startTxNum > uint64(startTxNum) {
+				log.Warn("[dbg] iterateRangeFrozen3", "ic.files[i].endTxNum", ic.files[i].startTxNum, "endTxNum", startTxNum)
 				break
 			}
 			if ic.files[i].src.index == nil { // assert
@@ -925,6 +926,7 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 				panic(err)
 			}
 			if ic.files[i].src.index.KeyCount() == 0 {
+				log.Warn("[dbg] iterateRangeFrozen4", "ic.files[i].endTxNum", ic.files[i].endTxNum, "endTxNum", endTxNum)
 				continue
 			}
 			it.stack = append(it.stack, ic.files[i])
