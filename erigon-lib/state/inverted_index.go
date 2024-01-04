@@ -892,6 +892,8 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 		limit:       limit,
 		ef:          eliasfano32.NewEliasFano(1, 1),
 	}
+	log.Warn("[dbg] iterateRangeFrozen", "len(ic.files)", len(ic.files))
+
 	if asc {
 		for i := len(ic.files) - 1; i >= 0; i-- {
 			// [from,to) && from < to
