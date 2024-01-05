@@ -530,12 +530,6 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 		flags.Milestone = config.WithHeimdallMilestones
 	}
-	if chainConfig.Bor == nil {
-		panic(1)
-	}
-	if chainConfig.Bor.ValidatorContract == "" {
-		panic(2)
-	}
 
 	backend.engine = ethconsensusconfig.CreateConsensusEngine(ctx, stack.Config(), chainConfig, consensusConfig, config.Miner.Notify, config.Miner.Noverify, heimdallClient, config.WithoutHeimdall, blockReader, false /* readonly */, logger)
 
