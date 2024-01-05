@@ -1679,8 +1679,9 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 		if !found {
 			if traceGetLatest == dc.d.filenameBase && i == 0 {
 				B++
-				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
-				fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d, %s\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B, dbg.Stack())
+				//fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+				//fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B)
+
 				//m := bloomfilter.OptimalM(dc.files[i].src.existence.filter.N()*10, 0.01)
 				//k := bloomfilter.OptimalK(m, dc.files[i].src.existence.filter.N()*10)
 				//fmt.Printf("recommended: m=%d,k=%d, have m=%d,k=%d\n", m, k, dc.files[i].src.existence.filter.M(), dc.files[i].src.existence.filter.K())
