@@ -1193,6 +1193,8 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 		if len(state) >= 16 {
 			txNum, blockNum = decodeTxBlockNums(v)
 			return blockNum, txNum, v, err
+		} else {
+			fmt.Printf("[dbg] LatestCommitmentState13: %x, %x\n", v, len(v))
 		}
 	}
 
