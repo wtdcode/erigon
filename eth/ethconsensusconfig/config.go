@@ -116,6 +116,7 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			}
 
 			eng = bor.New(chainConfig, db, blockReader, spanner, heimdallClient, genesisContractsClient, logger)
+			fmt.Printf("[dbg] here 1\n")
 		}
 	}
 
