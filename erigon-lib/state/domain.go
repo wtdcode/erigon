@@ -1655,7 +1655,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 					//if traceGetLatest == dc.d.filenameBase {
 					//	fmt.Printf("GetLatest(%s, %x) -> existence index %s -> false\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
 					//}
-					if i == 0 {
+					if traceGetLatest == dc.d.filenameBase && i == 0 {
 						A++
 					}
 					continue
@@ -1677,19 +1677,22 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			return nil, false, err
 		}
 		if !found {
-			if i == 0 {
+			if traceGetLatest == dc.d.filenameBase && i == 0 {
 				B++
-				if traceGetLatest == dc.d.filenameBase {
-					fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
-					fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d, %s\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B, dbg.Stack())
-					//m := bloomfilter.OptimalM(dc.files[i].src.existence.filter.N()*10, 0.01)
-					//k := bloomfilter.OptimalK(m, dc.files[i].src.existence.filter.N()*10)
-					//fmt.Printf("recommended: m=%d,k=%d, have m=%d,k=%d\n", m, k, dc.files[i].src.existence.filter.M(), dc.files[i].src.existence.filter.K())
-				}
+				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+				fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d, %s\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B, dbg.Stack())
+				//m := bloomfilter.OptimalM(dc.files[i].src.existence.filter.N()*10, 0.01)
+				//k := bloomfilter.OptimalK(m, dc.files[i].src.existence.filter.N()*10)
+				//fmt.Printf("recommended: m=%d,k=%d, have m=%d,k=%d\n", m, k, dc.files[i].src.existence.filter.M(), dc.files[i].src.existence.filter.K())
 			}
 			//	LatestStateReadGrindNotFound.ObserveDuration(t)
 			continue
 		}
+
+		if traceGetLatest == dc.d.filenameBase && i == 0 {
+			fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
+		}
+
 		//if traceGetLatest == dc.d.filenameBase {
 		//	fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 		//}
