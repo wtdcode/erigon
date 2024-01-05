@@ -1,5 +1,5 @@
 {
-  "ChainName": "gno_dencun_2",
+  "ChainName": "gno_dencun_3",
   "chainId": 10209,
   "consensus": "aura",
   "homesteadBlock": 0,
@@ -16,8 +16,8 @@
   },
   "terminalTotalDifficulty": 0,
   "terminalTotalDifficultyPassed": true,
-  "shanghaiTime": 1699651300,
-  "cancunTime": 1699652100,
+  "shanghaiTime": 1704401480,
+  "cancunTime": 1704403000,
   "minBlobGasPrice": 1000000000,
   "maxBlobGasPerBlock": 262144,
   "targetBlobGasPerBlock": 131072,

@@ -74,10 +74,10 @@ func TestGenesisBlockRoots(t *testing.T) {
 	block, _, err = core.GenesisToBlock(core.GnosisDencun2DevnetGenesisBlock(), "")
 	require.NoError(err)
 	if block.Root() != params.GnosisDencun2DevnetStateRoot {
-		t.Errorf("wrong Gnosis_Dencun2_Devnet genesis state root, got %v, want %v", block.Root(), params.GnosisDencun2DevnetStateRoot)
+		t.Errorf("wrong Gnosis_Dencun3_Devnet genesis state root, got %v, want %v", block.Root(), params.GnosisDencun2DevnetStateRoot)
 	}
 	if block.Hash() != params.GnosisDencun2DevnetGenesisHash {
-		t.Errorf("wrong Gnosis_Dencun2_Devnet genesis hash, got %v, want %v", block.Hash(), params.GnosisDencun2DevnetGenesisHash)
+		t.Errorf("wrong Gnosis_Dencun3_Devnet genesis hash, got %v, want %v", block.Hash(), params.GnosisDencun2DevnetGenesisHash)
 	}
 }
 

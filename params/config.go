@@ -133,7 +133,7 @@ var (
 
 	ChiadoChainConfig = readChainSpec("chainspecs/chiado.json")
 
-	GnosisDencun2DevnetConfig = readChainSpec("chainspecs/gnosis_dencun2_devnet.json")
+	GnosisDencun2DevnetConfig = readChainSpec("chainspecs/gnosis_dencun3_devnet.json")
 
 	CliqueSnapshot = NewSnapshotConfig(10, 1024, 16384, true, "")
 

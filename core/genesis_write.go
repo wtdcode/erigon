@@ -450,7 +450,7 @@ func GnosisDencun2DevnetGenesisBlock() *types.Genesis {
 		GasLimit:   0x989680,
 		Difficulty: big.NewInt(1),
 		BaseFee:    big.NewInt(0x3b9aca00),
-		Alloc:      readPrealloc("allocs/gnosis_dencun2_devnet.json"),
+		Alloc:      readPrealloc("allocs/gnosis_dencun3_devnet.json"),
 	}
 }
 
