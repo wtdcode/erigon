@@ -763,6 +763,7 @@ func (ac *AggregatorV3Context) CanUnwindBeforeBlockNum(blockNum uint64, tx kv.Tx
 	fmt.Printf("[dbg] CanUnwindBeforeBlockNum: %s,%s\n", blockNumWithCommitment, err)
 	if err != nil {
 		_minBlockNum, _ := ac.MinUnwindDomainsBlockNum(tx)
+		fmt.Printf("[dbg] CanUnwindBeforeBlockNum: %s,%s\n", blockNumWithCommitment, err)
 		return _minBlockNum, false, nil //nolint
 	}
 	return blockNumWithCommitment, true, nil
