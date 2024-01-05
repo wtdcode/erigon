@@ -1677,7 +1677,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			return nil, false, err
 		}
 		if !found {
-			if traceGetLatest == dc.d.filenameBase && i == 0 {
+			if traceGetLatest == dc.d.filenameBase && i <= 1 {
 				B++
 				//fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 				//fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B)
@@ -1690,7 +1690,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			continue
 		}
 
-		if traceGetLatest == dc.d.filenameBase && i == 0 {
+		if traceGetLatest == dc.d.filenameBase && i <= 1 {
 			fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 		}
 
