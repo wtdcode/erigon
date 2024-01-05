@@ -56,6 +56,9 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			}, notify, noVerify)
 		}
 	case *params.ConsensusSnapshotConfig:
+		if chainConfig.Clique == nil {
+			panic(1)
+		}
 		if chainConfig.Clique != nil {
 			if consensusCfg.InMemory {
 				nodeConfig.Dirs.DataDir = ""
@@ -81,6 +84,10 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			eng = clique.New(chainConfig, consensusCfg, db, logger)
 		}
 	case *chain.AuRaConfig:
+		if chainConfig.Aura == nil {
+			panic(1)
+		}
+
 		if chainConfig.Aura != nil {
 			var err error
 			var db kv.RwDB
