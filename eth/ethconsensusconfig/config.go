@@ -2,6 +2,7 @@ package ethconsensusconfig
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/davecgh/go-spew/spew"
@@ -119,6 +120,7 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 	}
 
 	if eng == nil {
+		fmt.Printf("%T\n", config)
 		panic("unknown config" + spew.Sdump(config))
 	}
 
