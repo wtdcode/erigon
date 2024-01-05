@@ -1038,7 +1038,8 @@ func stageExec(db kv.RwDB, ctx context.Context, logger log.Logger) error {
 			if !ok {
 				return fmt.Errorf("too deep unwind requested: %d, minimum alowed: %d\n", s.BlockNumber-unwind, blockNumWithCommitment)
 			}
-			unwind = blockNumWithCommitment
+			fmt.Printf("[dbg] %d, %d\n", s.BlockNumber, blockNumWithCommitment)
+			unwind = s.BlockNumber - blockNumWithCommitment
 			return nil
 		}); err != nil {
 			return err
