@@ -1680,7 +1680,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			//if traceGetLatest == dc.d.filenameBase && i == 0 {
 			if i == 0 {
 				B++
-				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx), %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:10])
+				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx), %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:100])
 				//fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B)
 
 				//m := bloomfilter.OptimalM(dc.files[i].src.existence.filter.N()*10, 0.01)
@@ -1692,7 +1692,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 		}
 
 		if i == 0 {
-			fmt.Printf("GetLatest(%s, %x) -> found in file %s, %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:10])
+			fmt.Printf("GetLatest(%s, %x) -> found in file %s, %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:100])
 		}
 
 		//if traceGetLatest == dc.d.filenameBase {
