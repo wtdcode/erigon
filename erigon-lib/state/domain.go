@@ -1690,8 +1690,8 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			continue
 		}
 
-		if traceGetLatest == dc.d.filenameBase && i <= 1 {
-			fmt.Printf("GetLatest(%s, %x) -> found in file %s, %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack())
+		if i == 0 {
+			fmt.Printf("GetLatest(%s, %x) -> found in file %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 		}
 
 		//if traceGetLatest == dc.d.filenameBase {
