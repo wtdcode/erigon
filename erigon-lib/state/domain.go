@@ -87,6 +87,7 @@ var (
 	traceFileLife    = dbg.EnvString("AGG_TRACE_FILE_LIFE", "")
 	traceGetLatest   = dbg.EnvString("AGG_TRACE_GET_LATEST", "")
 	traceGetAsOf     = dbg.EnvString("AGG_TRACE_GET_AS_OF", "")
+	traceFileLevel   = dbg.EnvInt("AGG_TRACE_FILE_LEVEL", -1)
 	tracePutWithPrev = dbg.EnvString("AGG_TRACE_PUT_WITH_PREV", "")
 )
 
@@ -1636,8 +1637,6 @@ var (
 	UseBtree = true // if true, will use btree for all files
 )
 
-var A, B int
-
 func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found bool, err error) {
 	if !dc.d.withExistenceIndex {
 		return dc.getLatestFromFilesWithoutExistenceIndex(filekey)
@@ -1655,9 +1654,6 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 					//if traceGetLatest == dc.d.filenameBase {
 					//	fmt.Printf("GetLatest(%s, %x) -> existence index %s -> false\n", dc.d.filenameBase, filekey, dc.files[i].src.existence.FileName)
 					//}
-					if traceGetLatest == dc.d.filenameBase && i == 0 {
-						A++
-					}
 					continue
 				} else {
 					//if traceGetLatest == dc.d.filenameBase {
@@ -1678,9 +1674,8 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 		}
 		if !found {
 			//if traceGetLatest == dc.d.filenameBase && i == 0 {
-			if i == 0 {
-				B++
-				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx), %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:200])
+			if i == traceFileLevel {
+				fmt.Printf("GetLatest(%s, %x) -> not found in file %s (false positive existence idx)\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName())
 				//fmt.Printf("bloom false-positive probability: %s, %f, a-b=%d-%d\n", dc.files[i].src.existence.FileName, dc.files[i].src.existence.filter.FalsePosititveProbability(), A, B)
 
 				//m := bloomfilter.OptimalM(dc.files[i].src.existence.filter.N()*10, 0.01)
@@ -1691,7 +1686,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 			continue
 		}
 
-		if i == 0 {
+		if i == traceFileLevel {
 			fmt.Printf("GetLatest(%s, %x) -> found in file %s, %s\n", dc.d.filenameBase, filekey, dc.files[i].src.decompressor.FileName(), dbg.Stack()[:200])
 		}
 

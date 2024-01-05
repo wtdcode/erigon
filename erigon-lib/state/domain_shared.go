@@ -1179,23 +1179,18 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	if err != nil {
 		return 0, 0, nil, err
 	}
-	fmt.Printf("[dbg] LatestCommitmentState: %t \n", it.HasNext())
 	if it.HasNext() {
 		txn, err := it.Next()
 		if err != nil {
 			return 0, 0, nil, err
 		}
-		fmt.Printf("[dbg] LatestCommitmentState1: %d\n", txn)
 		state, err = cd.GetAsOf(keyCommitmentState, txn+1, tx) //WHYYY +1 ???
 		if err != nil {
 			return 0, 0, nil, err
 		}
 		if len(state) >= 16 {
 			txNum, blockNum = decodeTxBlockNums(state)
-			fmt.Printf("[dbg] LatestCommitmentState12: %d, %d\n", blockNum, txNum)
 			return blockNum, txNum, state, nil
-		} else {
-			fmt.Printf("[dbg] LatestCommitmentState13: %x, %x\n", state, len(state))
 		}
 	}
 
@@ -1203,14 +1198,12 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	// it's normal to not have commitment.ef and commitment.v files. They are not determenistic - depend on batchSize, and not very useful.
 	// in this case `IdxRange` will be empty
 	// and can fallback to reading latest commitment from .kv file
-	fmt.Printf("[dbg] LatestCommitmentState2\n")
 	if err = cd.IteratePrefix(tx, keyCommitmentState, func(key, value []byte) error {
 		if len(value) < 16 {
 			return fmt.Errorf("invalid state value size %d [%x]", len(value), value)
 		}
 
 		txn, _ := decodeTxBlockNums(value)
-		fmt.Printf("[dbg] LatestCommitmentState3: %d\n", txn)
 		//fmt.Printf("[commitment] Seek found committed txn %d block %d\n", txn, bn)
 		if txn >= sinceTx && txn <= untilTx {
 			state = value
