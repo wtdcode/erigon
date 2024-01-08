@@ -7,4 +7,5 @@ const (
 	EtHashConsensus ConsensusName = "ethash"
 	CliqueConsensus ConsensusName = "clique"
 	BorConsensus    ConsensusName = "bor"
+	ParliaConsensus ConsensusName = "parlia"
 )

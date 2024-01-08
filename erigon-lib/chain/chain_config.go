@@ -65,8 +65,24 @@ type Config struct {
 
 	// Mainnet fork scheduling switched from block numbers to timestamps after The Merge
 	ShanghaiTime *big.Int `json:"shanghaiTime,omitempty"`
+	KeplerTime   *big.Int `json:"keplerTime,omitempty"`
 	CancunTime   *big.Int `json:"cancunTime,omitempty"`
 	PragueTime   *big.Int `json:"pragueTime,omitempty"`
+
+	// Parlia fork blocks
+	RamanujanBlock  *big.Int `json:"ramanujanBlock,omitempty" toml:",omitempty"`  // ramanujanBlock switch block (nil = no fork, 0 = already activated)
+	NielsBlock      *big.Int `json:"nielsBlock,omitempty" toml:",omitempty"`      // nielsBlock switch block (nil = no fork, 0 = already activated)
+	MirrorSyncBlock *big.Int `json:"mirrorSyncBlock,omitempty" toml:",omitempty"` // mirrorSyncBlock switch block (nil = no fork, 0 = already activated)
+	BrunoBlock      *big.Int `json:"brunoBlock,omitempty" toml:",omitempty"`      // brunoBlock switch block (nil = no fork, 0 = already activated)
+	EulerBlock      *big.Int `json:"eulerBlock,omitempty" toml:",omitempty"`      // eulerBlock switch block (nil = no fork, 0 = already activated)
+	GibbsBlock      *big.Int `json:"gibbsBlock,omitempty" toml:",omitempty"`      // gibbsBlock switch block (nil = no fork, 0 = already activated)
+	NanoBlock       *big.Int `json:"nanoBlock,omitempty" toml:",omitempty"`       // nanoBlock switch block (nil = no fork, 0 = already activated)
+	MoranBlock      *big.Int `json:"moranBlock,omitempty" toml:",omitempty"`      // moranBlock switch block (nil = no fork, 0 = already activated)
+	PlanckBlock     *big.Int `json:"planckBlock,omitempty" toml:",omitempty"`     // planckBlock switch block (nil = no fork, 0 = already activated)
+	LubanBlock      *big.Int `json:"lubanBlock,omitempty" toml:",omitempty"`      // lubanBlock switch block (nil = no fork, 0 = already activated)
+	PlatoBlock      *big.Int `json:"platoBlock,omitempty" toml:",omitempty"`      // platoBlock switch block (nil = no fork, 0 = already activated)
+	HertzBlock      *big.Int `json:"hertzBlock,omitempty" toml:",omitempty"`      // hertzBlock switch block (nil = no fork, 0 = already activated)
+	HertzfixBlock   *big.Int `json:"hertzfixBlock,omitempty" toml:",omitempty"`   // hertzfixBlock switch block (nil = no fork, 0 = already activated)
 
 	// Optional EIP-4844 parameters
 	MinBlobGasPrice            *uint64 `json:"minBlobGasPrice,omitempty"`
@@ -82,6 +98,7 @@ type Config struct {
 	Clique *CliqueConfig `json:"clique,omitempty"`
 	Aura   *AuRaConfig   `json:"aura,omitempty"`
 
+	Parlia  *ParliaConfig   `json:"parlia,omitempty" toml:",omitempty"`
 	Bor     BorConfig       `json:"-"`
 	BorJSON json.RawMessage `json:"bor,omitempty"`
 }
@@ -94,6 +111,28 @@ type BorConfig interface {
 
 func (c *Config) String() string {
 	engine := c.getEngine()
+
+	if c.Consensus == ParliaConsensus {
+		return fmt.Sprintf("{ChainID: %v Ramanujan: %v, Niels: %v, MirrorSync: %v, Bruno: %v, Euler: %v, Gibbs: %v, Nano: %v, Moran: %v, Planck: %v, Luban: %v, Plato: %v, Hertz: %v, Hertzfix: %v, ShanghaiTime: %v, KeplerTime %v, Engine: %v}",
+			c.ChainID,
+			c.RamanujanBlock,
+			c.NielsBlock,
+			c.MirrorSyncBlock,
+			c.BrunoBlock,
+			c.EulerBlock,
+			c.GibbsBlock,
+			c.NanoBlock,
+			c.MoranBlock,
+			c.PlanckBlock,
+			c.LubanBlock,
+			c.PlatoBlock,
+			c.HertzBlock,
+			c.HertzfixBlock,
+			c.ShanghaiTime,
+			c.KeplerTime,
+			engine,
+		)
+	}
 
 	return fmt.Sprintf("{ChainID: %v, Homestead: %v, DAO: %v, Tangerine Whistle: %v, Spurious Dragon: %v, Byzantium: %v, Constantinople: %v, Petersburg: %v, Istanbul: %v, Muir Glacier: %v, Berlin: %v, London: %v, Arrow Glacier: %v, Gray Glacier: %v, Terminal Total Difficulty: %v, Merge Netsplit: %v, Shanghai: %v, Cancun: %v, Prague: %v, Engine: %v}",
 		c.ChainID,
@@ -129,6 +168,8 @@ func (c *Config) getEngine() string {
 		return c.Bor.String()
 	case c.Aura != nil:
 		return c.Aura.String()
+	case c.Parlia != nil:
+		return c.Parlia.String()
 	default:
 		return "unknown"
 	}
@@ -202,8 +243,8 @@ func (c *Config) IsGrayGlacier(num uint64) bool {
 }
 
 // IsShanghai returns whether time is either equal to the Shanghai fork time or greater.
-func (c *Config) IsShanghai(time uint64) bool {
-	return isForked(c.ShanghaiTime, time)
+func (c *Config) IsShanghai(num uint64, time uint64) bool {
+	return c.IsLondon(num) && isForked(c.ShanghaiTime, time)
 }
 
 // IsAgra returns whether num is either equal to the Agra fork block or greater.
@@ -264,6 +305,126 @@ func (c *Config) GetMaxBlobsPerBlock() uint64 {
 	return c.GetMaxBlobGasPerBlock() / fixedgas.BlobGasPerBlob
 }
 
+// IsRamanujan returns whether num is either equal to the IsRamanujan fork block or greater.
+func (c *Config) IsRamanujan(num uint64) bool {
+	return isForked(c.RamanujanBlock, num)
+}
+
+// IsOnRamanujan returns whether num is equal to the Ramanujan fork block
+func (c *Config) IsOnRamanujan(num *big.Int) bool {
+	return numEqual(c.RamanujanBlock, num)
+}
+
+// IsNiels returns whether num is either equal to the Niels fork block or greater.
+func (c *Config) IsNiels(num uint64) bool {
+	return isForked(c.NielsBlock, num)
+}
+
+// IsOnNiels returns whether num is equal to the IsNiels fork block
+func (c *Config) IsOnNiels(num *big.Int) bool {
+	return numEqual(c.NielsBlock, num)
+}
+
+// IsMirrorSync returns whether num is either equal to the MirrorSync fork block or greater.
+func (c *Config) IsMirrorSync(num uint64) bool {
+	return isForked(c.MirrorSyncBlock, num)
+}
+
+// IsOnMirrorSync returns whether num is equal to the MirrorSync fork block
+func (c *Config) IsOnMirrorSync(num *big.Int) bool {
+	return numEqual(c.MirrorSyncBlock, num)
+}
+
+// IsBruno returns whether num is either equal to the Burn fork block or greater.
+func (c *Config) IsBruno(num uint64) bool {
+	return isForked(c.BrunoBlock, num)
+}
+
+// IsOnBruno returns whether num is equal to the Burn fork block
+func (c *Config) IsOnBruno(num *big.Int) bool {
+	return numEqual(c.BrunoBlock, num)
+}
+
+// IsEuler returns whether num is either equal to the euler fork block or greater.
+func (c *Config) IsEuler(num *big.Int) bool {
+	return isForked(c.EulerBlock, num.Uint64())
+}
+
+func (c *Config) IsOnEuler(num *big.Int) bool {
+	return numEqual(c.EulerBlock, num)
+}
+
+// IsGibbs returns whether num is either equal to the euler fork block or greater.
+func (c *Config) IsGibbs(num *big.Int) bool {
+	return isForked(c.GibbsBlock, num.Uint64())
+}
+
+func (c *Config) IsOnGibbs(num *big.Int) bool {
+	return numEqual(c.GibbsBlock, num)
+}
+
+func (c *Config) IsMoran(num uint64) bool {
+	return isForked(c.MoranBlock, num)
+}
+
+func (c *Config) IsOnMoran(num *big.Int) bool {
+	return numEqual(c.MoranBlock, num)
+}
+
+// IsNano returns whether num is either equal to the euler fork block or greater.
+func (c *Config) IsNano(num uint64) bool {
+	return isForked(c.NanoBlock, num)
+}
+
+func (c *Config) IsOnNano(num *big.Int) bool {
+	return numEqual(c.NanoBlock, num)
+}
+
+func (c *Config) IsPlanck(num uint64) bool {
+	return isForked(c.PlanckBlock, num)
+}
+
+func (c *Config) IsOnPlanck(num *big.Int) bool {
+	return numEqual(c.PlanckBlock, num)
+}
+
+func (c *Config) IsLuban(num uint64) bool {
+	return isForked(c.LubanBlock, num)
+}
+
+func (c *Config) IsOnLuban(num *big.Int) bool {
+	return numEqual(c.LubanBlock, num)
+}
+
+func (c *Config) IsPlato(num uint64) bool {
+	return isForked(c.PlatoBlock, num)
+}
+
+func (c *Config) IsOnPlato(num *big.Int) bool {
+	return numEqual(c.PlatoBlock, num)
+}
+
+func (c *Config) IsHertz(num uint64) bool {
+	return isForked(c.HertzBlock, num)
+}
+
+func (c *Config) IsOnHertz(num *big.Int) bool {
+	return numEqual(c.HertzBlock, num)
+}
+
+// IsKepler returns whether time is either equal to the IsKepler fork time or greater.
+func (c *Config) IsKepler(num uint64, time uint64) bool {
+	return c.IsLondon(num) && isForked(c.KeplerTime, time)
+}
+
+func (c *Config) IsOnKepler(currentBlockNumber *big.Int, lastBlockTime uint64, currentBlockTime uint64) bool {
+	lastBlockNumber := new(big.Int)
+	if currentBlockNumber.Cmp(big.NewInt(1)) >= 0 {
+		lastBlockNumber.Sub(currentBlockNumber, big.NewInt(1))
+	}
+	return !c.IsKepler(lastBlockNumber.Uint64(), lastBlockTime) && c.IsKepler(currentBlockNumber.Uint64(), currentBlockTime)
+}
+
 // CheckCompatible checks whether scheduled fork transitions have been imported
 // with a mismatching chain configuration.
 func (c *Config) CheckCompatible(newcfg *Config, height uint64) *ConfigCompatError {
@@ -299,8 +460,15 @@ func (c *Config) forkBlockNumbers() []forkBlockNumber {
 		{name: "petersburgBlock", blockNumber: c.PetersburgBlock},
 		{name: "istanbulBlock", blockNumber: c.IstanbulBlock},
 		{name: "muirGlacierBlock", blockNumber: c.MuirGlacierBlock, optional: true},
-		{name: "berlinBlock", blockNumber: c.BerlinBlock},
-		{name: "londonBlock", blockNumber: c.LondonBlock},
+		{name: "eulerBlock", blockNumber: c.EulerBlock, optional: true},
+		{name: "gibbsBlock", blockNumber: c.GibbsBlock},
+		{name: "planckBlock", blockNumber: c.PlanckBlock},
+		{name: "lubanBlock", blockNumber: c.LubanBlock},
+		{name: "platoBlock", blockNumber: c.PlatoBlock},
+		{name: "hertzBlock", blockNumber: c.HertzBlock},
+		{name: "berlinBlock", blockNumber: c.BerlinBlock, optional: true},
+		{name: "londonBlock", blockNumber: c.LondonBlock, optional: true},
+		{name: "hertzfixBlock", blockNumber: c.HertzfixBlock},
 		{name: "arrowGlacierBlock", blockNumber: c.ArrowGlacierBlock, optional: true},
 		{name: "grayGlacierBlock", blockNumber: c.GrayGlacierBlock, optional: true},
 		{name: "mergeNetsplitBlock", blockNumber: c.MergeNetsplitBlock, optional: true},
@@ -394,6 +562,46 @@ func (c *Config) checkCompatible(newcfg *Config, head uint64) *ConfigCompatError
 		return newCompatError("Merge netsplit block", c.MergeNetsplitBlock, newcfg.MergeNetsplitBlock)
 	}
 
+	// Parlia forks
+	if incompatible(c.RamanujanBlock, newcfg.RamanujanBlock, head) {
+		return newCompatError("Ramanujan fork block", c.RamanujanBlock, newcfg.RamanujanBlock)
+	}
+	if incompatible(c.NielsBlock, newcfg.NielsBlock, head) {
+		return newCompatError("Niels fork block", c.NielsBlock, newcfg.NielsBlock)
+	}
+	if incompatible(c.MirrorSyncBlock, newcfg.MirrorSyncBlock, head) {
+		return newCompatError("MirrorSync fork block", c.MirrorSyncBlock, newcfg.MirrorSyncBlock)
+	}
+	if incompatible(c.BrunoBlock, newcfg.BrunoBlock, head) {
+		return newCompatError("Bruno fork block", c.BrunoBlock, newcfg.BrunoBlock)
+	}
+	if incompatible(c.EulerBlock, newcfg.EulerBlock, head) {
+		return newCompatError("Euler fork block", c.EulerBlock, newcfg.EulerBlock)
+	}
+	if incompatible(c.GibbsBlock, newcfg.GibbsBlock, head) {
+		return newCompatError("Gibbs fork block", c.GibbsBlock, newcfg.GibbsBlock)
+	}
+	if incompatible(c.NanoBlock, newcfg.NanoBlock, head) {
+		return newCompatError("Nano fork block", c.NanoBlock, newcfg.NanoBlock)
+	}
+	if incompatible(c.MoranBlock, newcfg.MoranBlock, head) {
+		return newCompatError("moran fork block", c.MoranBlock, newcfg.MoranBlock)
+	}
+	if incompatible(c.PlanckBlock, newcfg.PlanckBlock, head) {
+		return newCompatError("planck fork block", c.PlanckBlock, newcfg.PlanckBlock)
+	}
+	if incompatible(c.LubanBlock, newcfg.LubanBlock, head) {
+		return newCompatError("luban fork block", c.LubanBlock, newcfg.LubanBlock)
+	}
+	if incompatible(c.PlatoBlock, newcfg.PlatoBlock, head) {
+		return newCompatError("plato fork block", c.PlatoBlock, newcfg.PlatoBlock)
+	}
+	if incompatible(c.HertzBlock, newcfg.HertzBlock, head) {
+		return newCompatError("hertz fork block", c.HertzBlock, newcfg.HertzBlock)
+	}
+	if incompatible(c.HertzfixBlock, newcfg.HertzfixBlock, head) {
+		return newCompatError("hertz fork block", c.HertzfixBlock, newcfg.HertzfixBlock)
+	}
 	return nil
 }
 
@@ -457,6 +665,18 @@ func (c *CliqueConfig) String() string {
 	return "clique"
 }
 
+type ParliaConfig struct {
+	DBPath   string
+	InMemory bool
+	Period   uint64 `json:"period"` // Number of seconds between blocks to enforce
+	Epoch    uint64 `json:"epoch"`  // Epoch length to update validatorSet
+}
+
+// String implements the stringer interface, returning the consensus engine details.
+func (b *ParliaConfig) String() string {
+	return "parlia"
+}
+
 func borKeyValueConfigHelper[T uint64 | common.Address](field map[string]T, number uint64) T {
 	fieldUint := make(map[uint64]T)
 	for k, v := range field {
@@ -484,11 +704,13 @@ func borKeyValueConfigHelper[T uint64 | common.Address](field map[string]T, numb
 // Rules is a one time interface meaning that it shouldn't be used in between transition
 // phases.
 type Rules struct {
-	ChainID                                                 *big.Int
-	IsHomestead, IsTangerineWhistle, IsSpuriousDragon       bool
-	IsByzantium, IsConstantinople, IsPetersburg, IsIstanbul bool
-	IsBerlin, IsLondon, IsShanghai, IsCancun, IsPrague      bool
-	IsAura                                                  bool
+	ChainID                                                       *big.Int
+	IsHomestead, IsTangerineWhistle, IsSpuriousDragon             bool
+	IsByzantium, IsConstantinople, IsPetersburg, IsIstanbul       bool
+	IsBerlin, IsLondon, IsShanghai, IsKepler, IsCancun            bool
+	IsSharding, IsPrague                                          bool
+	IsNano, IsMoran, IsGibbs, IsPlanck, IsLuban, IsPlato, IsHertz bool
+	IsParlia, IsAura                                              bool
 }
 
 // Rules ensures c's ChainID is not nil and returns a new Rules instance
@@ -509,10 +731,18 @@ func (c *Config) Rules(num uint64, time uint64) *Rules {
 		IsIstanbul:         c.IsIstanbul(num),
 		IsBerlin:           c.IsBerlin(num),
 		IsLondon:           c.IsLondon(num),
-		IsShanghai:         c.IsShanghai(time) || c.IsAgra(num),
+		IsShanghai:         c.IsShanghai(num, time),
 		IsCancun:           c.IsCancun(time),
 		IsPrague:           c.IsPrague(time),
+		IsNano:             c.IsNano(num),
+		IsMoran:            c.IsMoran(num),
+		IsPlanck:           c.IsPlanck(num),
+		IsLuban:            c.IsLuban(num),
+		IsPlato:            c.IsPlato(num),
+		IsHertz:            c.IsHertz(num),
+		IsKepler:           c.IsKepler(num, time),
 		IsAura:             c.Aura != nil,
+		IsParlia:           true,
 	}
 }
 
