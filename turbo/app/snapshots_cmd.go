@@ -91,6 +91,7 @@ var snapshotCommand = cli.Command{
 				&SnapshotFromFlag,
 				&SnapshotToFlag,
 				&SnapshotEveryFlag,
+				&SnapshotVersionFlag,
 			}),
 		},
 		{
@@ -462,6 +463,8 @@ func doIndicesCommand(cliCtx *cli.Context) error {
 	return nil
 }
 
+var snapshotVersion uint8 = 1
+
 func openSnaps(ctx context.Context, cfg ethconfig.BlocksFreezing, dirs datadir.Dirs, version uint8, chainDB kv.RwDB, logger log.Logger) (
 	blockSnaps *freezeblocks.RoSnapshots, borSnaps *freezeblocks.BorRoSnapshots, br *freezeblocks.BlockRetire, agg *libstate.AggregatorV3, err error,
 ) {
@@ -617,10 +620,12 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	to := cliCtx.Uint64(SnapshotToFlag.Name)
 	every := cliCtx.Uint64(SnapshotEveryFlag.Name)
 	version := uint8(cliCtx.Int(SnapshotVersionFlag.Name))
+	if version != 0 {
+		snapcfg.SnapshotVersion(version)
+	}
 
 	db := dbCfg(kv.ChainDB, dirs.Chaindata).MustOpen()
 	defer db.Close()
-
 	cfg := ethconfig.NewSnapCfg(true, false, true)
 	blockSnaps, borSnaps, br, agg, err := openSnaps(ctx, cfg, dirs, version, db, logger)
 	if err != nil {
