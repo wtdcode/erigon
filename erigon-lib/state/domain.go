@@ -1640,7 +1640,7 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 	hi, _ := dc.hc.ic.hashKey(filekey)
 
 	for i := len(dc.files) - 1; i >= 0; i-- {
-		if dc.d.withExistenceIndex {
+		if !dbg.NO_EXISTENCE && dc.d.withExistenceIndex {
 			//if dc.files[i].src.existence == nil {
 			//	panic(dc.files[i].src.decompressor.FileName())
 			//}
