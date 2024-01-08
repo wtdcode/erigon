@@ -566,6 +566,7 @@ func (d *Domain) scanStateFiles(fileNames []string) (garbageFiles []*filesItem) 
 		//}
 
 		if _, has := d.files.Get(newFile); has {
+			log.Info("[dbg] skip: already have", "file", name)
 			continue
 		}
 
