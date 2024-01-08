@@ -395,9 +395,9 @@ func (d *Decompressor) DisableReadAhead() {
 	} else if leftReaders < 0 {
 		log.Warn("read-ahead negative counter", "file", d.FileName())
 	} else {
-
-		log.Warn("read-ahead negative counter", "leftReaders", leftReaders, "file", d.FileName())
+		log.Warn("[read-ahead] negative counter", "leftReaders", leftReaders, "file", d.FileName())
 	}
+	log.Info("[read-ahead] negative counter", "leftReaders", leftReaders, "file", d.FileName())
 }
 func (d *Decompressor) EnableReadAhead() *Decompressor {
 	if d == nil || d.mmapHandle1 == nil {
