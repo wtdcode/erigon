@@ -1204,7 +1204,10 @@ func segments(dir string, version uint8, minBlock uint64, segmentsTypeCheck func
 			}
 			l = append(l, f)
 		}
+
+		fmt.Printf("[dbg] list1 %v\n", l)
 		l, m = noGaps(noOverlaps(segmentsTypeCheck(dir, l)), minBlock)
+		fmt.Printf("[dbg] list1.1 %v\n", l)
 		res = append(res, l...)
 		missingSnapshots = append(missingSnapshots, m...)
 	}
@@ -1216,7 +1219,9 @@ func segments(dir string, version uint8, minBlock uint64, segmentsTypeCheck func
 			}
 			l = append(l, f)
 		}
+		fmt.Printf("[dbg] list2 %v\n", l)
 		l, _ = noGaps(noOverlaps(segmentsTypeCheck(dir, l)), minBlock)
+		fmt.Printf("[dbg] list2.1 %v\n", l)
 		res = append(res, l...)
 	}
 	{
@@ -1227,7 +1232,9 @@ func segments(dir string, version uint8, minBlock uint64, segmentsTypeCheck func
 			}
 			l = append(l, f)
 		}
+		fmt.Printf("[dbg] list3 %v\n", l)
 		l, _ = noGaps(noOverlaps(segmentsTypeCheck(dir, l)), minBlock)
+		fmt.Printf("[dbg] list3.1 %v\n", l)
 		res = append(res, l...)
 	}
 
