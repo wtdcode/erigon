@@ -590,6 +590,8 @@ func (d *Domain) scanStateFiles(fileNames []string) (garbageFiles []*filesItem) 
 		})
 		if addNewFile {
 			d.files.Set(newFile)
+		} else {
+			log.Info("[dbg] skip", "file", name)
 		}
 	}
 	return garbageFiles

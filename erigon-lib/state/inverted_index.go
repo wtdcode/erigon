@@ -250,12 +250,10 @@ func (ii *InvertedIndex) scanStateFiles(fileNames []string) (garbageFiles []*fil
 		var newFile = newFilesItem(startTxNum, endTxNum, ii.aggregationStep)
 
 		if ii.integrityCheck != nil && !ii.integrityCheck(startStep, endStep) {
-			log.Info("[dbg] skip integrity check", "newFile", name)
 			continue
 		}
 
 		if _, has := ii.files.Get(newFile); has {
-			log.Info("[dbg] skip already have", "newFile", name)
 			continue
 		}
 
