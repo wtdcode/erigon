@@ -229,6 +229,7 @@ func (sd *SharedDomains) SeekCommitment(ctx context.Context, tx kv.Tx) (txsFromB
 	if err != nil {
 		return 0, err
 	}
+	fmt.Printf("[dbg] here1: %d, %d, %t\n", bn, txn, ok)
 	if ok {
 		if bn > 0 {
 			lastBn, _, err := rawdbv3.TxNums.Last(tx)
@@ -256,17 +257,20 @@ func (sd *SharedDomains) SeekCommitment(ctx context.Context, tx kv.Tx) (txsFromB
 		}
 	}
 	if bn == 0 && txn == 0 {
+		fmt.Printf("[dbg] here2: %d, %d, %t\n", bn, txn, ok)
 		sd.SetBlockNum(0)
 		sd.SetTxNum(0)
 		return 0, nil
 	}
 	sd.SetBlockNum(bn)
 	sd.SetTxNum(txn)
+	fmt.Printf("[dbg] here3: %d, %d, %t\n", bn, txn, ok)
 	newRh, err := sd.rebuildCommitment(ctx, tx, bn)
 	if err != nil {
 		return 0, err
 	}
 	if bytes.Equal(newRh, commitment.EmptyRootHash) {
+		fmt.Printf("[dbg] here4: %d, %d, %t\n", bn, txn, ok)
 		sd.SetBlockNum(0)
 		sd.SetTxNum(0)
 		return 0, nil
@@ -276,6 +280,7 @@ func (sd *SharedDomains) SeekCommitment(ctx context.Context, tx kv.Tx) (txsFromB
 	}
 	sd.SetBlockNum(bn)
 	sd.SetTxNum(txn)
+	fmt.Printf("[dbg] here5: %d, %d, %t\n", bn, txn, ok)
 	return 0, nil
 }
 
@@ -1178,6 +1183,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	if err != nil {
 		return 0, 0, nil, err
 	}
+	fmt.Printf("[dbg] here1.1: %t\n", it.HasNext())
 	if it.HasNext() {
 		txn, err := it.Next()
 		if err != nil {
@@ -1190,6 +1196,8 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 		if len(state) >= 16 {
 			txNum, blockNum = decodeTxBlockNums(state)
 			return blockNum, txNum, state, nil
+		} else {
+			fmt.Printf("[dbg] here1.2: %d\n", len(state))
 		}
 	}
 
