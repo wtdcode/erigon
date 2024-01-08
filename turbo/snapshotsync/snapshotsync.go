@@ -106,6 +106,7 @@ func WaitForDownloader(ctx context.Context, logPrefix string, histV3 bool, capli
 			continue
 		}
 
+		fmt.Printf("[dbg]:  stage_snap: %s\n", p.Name)
 		downloadRequest = append(downloadRequest, services.NewDownloadRequest(p.Name, p.Hash))
 	}
 
