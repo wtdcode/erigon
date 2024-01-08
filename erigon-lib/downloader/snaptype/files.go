@@ -249,6 +249,7 @@ func ParseDir(dir string, version uint8) (res []FileInfo, err error) {
 			return nil, err
 		}
 		if f.IsDir() || fileInfo.Size() == 0 || len(f.Name()) < 3 || !strings.HasPrefix(f.Name(), v) {
+			fmt.Printf("[dbg] dbg1 %v\n", f.Name())
 			continue
 		}
 
