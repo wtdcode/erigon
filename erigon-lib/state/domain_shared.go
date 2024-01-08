@@ -1183,7 +1183,7 @@ func (sdc *SharedDomainsCommitmentContext) LatestCommitmentState(tx kv.Tx, cd *D
 	if err != nil {
 		return 0, 0, nil, err
 	}
-	fmt.Printf("[dbg] here1.1: %t\n", it.HasNext())
+	fmt.Printf("[dbg] here1.1: %t, %d, %d\n", it.HasNext(), untilTx, sinceTx)
 	if it.HasNext() {
 		txn, err := it.Next()
 		if err != nil {
