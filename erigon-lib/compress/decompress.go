@@ -388,23 +388,27 @@ func (d *Decompressor) DisableReadAhead() {
 	leftReaders := d.readAheadRefcnt.Add(-1)
 	if leftReaders == 0 {
 		if dbg.SnapshotMadvRnd {
-			_ = mmap.MadviseRandom(d.mmapHandle1)
+			err := mmap.MadviseRandom(d.mmapHandle1)
+			log.Info("[read-ahead] madv_rnd", "file", d.FileName(), "err", err)
 		} else {
-			_ = mmap.MadviseNormal(d.mmapHandle1)
+			err := mmap.MadviseNormal(d.mmapHandle1)
+			log.Info("[read-ahead] madv_normal", "file", d.FileName(), "err", err)
 		}
 	} else if leftReaders < 0 {
 		log.Warn("read-ahead negative counter", "file", d.FileName())
 	} else {
 		log.Warn("[read-ahead] negative counter", "leftReaders", leftReaders, "file", d.FileName())
 	}
-	log.Info("[read-ahead] negative counter", "leftReaders", leftReaders, "file", d.FileName())
 }
 func (d *Decompressor) EnableReadAhead() *Decompressor {
 	if d == nil || d.mmapHandle1 == nil {
 		return d
 	}
 	d.readAheadRefcnt.Add(1)
-	_ = mmap.MadviseSequential(d.mmapHandle1)
+	err := mmap.MadviseSequential(d.mmapHandle1)
+	if err != nil {
+		log.Error("[read-ahead] madv_sequential", "file", d.FileName(), "err", err)
+	}
 	return d
 }
 func (d *Decompressor) EnableWillNeed() *Decompressor {
