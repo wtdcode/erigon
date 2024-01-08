@@ -23,6 +23,7 @@ var (
 	BorMainnet = fromToml(snapshothashes.BorMainnet)
 	Gnosis     = fromToml(snapshothashes.Gnosis)
 	Chiado     = fromToml(snapshothashes.Chiado)
+	Bsc        = fromToml(snapshothashes.Bsc)
 )
 
 type PreverifiedItem struct {
@@ -140,10 +141,10 @@ var knownPreverified = map[string]Preverified{
 	networkname.SepoliaChainName:    Sepolia,
 	networkname.GoerliChainName:     Goerli,
 	networkname.MumbaiChainName:     Mumbai,
-	networkname.AmoyChainName:       Amoy,
 	networkname.BorMainnetChainName: BorMainnet,
 	networkname.GnosisChainName:     Gnosis,
 	networkname.ChiadoChainName:     Chiado,
+	networkname.BSCChainName:        Bsc,
 }
 
 // KnownCfg return list of preverified hashes for given network, but apply whiteList filter if it's not empty

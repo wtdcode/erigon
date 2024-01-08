@@ -173,6 +173,7 @@ func FromHex(in string) []byte {
 }
 
 type CodeRecord struct {
+	BlockTime   uint64
 	BlockNumber uint64
 	TxNumber    uint64
 	CodeHash    Hash

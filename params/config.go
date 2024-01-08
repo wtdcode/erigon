@@ -72,6 +72,9 @@ var (
 	BorDevnetGenesisHash  = libcommon.HexToHash("0x5a06b25b0c6530708ea0b98a3409290e39dce6be7f558493aeb6e4b99a172a87")
 	GnosisGenesisHash     = libcommon.HexToHash("0x4f1dd23188aab3a76b463e4af801b52b1248ef073c648cbdc4c9333d3da79756")
 	ChiadoGenesisHash     = libcommon.HexToHash("0xada44fd8d2ecab8b08f256af07ad3e777f17fb434f8f8e678b312f576212ba9a")
+	BSCGenesisHash        = libcommon.HexToHash("0x0d21840abff46b96c84b2ac9e10e4f5cdaeb5693cb665db62a2f3b02d2d57b5b")
+	ChapelGenesisHash     = libcommon.HexToHash("0x6d3c66c5357ec91d5c43af47e234a939b22557cbb552dc45bebbceeed90fbe34")
+	RialtoGenesisHash     = libcommon.HexToHash("0x80b449d100d5c0cf46a4aef50d4545933dc9040ffd1b5f0e22475f9855735eb7")
 )
 
 var (
@@ -91,6 +94,12 @@ var (
 
 	// GoerliChainConfig contains the chain parameters to run a node on the Görli test network.
 	GoerliChainConfig = readChainSpec("chainspecs/goerli.json")
+
+	BSCChainConfig = readChainSpec("chainspecs/bsc.json")
+
+	ChapelChainConfig = readChainSpec("chainspecs/chapel.json")
+
+	RialtoChainConfig = readChainSpec("chainspecs/rialto.json")
 
 	// AllProtocolChanges contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers into the main net protocol.
@@ -218,6 +227,12 @@ func ChainConfigByChainName(chain string) *chain.Config {
 		return SepoliaChainConfig
 	case networkname.GoerliChainName:
 		return GoerliChainConfig
+	case networkname.BSCChainName:
+		return BSCChainConfig
+	case networkname.ChapelChainName:
+		return ChapelChainConfig
+	case networkname.RialtoChainName:
+		return RialtoChainConfig
 	case networkname.MumbaiChainName:
 		return MumbaiChainConfig
 	case networkname.AmoyChainName:
@@ -245,6 +260,12 @@ func GenesisHashByChainName(chain string) *libcommon.Hash {
 		return &SepoliaGenesisHash
 	case networkname.GoerliChainName:
 		return &GoerliGenesisHash
+	case networkname.BSCChainName:
+		return &BSCGenesisHash
+	case networkname.ChapelChainName:
+		return &ChapelGenesisHash
+	case networkname.RialtoChainName:
+		return &RialtoGenesisHash
 	case networkname.MumbaiChainName:
 		return &MumbaiGenesisHash
 	case networkname.AmoyChainName:
@@ -272,6 +293,12 @@ func ChainConfigByGenesisHash(genesisHash libcommon.Hash) *chain.Config {
 		return SepoliaChainConfig
 	case genesisHash == GoerliGenesisHash:
 		return GoerliChainConfig
+	case genesisHash == BSCGenesisHash:
+		return BSCChainConfig
+	case genesisHash == ChapelGenesisHash:
+		return ChapelChainConfig
+	case genesisHash == RialtoGenesisHash:
+		return RialtoChainConfig
 	case genesisHash == MumbaiGenesisHash:
 		return MumbaiChainConfig
 	case genesisHash == AmoyGenesisHash:

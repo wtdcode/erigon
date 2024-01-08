@@ -1,14 +1,11 @@
 package core
 
 import (
+	"encoding/hex"
 	"fmt"
-	"strconv"
-
 	"github.com/ledgerwatch/erigon-lib/chain/networkname"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/hexutility"
-	"github.com/ledgerwatch/erigon/consensus/bor/borcfg"
-
 	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/params"
@@ -16,7 +13,7 @@ import (
 
 func init() {
 	// Initialise SystemContractCodeLookup
-	for _, chainName := range []string{networkname.BorMainnetChainName, networkname.MumbaiChainName, networkname.AmoyChainName, networkname.BorDevnetChainName} {
+	for _, chainName := range []string{networkname.BSCChainName, networkname.ChapelChainName, networkname.BorMainnetChainName, networkname.MumbaiChainName, networkname.AmoyChainName, networkname.BorDevnetChainName} {
 		byChain := map[libcommon.Address][]libcommon.CodeRecord{}
 		systemcontracts.SystemContractCodeLookup[chainName] = byChain
 		// Apply genesis with the block number 0
@@ -24,17 +21,71 @@ func init() {
 		allocToCodeRecords(genesisBlock.Alloc, byChain, 0)
 		// Process upgrades
 		chainConfig := params.ChainConfigByChainName(chainName)
-		borConfig := chainConfig.Bor.(*borcfg.BorConfig)
-		for blockNumStr, genesisAlloc := range borConfig.BlockAlloc {
-			blockNum, err := strconv.ParseUint(blockNumStr, 10, 64)
-			if err != nil {
-				panic(fmt.Errorf("failed to parse block number in BlockAlloc: %s", err.Error()))
+		if chainConfig.RamanujanBlock != nil {
+			blockNum := chainConfig.RamanujanBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.RamanujanUpgrade[chainName], blockNum, 0, byChain)
 			}
-			alloc, err := types.DecodeGenesisAlloc(genesisAlloc)
-			if err != nil {
-				panic(fmt.Errorf("failed to decode block alloc: %v", err))
+		}
+		if chainConfig.NielsBlock != nil {
+			blockNum := chainConfig.NielsBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.NielsUpgrade[chainName], blockNum, 0, byChain)
 			}
-			allocToCodeRecords(alloc, byChain, blockNum)
+		}
+		if chainConfig.MirrorSyncBlock != nil {
+			blockNum := chainConfig.MirrorSyncBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.MirrorUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.BrunoBlock != nil {
+			blockNum := chainConfig.BrunoBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.BrunoUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.EulerBlock != nil {
+			blockNum := chainConfig.EulerBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.EulerUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.MoranBlock != nil {
+			blockNum := chainConfig.MoranBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.MoranUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.GibbsBlock != nil {
+			blockNum := chainConfig.GibbsBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.GibbsUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.PlanckBlock != nil {
+			blockNum := chainConfig.PlanckBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.PlanckUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.LubanBlock != nil {
+			blockNum := chainConfig.LubanBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.LubanUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.PlatoBlock != nil {
+			blockNum := chainConfig.PlatoBlock.Uint64()
+			if blockNum != 0 {
+				addCodeRecords(systemcontracts.PlatoUpgrade[chainName], blockNum, 0, byChain)
+			}
+		}
+		if chainConfig.KeplerTime != nil {
+			blockTime := chainConfig.KeplerTime.Uint64()
+			if blockTime != 0 {
+				addCodeRecords(systemcontracts.KeplerUpgrade[chainName], 0, blockTime, byChain)
+			}
 		}
 	}
 
@@ -85,4 +136,24 @@ func addGnosisSpecialCase() {
 	})
 
 	byChain[address] = list
+}
+
+func addCodeRecords(upgrade *systemcontracts.Upgrade, blockNum uint64, blockTime uint64, byChain map[libcommon.Address][]libcommon.CodeRecord) {
+	for _, config := range upgrade.Configs {
+		list := byChain[config.ContractAddr]
+		code, err := hex.DecodeString(config.Code)
+		if err != nil {
+			panic(fmt.Errorf("failed to decode system contract code: %s", err.Error()))
+		}
+		codeHash, err := libcommon.HashData(code)
+		if err != nil {
+			panic(fmt.Errorf("failed to hash system contract code: %s", err.Error()))
+		}
+		if blockTime == 0 {
+			list = append(list, libcommon.CodeRecord{BlockNumber: blockNum, CodeHash: codeHash})
+		} else {
+			list = append(list, libcommon.CodeRecord{BlockTime: blockTime, CodeHash: codeHash})
+		}
+		byChain[config.ContractAddr] = list
+	}
 }
