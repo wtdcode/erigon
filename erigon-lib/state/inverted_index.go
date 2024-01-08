@@ -254,6 +254,7 @@ func (ii *InvertedIndex) scanStateFiles(fileNames []string) (garbageFiles []*fil
 		}
 
 		if _, has := ii.files.Get(newFile); has {
+			log.Info("[dbg] skip", "newFile", fmt.Sprintf("%d-%d\n", newFile.startTxNum/ii.aggregationStep, newFile.endTxNum/ii.aggregationStep))
 			continue
 		}
 
@@ -892,7 +893,6 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 		limit:       limit,
 		ef:          eliasfano32.NewEliasFano(1, 1),
 	}
-	log.Info("[dbg] iterateRangeFrozen", "files_amount", len(ic.files))
 
 	if asc {
 		for i := len(ic.files) - 1; i >= 0; i-- {
