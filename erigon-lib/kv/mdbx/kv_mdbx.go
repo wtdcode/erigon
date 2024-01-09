@@ -338,6 +338,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		}
 
 		if opts.dirtySpace > 0 {
+			fmt.Printf("x: %d\n", opts.dirtySpace)
 			if err = env.SetOption(mdbx.OptTxnDpLimit, opts.dirtySpace/opts.pageSize); err != nil {
 				return nil, err
 			}
@@ -346,8 +347,11 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			if err != nil {
 				return nil, err
 			}
+			fmt.Printf("a: %d\n", dirtyPagesLimit)
 			if dirtyPagesLimit*opts.pageSize > uint64(2*datasize.GB) {
+				fmt.Printf("b: %d\n", dirtyPagesLimit)
 				if opts.label == kv.ChainDB {
+					fmt.Printf("try set: %d\n", uint64(2*datasize.GB)/opts.pageSize)
 					if err = env.SetOption(mdbx.OptTxnDpLimit, uint64(2*datasize.GB)/opts.pageSize); err != nil {
 						return nil, err
 					}
@@ -368,6 +372,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("read: %d\n", dirtyPagesLimit)
 
 	if opts.syncPeriod != 0 {
 		if err = env.SetSyncPeriod(opts.syncPeriod); err != nil {
