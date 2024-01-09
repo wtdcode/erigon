@@ -251,14 +251,14 @@ func (d *Downloader) mainLoop(silent bool) error {
 					return
 				}
 				t.AllowDataDownload()
-				log.Warn(fmt.Sprintf("[dbg] AllowDataDownload: %s\n", t.Name()))
 				select {
 				case <-d.ctx.Done():
 					return
 				case <-t.GotInfo():
 				}
-				log.Warn(fmt.Sprintf("[dbg] DownloadAll: %s\n", t.Name()))
+				tt := time.Now()
 				t.DownloadAll()
+				log.Warn(fmt.Sprintf("[dbg] DownloadAll: %s, %s\n", t.Name(), time.Since(tt)))
 				d.wg.Add(1)
 				go func(t *torrent.Torrent) {
 					defer d.wg.Done()
