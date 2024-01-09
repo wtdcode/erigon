@@ -251,6 +251,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 					return
 				}
 				t.AllowDataDownload()
+				log.Warn(fmt.Sprintf("[dbg] AllowDataDownload: %s\n", t.Name()))
 				select {
 				case <-d.ctx.Done():
 					return
