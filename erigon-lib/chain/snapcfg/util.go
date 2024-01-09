@@ -59,7 +59,6 @@ func SnapshotVersion(version uint8) {
 }
 
 func newCfg(preverified Preverified, version uint8) *Cfg {
-
 	if version == 0 {
 		version = snapshotVersion
 
