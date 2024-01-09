@@ -257,6 +257,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 					return
 				case <-t.GotInfo():
 				}
+				log.Warn(fmt.Sprintf("[dbg] DownloadAll: %s\n", t.Name()))
 				t.DownloadAll()
 				d.wg.Add(1)
 				go func(t *torrent.Torrent) {
