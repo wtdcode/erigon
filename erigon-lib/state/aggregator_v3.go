@@ -163,6 +163,7 @@ func NewAggregatorV3(ctx context.Context, dirs datadir.Dirs, aggregationStep uin
 		hist: histCfg{
 			iiCfg:             iiCfg{salt: salt, dirs: dirs},
 			withLocalityIndex: false, withExistenceIndex: true, compression: CompressNone, historyLargeValues: false,
+			dontProduceFiles: true,
 		},
 		compress: CompressNone,
 	}
@@ -480,6 +481,7 @@ func (sf AggV3StaticFiles) CleanupOnError() {
 }
 
 func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
+	a.logger.Info("[agg] collate and build", "step", step, "collate_workers", a.collateAndBuildWorkers, "merge_workers", a.mergeWorkers, "compress_workers", a.accounts.compressWorkers)
 	var (
 		logEvery      = time.NewTicker(time.Second * 30)
 		txFrom        = step * a.aggregationStep
@@ -926,6 +928,7 @@ func (a *AggregatorV3) recalcMaxTxNum() {
 		min = txNum
 	}
 	if txNum := a.commitment.endTxNumMinimax(); txNum < min {
+		fmt.Printf("[dbg] commitment min: %d, %d\n", txNum/a.aggregationStep, min/a.aggregationStep)
 		min = txNum
 	}
 	if txNum := a.logAddrs.endTxNumMinimax(); txNum < min {
@@ -1307,7 +1310,6 @@ func (a *AggregatorV3) BuildFilesInBackground(txNum uint64) chan struct{} {
 	}
 
 	step := a.minimaxTxNumInFiles.Load() / a.aggregationStep
-	log.Info("[agg] collate and build", "step", step, "collate_workers", a.collateAndBuildWorkers, "merge_workers", a.mergeWorkers, "compress_workers", a.accounts.compressWorkers)
 	a.wg.Add(1)
 	go func() {
 		defer a.wg.Done()
