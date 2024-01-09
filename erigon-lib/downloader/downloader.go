@@ -274,7 +274,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 			select {
 			case <-d.ctx.Done():
 				return
-			case <-time.After(10 * time.Second):
+			case <-time.After(30 * time.Second):
 			}
 		}
 	}()
