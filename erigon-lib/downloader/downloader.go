@@ -71,6 +71,8 @@ type Downloader struct {
 	verbosity log.Lvl
 
 	torrentFiles *TorrentFiles
+
+	downloadSlots *semaphore.Weighted
 }
 
 type AggStats struct {
@@ -116,6 +118,7 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 		logger:            logger,
 		verbosity:         verbosity,
 		torrentFiles:      &TorrentFiles{dir: cfg.Dirs.Snap},
+		downloadSlots:     semaphore.NewWeighted(int64(cfg.DownloadSlots)),
 	}
 	d.webseeds.torrentFiles = d.torrentFiles
 	d.ctx, d.stopMainLoop = context.WithCancel(ctx)
@@ -181,7 +184,6 @@ func (d *Downloader) MainLoopInBackground(silent bool) {
 }
 
 func (d *Downloader) mainLoop(silent bool) error {
-	var sem = semaphore.NewWeighted(int64(d.cfg.DownloadSlots))
 
 	d.wg.Add(1)
 	go func() {
@@ -247,7 +249,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 				if t.Complete.Bool() {
 					continue
 				}
-				if err := sem.Acquire(d.ctx, 1); err != nil {
+				if err := d.downloadSlots.Acquire(d.ctx, 1); err != nil {
 					return
 				}
 				t.AllowDataDownload()
@@ -262,7 +264,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 				d.wg.Add(1)
 				go func(t *torrent.Torrent) {
 					defer d.wg.Done()
-					defer sem.Release(1)
+					defer d.downloadSlots.Release(1)
 					select {
 					case <-d.ctx.Done():
 						return
@@ -338,6 +340,39 @@ func (d *Downloader) mainLoop(silent bool) error {
 			}
 		}
 	}
+}
+
+func (d *Downloader) allowDownloads() {
+	torrents := d.torrentClient.Torrents()
+	for _, t := range torrents {
+		if t.Complete.Bool() {
+			continue
+		}
+		if ok := d.downloadSlots.TryAcquire(1); !ok {
+			return
+		}
+
+		t.AllowDataDownload()
+		select {
+		case <-d.ctx.Done():
+			return
+		case <-t.GotInfo():
+		}
+		tt := time.Now()
+		t.DownloadAll()
+		log.Warn(fmt.Sprintf("[dbg] DownloadAll: %s, %s\n", t.Name(), time.Since(tt)))
+		d.wg.Add(1)
+		go func(t *torrent.Torrent) {
+			defer d.wg.Done()
+			defer d.downloadSlots.Release(1)
+			select {
+			case <-d.ctx.Done():
+				return
+			case <-t.Complete.On():
+			}
+		}(t)
+	}
+	return
 }
 
 func (d *Downloader) SnapDir() string { return d.cfg.Dirs.Snap }
