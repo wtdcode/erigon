@@ -856,7 +856,7 @@ Loop:
 				}
 
 				doms.SetCommitmentPlainWarmupFunc(func(plainKeys [][]byte) {
-					if len(plainKeys) < 10_000 {
+					if len(plainKeys) < 100_000 {
 						return
 					}
 					go func() {
