@@ -346,7 +346,9 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			if err != nil {
 				return nil, err
 			}
+			fmt.Printf("a: %d\n", dirtyPagesLimit)
 			if dirtyPagesLimit*opts.pageSize > uint64(2*datasize.GB) {
+				fmt.Printf("b: %d\n", dirtyPagesLimit)
 				if opts.label == kv.ChainDB {
 					if err = env.SetOption(mdbx.OptTxnDpLimit, uint64(2*datasize.GB)/opts.pageSize); err != nil {
 						return nil, err
