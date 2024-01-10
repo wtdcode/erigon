@@ -321,6 +321,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		if err != nil {
 			return nil, err
 		}
+		fmt.Printf("txnDpInitial: %d\n", txnDpInitial)
 		if opts.label == kv.ChainDB {
 			fmt.Printf("dbg: set start\n")
 			if err = env.SetOption(mdbx.OptTxnDpInitial, txnDpInitial*2); err != nil {
