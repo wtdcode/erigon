@@ -318,19 +318,20 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			}
 		}
 
-		var dirtySpace, pageSize uint64
+		// before env.Open() we don't know real pageSize
+		// but we want call all `SetOption` before env.Open(), because:
+		//   - after they will require rwtx-lock, which is not acceptable in ACCEDEE mode.
+		pageSize := opts.pageSize
+		if pageSize == 0 {
+			pageSize = kv.DefaultPageSize()
+		}
+
+		var dirtySpace uint64
 		if opts.dirtySpace > 0 {
-			dirtySpace, pageSize = opts.dirtySpace, opts.pageSize
+			dirtySpace = opts.dirtySpace
 		} else {
 			dirtySpace = mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
 
-			// before env.Open() we don't know real pageSize
-			// but we want call all `SetOption` before env.Open(), because:
-			//   - after they will require rwtx-lock, which is not acceptable in ACCEDEE mode.
-			pageSize := opts.pageSize
-			if pageSize == 0 {
-				pageSize = kv.DefaultPageSize()
-			}
 			// clamp to max size
 			const dirtySpaceMaxChainDB = uint64(1 * datasize.GB)
 			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
