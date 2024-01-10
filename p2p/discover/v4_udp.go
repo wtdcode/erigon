@@ -401,7 +401,14 @@ func (t *UDPv4) findnode(toid enode.ID, toaddr *net.UDPAddr, target v4wire.Pubke
 		return nodes, err
 	}
 
-	err = <-rm.errc
+	timeout := time.NewTimer(10 * time.Second)
+	select {
+	case <-timeout.C:
+		panic("UDPv4.findnode: unexpected timeout!")
+	case err = <-rm.errc:
+		timeout.Stop()
+	}
+
 	if errors.Is(err, errTimeout) && rm.reply != nil {
 		err = nil
 	}
