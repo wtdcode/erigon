@@ -336,7 +336,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		if err = env.SetOption(mdbx.OptTxnDpLimit, dirtySpace/opts.pageSize); err != nil {
 			return nil, err
 		}
-
+		fmt.Printf("dbg: set done\n")
 		// must be in the range from 12.5% (almost empty) to 50% (half empty)
 		// which corresponds to the range from 8192 and to 32768 in units respectively
 		if err = env.SetOption(mdbx.OptMergeThreshold16dot16Percent, opts.mergeThreshold); err != nil {
