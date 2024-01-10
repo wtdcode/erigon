@@ -332,7 +332,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 				pageSize = kv.DefaultPageSize()
 			}
 			// clamp to max size
-			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
+			const dirtySpaceMaxChainDB = uint64(1 * datasize.GB)
 			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
 
 			if opts.label == kv.ChainDB && dirtySpace > dirtySpaceMaxChainDB {
