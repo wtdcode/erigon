@@ -275,7 +275,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 	if err = env.SetOption(mdbx.OptMaxReaders, kv.ReadersLimit); err != nil {
 		return nil, err
 	}
-	if err = env.SetOption(mdbx.OptRpAugmentLimit, 100_000_000); err != nil {
+	if err = env.SetOption(mdbx.OptRpAugmentLimit, 1_000_000_000); err != nil {
 		return nil, err
 	}
 
@@ -319,7 +319,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			dirtySpace = opts.dirtySpace
 		} else {
 			// the default value is based on the RAM amount
-			dirtySpace = mmap.TotalMemory() / 42
+			dirtySpace = mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
 			a, _ := env.GetOption(mdbx.OptTxnDpLimit)
 
 			fmt.Printf("dbbg: %d, %d\n", a/1024/1024, dirtySpace/1024/1024)
