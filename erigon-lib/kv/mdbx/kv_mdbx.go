@@ -34,6 +34,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/erigontech/mdbx-go/mdbx"
 	stack2 "github.com/go-stack/stack"
+	"github.com/ledgerwatch/erigon-lib/mmap"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/exp/maps"
 	"golang.org/x/sync/semaphore"
@@ -318,11 +319,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			dirtySpace = opts.dirtySpace
 		} else {
 			// the default value is based on the RAM amount
-			dirtyPagesLimit, err := env.GetOption(mdbx.OptTxnDpLimit)
-			if err != nil {
-				return nil, err
-			}
-			dirtySpace = dirtyPagesLimit * opts.pageSize
+			dirtySpace = mmap.TotalMemory() / 42 // default
 
 			// clamp to max size
 			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
@@ -344,6 +341,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			return nil, err
 		}
 	}
+
 	err = env.Open(opts.path, opts.flags, 0664)
 	if err != nil {
 		if err != nil {
