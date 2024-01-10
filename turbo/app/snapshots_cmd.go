@@ -922,9 +922,7 @@ func doBodiesDecrement(cliCtx *cli.Context) error {
 		dstBuf := bytes.NewBuffer(nil)
 		for srcG.HasNext() {
 			i++
-			if buf == nil {
-				panic(fmt.Sprintf("nil val at file: %s\n", srcG.FileName()))
-			}
+			fmt.Printf("reading file: %s, %d\n", srcG.FileName(), i)
 			buf, _ = srcG.Next(buf[:0])
 			if buf == nil {
 				panic(fmt.Sprintf("nil val at file: %s\n", srcG.FileName()))
