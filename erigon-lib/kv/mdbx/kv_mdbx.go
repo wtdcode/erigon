@@ -319,8 +319,10 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			dirtySpace = opts.dirtySpace
 		} else {
 			// the default value is based on the RAM amount
-			dirtySpace = mmap.TotalMemory() / 42 // default
+			dirtySpace = mmap.TotalMemory() / 42
+			a, _ := env.GetOption(mdbx.OptTxnDpLimit)
 
+			fmt.Printf("dbbg: %d, %d\n", a/1024/1024, dirtySpace/1024/1024)
 			// clamp to max size
 			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
 			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
