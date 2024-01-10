@@ -321,6 +321,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		// before env.Open() we don't know real pageSize
 		// but we want call all `SetOption` before env.Open(), because:
 		//   - after they will require rwtx-lock, which is not acceptable in ACCEDEE mode.
+		// it will be implemented soon: https://gitflic.ru/project/erthink/libmdbx/issue/15
 		pageSize := opts.pageSize
 		if pageSize == 0 {
 			pageSize = kv.DefaultPageSize()
