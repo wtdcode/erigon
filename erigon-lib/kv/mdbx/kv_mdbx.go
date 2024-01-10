@@ -322,7 +322,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			dirtySpace = mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
 			a, _ := env.GetOption(mdbx.OptTxnDpLimit)
 
-			fmt.Printf("dbbg: %d, %d\n", a/1024/1024, dirtySpace/1024/1024)
+			fmt.Printf("dbbg: %d, %d\n", a/1024, dirtySpace*opts.pageSize)
 			// clamp to max size
 			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
 			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
