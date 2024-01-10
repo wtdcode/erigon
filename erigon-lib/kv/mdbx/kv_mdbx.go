@@ -298,9 +298,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 	// mdbx will not change pageSize if db already exists. means need read real value after env.open()
 	in, err := env.Info(nil)
 	if err != nil {
-		if err != nil {
-			return nil, fmt.Errorf("%w, label: %s, trace: %s", err, opts.label.String(), stack2.Trace().String())
-		}
+		return nil, fmt.Errorf("%w, label: %s, trace: %s", err, opts.label.String(), stack2.Trace().String())
 	}
 
 	opts.pageSize = uint64(in.PageSize)
