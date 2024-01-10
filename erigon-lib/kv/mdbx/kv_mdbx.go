@@ -317,14 +317,42 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 				return nil, err
 			}
 		}
-	}
-	{
-		dirtySpace := mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
-		a, _ := env.GetOption(mdbx.OptTxnDpLimit)
 
-		fmt.Printf("dbbg1: %d, %d\n", a/1024, dirtySpace)
+		var dirtySpace, pageSize uint64
+		if opts.dirtySpace > 0 {
+			dirtySpace, pageSize = opts.dirtySpace, opts.pageSize
+		} else {
+			dirtySpace = mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
+
+			// before env.Open() we don't know real pageSize
+			// but we want call all `SetOption` before env.Open(), because:
+			//   - after they will require rwtx-lock, which is not acceptable in ACCEDEE mode.
+			pageSize := opts.pageSize
+			if pageSize == 0 {
+				pageSize = kv.DefaultPageSize()
+			}
+			// clamp to max size
+			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
+			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
+
+			if opts.label == kv.ChainDB && dirtySpace > dirtySpaceMaxChainDB {
+				dirtySpace = dirtySpaceMaxChainDB
+			} else if opts.label != kv.ChainDB && dirtySpace > dirtySpaceMaxDefault {
+				dirtySpace = dirtySpaceMaxDefault
+			}
+		}
+		//can't use real pagesize here - it will be known only after env.Open()
+		if err = env.SetOption(mdbx.OptTxnDpLimit, dirtySpace/pageSize); err != nil {
+			return nil, err
+		}
+
+		// must be in the range from 12.5% (almost empty) to 50% (half empty)
+		// which corresponds to the range from 8192 and to 32768 in units respectively
+		if err = env.SetOption(mdbx.OptMergeThreshold16dot16Percent, opts.mergeThreshold); err != nil {
+			return nil, err
+		}
 	}
-	panic(opts.pageSize)
+
 	err = env.Open(opts.path, opts.flags, 0664)
 	if err != nil {
 		return nil, fmt.Errorf("%w, label: %s, trace: %s", err, opts.label.String(), stack2.Trace().String())
@@ -343,41 +371,6 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		opts.log.Debug("[db] open", "lable", opts.label, "sizeLimit", opts.mapSize, "pageSize", opts.pageSize)
 	}
 
-	// erigon using big transactions
-	// increase "page measured" options. need do it after env.Open() because default are depend on pageSize known only after env.Open()
-	if !opts.HasFlag(mdbx.Readonly) {
-
-		var dirtySpace uint64
-		if opts.dirtySpace > 0 {
-			dirtySpace = opts.dirtySpace
-		} else {
-			// the default value is based on the RAM amount
-			dirtySpace = mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
-			a, _ := env.GetOption(mdbx.OptTxnDpLimit)
-
-			fmt.Printf("dbbg: %d, %d\n", a/1024, dirtySpace*opts.pageSize)
-			// clamp to max size
-			const dirtySpaceMaxChainDB = uint64(2 * datasize.GB)
-			const dirtySpaceMaxDefault = uint64(256 * datasize.MB)
-
-			if opts.label == kv.ChainDB && dirtySpace > dirtySpaceMaxChainDB {
-				dirtySpace = dirtySpaceMaxChainDB
-			} else if opts.label != kv.ChainDB && dirtySpace > dirtySpaceMaxDefault {
-				dirtySpace = dirtySpaceMaxDefault
-			}
-		}
-		fmt.Printf("dbg: set start\n")
-		//can't use real pagesize here,
-		if err = env.SetOption(mdbx.OptTxnDpLimit, dirtySpace/4_096); err != nil {
-			return nil, err
-		}
-		fmt.Printf("dbg: set done\n")
-		// must be in the range from 12.5% (almost empty) to 50% (half empty)
-		// which corresponds to the range from 8192 and to 32768 in units respectively
-		if err = env.SetOption(mdbx.OptMergeThreshold16dot16Percent, opts.mergeThreshold); err != nil {
-			return nil, err
-		}
-	}
 	dirtyPagesLimit, err := env.GetOption(mdbx.OptTxnDpLimit)
 	if err != nil {
 		return nil, err
