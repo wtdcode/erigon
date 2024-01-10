@@ -318,7 +318,12 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			}
 		}
 	}
+	{
+		dirtySpace := mmap.TotalMemory() / 42 // it's default of mdbx, but our package also supports cgroups and GOMEMLIMIT
+		a, _ := env.GetOption(mdbx.OptTxnDpLimit)
 
+		fmt.Printf("dbbg1: %d, %d\n", a/1024, dirtySpace)
+	}
 	err = env.Open(opts.path, opts.flags, 0664)
 	if err != nil {
 		return nil, fmt.Errorf("%w, label: %s, trace: %s", err, opts.label.String(), stack2.Trace().String())
