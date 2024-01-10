@@ -922,11 +922,8 @@ func doBodiesDecrement(cliCtx *cli.Context) error {
 		dstBuf := bytes.NewBuffer(nil)
 		for srcG.HasNext() {
 			i++
-			fmt.Printf("reading file: %s, %d\n", srcG.FileName(), i)
+			//fmt.Printf("reading file: %s, %d\n", srcG.FileName(), i)
 			buf, _ = srcG.Next(buf[:0])
-			if buf == nil {
-				panic(fmt.Sprintf("nil val at file: %s\n", srcG.FileName()))
-			}
 			body := &types.BodyForStorage{}
 			if err := rlp.Decode(bytes.NewReader(buf), body); err != nil {
 				return err
