@@ -342,6 +342,7 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 		opts.log.Debug("[db] open", "lable", opts.label, "sizeLimit", opts.mapSize, "pageSize", opts.pageSize)
 	}
 
+	panic(opts.pageSize)
 	// erigon using big transactions
 	// increase "page measured" options. need do it after env.Open() because default are depend on pageSize known only after env.Open()
 	if !opts.HasFlag(mdbx.Readonly) {
@@ -366,7 +367,8 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			}
 		}
 		fmt.Printf("dbg: set start\n")
-		if err = env.SetOption(mdbx.OptTxnDpLimit, dirtySpace/opts.pageSize); err != nil {
+		//can't use real pagesize here,
+		if err = env.SetOption(mdbx.OptTxnDpLimit, dirtySpace/4_096); err != nil {
 			return nil, err
 		}
 		fmt.Printf("dbg: set done\n")
