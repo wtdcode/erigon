@@ -322,9 +322,11 @@ func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
 			return nil, err
 		}
 		if opts.label == kv.ChainDB {
+			fmt.Printf("dbg: set start\n")
 			if err = env.SetOption(mdbx.OptTxnDpInitial, txnDpInitial*2); err != nil {
 				return nil, err
 			}
+			fmt.Printf("dbg: set end\n")
 			dpReserveLimit, err := env.GetOption(mdbx.OptDpReverseLimit)
 			if err != nil {
 				return nil, err
