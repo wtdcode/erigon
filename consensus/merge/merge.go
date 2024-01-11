@@ -234,7 +234,7 @@ func (s *Merge) verifyHeader(chain consensus.ChainHeaderReader, header, parent *
 	}
 
 	// Verify existence / non-existence of withdrawalsHash
-	shanghai := chain.Config().IsShanghai(header.Time)
+	shanghai := chain.Config().IsShanghai(header.Number.Uint64(), header.Time)
 	if shanghai && header.WithdrawalsHash == nil {
 		return fmt.Errorf("missing withdrawalsHash")
 	}
@@ -242,7 +242,7 @@ func (s *Merge) verifyHeader(chain consensus.ChainHeaderReader, header, parent *
 		return consensus.ErrUnexpectedWithdrawals
 	}
 
-	if !chain.Config().IsCancun(header.Time) {
+	if !chain.Config().IsCancun(0, header.Time) {
 		return misc.VerifyAbsenceOfCancunHeaderFields(header)
 	}
 
@@ -277,7 +277,7 @@ func (s *Merge) Initialize(config *chain.Config, chain consensus.ChainHeaderRead
 	if !misc.IsPoSHeader(header) {
 		s.eth1Engine.Initialize(config, chain, header, state, syscall, logger)
 	}
-	if chain.Config().IsCancun(header.Time) {
+	if chain.Config().IsCancun(0, header.Time) {
 		misc.ApplyBeaconRootEip4788(header.ParentBeaconBlockRoot, func(addr libcommon.Address, data []byte) ([]byte, error) {
 			return syscall(addr, data, state, header, false /* constCall */)
 		})

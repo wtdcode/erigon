@@ -576,7 +576,7 @@ func GenesisToBlock(g *types.Genesis, tmpDir string, logger log.Logger) (*types.
 		withdrawals = []*types.Withdrawal{}
 	}
 
-	if g.Config != nil && g.Config.IsCancun(g.Timestamp) {
+	if g.Config != nil && g.Config.IsCancun(g.Number, g.Timestamp) {
 		if g.BlobGasUsed != nil {
 			head.BlobGasUsed = g.BlobGasUsed
 		} else {

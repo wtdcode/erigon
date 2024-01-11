@@ -18,6 +18,8 @@ package core
 
 import (
 	"fmt"
+	"github.com/ledgerwatch/erigon/consensus"
+	"github.com/ledgerwatch/erigon/core/types"
 
 	"github.com/holiman/uint256"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
@@ -71,7 +73,8 @@ type StateTransition struct {
 	sharedBuyGas        *uint256.Int
 	sharedBuyGasBalance *uint256.Int
 
-	isBor bool
+	isParlia bool
+	isBor    bool
 }
 
 // Message represents a message sent to a contract.
@@ -151,6 +154,7 @@ func IntrinsicGas(data []byte, accessList types2.AccessList, isContractCreation 
 
 // NewStateTransition initialises and returns a new state transition object.
 func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition {
+	isParlia := evm.ChainConfig().Parlia != nil
 	isBor := evm.ChainConfig().Bor != nil
 	return &StateTransition{
 		gp:        gp,
@@ -166,7 +170,8 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 		sharedBuyGas:        uint256.NewInt(0),
 		sharedBuyGasBalance: uint256.NewInt(0),
 
-		isBor: isBor,
+		isParlia: isParlia,
+		isBor:    isBor,
 	}
 }
 
@@ -357,6 +362,12 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	// 5. there is no overflow when calculating intrinsic gas
 	// 6. caller has enough balance to cover asset transfer for **topmost** call
 
+	// BSC always gave gas bailout due to system transactions that set 2^256/2 gas limit and
+	// for Parlia consensus this flag should be always be set
+	if st.isParlia {
+		gasBailout = true
+	}
+
 	// Check clauses 1-3 and 6, buy gas if everything is correct
 	if err := st.preCheck(gasBailout); err != nil {
 		return nil, err
@@ -398,6 +409,17 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 		return nil, fmt.Errorf("%w: code size %v limit %v", ErrMaxInitCodeSizeExceeded, len(st.data), params.MaxInitCodeSize)
 	}
 
+	if rules.IsNano {
+		for _, blackListAddr := range types.NanoBlackList {
+			if blackListAddr == sender.Address() {
+				return nil, fmt.Errorf("block blacklist account")
+			}
+			if msg.To() != nil && *msg.To() == blackListAddr {
+				return nil, fmt.Errorf("block blacklist account")
+			}
+		}
+	}
+
 	// Execute the preparatory steps for state transition which includes:
 	// - prepare accessList(post-berlin)
 	// - reset transient storage(eip 1153)
@@ -437,7 +459,11 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	}
 	amount := new(uint256.Int).SetUint64(st.gasUsed())
 	amount.Mul(amount, effectiveTip) // gasUsed * effectiveTip = how much goes to the block producer (miner, validator)
-	st.state.AddBalance(coinbase, amount)
+	if st.isParlia {
+		st.state.AddBalance(consensus.SystemAddress, amount)
+	} else {
+		st.state.AddBalance(coinbase, amount)
+	}
 	if !msg.IsFree() && rules.IsLondon {
 		burntContractAddress := st.evm.ChainConfig().GetBurntContract(st.evm.Context.BlockNumber)
 		if burntContractAddress != nil {

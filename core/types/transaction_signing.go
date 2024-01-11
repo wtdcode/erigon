@@ -45,7 +45,7 @@ func MakeSigner(config *chain.Config, blockNumber uint64, blockTime uint64) *Sig
 	}
 	signer.unprotected = true
 	switch {
-	case config.IsCancun(blockTime):
+	case config.IsCancun(blockNumber, blockTime):
 		// All transaction types are still supported
 		signer.protected = true
 		signer.accessList = true

@@ -19,7 +19,6 @@ import (
 	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	"github.com/ledgerwatch/erigon-lib/state"
 	"github.com/ledgerwatch/erigon/core/state/historyv2read"
-	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/core/types/accounts"
 	"github.com/ledgerwatch/erigon/eth/ethconfig"
@@ -462,6 +461,11 @@ func NewTestDB(tb testing.TB, dirs datadir.Dirs, gspec *types.Genesis) (histV3 b
 		return nil
 	})
 
+	// TODO: Need for Erigon v3
+	// if gspec != nil {
+	// 	sc = systemcontracts.SystemContractCodeLookup[gspec.Config.ChainName]
+	// }
+
 	if historyV3 {
 		var err error
 		dir.MustExist(dirs.SnapHistory)
@@ -474,9 +478,6 @@ func NewTestDB(tb testing.TB, dirs datadir.Dirs, gspec *types.Genesis) (histV3 b
 		}
 
 		var sc map[common.Address][]common.CodeRecord
-		if gspec != nil {
-			sc = systemcontracts.SystemContractCodeLookup[gspec.Config.ChainName]
-		}
 
 		db, err = New(db, agg, sc)
 		if err != nil {

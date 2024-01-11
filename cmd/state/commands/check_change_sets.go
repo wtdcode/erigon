@@ -289,6 +289,8 @@ func initConsensusEngine(ctx context.Context, cc *chain2.Config, snapshots *free
 		consensusConfig = &config.Aura
 	} else if cc.Bor != nil {
 		consensusConfig = &config.Bor
+	} else if cc.Parlia != nil {
+		consensusConfig = &config.Parlia
 	} else {
 		consensusConfig = &config.Ethash
 	}

@@ -600,7 +600,7 @@ func MakeEmptyHeader(parent *types.Header, chainConfig *chain.Config, timestamp 
 		header.GasLimit = parentGasLimit
 	}
 
-	if chainConfig.IsCancun(header.Time) {
+	if chainConfig.IsCancun(header.Number.Uint64(), header.Time) {
 		excessBlobGas := misc.CalcExcessBlobGas(chainConfig, parent)
 		header.ExcessBlobGas = &excessBlobGas
 		header.BlobGasUsed = new(uint64)

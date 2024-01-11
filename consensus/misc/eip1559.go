@@ -18,13 +18,13 @@ package misc
 
 import (
 	"fmt"
+	"github.com/ledgerwatch/erigon/consensus/bor/borcfg"
 	"math/big"
 
-	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
-	"github.com/ledgerwatch/erigon/consensus/bor/borcfg"
 
-	"github.com/ledgerwatch/erigon/common/math"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/params"
 )
@@ -58,6 +58,9 @@ func VerifyEip1559Header(config *chain.Config, parent, header *types.Header, ski
 
 // CalcBaseFee calculates the basefee of the header.
 func CalcBaseFee(config *chain.Config, parent *types.Header) *big.Int {
+	if config.Parlia != nil {
+		return new(big.Int).SetUint64(params.InitialBaseFee)
+	}
 	// If the current block is the first EIP-1559 block, return the InitialBaseFee.
 	if !config.IsLondon(parent.Number.Uint64()) {
 		return new(big.Int).SetUint64(params.InitialBaseFee)
@@ -74,6 +77,7 @@ func CalcBaseFee(config *chain.Config, parent *types.Header) *big.Int {
 	}
 	if parent.GasUsed > parentGasTarget {
 		// If the parent block used more gas than its target, the baseFee should increase.
+		// max(1, parentBaseFee * gasUsedDelta / parentGasTarget / baseFeeChangeDenominator)
 		gasUsedDelta := new(big.Int).SetUint64(parent.GasUsed - parentGasTarget)
 		x := new(big.Int).Mul(parent.BaseFee, gasUsedDelta)
 		y := x.Div(x, parentGasTargetBig)
@@ -85,6 +89,7 @@ func CalcBaseFee(config *chain.Config, parent *types.Header) *big.Int {
 		return x.Add(parent.BaseFee, baseFeeDelta)
 	} else {
 		// Otherwise if the parent block used less gas than its target, the baseFee should decrease.
+		// max(0, parentBaseFee * gasUsedDelta / parentGasTarget / baseFeeChangeDenominator)
 		gasUsedDelta := new(big.Int).SetUint64(parentGasTarget - parent.GasUsed)
 		x := new(big.Int).Mul(parent.BaseFee, gasUsedDelta)
 		y := x.Div(x, parentGasTargetBig)

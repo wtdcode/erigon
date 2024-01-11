@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon/consensus/parlia"
 	"io/fs"
 	"math/big"
 	"net"
@@ -320,6 +321,10 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 	logger.Info("Initialised chain configuration", "config", chainConfig, "genesis", genesis.Hash())
 
+	// Apply special hacks for BSC params
+	if chainConfig.Parlia != nil {
+		params.ApplyBinanceSmartChainParams()
+	}
 	snapshotVersion := snapcfg.KnownCfg(chainConfig.ChainName, 0).Version
 
 	// Check if we have an already initialized chain and fall back to
@@ -510,6 +515,8 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		consensusConfig = &config.Aura
 	} else if chainConfig.Bor != nil {
 		consensusConfig = &config.Bor
+	} else if chainConfig.Parlia != nil {
+		consensusConfig = &config.Parlia
 	} else {
 		consensusConfig = &config.Ethash
 	}
@@ -1080,6 +1087,25 @@ func (s *Ethereum) StartMining(ctx context.Context, db kv.RwDB, mining *stagedsy
 
 		clq.Authorize(eb, func(_ libcommon.Address, mimeType string, message []byte) ([]byte, error) {
 			return crypto.Sign(crypto.Keccak256(message), cfg.SigKey)
+		})
+	}
+
+	var prl *parlia.Parlia
+	if p, ok := s.engine.(*parlia.Parlia); ok {
+		prl = p
+	} else if cl, ok := s.engine.(*merge.Merge); ok {
+		if p, ok := cl.InnerEngine().(*parlia.Parlia); ok {
+			prl = p
+		}
+	}
+	if prl != nil {
+		if cfg.SigKey == nil {
+			log.Error("Etherbase account unavailable locally", "err", err)
+			return fmt.Errorf("signer missing: %w", err)
+		}
+
+		prl.Authorize(eb, func(validator libcommon.Address, payload []byte, chainId *big.Int) ([]byte, error) {
+			return crypto.Sign(payload, cfg.SigKey)
 		})
 	}
 

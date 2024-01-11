@@ -20,6 +20,7 @@ package utils
 import (
 	"crypto/ecdsa"
 	"fmt"
+	"github.com/ledgerwatch/erigon-lib/chain"
 	"math/big"
 	"path/filepath"
 	"runtime"
@@ -137,7 +138,7 @@ var (
 	}
 	SnapshotFlag = cli.BoolFlag{
 		Name:  "snapshots",
-		Usage: `Default: use snapshots "true" for Mainnet, Goerli, Gnosis Chain and Chiado. use snapshots "false" in all other cases`,
+		Usage: `Default: use snapshots "true" for Bsc, Mainnet, Goerli, Gnosis Chain and Chiado. use snapshots "false" in all other cases`,
 		Value: true,
 	}
 	InternalConsensusFlag = cli.BoolFlag{
@@ -1498,6 +1499,10 @@ func setClique(ctx *cli.Context, cfg *params.ConsensusSnapshotConfig, datadir st
 	}
 }
 
+func setParlia(ctx *cli.Context, cfg *chain.ParliaConfig, datadir string) {
+	cfg.DBPath = filepath.Join(datadir, "parlia")
+}
+
 func setBorConfig(ctx *cli.Context, cfg *ethconfig.Config) {
 	cfg.HeimdallURL = ctx.String(HeimdallURLFlag.Name)
 	cfg.WithoutHeimdall = ctx.Bool(WithoutHeimdallFlag.Name)
@@ -1682,6 +1687,7 @@ func SetEthConfig(ctx *cli.Context, nodeConfig *nodecfg.Config, cfg *ethconfig.C
 
 	setEthash(ctx, nodeConfig.Dirs.DataDir, cfg)
 	setClique(ctx, &cfg.Clique, nodeConfig.Dirs.DataDir)
+	setParlia(ctx, &cfg.Parlia, nodeConfig.Dirs.DataDir)
 	setMiner(ctx, &cfg.Miner)
 	setWhitelist(ctx, cfg)
 	setBorConfig(ctx, cfg)

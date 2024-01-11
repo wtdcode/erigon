@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"math/big"
 	"sync"
 
@@ -42,6 +43,8 @@ type Worker struct {
 	genesis  *types.Genesis
 	resultCh *exec22.ResultsQueue
 	chain    ChainReader
+	isPoSA   bool
+	posa     consensus.PoSA
 
 	callTracer  *CallTracer
 	taskGasPool *core.GasPool
@@ -80,7 +83,7 @@ func NewWorker(lock sync.Locker, ctx context.Context, background bool, chainDb k
 	}
 
 	w.ibs = state.New(w.stateReader)
-
+	w.posa, w.isPoSA = engine.(consensus.PoSA)
 	return w
 }
 
@@ -135,6 +138,7 @@ func (rw *Worker) RunTxTaskNoLock(txTask *exec22.TxTask) {
 	rules := txTask.Rules
 	var err error
 	header := txTask.Header
+	parent := rw.getHeader(header.ParentHash, header.Number.Uint64()-1)
 
 	var logger = log.New("worker-tx")
 
@@ -153,6 +157,9 @@ func (rw *Worker) RunTxTaskNoLock(txTask *exec22.TxTask) {
 		}
 		// Block initialisation
 		//fmt.Printf("txNum=%d, blockNum=%d, initialisation of the block\n", txTask.TxNum, txTask.BlockNum)
+		if rw.isPoSA {
+			systemcontracts.UpgradeBuildInSystemContract(rw.chainConfig, header.Number, parent.Time, header.Time, ibs)
+		}
 		syscall := func(contract libcommon.Address, data []byte, ibs *state.IntraBlockState, header *types.Header, constCall bool) ([]byte, error) {
 			return core.SysCallContract(contract, data, rw.chainConfig, ibs, header, rw.engine, constCall /* constCall */)
 		}
@@ -183,6 +190,14 @@ func (rw *Worker) RunTxTaskNoLock(txTask *exec22.TxTask) {
 		}
 	default:
 		//fmt.Printf("txNum=%d, blockNum=%d, txIndex=%d\n", txTask.TxNum, txTask.BlockNum, txTask.TxIndex)
+		if rw.isPoSA {
+			if isSystemTx, err := rw.posa.IsSystemTransaction(txTask.Tx, header); err != nil {
+				panic(err)
+			} else if isSystemTx {
+				//fmt.Printf("System tx\n")
+				return
+			}
+		}
 		txHash := txTask.Tx.Hash()
 		rw.taskGasPool.Reset(txTask.Tx.GetGas())
 		rw.callTracer.Reset()

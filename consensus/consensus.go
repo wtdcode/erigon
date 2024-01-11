@@ -18,6 +18,7 @@
 package consensus
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/holiman/uint256"
@@ -194,4 +195,26 @@ type PoW interface {
 
 	// Hashrate returns the current mining hashrate of a PoW consensus engine.
 	Hashrate() float64
+}
+
+var (
+	SystemAddress = libcommon.HexToAddress("0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE")
+)
+
+type PoSA interface {
+	Engine
+
+	IsSystemTransaction(tx types.Transaction, header *types.Header) (bool, error)
+	IsSystemContract(to *libcommon.Address) bool
+	EnoughDistance(chain ChainReader, header *types.Header) bool
+	IsLocalBlock(header *types.Header) bool
+	AllowLightProcess(chain ChainReader, currentHeader *types.Header) bool
+	GetJustifiedNumberAndHash(chain ChainHeaderReader, header *types.Header) (uint64, libcommon.Hash, error)
+	GetFinalizedHeader(chain ChainHeaderReader, header *types.Header) *types.Header
+}
+
+type AsyncEngine interface {
+	Engine
+
+	WithExecutionContext(context.Context) AsyncEngine
 }

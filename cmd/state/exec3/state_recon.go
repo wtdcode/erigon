@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"sync"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
@@ -229,6 +230,8 @@ type ReconWorker struct {
 	logger      log.Logger
 	genesis     *types.Genesis
 	chain       ChainReader
+	isPoSA      bool
+	posa        consensus.PoSA
 
 	evm *vm.EVM
 	ibs *state.IntraBlockState
@@ -254,6 +257,7 @@ func NewReconWorker(lock sync.Locker, ctx context.Context, rs *state.ReconState,
 	}
 	rw.chain = NewChainReader(chainConfig, chainTx, blockReader)
 	rw.ibs = state.New(rw.stateReader)
+	rw.posa, rw.isPoSA = engine.(consensus.PoSA)
 	return rw
 }
 
@@ -318,6 +322,10 @@ func (rw *ReconWorker) runTxTask(txTask *exec22.TxTask) error {
 		}
 	} else if txTask.TxIndex == -1 {
 		// Block initialisation
+		if rw.isPoSA {
+			parent := rw.chain.GetHeader(txTask.Header.ParentHash, txTask.Header.Number.Uint64()-1)
+			systemcontracts.UpgradeBuildInSystemContract(rw.chainConfig, txTask.Header.Number, parent.Time, txTask.Header.Time, ibs)
+		}
 		syscall := func(contract libcommon.Address, data []byte, ibState *state.IntraBlockState, header *types.Header, constCall bool) ([]byte, error) {
 			return core.SysCallContract(contract, data, rw.chainConfig, ibState, header, rw.engine, constCall /* constCall */)
 		}
@@ -329,6 +337,15 @@ func (rw *ReconWorker) runTxTask(txTask *exec22.TxTask) error {
 			}
 		}
 	} else {
+		if rw.isPoSA {
+			if isSystemTx, err := rw.posa.IsSystemTransaction(txTask.Tx, txTask.Header); err != nil {
+				if _, readError := rw.stateReader.ReadError(); !readError {
+					return err
+				}
+			} else if isSystemTx {
+				return nil
+			}
+		}
 		gp := new(core.GasPool).AddGas(txTask.Tx.GetGas()).AddBlobGas(txTask.Tx.GetBlobGas())
 		vmConfig := vm.Config{NoReceipts: true, SkipAnalysis: txTask.SkipAnalysis}
 		ibs.SetTxContext(txTask.Tx.Hash(), txTask.BlockHash, txTask.TxIndex)

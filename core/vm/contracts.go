@@ -21,19 +21,19 @@ import (
 	"encoding/binary"
 	"errors"
 	"github.com/ledgerwatch/erigon-lib/crypto/blake2b"
+	libkzg "github.com/ledgerwatch/erigon-lib/crypto/kzg"
+	"github.com/prysmaticlabs/prysm/v4/crypto/bls"
 	"math/big"
 
 	"github.com/holiman/uint256"
-
 	"github.com/ledgerwatch/erigon-lib/chain"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
-	libkzg "github.com/ledgerwatch/erigon-lib/crypto/kzg"
-
 	"github.com/ledgerwatch/erigon/common"
 	"github.com/ledgerwatch/erigon/common/math"
 	"github.com/ledgerwatch/erigon/crypto"
 	"github.com/ledgerwatch/erigon/crypto/bls12381"
 	"github.com/ledgerwatch/erigon/crypto/bn256"
+	"github.com/ledgerwatch/log/v3"
 
 	"github.com/ledgerwatch/erigon/params"
 
@@ -85,6 +85,51 @@ var PrecompiledContractsIstanbul = map[libcommon.Address]PrecompiledContract{
 	libcommon.BytesToAddress([]byte{9}): &blake2F{},
 }
 
+var PrecompiledContractsIstanbulForBSC = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidate{},
+}
+
+var PrecompiledContractsNano = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidateNano{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidateNano{},
+}
+
+var PrecompiledContractsIsMoran = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidateMoran{},
+}
+
 // PrecompiledContractsBerlin contains the default set of pre-compiled Ethereum
 // contracts used in the Berlin release.
 var PrecompiledContractsBerlin = map[libcommon.Address]PrecompiledContract{
@@ -115,23 +160,102 @@ var PrecompiledContractsCancun = map[libcommon.Address]PrecompiledContract{
 // PrecompiledContractsBLS contains the set of pre-compiled Ethereum
 // contracts specified in EIP-2537. These are exported for testing purposes.
 var PrecompiledContractsBLS = map[libcommon.Address]PrecompiledContract{
-	libcommon.BytesToAddress([]byte{0x0c}): &bls12381G1Add{},
-	libcommon.BytesToAddress([]byte{0x0d}): &bls12381G1Mul{},
-	libcommon.BytesToAddress([]byte{0x0e}): &bls12381G1MultiExp{},
-	libcommon.BytesToAddress([]byte{0x0f}): &bls12381G2Add{},
-	libcommon.BytesToAddress([]byte{0x10}): &bls12381G2Mul{},
-	libcommon.BytesToAddress([]byte{0x11}): &bls12381G2MultiExp{},
-	libcommon.BytesToAddress([]byte{0x12}): &bls12381Pairing{},
-	libcommon.BytesToAddress([]byte{0x13}): &bls12381MapG1{},
-	libcommon.BytesToAddress([]byte{0x14}): &bls12381MapG2{},
+	libcommon.BytesToAddress([]byte{10}): &bls12381G1Add{},
+	libcommon.BytesToAddress([]byte{11}): &bls12381G1Mul{},
+	libcommon.BytesToAddress([]byte{12}): &bls12381G1MultiExp{},
+	libcommon.BytesToAddress([]byte{13}): &bls12381G2Add{},
+	libcommon.BytesToAddress([]byte{14}): &bls12381G2Mul{},
+	libcommon.BytesToAddress([]byte{15}): &bls12381G2MultiExp{},
+	libcommon.BytesToAddress([]byte{16}): &bls12381Pairing{},
+	libcommon.BytesToAddress([]byte{17}): &bls12381MapG1{},
+	libcommon.BytesToAddress([]byte{18}): &bls12381MapG2{},
+}
+
+var PrecompiledContractsPlanck = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidatePlanck{},
+}
+
+// PrecompiledContractsLuban contains the default set of pre-compiled Ethereum
+// contracts used in the Luban release.
+var PrecompiledContractsLuban = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidatePlanck{},
+	libcommon.BytesToAddress([]byte{102}): &blsSignatureVerify{},
+	libcommon.BytesToAddress([]byte{103}): &cometBFTLightBlockValidate{},
+}
+
+// PrecompiledContractsPlato contains the default set of pre-compiled Ethereum
+// contracts used in the Plato release.
+var PrecompiledContractsPlato = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidatePlato{},
+	libcommon.BytesToAddress([]byte{102}): &blsSignatureVerify{},
+	libcommon.BytesToAddress([]byte{103}): &cometBFTLightBlockValidate{},
+}
+
+// PrecompiledContractsHertz contains the default set of pre-compiled Ethereum
+// contracts used in the Hertz release.
+var PrecompiledContractsHertz = map[libcommon.Address]PrecompiledContract{
+	libcommon.BytesToAddress([]byte{1}): &ecrecover{},
+	libcommon.BytesToAddress([]byte{2}): &sha256hash{},
+	libcommon.BytesToAddress([]byte{3}): &ripemd160hash{},
+	libcommon.BytesToAddress([]byte{4}): &dataCopy{},
+	libcommon.BytesToAddress([]byte{5}): &bigModExp{eip2565: true},
+	libcommon.BytesToAddress([]byte{6}): &bn256AddIstanbul{},
+	libcommon.BytesToAddress([]byte{7}): &bn256ScalarMulIstanbul{},
+	libcommon.BytesToAddress([]byte{8}): &bn256PairingIstanbul{},
+	libcommon.BytesToAddress([]byte{9}): &blake2F{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidatePlato{},
+	libcommon.BytesToAddress([]byte{102}): &blsSignatureVerify{},
+	libcommon.BytesToAddress([]byte{103}): &cometBFTLightBlockValidateHertz{},
 }
 
 var (
-	PrecompiledAddressesCancun    []libcommon.Address
-	PrecompiledAddressesBerlin    []libcommon.Address
-	PrecompiledAddressesIstanbul  []libcommon.Address
-	PrecompiledAddressesByzantium []libcommon.Address
-	PrecompiledAddressesHomestead []libcommon.Address
+	PrecompiledAddressesHertz          []libcommon.Address
+	PrecompiledAddressesPlato          []libcommon.Address
+	PrecompiledAddressesLuban          []libcommon.Address
+	PrecompiledAddressesPlanck         []libcommon.Address
+	PrecompiledAddressesMoran          []libcommon.Address
+	PrecompiledAddressesNano           []libcommon.Address
+	PrecompiledAddressesCancun         []libcommon.Address
+	PrecompiledAddressesBerlin         []libcommon.Address
+	PrecompiledAddressesIstanbul       []libcommon.Address
+	PrecompiledAddressesIstanbulForBSC []libcommon.Address
+	PrecompiledAddressesByzantium      []libcommon.Address
+	PrecompiledAddressesHomestead      []libcommon.Address
 )
 
 func init() {
@@ -144,11 +268,35 @@ func init() {
 	for k := range PrecompiledContractsIstanbul {
 		PrecompiledAddressesIstanbul = append(PrecompiledAddressesIstanbul, k)
 	}
+	for k := range PrecompiledContractsIstanbulForBSC {
+		PrecompiledAddressesIstanbulForBSC = append(PrecompiledAddressesIstanbulForBSC, k)
+	}
 	for k := range PrecompiledContractsBerlin {
 		PrecompiledAddressesBerlin = append(PrecompiledAddressesBerlin, k)
 	}
 	for k := range PrecompiledContractsCancun {
 		PrecompiledAddressesCancun = append(PrecompiledAddressesCancun, k)
+	}
+	for k := range PrecompiledContractsNano {
+		PrecompiledAddressesNano = append(PrecompiledAddressesNano, k)
+	}
+	for k := range PrecompiledContractsIsMoran {
+		PrecompiledAddressesMoran = append(PrecompiledAddressesMoran, k)
+	}
+	for k := range PrecompiledContractsPlanck {
+		PrecompiledAddressesPlanck = append(PrecompiledAddressesPlanck, k)
+	}
+
+	for k := range PrecompiledContractsLuban {
+		PrecompiledAddressesLuban = append(PrecompiledAddressesLuban, k)
+	}
+
+	for k := range PrecompiledContractsPlato {
+		PrecompiledAddressesPlato = append(PrecompiledAddressesPlato, k)
+	}
+
+	for k := range PrecompiledContractsHertz {
+		PrecompiledAddressesHertz = append(PrecompiledAddressesHertz, k)
 	}
 }
 
@@ -273,6 +421,7 @@ type bigModExp struct {
 }
 
 var (
+	big0      = big.NewInt(0)
 	big1      = big.NewInt(1)
 	big3      = big.NewInt(3)
 	big4      = big.NewInt(4)
@@ -1097,4 +1246,74 @@ func (c *pointEvaluation) RequiredGas(input []byte) uint64 {
 
 func (c *pointEvaluation) Run(input []byte) ([]byte, error) {
 	return libkzg.PointEvaluationPrecompile(input)
+}
+
+// blsSignatureVerify implements bls signature verification precompile.
+type blsSignatureVerify struct{}
+
+const (
+	msgHashLength         = uint64(32)
+	signatureLength       = uint64(96)
+	singleBlsPubkeyLength = uint64(48)
+)
+
+// RequiredGas returns the gas required to execute the pre-compiled contract.
+// RequiredGas returns the gas required to execute the pre-compiled contract.
+func (c *blsSignatureVerify) RequiredGas(input []byte) uint64 {
+	msgAndSigLength := msgHashLength + signatureLength
+	inputLen := uint64(len(input))
+	if inputLen <= msgAndSigLength ||
+		(inputLen-msgAndSigLength)%singleBlsPubkeyLength != 0 {
+		return params.BlsSignatureVerifyBaseGas
+	}
+	pubKeyNumber := (inputLen - msgAndSigLength) / singleBlsPubkeyLength
+	return params.BlsSignatureVerifyBaseGas + pubKeyNumber*params.BlsSignatureVerifyPerKeyGas
+}
+
+// Run input:
+// msg      | signature | [{bls pubkey}] |
+// 32 bytes | 96 bytes  | [{48 bytes}]   |
+func (c *blsSignatureVerify) Run(input []byte) ([]byte, error) {
+	msgAndSigLength := msgHashLength + signatureLength
+	inputLen := uint64(len(input))
+	if inputLen <= msgAndSigLength ||
+		(inputLen-msgAndSigLength)%singleBlsPubkeyLength != 0 {
+		log.Debug("blsSignatureVerify input size wrong", "inputLen", inputLen)
+		return nil, ErrExecutionReverted
+	}
+
+	var msg [32]byte
+	msgBytes := getData(input, 0, msgHashLength)
+	copy(msg[:], msgBytes)
+
+	signatureBytes := getData(input, msgHashLength, signatureLength)
+	sig, err := bls.SignatureFromBytes(signatureBytes)
+	if err != nil {
+		log.Debug("blsSignatureVerify invalid signature", "err", err)
+		return nil, ErrExecutionReverted
+	}
+
+	pubKeyNumber := (inputLen - msgAndSigLength) / singleBlsPubkeyLength
+	pubKeys := make([]bls.PublicKey, pubKeyNumber)
+	for i := uint64(0); i < pubKeyNumber; i++ {
+		pubKeyBytes := getData(input, msgAndSigLength+i*singleBlsPubkeyLength, singleBlsPubkeyLength)
+		pubKey, err := bls.PublicKeyFromBytes(pubKeyBytes)
+		if err != nil {
+			log.Debug("blsSignatureVerify invalid pubKey", "err", err)
+			return nil, ErrExecutionReverted
+		}
+		pubKeys[i] = pubKey
+	}
+
+	if pubKeyNumber > 1 {
+		if !sig.FastAggregateVerify(pubKeys, msg) {
+			return big0.Bytes(), nil
+		}
+	} else {
+		if !sig.Verify(pubKeys[0], msgBytes) {
+			return big0.Bytes(), nil
+		}
+	}
+
+	return big1.Bytes(), nil
 }

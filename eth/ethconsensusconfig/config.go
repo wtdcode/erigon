@@ -21,6 +21,7 @@ import (
 	"github.com/ledgerwatch/erigon/consensus/ethash"
 	"github.com/ledgerwatch/erigon/consensus/ethash/ethashcfg"
 	"github.com/ledgerwatch/erigon/consensus/merge"
+	"github.com/ledgerwatch/erigon/consensus/parlia"
 	"github.com/ledgerwatch/erigon/node"
 	"github.com/ledgerwatch/erigon/node/nodecfg"
 	"github.com/ledgerwatch/erigon/params"
@@ -30,7 +31,7 @@ import (
 func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chainConfig *chain.Config, config interface{}, notify []string, noVerify bool,
 	heimdallClient heimdall.IHeimdallClient, withoutHeimdall bool, blockReader services.FullBlockReader, readonly bool,
 	logger log.Logger,
-) consensus.Engine {
+	chainDb ...kv.RwDB) consensus.Engine {
 	var eng consensus.Engine
 
 	switch consensusCfg := config.(type) {
@@ -95,6 +96,17 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			if err != nil {
 				panic(err)
 			}
+		}
+	case *chain.ParliaConfig:
+		if chainConfig.Parlia != nil {
+			var err error
+			var db kv.RwDB
+
+			db, err = node.OpenDatabase(ctx, nodeConfig, kv.ConsensusDB, "parlia", readonly, logger)
+			if err != nil {
+				panic(err)
+			}
+			eng = parlia.New(chainConfig, db, blockReader, chainDb[0])
 		}
 	case *borcfg.BorConfig:
 		// If Matic bor consensus is requested, set it up

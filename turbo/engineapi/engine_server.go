@@ -103,11 +103,11 @@ func (e *EngineServer) Start(httpConfig *httpcfg.HttpCfg, db kv.RoDB, blockReade
 	}
 }
 
-func (s *EngineServer) checkWithdrawalsPresence(time uint64, withdrawals []*types.Withdrawal) error {
-	if !s.config.IsShanghai(time) && withdrawals != nil {
+func (s *EngineServer) checkWithdrawalsPresence(number uint64, time uint64, withdrawals []*types.Withdrawal) error {
+	if !s.config.IsShanghai(number, time) && withdrawals != nil {
 		return &rpc.InvalidParamsError{Message: "withdrawals before shanghai"}
 	}
-	if s.config.IsShanghai(time) && withdrawals == nil {
+	if s.config.IsShanghai(number, time) && withdrawals == nil {
 		return &rpc.InvalidParamsError{Message: "missing withdrawals list"}
 	}
 	return nil
@@ -186,7 +186,7 @@ func (s *EngineServer) newPayload(ctx context.Context, req *engine_types.Executi
 		header.WithdrawalsHash = &wh
 	}
 
-	if err := s.checkWithdrawalsPresence(header.Time, withdrawals); err != nil {
+	if err := s.checkWithdrawalsPresence(header.Number.Uint64(), header.Time, withdrawals); err != nil {
 		return nil, err
 	}
 
@@ -199,8 +199,8 @@ func (s *EngineServer) newPayload(ctx context.Context, req *engine_types.Executi
 		header.ParentBeaconBlockRoot = parentBeaconBlockRoot
 	}
 
-	if (!s.config.IsCancun(header.Time) && version >= clparams.DenebVersion) ||
-		(s.config.IsCancun(header.Time) && version < clparams.DenebVersion) {
+	if (!s.config.IsCancun(header.Number.Uint64(), header.Time) && version >= clparams.DenebVersion) ||
+		(s.config.IsCancun(header.Number.Uint64(), header.Time) && version < clparams.DenebVersion) {
 		return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
 	}
 
@@ -415,8 +415,9 @@ func (s *EngineServer) getPayload(ctx context.Context, payloadId uint64, version
 	data := resp.Data
 
 	ts := data.ExecutionPayload.Timestamp
-	if (!s.config.IsCancun(ts) && version >= clparams.DenebVersion) ||
-		(s.config.IsCancun(ts) && version < clparams.DenebVersion) {
+	bn := data.ExecutionPayload.BlockNumber
+	if (!s.config.IsCancun(bn, ts) && version >= clparams.DenebVersion) ||
+		(s.config.IsCancun(bn, ts) && version < clparams.DenebVersion) {
 		return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
 	}
 
@@ -460,10 +461,10 @@ func (s *EngineServer) forkchoiceUpdated(ctx context.Context, forkchoiceState *e
 		}
 
 		timestamp := uint64(payloadAttributes.Timestamp)
-		if !s.config.IsCancun(timestamp) && version >= clparams.DenebVersion { // V3 before cancun
+		if !s.config.IsCancun(0, timestamp) && version >= clparams.DenebVersion { // V3 before cancun
 			return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
 		}
-		if s.config.IsCancun(timestamp) && version < clparams.DenebVersion { // Not V3 after cancun
+		if s.config.IsCancun(0, timestamp) && version < clparams.DenebVersion { // Not V3 after cancun
 			return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
 		}
 	}
