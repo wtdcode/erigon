@@ -125,7 +125,7 @@ func (c *Collector) flushBuffer(canStoreInRam bool) error {
 		if err != nil {
 			return err
 		}
-		c.buf.Prealloc(prevLen/8, prevSize/8)
+		c.buf.Prealloc(prevLen/16, prevSize/16)
 	}
 	if provider != nil {
 		c.dataProviders = append(c.dataProviders, provider)
