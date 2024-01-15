@@ -464,13 +464,13 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	} else {
 		st.state.AddBalance(coinbase, amount)
 	}
-	if !msg.IsFree() && rules.IsLondon {
-		burntContractAddress := st.evm.ChainConfig().GetBurntContract(st.evm.Context.BlockNumber)
-		if burntContractAddress != nil {
-			burnAmount := new(uint256.Int).Mul(new(uint256.Int).SetUint64(st.gasUsed()), st.evm.Context.BaseFee)
-			st.state.AddBalance(*burntContractAddress, burnAmount)
-		}
-	}
+	//if !msg.IsFree() && rules.IsLondon {
+	//	burntContractAddress := st.evm.ChainConfig().GetBurntContract(st.evm.Context.BlockNumber)
+	//	if burntContractAddress != nil {
+	//		burnAmount := new(uint256.Int).Mul(new(uint256.Int).SetUint64(st.gasUsed()), st.evm.Context.BaseFee)
+	//		st.state.AddBalance(*burntContractAddress, burnAmount)
+	//	}
+	//}
 	if st.isBor {
 		// Deprecating transfer log and will be removed in future fork. PLEASE DO NOT USE this transfer log going forward. Parameters won't get updated as expected going forward with EIP1559
 		// add transfer log
