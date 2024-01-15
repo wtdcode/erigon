@@ -3,6 +3,8 @@ package jsonrpc
 import (
 	"context"
 	"fmt"
+	"github.com/ledgerwatch/erigon/consensus"
+	"github.com/ledgerwatch/erigon/eth/stagedsync"
 
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 
@@ -118,6 +120,45 @@ func (api *PrivateDebugAPIImpl) AccountRange(ctx context.Context, blockNrOrHash 
 			blockNumber, err = stages.GetStageProgress(tx, stages.Execution)
 			if err != nil {
 				return state.IteratorDump{}, fmt.Errorf("last block has not found: %w", err)
+			}
+		} else if number == rpc.FinalizedBlockNumber {
+			if posa, isPoSA := api.engine().(consensus.PoSA); isPoSA {
+				headerNumber, err := stages.GetStageProgress(tx, stages.Execution)
+				if err != nil {
+					return state.IteratorDump{}, err
+				}
+				headerHash, err := rawdb.ReadCanonicalHash(tx, headerNumber)
+				if err != nil {
+					return state.IteratorDump{}, err
+				}
+				if headerHash != (common.Hash{}) {
+					if header := rawdb.ReadHeader(tx, headerHash, headerNumber); header != nil {
+						if chainConfig, err := api.chainConfig(tx); err == nil {
+							blockNumber = posa.GetFinalizedHeader(stagedsync.NewChainReaderImpl(chainConfig, tx, nil, nil), header).Number.Uint64()
+						}
+					}
+				}
+			}
+		} else if number == rpc.SafeBlockNumber {
+			if posa, isPoSA := api.engine().(consensus.PoSA); isPoSA {
+				headerNumber, err := stages.GetStageProgress(tx, stages.Execution)
+				if err != nil {
+					return state.IteratorDump{}, err
+				}
+				headerHash, err := rawdb.ReadCanonicalHash(tx, headerNumber)
+				if err != nil {
+					return state.IteratorDump{}, err
+				}
+				if headerHash != (common.Hash{}) {
+					if header := rawdb.ReadHeader(tx, headerHash, headerNumber); header != nil {
+						if chainConfig, err := api.chainConfig(tx); err == nil {
+							blockNumber, _, err = posa.GetJustifiedNumberAndHash(stagedsync.NewChainReaderImpl(chainConfig, tx, nil, nil), header)
+							if err != nil {
+								return state.IteratorDump{}, err
+							}
+						}
+					}
+				}
 			}
 		} else {
 			blockNumber = uint64(number)

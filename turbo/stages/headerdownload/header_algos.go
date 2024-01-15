@@ -8,6 +8,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon-lib/chain"
+	"github.com/ledgerwatch/log/v3"
 	"io"
 	"math/big"
 	"sort"
@@ -233,6 +235,12 @@ func (hd *HeaderDownload) Engine() consensus.Engine {
 	hd.lock.RLock()
 	defer hd.lock.RUnlock()
 	return hd.engine
+}
+
+func (hd *HeaderDownload) ConsensusHeaderReader() consensus.ChainHeaderReader {
+	hd.lock.RLock()
+	defer hd.lock.RUnlock()
+	return hd.consensusHeaderReader
 }
 
 func (hd *HeaderDownload) logAnchorState() {
@@ -815,9 +823,9 @@ func (hd *HeaderDownload) addHeaderAsLink(h ChainSegmentHeader, persisted bool) 
 	return link
 }
 
-func (hi *HeaderInserter) NewFeedHeaderFunc(db kv.StatelessRwTx, headerReader services.HeaderReader) FeedHeaderFunc {
-	return func(header *types.Header, headerRaw []byte, hash libcommon.Hash, blockHeight uint64) (*big.Int, error) {
-		return hi.FeedHeaderPoW(db, headerReader, header, headerRaw, hash, blockHeight)
+func (hi *HeaderInserter) NewFeedHeaderFunc(db kv.StatelessRwTx, headerReader services.HeaderReader, engine consensus.Engine, config chain.Config, consensusHeaderReader consensus.ChainHeaderReader) FeedHeaderFunc {
+	return func(header *types.Header, headerRaw []byte, hash libcommon.Hash, highest uint64) (*big.Int, error) {
+		return hi.FeedHeaderPoW(db, headerReader, header, headerRaw, hash, highest, engine, config, consensusHeaderReader)
 	}
 }
 
@@ -874,7 +882,9 @@ func (hi *HeaderInserter) ForkingPoint(db kv.StatelessRwTx, header, parent *type
 	return
 }
 
-func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader services.HeaderReader, header *types.Header, headerRaw []byte, hash libcommon.Hash, blockHeight uint64) (td *big.Int, err error) {
+func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader services.HeaderReader, header *types.Header, headerRaw []byte, highestHash libcommon.Hash, highest uint64, engine consensus.Engine, config chain.Config, consensusHeaderReader consensus.ChainHeaderReader) (td *big.Int, err error) {
+	blockHeight := header.Number.Uint64()
+	hash := header.Hash()
 	if hash == hi.prevHash {
 		// Skip duplicates
 		return nil, nil
@@ -896,56 +906,93 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 		// Fail on headers without parent
 		return nil, fmt.Errorf("could not find parent with hash %x and height %d for header %x %d", header.ParentHash, blockHeight-1, hash, blockHeight)
 	}
-	// Parent's total difficulty
-	parentTd, err := rawdb.ReadTd(db, header.ParentHash, blockHeight-1)
-	if err != nil || parentTd == nil {
-		return nil, fmt.Errorf("[%s] parent's total difficulty not found with hash %x and height %d for header %x %d: %v", hi.logPrefix, header.ParentHash, blockHeight-1, hash, blockHeight, err)
-	}
-	// Calculate total difficulty of this header using parent's total difficulty
-	td = new(big.Int).Add(parentTd, header.Difficulty)
 
-	// Now we can decide wether this header will create a change in the canonical head
-	if td.Cmp(hi.localTd) >= 0 {
-		reorg := true
-
-		// TODO: Add bor check here if required
-		// Borrowed from https://github.com/maticnetwork/bor/blob/master/core/forkchoice.go#L81
-		if td.Cmp(hi.localTd) == 0 {
-			if blockHeight > hi.highest {
-				reorg = false
-			} else if blockHeight == hi.highest {
-				// Compare hashes of block in case of tie breaker. Lexicographically larger hash wins.
-				reorg = bytes.Compare(hi.highestHash.Bytes(), hash.Bytes()) < 0
-			}
-		}
-
-		if reorg {
-			hi.newCanonical = true
-			forkingPoint, err := hi.ForkingPoint(db, header, parent)
-			if err != nil {
-				return nil, err
-			}
-			hi.highest = blockHeight
-			hi.highestHash = hash
-			hi.highestTimestamp = header.Time
-			hi.canonicalCache.Add(blockHeight, hash)
-			// See if the forking point affects the unwindPoint (the block number to which other stages will need to unwind before the new canonical chain is applied)
-			if forkingPoint < hi.unwindPoint {
-				hi.unwindPoint = forkingPoint
-				hi.unwind = true
-			}
-			// This makes sure we end up choosing the chain with the max total difficulty
-			hi.localTd.Set(td)
-		}
-	}
-	if err = rawdb.WriteTd(db, hash, blockHeight, td); err != nil {
-		return nil, fmt.Errorf("[%s] failed to WriteTd: %w", hi.logPrefix, err)
-	}
 	// skipIndexing=true - because next stages will build indices in-batch (for example StageBlockHash)
 	if err = rawdb.WriteHeaderRaw(db, blockHeight, hash, headerRaw, true); err != nil {
 		return nil, fmt.Errorf("[%s] failed to WriteTd: %w", hi.logPrefix, err)
 	}
 
+	// Parent's total difficulty
+	reorgFunc := func() (bool, error) {
+		if p, ok := engine.(consensus.PoSA); ok {
+			justifiedNumber, curJustifiedNumber := uint64(0), uint64(0)
+			if config.IsPlato(header.Number.Uint64()) {
+				if justifiedNumberGot, _, err := p.GetJustifiedNumberAndHash(consensusHeaderReader, header); err == nil {
+					justifiedNumber = justifiedNumberGot
+				}
+			}
+			if config.IsPlato(hi.highest) {
+				if justifiedNumberGot, _, err := p.GetJustifiedNumberAndHash(consensusHeaderReader, header); err == nil {
+					curJustifiedNumber = justifiedNumberGot
+				}
+			}
+			if justifiedNumber == curJustifiedNumber {
+				// Load parent header
+				parent, err := headerReader.Header(context.Background(), db, header.ParentHash, blockHeight-1)
+				if err != nil {
+					return false, err
+				}
+				if parent == nil {
+					// Fail on headers without parent
+					return false, fmt.Errorf("could not find parent with hash %x and height %d for header %x %d", header.ParentHash, blockHeight-1, hash, blockHeight)
+				}
+				// Parent's total difficulty
+				parentTd, err := rawdb.ReadTd(db, header.ParentHash, blockHeight-1)
+				if err != nil || parentTd == nil {
+					return false, fmt.Errorf("[%s] parent's total difficulty not found with hash %x and height %d for header %x %d: %v", hi.logPrefix, header.ParentHash, blockHeight-1, hash, blockHeight, err)
+				}
+				// Calculate total difficulty of this header using parent's total difficulty
+				td = new(big.Int).Add(parentTd, header.Difficulty)
+				return td.Cmp(hi.localTd) > 0, nil
+			}
+			return justifiedNumber > curJustifiedNumber, nil
+		}
+		return false, nil
+	}
+
+	// Now we can decide wether this header will create a change in the canonical head
+	reorg, err := reorgFunc()
+	if err != nil {
+		log.Error("reorg Error", "Error", err)
+	}
+	canonicalHash, err := rawdb.ReadCanonicalHash(db, blockHeight)
+	if err != nil {
+		log.Warn(fmt.Sprintf("[%s] Get canonicalHash err (IntermediateHashesAt)", hi.logPrefix), "err", err)
+		return nil, err
+	}
+	if hash == canonicalHash && blockHeight <= hi.highest {
+		reorg = false
+	}
+	if reorg {
+		hi.newCanonical = true
+		forkingPoint, err := hi.ForkingPoint(db, header, parent)
+		if err != nil {
+			return nil, err
+		}
+		hi.highest = blockHeight
+		hi.highestHash = hash
+		hi.highestTimestamp = header.Time
+		hi.canonicalCache.Add(blockHeight, hash)
+		// See if the forking point affects the unwindPoint (the block number to which other stages will need to unwind before the new canonical chain is applied)
+		if forkingPoint < hi.unwindPoint {
+			hi.unwindPoint = forkingPoint
+			hi.unwind = true
+		}
+		// This makes sure we end up choosing the chain with the max total difficulty
+		if td == nil {
+			parentTd, err := rawdb.ReadTd(db, header.ParentHash, blockHeight-1)
+			if err != nil || parentTd == nil {
+				return nil, fmt.Errorf("[%s] parent's total difficulty not found with hash %x and height %d for header %x %d: %v", hi.logPrefix, header.ParentHash, blockHeight-1, hash, blockHeight, err)
+			}
+			// Calculate total difficulty of this header using parent's total difficulty
+			td = new(big.Int).Add(parentTd, header.Difficulty)
+		}
+		hi.localTd.Set(td)
+	}
+
+	if err = rawdb.WriteTd(db, hash, blockHeight, td); err != nil {
+		return nil, fmt.Errorf("[%s] failed to WriteTd: %w", hi.logPrefix, err)
+	}
 	hi.prevHash = hash
 	return td, nil
 }
