@@ -116,6 +116,11 @@ func SpawnStageHeaders(
 		}
 		defer tx.Rollback()
 	}
+	if initialCycle {
+		// Set sync upperbound only at the initalCycle to avoid repeated set.
+		cfg.hd.SetStageSyncUpperBound(cfg.StageSyncUpperBound)
+		cfg.hd.SetStageSyncStep(cfg.StageSyncStep)
+	}
 	if initialCycle && cfg.blockReader.FreezingCfg().Enabled {
 		if err := cfg.hd.AddHeadersFromSnapshot(tx, cfg.blockReader); err != nil {
 			return err
