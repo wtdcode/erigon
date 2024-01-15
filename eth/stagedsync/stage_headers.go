@@ -54,6 +54,7 @@ type HeadersCfg struct {
 	syncConfig          ethconfig.Sync
 	loopBreakCheck      func(int) bool
 	StageSyncUpperBound uint64
+	StageSyncStep       uint64
 }
 
 func StageHeadersCfg(
@@ -72,7 +73,7 @@ func StageHeadersCfg(
 	tmpdir string,
 	notifications *shards.Notifications,
 	forkValidator *engine_helpers.ForkValidator,
-	StageSyncUpperBound uint64,
+	StageSyncUpperBound, StageSyncStep uint64,
 	loopBreakCheck func(int) bool) HeadersCfg {
 	return HeadersCfg{
 		db:                  db,
@@ -92,6 +93,7 @@ func StageHeadersCfg(
 		notifications:       notifications,
 		loopBreakCheck:      loopBreakCheck,
 		StageSyncUpperBound: StageSyncUpperBound,
+		StageSyncStep:       StageSyncStep,
 	}
 }
 
@@ -187,7 +189,12 @@ func HeadersPOW(
 	TEMP TESTING */
 	headerInserter := headerdownload.NewHeaderInserter(logPrefix, localTd, startProgress, cfg.blockReader)
 	cfg.hd.SetHeaderReader(&ChainReaderImpl{config: &cfg.chainConfig, tx: tx, blockReader: cfg.blockReader})
-	cfg.hd.SetStageSyncUpperBound(cfg.StageSyncUpperBound)
+	if cfg.StageSyncUpperBound > 0 && cfg.StageSyncStep == 0 {
+		// if sync upperbound enabled but disabled step sync, then set upperbound, otherwise not to avoid repeated set.
+		cfg.hd.SetStageSyncUpperBound(cfg.StageSyncUpperBound)
+	}
+
+	cfg.hd.SetStageSyncStep(cfg.StageSyncStep)
 	stopped := false
 	var noProgressCounter uint = 0
 	prevProgress := startProgress

@@ -265,6 +265,7 @@ type Config struct {
 	DisableTxPoolGossip bool
 
 	StageSyncUpperBound uint64
+	StageSyncStep       uint64
 }
 
 type Sync struct {

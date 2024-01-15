@@ -188,4 +188,5 @@ var DefaultFlags = []cli.Flag{
 	&utils.TxPoolGossipDisableFlag,
 
 	&utils.StageSyncUpperBoundFlag,
+	&utils.StageSyncStepFlag,
 }

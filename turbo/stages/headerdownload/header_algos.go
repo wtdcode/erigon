@@ -524,7 +524,7 @@ func (hd *HeaderDownload) InsertHeader(hf FeedHeaderFunc, terminalTotalDifficult
 	var lastTime uint64
 	if hd.insertQueue.Len() > 0 {
 		link := hd.insertQueue[0]
-		if link.blockHeight > hd.stageSyncUpperBound {
+		if hd.stageSyncUpperBound > 0 && link.blockHeight > hd.stageSyncUpperBound {
 			log.Warn("Link Beyond the specified upper bound, will not insert")
 			return false, true, 0, lastTime, nil
 		}
@@ -1262,6 +1262,11 @@ func (hd *HeaderDownload) SetStageSyncUpperBound(stageSyncUpperBound uint64) {
 	hd.lock.Lock()
 	defer hd.lock.Unlock()
 	hd.stageSyncUpperBound = stageSyncUpperBound
+}
+func (hd *HeaderDownload) SetStageSyncStep(stageSyncStep uint64) {
+	hd.lock.Lock()
+	defer hd.lock.Unlock()
+	hd.stageSyncUpperBound += stageSyncStep
 }
 
 func (hd *HeaderDownload) SetRequestId(requestId int) {

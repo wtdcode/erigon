@@ -838,6 +838,12 @@ var (
 		Value: 0,
 	}
 
+	StageSyncStepFlag = cli.Uint64Flag{
+		Name:  "stage.step",
+		Usage: "step size for stage sync",
+		Value: 0,
+	}
+
 	OtsSearchMaxCapFlag = cli.Uint64Flag{
 		Name:  "ots.search.max.pagesize",
 		Usage: "Max allowed page size for search methods",
@@ -1786,6 +1792,10 @@ func SetEthConfig(ctx *cli.Context, nodeConfig *nodecfg.Config, cfg *ethconfig.C
 
 	if ctx.IsSet(StageSyncUpperBoundFlag.Name) {
 		cfg.StageSyncUpperBound = ctx.Uint64(StageSyncUpperBoundFlag.Name)
+	}
+
+	if ctx.IsSet(StageSyncStepFlag.Name) {
+		cfg.StageSyncStep = ctx.Uint64(StageSyncStepFlag.Name)
 	}
 }
 
