@@ -338,7 +338,32 @@ func handShake(
 			return nil, p2p.NewPeerError(p2p.PeerErrorDiscReason, p2p.DiscQuitting, ctx.Err(), "sentry.handShake ctx.Done")
 		}
 	}
-
+	if version >= direct.ETH67 {
+		extensionRaw, err := (&eth.UpgradeStatusExtension{}).Encode()
+		if err != nil {
+			return nil, p2p.NewPeerError(p2p.PeerErrorStatusDecode, p2p.DiscIncompatibleVersion, err, "")
+		}
+		go func() {
+			err := p2p.Send(rw, eth.UpgradeStatusMsg, &eth.UpgradeStatusPacket{Extension: extensionRaw})
+			if err == nil {
+				errChan <- nil
+			} else {
+				errChan <- p2p.NewPeerError(p2p.PeerErrorStatusDecode, p2p.DiscNetworkError, err, "sentry.handShake failed to send bsc UpgradeStatusMsg")
+			}
+		}()
+		//todo: receive UpgradeStatus from bsc and set txBroadcast
+		//		go func() {
+		//			errc <- p.readUpgradeStatus(&upgradeStatus)
+		//		}()
+		select {
+		case err := <-errChan:
+			if err != nil {
+				return nil, err
+			}
+		case <-timeout.C:
+			return nil, p2p.NewPeerError(p2p.PeerErrorStatusHandshakeTimeout, p2p.DiscReadTimeout, nil, "sentry.handShake send bsc UpgradeStatusMsg timeout")
+		}
+	}
 	peerStatus := <-resultChan
 	return &peerStatus.Head, nil
 }
@@ -530,7 +555,7 @@ func runPeer(
 				logger.Error(fmt.Sprintf("%s: reading msg into bytes: %v", peerID, err))
 			}
 			send(eth.ToProto[protocol][msg.Code], peerID, b)
-		case 11:
+		case eth.UpgradeStatusMsg:
 			// Ignore
 			// TODO: Investigate why BSC peers for eth/67 send these messages
 		default:
