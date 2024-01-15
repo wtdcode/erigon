@@ -923,13 +923,20 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 	reorgFunc := func() (bool, error) {
 		if p, ok := engine.(consensus.PoSA); ok {
 			justifiedNumber, curJustifiedNumber := uint64(0), uint64(0)
-			if config.IsPlato(header.Number.Uint64()) {
+			if config.IsPlato(blockHeight) {
 				if justifiedNumberGot, _, err := p.GetJustifiedNumberAndHash(consensusHeaderReader, header); err == nil {
 					justifiedNumber = justifiedNumberGot
 				}
 			}
-			if config.IsPlato(hi.highest) {
-				if justifiedNumberGot, _, err := p.GetJustifiedNumberAndHash(consensusHeaderReader, header); err == nil {
+			if config.IsPlato(highest) {
+				highestHeader, _ := headerReader.HeaderByNumber(context.Background(), db, highest)
+				if highestHeader == nil {
+					highestHeader, err = headerReader.Header(context.Background(), db, highestHash, highest)
+					if err != nil {
+						log.Error("FeedHeaderPoW Get highestHeader fail", "err", err, "hd.highestInDb", highest)
+					}
+				}
+				if justifiedNumberGot, _, err := p.GetJustifiedNumberAndHash(consensusHeaderReader, highestHeader); err == nil {
 					curJustifiedNumber = justifiedNumberGot
 				}
 			}
