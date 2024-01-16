@@ -133,9 +133,9 @@ func ResetExec(ctx context.Context, db kv.RwDB, chain string, tmpDir string, log
 	historyV3 := kvcfg.HistoryV3.FromDB(db)
 
 	cleanupList := make([]string, 0)
+	cleanupList = append(cleanupList, stateBuckets...)
+	cleanupList = append(cleanupList, stateHistoryBuckets...)
 	if historyV3 {
-		cleanupList = append(cleanupList, stateBuckets...)
-		cleanupList = append(cleanupList, stateHistoryBuckets...)
 		cleanupList = append(cleanupList, stateHistoryV3Buckets...)
 		cleanupList = append(cleanupList, stateV3Buckets...)
 	}

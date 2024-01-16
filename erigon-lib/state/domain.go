@@ -1892,6 +1892,10 @@ func (dc *DomainContext) IteratePrefix(roTx kv.Tx, prefix []byte, it func(k []by
 	heap.Init(&cp)
 	var k, v []byte
 	var err error
+	cc, _ := roTx.Cursor(kv.TblCommitmentKeys)
+	cnt, _ := cc.Count()
+	fmt.Printf("[dbg] cnt1: %d\n", cnt)
+
 	fmt.Printf("a: %s\n", dc.d.keysTable)
 	keysCursor, err := roTx.CursorDupSort(dc.d.keysTable)
 	if err != nil {
