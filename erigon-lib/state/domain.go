@@ -1095,6 +1095,8 @@ func (d *Domain) collectFilesStats() (datsz, idxsz, files uint64) {
 }
 
 func (d *Domain) MakeContext() *DomainContext {
+	_min := d.endTxNumMinimax()
+	fmt.Printf("[dbg] _min: %d, %s\n", _min, d.filenameBase)
 	files := *d.roFiles.Load()
 	for i := 0; i < len(files); i++ {
 		if !files[i].src.frozen {
