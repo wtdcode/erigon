@@ -156,6 +156,9 @@ func ResetExec(ctx context.Context, db kv.RwDB, chain string, tmpDir string, log
 				return err
 			}
 		} else {
+			cc, _ := tx.Cursor(kv.TblCommitmentKeys)
+			cnt, _ := cc.Count()
+			fmt.Printf("[dbg] cnt: %d\n", cnt)
 			v3db := db.(*temporal.DB)
 			agg := v3db.Agg()
 			ct := agg.MakeContext()
