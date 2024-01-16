@@ -570,7 +570,7 @@ func (hd *HeaderDownload) InsertHeader(hf FeedHeaderFunc, terminalTotalDifficult
 			hd.logger.Info(fmt.Sprintf("[%s] Inserting headers", logPrefix), "progress", hd.highestInDb, "queue", hd.insertQueue.Len())
 		default:
 		}
-		td, err := hf(link.header, link.headerRaw, link.hash, link.blockHeight)
+		td, err := hf(link.header, link.headerRaw, hd.highestHashInDb, hd.highestInDb)
 		if err != nil {
 			return false, false, 0, lastTime, err
 		}
@@ -598,6 +598,7 @@ func (hd *HeaderDownload) InsertHeader(hf FeedHeaderFunc, terminalTotalDifficult
 				hd.logger.Info("[downloader] Highest in DB change", "number", link.blockHeight, "hash", link.hash)
 			}
 			hd.highestInDb = link.blockHeight
+			hd.highestHashInDb = link.hash
 		}
 		lastTime = link.header.Time
 		link.persisted = true
@@ -904,6 +905,7 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 		// Already inserted, skip
 		return nil, nil
 	}
+
 	// Load parent header
 	parent, err := headerReader.Header(context.Background(), db, header.ParentHash, blockHeight-1)
 	if err != nil {
@@ -919,7 +921,6 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 		return nil, fmt.Errorf("[%s] failed to WriteTd: %w", hi.logPrefix, err)
 	}
 
-	// Parent's total difficulty
 	reorgFunc := func() (bool, error) {
 		if p, ok := engine.(consensus.PoSA); ok {
 			justifiedNumber, curJustifiedNumber := uint64(0), uint64(0)
@@ -940,19 +941,12 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 					curJustifiedNumber = justifiedNumberGot
 				}
 			}
+			log.Debug(fmt.Sprintf("justifiedNumber = %d, curJustifiedNumber = %d, header.number = %d, hd.highestInDb = %d", justifiedNumber, curJustifiedNumber, blockHeight, highest))
 			if justifiedNumber == curJustifiedNumber {
-				// Load parent header
-				parent, err := headerReader.Header(context.Background(), db, header.ParentHash, blockHeight-1)
-				if err != nil {
-					return false, err
-				}
-				if parent == nil {
-					// Fail on headers without parent
-					return false, fmt.Errorf("could not find parent with hash %x and height %d for header %x %d", header.ParentHash, blockHeight-1, hash, blockHeight)
-				}
 				// Parent's total difficulty
 				parentTd, err := rawdb.ReadTd(db, header.ParentHash, blockHeight-1)
 				if err != nil || parentTd == nil {
+					log.Error(fmt.Sprintf("[%s] parent's total difficulty not found with hash %x and height %d for header %x %d: %v", hi.logPrefix, header.ParentHash, blockHeight-1, hash, blockHeight, err))
 					return false, fmt.Errorf("[%s] parent's total difficulty not found with hash %x and height %d for header %x %d: %v", hi.logPrefix, header.ParentHash, blockHeight-1, hash, blockHeight, err)
 				}
 				// Calculate total difficulty of this header using parent's total difficulty
@@ -963,7 +957,6 @@ func (hi *HeaderInserter) FeedHeaderPoW(db kv.StatelessRwTx, headerReader servic
 		}
 		return false, nil
 	}
-
 	// Now we can decide wether this header will create a change in the canonical head
 	reorg, err := reorgFunc()
 	if err != nil {
