@@ -12,7 +12,6 @@ import (
 	"github.com/ledgerwatch/erigon/core"
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/core/rawdb/blockio"
-	"github.com/ledgerwatch/erigon/core/state/temporal"
 	"github.com/ledgerwatch/erigon/eth/stagedsync"
 	"github.com/ledgerwatch/erigon/eth/stagedsync/stages"
 	"github.com/ledgerwatch/erigon/turbo/backup"
@@ -159,10 +158,6 @@ func ResetExec(ctx context.Context, db kv.RwDB, chain string, tmpDir string, log
 			cc, _ := tx.Cursor(kv.TblCommitmentKeys)
 			cnt, _ := cc.Count()
 			fmt.Printf("[dbg] cnt: %d\n", cnt)
-			v3db := db.(*temporal.DB)
-			agg := v3db.Agg()
-			ct := agg.MakeContext()
-			defer ct.Close()
 			doms := state.NewSharedDomains(tx, logger)
 			defer doms.Close()
 			blockNum := doms.BlockNum()
