@@ -248,10 +248,7 @@ func (ii *InvertedIndex) scanStateFiles(fileNames []string) (garbageFiles []*fil
 
 		startTxNum, endTxNum := startStep*ii.aggregationStep, endStep*ii.aggregationStep
 		var newFile = newFilesItem(startTxNum, endTxNum, ii.aggregationStep)
-		if ii.integrityCheck != nil {
 
-			fmt.Printf("[dbg] scanStateFiles: %s.%d-%d.ef, %t\n", ii.filenameBase, startStep, endStep, ii.integrityCheck(startStep, endStep))
-		}
 		if ii.integrityCheck != nil && !ii.integrityCheck(startStep, endStep) {
 			continue
 		}
