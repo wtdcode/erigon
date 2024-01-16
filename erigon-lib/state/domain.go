@@ -1947,6 +1947,7 @@ func (dc *DomainContext) IteratePrefix(roTx kv.Tx, prefix []byte, it func(k []by
 			if key != nil && bytes.HasPrefix(key, prefix) {
 				val, lofft := g.Next(nil)
 				txNum := item.endTxNum - 1 // !important: .kv files have semantic [from, t)
+				fmt.Printf("[dbg] file: %d\n", g.FileName())
 				heap.Push(&cp, &CursorItem{t: FILE_CURSOR, dg: g, latestOffset: lofft, key: key, val: val, endTxNum: txNum, reverse: true})
 			}
 		}
