@@ -1892,7 +1892,7 @@ func (dc *DomainContext) IteratePrefix(roTx kv.Tx, prefix []byte, it func(k []by
 	heap.Init(&cp)
 	var k, v []byte
 	var err error
-
+	fmt.Printf("a: %s\n", dc.d.keysTable)
 	keysCursor, err := roTx.CursorDupSort(dc.d.keysTable)
 	if err != nil {
 		return err
