@@ -169,24 +169,28 @@ var snapshotCommand = cli.Command{
 				steprm = fmt.Sprintf(".%s.", steprm)
 
 				removed := 0
-				for _, dirPath := range []string{dirs.SnapIdx, dirs.SnapHistory, dirs.SnapDomain, dirs.SnapAccessors} {
-					filePaths, err := dir.ListFiles(dirPath)
-					if err != nil {
-						return err
-					}
-					for _, filePath := range filePaths {
-						_, fName := filepath.Split(filePath)
-						if !strings.Contains(fName, steprm) {
-							continue
-						}
+				for i := 100; i < 400; i++ {
+					steprm = fmt.Sprintf("%d-%d", i, i+1)
 
-						if err := os.Remove(filePath); err != nil {
-							return fmt.Errorf("failed to remove %s: %w", fName, err)
+					for _, dirPath := range []string{dirs.SnapIdx, dirs.SnapHistory, dirs.SnapDomain, dirs.SnapAccessors} {
+						filePaths, err := dir.ListFiles(dirPath)
+						if err != nil {
+							return err
 						}
-						removed++
+						for _, filePath := range filePaths {
+							_, fName := filepath.Split(filePath)
+							if !strings.Contains(fName, steprm) {
+								continue
+							}
+
+							if err := os.Remove(filePath); err != nil {
+								return fmt.Errorf("failed to remove %s: %w", fName, err)
+							}
+							removed++
+						}
 					}
+					fmt.Printf("removed %d state snapshot files\n", removed)
 				}
-				fmt.Printf("removed %d state snapshot files\n", removed)
 				return nil
 			},
 			Flags: joinFlags([]cli.Flag{&utils.DataDirFlag, &cli.StringFlag{Name: "step", Required: true}}),
