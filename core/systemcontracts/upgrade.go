@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ledgerwatch/erigon-lib/chain"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/log/v3"
 
@@ -793,7 +794,7 @@ func init() {
 
 }
 
-func UpgradeBuildInSystemContract(config *chain.Config, blockNumber *big.Int, lastBlockTime uint64, blockTime uint64, statedb *state.IntraBlockState) {
+func UpgradeBuildInSystemContract(config *chain.Config, blockNumber *big.Int, lastBlockTime uint64, blockTime uint64, statedb *state.IntraBlockState, logger log.Logger) {
 	if config == nil || blockNumber == nil || statedb == nil {
 		return
 	}
@@ -807,7 +808,6 @@ func UpgradeBuildInSystemContract(config *chain.Config, blockNumber *big.Int, la
 		network = networkname.DefaultChainName
 	}
 
-	logger := log.New("system-contract-upgrade", network)
 	if config.IsOnRamanujan(blockNumber) {
 		applySystemContractUpgrade(RamanujanUpgrade[network], blockNumber, statedb, logger)
 	}

@@ -255,6 +255,7 @@ type Parlia struct {
 	fakeDiff               bool     // Skip difficulty verifications
 	heightForks, timeForks []uint64 // Forks extracted from the chainConfig
 	blockReader            services.FullBlockReader
+	logger                 log.Logger
 }
 
 // New creates a Parlia consensus engine.
@@ -263,6 +264,7 @@ func New(
 	db kv.RwDB,
 	blockReader services.FullBlockReader,
 	chainDb kv.RwDB,
+	logger log.Logger,
 ) *Parlia {
 	// get parlia config
 	parliaConfig := chainConfig.Parlia
@@ -305,6 +307,7 @@ func New(
 		slashABI:                   sABI,
 		signer:                     types.LatestSigner(chainConfig),
 		blockReader:                blockReader,
+		logger:                     logger,
 	}
 	genesisTime := uint64(0)
 	c.heightForks, c.timeForks = forkid.GatherForks(chainConfig, genesisTime)
@@ -644,7 +647,7 @@ func (p *Parlia) verifyCascadingFields(chain consensus.ChainHeaderReader, header
 
 	// Verify vote attestation for fast finality.
 	if err := p.verifyVoteAttestation(chain, header, parents); err != nil {
-		log.Warn("Verify vote attestation failed", "error", err, "hash", header.Hash(), "number", header.Number,
+		p.logger.Warn("Verify vote attestation failed", "error", err, "hash", header.Hash(), "number", header.Number,
 			"parent", header.ParentHash, "coinbase", header.Coinbase, "extra", common.Bytes2Hex(header.Extra))
 		if chain.Config().IsPlato(header.Number.Uint64()) {
 			return err
@@ -786,7 +789,7 @@ func (p *Parlia) snapshot(chain consensus.ChainHeaderReader, number uint64, hash
 					if err := snap.store(p.db); err != nil {
 						return nil, err
 					}
-					log.Info("Stored checkpoint snapshot to disk", "number", number, "hash", hash)
+					p.logger.Info("Stored checkpoint snapshot to disk", "number", number, "hash", hash)
 				}
 				break
 			}
@@ -804,7 +807,7 @@ func (p *Parlia) snapshot(chain consensus.ChainHeaderReader, number uint64, hash
 		} else {
 			if doLog && number%100_000 == 0 {
 				// No explicit parents (or no more left), reach out to the database
-				log.Info("[parlia] snapshots build, gather headers", "block", number)
+				p.logger.Info("[parlia] snapshots build, gather headers", "block", number)
 			}
 			header = chain.GetHeader(hash, number)
 			if header == nil {
@@ -919,7 +922,7 @@ func (p *Parlia) verifyValidators(header, parentHeader *types.Header, state *sta
 		}
 	} else {
 		if uint8(validatorsNumber) != header.Extra[extraVanity] {
-			log.Error("verifyValidators failed", "len(validatorsNumber)", validatorsNumber, "header.Extra[extraVanity]", header.Extra[extraVanity])
+			p.logger.Error("verifyValidators failed", "len(validatorsNumber)", validatorsNumber, "header.Extra[extraVanity]", header.Extra[extraVanity])
 			return errMismatchingEpochValidators
 		}
 		validatorsBytes = make([]byte, validatorsNumber*validatorBytesLength)
@@ -944,8 +947,10 @@ func (p *Parlia) verifyValidators(header, parentHeader *types.Header, state *sta
 // Initialize runs any pre-transaction state modifications (e.g. epoch start)
 func (p *Parlia) Initialize(config *chain.Config, chain consensus.ChainHeaderReader, header *types.Header,
 	state *state.IntraBlockState, syscall consensus.SysCallCustom, logger log.Logger) {
-	ph := chain.GetHeaderByHash(header.ParentHash)
-	systemcontracts.UpgradeBuildInSystemContract(config, header.Number, ph.Time, header.Time, state)
+	if chain != nil {
+		ph := chain.GetHeaderByHash(header.ParentHash)
+		systemcontracts.UpgradeBuildInSystemContract(config, header.Number, ph.Time, header.Time, state, logger)
+	}
 }
 
 func (p *Parlia) splitTxs(txs types.Transactions, header *types.Header) (userTxs types.Transactions, systemTxs types.Transactions, err error) {
@@ -975,11 +980,11 @@ func (p *Parlia) Finalize(_ *chain.Config, header *types.Header, state *state.In
 	txs types.Transactions, _ []*types.Header, receipts types.Receipts, withdrawals []*types.Withdrawal,
 	chain consensus.ChainReader, syscall consensus.SystemCall, logger log.Logger,
 ) (types.Transactions, types.Receipts, error) {
-	return p.finalize(header, state, txs, receipts, chain, false)
+	return p.finalize(header, state, txs, receipts, chain, false, logger)
 }
 
 func (p *Parlia) finalize(header *types.Header, state *state.IntraBlockState, txs types.Transactions,
-	receipts types.Receipts, chain consensus.ChainHeaderReader, mining bool,
+	receipts types.Receipts, chain consensus.ChainHeaderReader, mining bool, logger log.Logger,
 ) (types.Transactions, types.Receipts, error) {
 	userTxs, systemTxs, err := p.splitTxs(txs, header)
 	if err != nil {
@@ -1009,8 +1014,8 @@ func (p *Parlia) finalize(header *types.Header, state *state.IntraBlockState, tx
 	// No block rewards in PoA, so the state remains as is and uncles are dropped
 	if number == 1 {
 		var err error
-		if txs, systemTxs, receipts, err = p.initContract(state, header, txs, receipts, systemTxs, &header.GasUsed, mining); err != nil {
-			log.Error("[parlia] init contract failed", "err", err)
+		if txs, systemTxs, receipts, err = p.initContract(state, header, txs, receipts, systemTxs, &header.GasUsed, mining, logger); err != nil {
+			p.logger.Error("[parlia] init contract failed", "err", err)
 			return nil, nil, fmt.Errorf("init contract failed: %v", err)
 		}
 	}
@@ -1035,11 +1040,11 @@ func (p *Parlia) finalize(header *types.Header, state *state.IntraBlockState, tx
 			var receipt *types.Receipt
 			if systemTxs, tx, receipt, err = p.slash(spoiledVal, state, header, len(txs), systemTxs, &header.GasUsed, mining); err != nil {
 				// it is possible that slash validator failed because of the slash channel is disabled.
-				log.Error("slash validator failed", "block hash", header.Hash(), "address", spoiledVal, "error", err)
+				p.logger.Error("slash validator failed", "block hash", header.Hash(), "address", spoiledVal, "error", err)
 			} else {
 				txs = append(txs, tx)
 				receipts = append(receipts, receipt)
-				log.Debug("slash successful", "txns", txs.Len(), "receipts", len(receipts), "gasUsed", header.GasUsed)
+				p.logger.Debug("slash successful", "txns", txs.Len(), "receipts", len(receipts), "gasUsed", header.GasUsed)
 			}
 		}
 	}
@@ -1089,7 +1094,7 @@ func (p *Parlia) distributeFinalityReward(chain consensus.ChainHeaderReader, sta
 		}
 		justifiedBlock := chain.GetHeaderByHash(voteAttestation.Data.TargetHash)
 		if justifiedBlock == nil {
-			log.Warn("justifiedBlock is nil at height %d", voteAttestation.Data.TargetNumber)
+			p.logger.Warn("justifiedBlock is nil at height %d", voteAttestation.Data.TargetNumber)
 			continue
 		}
 
@@ -1100,7 +1105,7 @@ func (p *Parlia) distributeFinalityReward(chain consensus.ChainHeaderReader, sta
 		validators := snap.validators()
 		validatorsBitSet := bitset.From([]uint64{uint64(voteAttestation.VoteAddressSet)})
 		if validatorsBitSet.Count() > uint(len(validators)) {
-			log.Error("invalid attestation, vote number larger than validators number")
+			p.logger.Error("invalid attestation, vote number larger than validators number")
 			continue
 		}
 		validVoteCount := 0
@@ -1130,7 +1135,7 @@ func (p *Parlia) distributeFinalityReward(chain consensus.ChainHeaderReader, sta
 	method := "distributeFinalityReward"
 	data, err := p.validatorSetABI.Pack(method, validators, weights)
 	if err != nil {
-		log.Error("Unable to pack tx for distributeFinalityReward", "error", err)
+		p.logger.Error("Unable to pack tx for distributeFinalityReward", "error", err)
 		return nil, nil, nil, err
 	}
 	// (types.Transactions, types.Transaction, *types.Receipt, error)
@@ -1149,7 +1154,7 @@ func (p *Parlia) FinalizeAndAssemble(chainConfig *chain.Config, header *types.He
 	txs types.Transactions, uncles []*types.Header, receipts types.Receipts, withdrawals []*types.Withdrawal,
 	chain consensus.ChainReader, syscall consensus.SystemCall, call consensus.Call, logger log.Logger,
 ) (*types.Block, types.Transactions, types.Receipts, error) {
-	outTxs, outReceipts, err := p.finalize(header, state, txs, receipts, chain, true)
+	outTxs, outReceipts, err := p.finalize(header, state, txs, receipts, chain, true, logger)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -1181,7 +1186,7 @@ func (p *Parlia) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	}
 	// For 0-period chains, refuse to seal empty blocks (no reward but would spin sealing)
 	if p.config.Period == 0 && len(block.Transactions()) == 0 {
-		log.Info("[parlia] Sealing paused, waiting for transactions")
+		p.logger.Info("[parlia] Sealing paused, waiting for transactions")
 		return nil
 	}
 	// Don't hold the val fields for the entire sealing procedure
@@ -1204,7 +1209,7 @@ func (p *Parlia) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		if recent == val {
 			// Signer is among recent, only wait if the current block doesn't shift it out
 			if limit := uint64(len(snap.Validators)/2 + 1); number < limit || seen > number-limit {
-				log.Info("[parlia] Signed recently, must wait for others")
+				p.logger.Info("[parlia] Signed recently, must wait for others")
 				return nil
 			}
 		}
@@ -1213,7 +1218,7 @@ func (p *Parlia) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	// Sweet, the protocol permits us to sign the block, wait for our time
 	delay := p.delayForRamanujanFork(snap, header)
 
-	log.Info("Sealing block with", "number", number, "delay", delay, "headerDifficulty", header.Difficulty, "val", val.Hex(), "headerHash", header.Hash().Hex(), "gasUsed", header.GasUsed, "block txn number", block.Transactions().Len(), "State Root", header.Root)
+	p.logger.Info("Sealing block with", "number", number, "delay", delay, "headerDifficulty", header.Difficulty, "val", val.Hex(), "headerHash", header.Hash().Hex(), "gasUsed", header.GasUsed, "block txn number", block.Transactions().Len(), "State Root", header.Root)
 
 	// Sign all the things!
 	sig, err := signFn(val, crypto.Keccak256(parliaRLP(header, p.chainConfig.ChainID)), p.chainConfig.ChainID)
@@ -1231,20 +1236,20 @@ func (p *Parlia) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		case <-time.After(delay):
 		}
 		if p.shouldWaitForCurrentBlockProcess(p.chainDb, header, snap) {
-			log.Info("[parlia] Waiting for received in turn block to process")
+			p.logger.Info("[parlia] Waiting for received in turn block to process")
 			select {
 			case <-stop:
-				log.Info("[parlia] Received block process finished, abort block seal")
+				p.logger.Info("[parlia] Received block process finished, abort block seal")
 				return
 			case <-time.After(time.Duration(processBackOffTime) * time.Second):
-				log.Info("[parlia] Process backoff time exhausted, start to seal block")
+				p.logger.Info("[parlia] Process backoff time exhausted, start to seal block")
 			}
 		}
 
 		select {
 		case results <- block.WithSeal(header):
 		default:
-			log.Warn("[parlia] Sealing result is not read by miner", "sealhash", SealHash(header, p.chainConfig.ChainID))
+			p.logger.Warn("[parlia] Sealing result is not read by miner", "sealhash", SealHash(header, p.chainConfig.ChainID))
 		}
 	}()
 
@@ -1388,7 +1393,7 @@ func (p *Parlia) getCurrentValidators(header *types.Header, ibs *state.IntraBloc
 
 	data, err := p.validatorSetABI.Pack(method)
 	if err != nil {
-		log.Error("Unable to pack tx for getMiningValidators", "err", err)
+		p.logger.Error("Unable to pack tx for getMiningValidators", "err", err)
 		return nil, nil, err
 	}
 
@@ -1470,7 +1475,7 @@ func (p *Parlia) slash(spoiledVal libcommon.Address, state *state.IntraBlockStat
 		spoiledVal,
 	)
 	if err != nil {
-		log.Error("[parlia] Unable to pack tx for slash", "err", err)
+		p.logger.Error("[parlia] Unable to pack tx for slash", "err", err)
 		return nil, nil, nil, err
 	}
 	// apply message
@@ -1480,7 +1485,7 @@ func (p *Parlia) slash(spoiledVal libcommon.Address, state *state.IntraBlockStat
 // init contract
 func (p *Parlia) initContract(state *state.IntraBlockState, header *types.Header,
 	txs types.Transactions, receipts types.Receipts, systemTxs types.Transactions,
-	usedGas *uint64, mining bool,
+	usedGas *uint64, mining bool, logger log.Logger,
 ) (types.Transactions, types.Transactions, types.Receipts, error) {
 	// method
 	method := "init"
@@ -1497,11 +1502,11 @@ func (p *Parlia) initContract(state *state.IntraBlockState, header *types.Header
 	// get packed data
 	data, err := p.validatorSetABI.Pack(method)
 	if err != nil {
-		log.Error("[parlia] Unable to pack tx for init validator set", "err", err)
+		p.logger.Error("[parlia] Unable to pack tx for init validator set", "err", err)
 		return nil, nil, nil, err
 	}
 	for _, c := range contracts {
-		log.Info("[parlia] init contract", "block hash", header.Hash(), "contract", c)
+		p.logger.Info("[parlia] init contract", "block hash", header.Hash(), "contract", c)
 		var tx types.Transaction
 		var receipt *types.Receipt
 		if systemTxs, tx, receipt, err = p.applyTransaction(header.Coinbase, c, u256.Num0, data, state, header, len(txs), systemTxs, usedGas, mining); err != nil {
@@ -1534,7 +1539,7 @@ func (p *Parlia) distributeToValidator(amount *uint256.Int, validator libcommon.
 		validator,
 	)
 	if err != nil {
-		log.Error("[parlia] Unable to pack tx for deposit", "err", err)
+		p.logger.Error("[parlia] Unable to pack tx for deposit", "err", err)
 		return nil, nil, nil, err
 	}
 	// apply message
@@ -1650,14 +1655,14 @@ func (p *Parlia) GetJustifiedNumberAndHash(chain consensus.ChainHeaderReader, he
 	}
 	snap, err := p.snapshot(chain, header.Number.Uint64(), header.Hash(), nil, true)
 	if err != nil {
-		log.Error("GetJustifiedNumberAndHash snapshot",
+		p.logger.Error("GetJustifiedNumberAndHash snapshot",
 			"error", err, "blockNumber", header.Number.Uint64(), "blockHash", header.Hash())
 		return 0, libcommon.Hash{}, err
 	}
 
 	if snap.Attestation == nil {
 		if p.chainConfig.IsLuban(header.Number.Uint64()) {
-			log.Debug("once one attestation generated, attestation of snap would not be nil forever basically")
+			p.logger.Debug("once one attestation generated, attestation of snap would not be nil forever basically")
 		}
 		return 0, chain.GetHeaderByNumber(0).Hash(), nil
 	}
@@ -1675,7 +1680,7 @@ func (p *Parlia) GetFinalizedHeader(chain consensus.ChainHeaderReader, header *t
 
 	snap, err := p.snapshot(chain, header.Number.Uint64(), header.Hash(), nil, true)
 	if err != nil {
-		log.Error("GetFinalizedHeader snapshot",
+		p.logger.Error("GetFinalizedHeader snapshot",
 			"error", err, "blockNumber", header.Number.Uint64(), "blockHash", header.Hash())
 		return nil
 	}

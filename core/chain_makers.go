@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"math/big"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
@@ -367,9 +368,7 @@ func GenerateChain(config *chain.Config, parent *types.Block, engine consensus.E
 				b.header.Extra = libcommon.CopyBytes(params.DAOForkBlockExtra)
 			}
 		}
-		if b.engine != nil {
-			InitializeBlockExecution(b.engine, nil, b.header, config, ibs, logger)
-		}
+		systemcontracts.UpgradeBuildInSystemContract(config, b.header.Number, b.parent.Time(), b.header.Time, ibs, logger)
 		// Execute any user modifications to the block
 		if gen != nil {
 			gen(i, b)

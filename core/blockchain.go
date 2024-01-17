@@ -19,7 +19,6 @@ package core
 
 import (
 	"fmt"
-	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"time"
 
 	"github.com/ledgerwatch/log/v3"
@@ -86,7 +85,6 @@ func ExecuteBlockEphemerallyForBSC(
 	block.Uncles()
 	ibs := state.New(stateReader)
 	header := block.Header()
-	ph := chainReader.GetHeaderByHash(block.ParentHash())
 
 	usedGas := new(uint64)
 	usedBlobGas := new(uint64)
@@ -103,7 +101,6 @@ func ExecuteBlockEphemerallyForBSC(
 		return nil, err
 	}
 
-	systemcontracts.UpgradeBuildInSystemContract(chainConfig, header.Number, ph.Time, header.Time, ibs)
 	noop := state.NewNoopWriter()
 	posa, isPoSA := engine.(consensus.PoSA)
 	//fmt.Printf("====txs processing start: %d====\n", block.NumberU64())

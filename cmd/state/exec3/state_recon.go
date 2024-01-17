@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"sync"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
@@ -322,10 +321,6 @@ func (rw *ReconWorker) runTxTask(txTask *exec22.TxTask) error {
 		}
 	} else if txTask.TxIndex == -1 {
 		// Block initialisation
-		if rw.isPoSA {
-			parent := rw.chain.GetHeader(txTask.Header.ParentHash, txTask.Header.Number.Uint64()-1)
-			systemcontracts.UpgradeBuildInSystemContract(rw.chainConfig, txTask.Header.Number, parent.Time, txTask.Header.Time, ibs)
-		}
 		syscall := func(contract libcommon.Address, data []byte, ibState *state.IntraBlockState, header *types.Header, constCall bool) ([]byte, error) {
 			return core.SysCallContract(contract, data, rw.chainConfig, ibState, header, rw.engine, constCall /* constCall */)
 		}

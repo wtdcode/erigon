@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"os"
 	"os/signal"
 	"strconv"
@@ -713,7 +714,8 @@ func runBlock(engine consensus.Engine, ibs *state.IntraBlockState, txnWriter sta
 	usedGas := new(uint64)
 	usedBlobGas := new(uint64)
 	var receipts types.Receipts
-	core.InitializeBlockExecution(engine, nil, header, chainConfig, ibs, logger)
+	parent := getHeader(header.ParentHash, header.Number.Uint64()-1)
+	systemcontracts.UpgradeBuildInSystemContract(chainConfig, header.Number, parent.Time, header.Time, ibs, logger)
 	rules := chainConfig.Rules(block.NumberU64(), block.Time())
 	for i, tx := range block.Transactions() {
 		ibs.SetTxContext(tx.Hash(), block.Hash(), i)
