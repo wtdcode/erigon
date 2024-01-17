@@ -19,6 +19,7 @@ import (
 	"math"
 	"math/big"
 	"os"
+	"path"
 	"time"
 
 	"github.com/ledgerwatch/erigon-lib/chain/networkname"
@@ -28,6 +29,11 @@ import (
 
 	"github.com/ledgerwatch/erigon/cl/utils"
 )
+
+type CaplinConfig struct {
+	Backfilling bool
+	Archive     bool
+}
 
 type NetworkType int
 
@@ -45,6 +51,11 @@ const (
 	MaxChunkSize   uint64        = 1 << 20 // 1 MiB
 	ReqTimeout     time.Duration = 10 * time.Second
 	RespTimeout    time.Duration = 15 * time.Second
+)
+
+const (
+	SubDivisionFolderSize = 10_000
+	SlotsPerDump          = 1024
 )
 
 var (
@@ -266,9 +277,9 @@ var CheckpointSyncEndpoints = map[NetworkType][]string{
 		"https://prater-checkpoint-sync.stakely.io/eth/v2/debug/beacon/states/finalized",
 	},
 	SepoliaNetwork: {
-		"https://beaconstate-sepolia.chainsafe.io/eth/v2/debug/beacon/states/finalized",
-		// "https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized",
-		// "https://checkpoint-sync.sepolia.ethpandaops.io/eth/v2/debug/beacon/states/finalized",
+		//"https://beaconstate-sepolia.chainsafe.io/eth/v2/debug/beacon/states/finalized",
+		"https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized",
+		"https://checkpoint-sync.sepolia.ethpandaops.io/eth/v2/debug/beacon/states/finalized",
 	},
 	GnosisNetwork: {
 		"https://checkpoint.gnosis.gateway.fm/eth/v2/debug/beacon/states/finalized",
@@ -297,20 +308,21 @@ type BeaconChainConfig struct {
 	JustificationBitsLength  uint64 `yaml:"JUSTIFICATION_BITS_LENGTH"`   // JustificationBitsLength defines number of epochs to track when implementing k-finality in Casper FFG.
 
 	// Misc constants.
-	PresetBase                     string `yaml:"PRESET_BASE" spec:"true"`                        // PresetBase represents the underlying spec preset this config is based on.
-	ConfigName                     string `yaml:"CONFIG_NAME" spec:"true"`                        // ConfigName for allowing an easy human-readable way of knowing what chain is being used.
-	TargetCommitteeSize            uint64 `yaml:"TARGET_COMMITTEE_SIZE" spec:"true"`              // TargetCommitteeSize is the number of validators in a committee when the chain is healthy.
-	MaxValidatorsPerCommittee      uint64 `yaml:"MAX_VALIDATORS_PER_COMMITTEE" spec:"true"`       // MaxValidatorsPerCommittee defines the upper bound of the size of a committee.
-	MaxCommitteesPerSlot           uint64 `yaml:"MAX_COMMITTEES_PER_SLOT" spec:"true"`            // MaxCommitteesPerSlot defines the max amount of committee in a single slot.
-	MinPerEpochChurnLimit          uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT" spec:"true"`          // MinPerEpochChurnLimit is the minimum amount of churn allotted for validator rotations.
-	ChurnLimitQuotient             uint64 `yaml:"CHURN_LIMIT_QUOTIENT" spec:"true"`               // ChurnLimitQuotient is used to determine the limit of how many validators can rotate per epoch.
-	ShuffleRoundCount              uint64 `yaml:"SHUFFLE_ROUND_COUNT" spec:"true"`                // ShuffleRoundCount is used for retrieving the permuted index.
-	MinGenesisActiveValidatorCount uint64 `yaml:"MIN_GENESIS_ACTIVE_VALIDATOR_COUNT" spec:"true"` // MinGenesisActiveValidatorCount defines how many validator deposits needed to kick off beacon chain.
-	MinGenesisTime                 uint64 `yaml:"MIN_GENESIS_TIME" spec:"true"`                   // MinGenesisTime is the time that needed to pass before kicking off beacon chain.
-	TargetAggregatorsPerCommittee  uint64 `yaml:"TARGET_AGGREGATORS_PER_COMMITTEE" spec:"true"`   // TargetAggregatorsPerCommittee defines the number of aggregators inside one committee.
-	HysteresisQuotient             uint64 `yaml:"HYSTERESIS_QUOTIENT" spec:"true"`                // HysteresisQuotient defines the hysteresis quotient for effective balance calculations.
-	HysteresisDownwardMultiplier   uint64 `yaml:"HYSTERESIS_DOWNWARD_MULTIPLIER" spec:"true"`     // HysteresisDownwardMultiplier defines the hysteresis downward multiplier for effective balance calculations.
-	HysteresisUpwardMultiplier     uint64 `yaml:"HYSTERESIS_UPWARD_MULTIPLIER" spec:"true"`       // HysteresisUpwardMultiplier defines the hysteresis upward multiplier for effective balance calculations.
+	PresetBase                      string `yaml:"PRESET_BASE" spec:"true"`                          // PresetBase represents the underlying spec preset this config is based on.
+	ConfigName                      string `yaml:"CONFIG_NAME" spec:"true"`                          // ConfigName for allowing an easy human-readable way of knowing what chain is being used.
+	TargetCommitteeSize             uint64 `yaml:"TARGET_COMMITTEE_SIZE" spec:"true"`                // TargetCommitteeSize is the number of validators in a committee when the chain is healthy.
+	MaxValidatorsPerCommittee       uint64 `yaml:"MAX_VALIDATORS_PER_COMMITTEE" spec:"true"`         // MaxValidatorsPerCommittee defines the upper bound of the size of a committee.
+	MaxCommitteesPerSlot            uint64 `yaml:"MAX_COMMITTEES_PER_SLOT" spec:"true"`              // MaxCommitteesPerSlot defines the max amount of committee in a single slot.
+	MinPerEpochChurnLimit           uint64 `yaml:"MIN_PER_EPOCH_CHURN_LIMIT" spec:"true"`            // MinPerEpochChurnLimit is the minimum amount of churn allotted for validator rotations.
+	ChurnLimitQuotient              uint64 `yaml:"CHURN_LIMIT_QUOTIENT" spec:"true"`                 // ChurnLimitQuotient is used to determine the limit of how many validators can rotate per epoch.
+	MaxPerEpochActivationChurnLimit uint64 `yaml:"MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT" spec:"true"` // MaxPerEpochActivationChurnLimit defines the maximum amount of churn allowed in one epoch from deneb.
+	ShuffleRoundCount               uint64 `yaml:"SHUFFLE_ROUND_COUNT" spec:"true"`                  // ShuffleRoundCount is used for retrieving the permuted index.
+	MinGenesisActiveValidatorCount  uint64 `yaml:"MIN_GENESIS_ACTIVE_VALIDATOR_COUNT" spec:"true"`   // MinGenesisActiveValidatorCount defines how many validator deposits needed to kick off beacon chain.
+	MinGenesisTime                  uint64 `yaml:"MIN_GENESIS_TIME" spec:"true"`                     // MinGenesisTime is the time that needed to pass before kicking off beacon chain.
+	TargetAggregatorsPerCommittee   uint64 `yaml:"TARGET_AGGREGATORS_PER_COMMITTEE" spec:"true"`     // TargetAggregatorsPerCommittee defines the number of aggregators inside one committee.
+	HysteresisQuotient              uint64 `yaml:"HYSTERESIS_QUOTIENT" spec:"true"`                  // HysteresisQuotient defines the hysteresis quotient for effective balance calculations.
+	HysteresisDownwardMultiplier    uint64 `yaml:"HYSTERESIS_DOWNWARD_MULTIPLIER" spec:"true"`       // HysteresisDownwardMultiplier defines the hysteresis downward multiplier for effective balance calculations.
+	HysteresisUpwardMultiplier      uint64 `yaml:"HYSTERESIS_UPWARD_MULTIPLIER" spec:"true"`         // HysteresisUpwardMultiplier defines the hysteresis upward multiplier for effective balance calculations.
 
 	// Gwei value constants.
 	MinDepositAmount          uint64 `yaml:"MIN_DEPOSIT_AMOUNT" spec:"true"`          // MinDepositAmount is the minimum amount of Gwei a validator can send to the deposit contract at once (lower amounts will be reverted).
@@ -484,6 +496,24 @@ type BeaconChainConfig struct {
 	MaxBuilderEpochMissedSlots       uint64 // MaxBuilderEpochMissedSlots is defines the number of total skip slot (per epoch rolling windows) to fallback from using relay/builder to local execution engine for block construction.
 }
 
+func (b *BeaconChainConfig) RoundSlotToEpoch(slot uint64) uint64 {
+	return slot - (slot % b.SlotsPerEpoch)
+}
+
+func (b *BeaconChainConfig) RoundSlotToSyncCommitteePeriod(slot uint64) uint64 {
+	slotsPerSyncCommitteePeriod := b.SlotsPerEpoch * b.EpochsPerSyncCommitteePeriod
+	return slot - (slot % slotsPerSyncCommitteePeriod)
+}
+
+func (b *BeaconChainConfig) SyncCommitteePeriod(slot uint64) uint64 {
+	return slot / (b.SlotsPerEpoch * b.EpochsPerSyncCommitteePeriod)
+}
+
+func (b *BeaconChainConfig) RoundSlotToVotePeriod(slot uint64) uint64 {
+	p := b.SlotsPerEpoch * b.EpochsPerEth1VotingPeriod
+	return slot - (slot % p)
+}
+
 func (b *BeaconChainConfig) GetCurrentStateVersion(epoch uint64) StateVersion {
 	forkEpochList := []uint64{b.AltairForkEpoch, b.BellatrixForkEpoch, b.CapellaForkEpoch, b.DenebForkEpoch}
 	stateVersion := Phase0Version
@@ -544,18 +574,19 @@ var MainnetBeaconConfig BeaconChainConfig = BeaconChainConfig{
 	GenesisDelay:             604800, // 1 week.
 
 	// Misc constant.
-	TargetCommitteeSize:            128,
-	MaxValidatorsPerCommittee:      2048,
-	MaxCommitteesPerSlot:           64,
-	MinPerEpochChurnLimit:          4,
-	ChurnLimitQuotient:             1 << 16,
-	ShuffleRoundCount:              90,
-	MinGenesisActiveValidatorCount: 16384,
-	MinGenesisTime:                 1606824000, // Dec 1, 2020, 12pm UTC.
-	TargetAggregatorsPerCommittee:  16,
-	HysteresisQuotient:             4,
-	HysteresisDownwardMultiplier:   1,
-	HysteresisUpwardMultiplier:     5,
+	TargetCommitteeSize:             128,
+	MaxValidatorsPerCommittee:       2048,
+	MaxCommitteesPerSlot:            64,
+	MinPerEpochChurnLimit:           4,
+	ChurnLimitQuotient:              1 << 16,
+	MaxPerEpochActivationChurnLimit: 8,
+	ShuffleRoundCount:               90,
+	MinGenesisActiveValidatorCount:  16384,
+	MinGenesisTime:                  1606824000, // Dec 1, 2020, 12pm UTC.
+	TargetAggregatorsPerCommittee:   16,
+	HysteresisQuotient:              4,
+	HysteresisDownwardMultiplier:    1,
+	HysteresisUpwardMultiplier:      5,
 
 	// Gwei value constants.
 	MinDepositAmount:          1 * 1e9,
@@ -795,7 +826,8 @@ func goerliConfig() BeaconChainConfig {
 	cfg.BellatrixForkVersion = 0x02001020
 	cfg.CapellaForkEpoch = 162304
 	cfg.CapellaForkVersion = 0x03001020
-	cfg.DenebForkVersion = 0x40001020
+	cfg.DenebForkEpoch = 231680
+	cfg.DenebForkVersion = 0x04001020
 	cfg.TerminalTotalDifficulty = "10790000"
 	cfg.DepositContractAddress = "0xff50ed3d0ec03aC01D4C79aAd74928BFF48a7b2b"
 	cfg.InitializeForkSchedule()
@@ -851,13 +883,15 @@ func chiadoConfig() BeaconChainConfig {
 	cfg.AltairForkVersion = 0x0100006f
 	cfg.BellatrixForkEpoch = 180
 	cfg.BellatrixForkVersion = 0x0200006f
+	cfg.CapellaForkEpoch = 244224
+	cfg.CapellaForkVersion = 0x0300006f
+	cfg.DenebForkEpoch = 516608
+	cfg.DenebForkVersion = 0x0400006f
 	cfg.TerminalTotalDifficulty = "231707791542740786049188744689299064356246512"
 	cfg.DepositContractAddress = "0xb97036A26259B7147018913bD58a774cf91acf25"
 	cfg.BaseRewardFactor = 25
 	cfg.SlotsPerEpoch = 16
 	cfg.EpochsPerSyncCommitteePeriod = 512
-	cfg.CapellaForkEpoch = math.MaxUint64
-	cfg.DenebForkEpoch = math.MaxUint64
 	cfg.InitializeForkSchedule()
 	return cfg
 }
@@ -941,6 +975,22 @@ func (b *BeaconChainConfig) GetForkVersionByVersion(v StateVersion) uint32 {
 	panic("invalid version")
 }
 
+func (b *BeaconChainConfig) GetForkEpochByVersion(v StateVersion) uint64 {
+	switch v {
+	case Phase0Version:
+		return 0
+	case AltairVersion:
+		return b.AltairForkEpoch
+	case BellatrixVersion:
+		return b.BellatrixForkEpoch
+	case CapellaVersion:
+		return b.CapellaForkEpoch
+	case DenebVersion:
+		return b.DenebForkEpoch
+	}
+	panic("invalid version")
+}
+
 func GetConfigsByNetwork(net NetworkType) (*GenesisConfig, *NetworkConfig, *BeaconChainConfig) {
 	networkConfig := NetworkConfigs[net]
 	genesisConfig := GenesisConfigs[net]
@@ -1003,4 +1053,13 @@ func EmbeddedSupported(id uint64) bool {
 // (sufficient number of light-client peers) as to be enabled by default
 func EmbeddedEnabledByDefault(id uint64) bool {
 	return id == 1 || id == 5 || id == 11155111
+}
+
+func SupportBackfilling(networkId uint64) bool {
+	return networkId == uint64(MainnetNetwork) || networkId == uint64(SepoliaNetwork)
+}
+
+func EpochToPaths(slot uint64, config *BeaconChainConfig, suffix string) (string, string) {
+	folderPath := path.Clean(fmt.Sprintf("%d", slot/SubDivisionFolderSize))
+	return folderPath, path.Clean(fmt.Sprintf("%s/%d.%s.sz", folderPath, slot, suffix))
 }
