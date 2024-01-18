@@ -578,7 +578,7 @@ type StateReaderV3 struct {
 
 func NewStateReaderV3(sd *libstate.SharedDomains) *StateReaderV3 {
 	return &StateReaderV3{
-		//trace:     true,
+		trace:     true,
 		sd:        sd,
 		readLists: newReadList(),
 		composite: make([]byte, 20+32),
@@ -603,7 +603,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 	}
 	if len(enc) == 0 {
 		if r.trace {
-			fmt.Printf("ReadAccountData [%x] => [empty], txNum: %d\n", address, r.txNum)
+			fmt.Printf("1ReadAccountData [%x] => [empty], txNum: %d\n", address, r.txNum)
 		}
 		return nil, nil
 	}
@@ -613,7 +613,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 		return nil, err
 	}
 	if r.trace {
-		fmt.Printf("ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x], txNum: %d\n", address, acc.Nonce, &acc.Balance, acc.CodeHash, r.txNum)
+		fmt.Printf("1ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x], txNum: %d\n", address, acc.Nonce, &acc.Balance, acc.CodeHash, r.txNum)
 	}
 	return &acc, nil
 }
