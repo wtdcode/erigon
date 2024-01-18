@@ -2,7 +2,6 @@ package exec3
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/ledgerwatch/log/v3"
@@ -257,9 +256,6 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		} else {
 			txTask.Failed = applyRes.Failed()
 			txTask.UsedGas = applyRes.UsedGas
-			if txTask.Tx != nil {
-				fmt.Printf("%d, %t, %d\n", txTask.TxIndex, txTask.Failed, txTask.UsedGas*txTask.Tx.GetPrice().Uint64())
-			}
 			// Update the state with pending changes
 			ibs.SoftFinalise()
 			//txTask.Error = ibs.FinalizeTx(rules, noop)
