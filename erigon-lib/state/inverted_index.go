@@ -816,10 +816,16 @@ func (ic *InvertedIndexContext) Seek(key []byte, txNum uint64) (found bool, equa
 		g.Reset(offset)
 		k, _ := g.Next(nil)
 		if !bytes.Equal(k, key) {
+			if traceGetAsOf == ic.ii.filenameBase {
+				fmt.Printf("InvertedIndexContext.Seek(%s, %x, %d) -> key is wrong %s\n", ic.ii.filenameBase, key, txNum, ic.files[i].src.decompressor.FileName())
+			}
 			continue
 		}
 		eliasVal, _ := g.Next(nil)
 		equalOrHigherTxNum, found = eliasfano32.Seek(eliasVal, txNum)
+		if traceGetAsOf == ic.ii.filenameBase {
+			fmt.Printf("InvertedIndexContext.Seek(%s, %x, %d) -> eliasfano32.Seek -> (%d,%t), %s\n", ic.ii.filenameBase, key, txNum, equalOrHigherTxNum, found, ic.files[i].src.decompressor.FileName())
+		}
 
 		if found {
 			return true, equalOrHigherTxNum
