@@ -721,6 +721,10 @@ func (s *ValidatorSafeContract) extractFromEvent(header *types.Header, receipts 
 		fmt.Printf("extractFromEvent111: %d,%d\n", header.Number.Uint64(), len(receipts))
 	}
 
+	if header.Number.Uint64() >= DEBUG_LOG_FROM {
+		fmt.Printf("extractFromEvent3: %d,%x\n", header.Number.Uint64(), s.contractAddress)
+	}
+
 	// iterate in reverse because only the _last_ change in a given
 	// block actually has any effect.
 	// the contract should only increment the nonce once.
@@ -746,9 +750,6 @@ func (s *ValidatorSafeContract) extractFromEvent(header *types.Header, receipts 
 					}
 		*/
 
-		if header.Number.Uint64() >= DEBUG_LOG_FROM {
-			fmt.Printf("extractFromEvent3: %d,%x\n", header.Number.Uint64(), s.contractAddress)
-		}
 		for i := 0; i < len(logs); i++ {
 			l := logs[i]
 			if header.Number.Uint64() >= DEBUG_LOG_FROM {
