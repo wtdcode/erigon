@@ -257,7 +257,9 @@ func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
 		} else {
 			txTask.Failed = applyRes.Failed()
 			txTask.UsedGas = applyRes.UsedGas
-			fmt.Printf("%d, %t, %d\n", txTask.TxIndex, txTask.Failed, txTask.UsedGas)
+			if txTask.Tx != nil {
+				fmt.Printf("%d, %t, %d\n", txTask.TxIndex, txTask.Failed, txTask.UsedGas*txTask.Tx.GetPrice().Uint64())
+			}
 			// Update the state with pending changes
 			ibs.SoftFinalise()
 			//txTask.Error = ibs.FinalizeTx(rules, noop)
