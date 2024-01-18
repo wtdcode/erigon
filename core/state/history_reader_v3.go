@@ -17,7 +17,7 @@ type HistoryReaderV3 struct {
 }
 
 func NewHistoryReaderV3() *HistoryReaderV3 {
-	return &HistoryReaderV3{}
+	return &HistoryReaderV3{trace: true}
 }
 
 func (hr *HistoryReaderV3) SetTx(tx kv.Tx) {
