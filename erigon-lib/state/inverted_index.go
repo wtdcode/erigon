@@ -793,6 +793,9 @@ func (ic *InvertedIndexContext) Seek(key []byte, txNum uint64) (found bool, equa
 
 	for i := 0; i < len(ic.files); i++ {
 		if ic.files[i].endTxNum <= txNum {
+			if traceGetAsOf == ic.ii.filenameBase {
+				fmt.Printf("InvertedIndexContext.Seek(%s, %x, %d) -> skip file %d <= %d, %s\n", ic.ii.filenameBase, key, txNum, ic.files[i].endTxNum, txNum, ic.files[i].src.existence.FileName)
+			}
 			continue
 		}
 		if ic.ii.withExistenceIndex && ic.files[i].src.existence != nil {
