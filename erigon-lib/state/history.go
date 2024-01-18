@@ -1153,6 +1153,9 @@ func (hc *HistoryContext) GetNoState(key []byte, txNum uint64) ([]byte, bool, er
 	// it means II can't return index of file, but can return TxNum which History will use to find own file
 	ok, histTxNum := hc.ic.Seek(key, txNum)
 	if !ok {
+		if traceGetAsOf == hc.h.filenameBase {
+			fmt.Printf("GetAsOf(%s, %x, %d) -> early exit after hc.ic.Seek(key, txNum)\n", hc.h.filenameBase, key, txNum)
+		}
 		return nil, false, nil
 	}
 	historyItem, ok := hc.getFile(histTxNum)
