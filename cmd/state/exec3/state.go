@@ -2,6 +2,7 @@ package exec3
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/ledgerwatch/log/v3"
@@ -151,6 +152,7 @@ func (rw *Worker) SetReader(reader state.ResettableStateReader) {
 }
 
 func (rw *Worker) RunTxTaskNoLock(txTask *state.TxTask) {
+	fmt.Printf("[dbg] %d, %d, %t\n", txTask.BlockNum, txTask.TxIndex, txTask.HistoryExecution)
 	if txTask.HistoryExecution && !rw.historyMode {
 		// in case if we cancelled execution and commitment happened in the middle of the block, we have to process block
 		// from the beginning until committed txNum and only then disable history mode.
