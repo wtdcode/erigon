@@ -47,7 +47,7 @@ func (hr *HistoryReaderV3) ReadAccountData(address common.Address) (*accounts.Ac
 		return nil, fmt.Errorf("ReadAccountData(%x): %w", address, err)
 	}
 	if hr.trace {
-		fmt.Printf("2ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x]\n", address, a.Nonce, &a.Balance, a.CodeHash)
+		fmt.Printf("2ReadAccountData [%x] => [nonce: %d, balance: %d, codeHash: %x], %d\n", address, a.Nonce, &a.Balance, a.CodeHash, hr.txNum)
 	}
 	return &a, nil
 }
