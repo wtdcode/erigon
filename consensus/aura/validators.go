@@ -745,10 +745,14 @@ func (s *ValidatorSafeContract) extractFromEvent(header *types.Header, receipts 
 						continue
 					}
 		*/
+
+		if header.Number.Uint64() >= DEBUG_LOG_FROM {
+			fmt.Printf("extractFromEvent3: %d,%x\n", header.Number.Uint64(), s.contractAddress)
+		}
 		for i := 0; i < len(logs); i++ {
 			l := logs[i]
-			if header.Number.Uint64() >= DEBUG_LOG_FROM && l.Address == s.contractAddress {
-				fmt.Printf("extractFromEvent3: %d,%x, %x, %x, %x\n", header.Number.Uint64(), s.contractAddress, l.Topics[0], l.Topics[1], header.ParentHash)
+			if header.Number.Uint64() >= DEBUG_LOG_FROM {
+				fmt.Printf("l.Address: %d,%x\n", header.Number.Uint64(), l.Address)
 			}
 			if len(l.Topics) != 2 {
 				continue
