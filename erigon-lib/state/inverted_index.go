@@ -797,11 +797,17 @@ func (ic *InvertedIndexContext) Seek(key []byte, txNum uint64) (found bool, equa
 		}
 		if ic.ii.withExistenceIndex && ic.files[i].src.existence != nil {
 			if !ic.files[i].src.existence.ContainsHash(hi) {
+				if traceGetAsOf == ic.ii.filenameBase {
+					fmt.Printf("InvertedIndexContext.Seek(%s, %x, %d) -> exstence=false %s\n", ic.ii.filenameBase, key, txNum, ic.files[i].src.existence.FileName)
+				}
 				continue
 			}
 		}
 		reader := ic.statelessIdxReader(i)
 		if reader.Empty() {
+			if traceGetAsOf == ic.ii.filenameBase {
+				fmt.Printf("InvertedIndexContext.Seek(%s, %x, %d) -> idx reader is empty %s\n", ic.ii.filenameBase, key, txNum, ic.files[i].src.decompressor.FileName())
+			}
 			continue
 		}
 		offset := reader.LookupHash(hi, lo)
