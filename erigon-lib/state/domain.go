@@ -1698,6 +1698,10 @@ func (dc *DomainContext) getLatestFromFiles(filekey []byte) (v []byte, found boo
 // GetAsOf does not always require usage of roTx. If it is possible to determine
 // historical value based only on static files, roTx will not be used.
 func (dc *DomainContext) GetAsOf(key []byte, txNum uint64, roTx kv.Tx) ([]byte, error) {
+	if traceGetAsOf == dc.d.filenameBase {
+		fmt.Printf("1GetAsOf(%s, %x, %d) -> not found in history\n", dc.d.filenameBase, key, txNum)
+	}
+
 	v, hOk, err := dc.hc.GetNoStateWithRecent(key, txNum, roTx)
 	if err != nil {
 		return nil, err
