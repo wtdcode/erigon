@@ -1044,7 +1044,7 @@ func (p *Parlia) finalize(header *types.Header, state *state.IntraBlockState, tx
 			} else {
 				txs = append(txs, tx)
 				receipts = append(receipts, receipt)
-				p.logger.Debug("slash successful", "txns", txs.Len(), "receipts", len(receipts), "gasUsed", header.GasUsed)
+				p.logger.Trace("slash successful", "txns", txs.Len(), "receipts", len(receipts), "gasUsed", header.GasUsed)
 			}
 		}
 	}

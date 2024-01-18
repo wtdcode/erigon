@@ -427,7 +427,7 @@ func (g *Getter) nextPos(clean bool) (pos uint64) {
 		g.dataBit = 0
 	}
 	table := g.posDict
-	if table.bitLen == 0 {
+	if table != nil && table.bitLen == 0 {
 		return table.pos[0]
 	}
 	for l := byte(0); l == 0; {

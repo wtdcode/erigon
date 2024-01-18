@@ -124,7 +124,7 @@ func CheckChangeSets(ctx context.Context, genesis *types.Genesis, snapshotVersio
 	commitEvery := time.NewTicker(30 * time.Second)
 	defer commitEvery.Stop()
 
-	engine := initConsensusEngine(ctx, chainConfig, allSnapshots, blockReader, logger)
+	engine := initConsensusEngine(ctx, chainConfig, allSnapshots, blockReader, chainDb, logger)
 
 	for !interrupt {
 
@@ -278,7 +278,7 @@ func CheckChangeSets(ctx context.Context, genesis *types.Genesis, snapshotVersio
 	return nil
 }
 
-func initConsensusEngine(ctx context.Context, cc *chain2.Config, snapshots *freezeblocks.RoSnapshots, blockReader services.FullBlockReader, logger log.Logger) (engine consensus.Engine) {
+func initConsensusEngine(ctx context.Context, cc *chain2.Config, snapshots *freezeblocks.RoSnapshots, blockReader services.FullBlockReader, chainDb kv.RwDB, logger log.Logger) (engine consensus.Engine) {
 	config := ethconfig.Defaults
 
 	var consensusConfig interface{}
@@ -294,5 +294,5 @@ func initConsensusEngine(ctx context.Context, cc *chain2.Config, snapshots *free
 	} else {
 		consensusConfig = &config.Ethash
 	}
-	return ethconsensusconfig.CreateConsensusEngine(ctx, &nodecfg.Config{Dirs: datadir.New(datadirCli)}, cc, consensusConfig, config.Miner.Notify, config.Miner.Noverify, nil /* heimdallClient */, config.WithoutHeimdall, blockReader, true /* readonly */, logger)
+	return ethconsensusconfig.CreateConsensusEngine(ctx, &nodecfg.Config{Dirs: datadir.New(datadirCli)}, cc, consensusConfig, config.Miner.Notify, config.Miner.Noverify, nil /* heimdallClient */, config.WithoutHeimdall, blockReader, true /* readonly */, logger, chainDb)
 }

@@ -303,11 +303,26 @@ func init() {
 // ActivePrecompiles returns the precompiles enabled with the current configuration.
 func ActivePrecompiles(rules *chain.Rules) []libcommon.Address {
 	switch {
+	case rules.IsHertz:
+		return PrecompiledAddressesHertz
+	case rules.IsPlato:
+		return PrecompiledAddressesPlato
+	case rules.IsLuban:
+		return PrecompiledAddressesLuban
+	case rules.IsPlanck:
+		return PrecompiledAddressesPlanck
+	case rules.IsMoran:
+		return PrecompiledAddressesMoran
+	case rules.IsNano:
+		return PrecompiledAddressesNano
 	case rules.IsCancun:
 		return PrecompiledAddressesCancun
 	case rules.IsBerlin:
 		return PrecompiledAddressesBerlin
 	case rules.IsIstanbul:
+		if rules.IsParlia {
+			return PrecompiledAddressesIstanbulForBSC
+		}
 		return PrecompiledAddressesIstanbul
 	case rules.IsByzantium:
 		return PrecompiledAddressesByzantium
@@ -321,8 +336,7 @@ func ActivePrecompiles(rules *chain.Rules) []libcommon.Address {
 // - the returned bytes,
 // - the _remaining_ gas,
 // - any error that occurred
-func RunPrecompiledContract(p PrecompiledContract, input []byte, suppliedGas uint64,
-) (ret []byte, remainingGas uint64, err error) {
+func RunPrecompiledContract(p PrecompiledContract, input []byte, suppliedGas uint64) (ret []byte, remainingGas uint64, err error) {
 	gasCost := p.RequiredGas(input)
 	if suppliedGas < gasCost {
 		return nil, 0, ErrOutOfGas

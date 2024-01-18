@@ -150,6 +150,8 @@ func CreateConsensusEngineBareBones(ctx context.Context, chainConfig *chain.Conf
 		consensusConfig = chainConfig.Aura
 	} else if chainConfig.Bor != nil {
 		consensusConfig = chainConfig.Bor
+	} else if chainConfig.Parlia != nil {
+		consensusConfig = chainConfig.Parlia
 	} else {
 		var ethashCfg ethashcfg.Config
 		ethashCfg.PowMode = ethashcfg.ModeFake

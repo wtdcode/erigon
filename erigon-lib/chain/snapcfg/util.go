@@ -141,6 +141,7 @@ var knownPreverified = map[string]Preverified{
 	networkname.SepoliaChainName:    Sepolia,
 	networkname.GoerliChainName:     Goerli,
 	networkname.MumbaiChainName:     Mumbai,
+	networkname.AmoyChainName:       Amoy,
 	networkname.BorMainnetChainName: BorMainnet,
 	networkname.GnosisChainName:     Gnosis,
 	networkname.ChiadoChainName:     Chiado,
