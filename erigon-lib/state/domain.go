@@ -1716,12 +1716,12 @@ func (dc *DomainContext) GetAsOf(key []byte, txNum uint64, roTx kv.Tx) ([]byte, 
 		}
 		return v, nil
 	}
-	if traceGetAsOf == dc.d.filenameBase {
-		fmt.Printf("2GetAsOf(%s, %x, %d) -> not found in history\n", dc.d.filenameBase, key, txNum)
-	}
 	v, _, _, err = dc.GetLatest(key, nil, roTx)
 	if err != nil {
 		return nil, err
+	}
+	if traceGetAsOf == dc.d.filenameBase {
+		fmt.Printf("GetAsOf(%s, %x, %d) -> fallback to GetLatest %d\n", dc.d.filenameBase, key, txNum, len(v))
 	}
 	return v, nil
 }
