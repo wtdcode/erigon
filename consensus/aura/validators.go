@@ -747,11 +747,11 @@ func (s *ValidatorSafeContract) extractFromEvent(header *types.Header, receipts 
 		*/
 		for i := 0; i < len(logs); i++ {
 			l := logs[i]
-			if len(l.Topics) != 2 {
-				continue
-			}
 			if header.Number.Uint64() >= DEBUG_LOG_FROM && l.Address == s.contractAddress {
 				fmt.Printf("extractFromEvent3: %d, %x, %x, %x\n", header.Number.Uint64(), l.Topics[0], l.Topics[1], header.ParentHash)
+			}
+			if len(l.Topics) != 2 {
+				continue
 			}
 			found := l.Address == s.contractAddress && l.Topics[0] == EVENT_NAME_HASH && l.Topics[1] == header.ParentHash
 			if !found {
