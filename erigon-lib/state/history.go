@@ -1164,6 +1164,9 @@ func (hc *HistoryContext) GetNoState(key []byte, txNum uint64) ([]byte, bool, er
 	}
 	reader := hc.statelessIdxReader(historyItem.i)
 	if reader.Empty() {
+		if traceGetAsOf == hc.h.filenameBase {
+			fmt.Printf("GetAsOf(%s, %x, %d) -> idx reader is empty\n", hc.h.filenameBase, key, txNum)
+		}
 		return nil, false, nil
 	}
 	offset := reader.Lookup2(hc.encodeTs(histTxNum), key)
