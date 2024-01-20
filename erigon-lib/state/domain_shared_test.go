@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"math/rand"
+	"testing"
+	"time"
+
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/stretchr/testify/require"
-	"math/rand"
-	"testing"
-	"time"
 
 	"github.com/ledgerwatch/erigon-lib/common/length"
 	"github.com/ledgerwatch/erigon-lib/types"
@@ -207,7 +208,7 @@ func TestSharedDomain_IteratePrefix(t *testing.T) {
 		err = rwTx.Commit() // otherwise agg.BuildFiles will not see data
 		require.NoError(err)
 		require.NoError(agg.BuildFiles(stepSize * 2))
-		require.Equal(1, agg.storage.files.Len())
+		require.Equal(1, agg.d[kv.StorageDomain].files.Len())
 
 		ac = agg.MakeContext()
 		defer ac.Close()
