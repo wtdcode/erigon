@@ -292,6 +292,8 @@ func (rw *ReconWorker) runTxTask(txTask *state.TxTask) error {
 	rules, header := txTask.Rules, txTask.Header
 	var err error
 
+	header := txTask.Header
+
 	if txTask.BlockNum == 0 && txTask.TxIndex == -1 {
 		//fmt.Printf("txNum=%d, blockNum=%d, Genesis\n", txTask.TxNum, txTask.BlockNum)
 		// Genesis block
