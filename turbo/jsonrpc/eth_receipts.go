@@ -22,19 +22,16 @@ import (
 	"github.com/ledgerwatch/erigon-lib/kv/order"
 	"github.com/ledgerwatch/erigon-lib/kv/rawdbv3"
 
-	"github.com/ledgerwatch/erigon/consensus"
 	"github.com/ledgerwatch/erigon/consensus/misc"
 	"github.com/ledgerwatch/erigon/core"
 	"github.com/ledgerwatch/erigon/core/rawdb"
 	"github.com/ledgerwatch/erigon/core/state"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/core/vm"
-	"github.com/ledgerwatch/erigon/core/vm/evmtypes"
 	"github.com/ledgerwatch/erigon/eth/filters"
 	"github.com/ledgerwatch/erigon/ethdb/cbor"
 	"github.com/ledgerwatch/erigon/rpc"
 	"github.com/ledgerwatch/erigon/turbo/rpchelper"
-	"github.com/ledgerwatch/erigon/turbo/services"
 	"github.com/ledgerwatch/erigon/turbo/transactions"
 )
 
@@ -425,7 +422,7 @@ func (api *APIImpl) getLogsV3(ctx context.Context, tx kv.TemporalTx, begin, end 
 	if err != nil {
 		return nil, err
 	}
-	exec := txnExecutor(tx, chainConfig, api.engine(), api._blockReader, nil)
+	exec := NewTraceWorker(tx, chainConfig, api.engine(), api._blockReader, nil)
 
 	var blockHash common.Hash
 	var header *types.Header
@@ -453,7 +450,7 @@ func (api *APIImpl) getLogsV3(ctx context.Context, tx kv.TemporalTx, begin, end 
 				continue
 			}
 			blockHash = header.Hash()
-			exec.changeBlock(header)
+			exec.ChangeBlock(header)
 		}
 
 		//fmt.Printf("txNum=%d, blockNum=%d, txIndex=%d, maxTxNumInBlock=%d,mixTxNumInBlock=%d\n", txNum, blockNum, txIndex, maxTxNumInBlock, minTxNumInBlock)
@@ -464,10 +461,12 @@ func (api *APIImpl) getLogsV3(ctx context.Context, tx kv.TemporalTx, begin, end 
 		if txn == nil {
 			continue
 		}
-		rawLogs, _, err := exec.execTx(txNum, txIndex, txn)
+
+		_, err = exec.ExecTxn(txNum, txIndex, txn)
 		if err != nil {
 			return nil, err
 		}
+		rawLogs := exec.GetLogs(txIndex, txn)
 		//TODO: logIndex within the block! no way to calc it now
 		//logIndex := uint(0)
 		//for _, log := range rawLogs {
@@ -486,89 +485,6 @@ func (api *APIImpl) getLogsV3(ctx context.Context, tx kv.TemporalTx, begin, end 
 	//stats := api._agg.GetAndResetStats()
 	//log.Info("Finished", "duration", time.Since(start), "history queries", stats.FilesQueries, "ef search duration", stats.EfSearchTime)
 	return logs, nil
-}
-
-type intraBlockExec struct {
-	ibs         *state.IntraBlockState
-	stateReader *state.HistoryReaderV3
-	engine      consensus.EngineReader
-	tx          kv.TemporalTx
-	br          services.FullBlockReader
-	chainConfig *chain.Config
-	evm         *vm.EVM
-
-	tracer GenericTracer
-
-	// calculated by .changeBlock()
-	blockHash common.Hash
-	blockNum  uint64
-	header    *types.Header
-	blockCtx  *evmtypes.BlockContext
-	rules     *chain.Rules
-	signer    *types.Signer
-	vmConfig  *vm.Config
-}
-
-func txnExecutor(tx kv.TemporalTx, chainConfig *chain.Config, engine consensus.EngineReader, br services.FullBlockReader, tracer GenericTracer) *intraBlockExec {
-	stateReader := state.NewHistoryReaderV3()
-	stateReader.SetTx(tx)
-
-	ie := &intraBlockExec{
-		tx:          tx,
-		engine:      engine,
-		chainConfig: chainConfig,
-		br:          br,
-		stateReader: stateReader,
-		tracer:      tracer,
-		evm:         vm.NewEVM(evmtypes.BlockContext{}, evmtypes.TxContext{}, nil, chainConfig, vm.Config{}),
-		vmConfig:    &vm.Config{},
-		ibs:         state.New(stateReader),
-	}
-	if tracer != nil {
-		ie.vmConfig = &vm.Config{Debug: true, Tracer: tracer}
-	}
-	return ie
-}
-
-func (e *intraBlockExec) changeBlock(header *types.Header) {
-	e.blockNum = header.Number.Uint64()
-	blockCtx := transactions.NewEVMBlockContext(e.engine, header, true /* requireCanonical */, e.tx, e.br)
-	e.blockCtx = &blockCtx
-	e.blockHash = header.Hash()
-	e.header = header
-	e.rules = e.chainConfig.Rules(e.blockNum, header.Time)
-	e.signer = types.MakeSigner(e.chainConfig, e.blockNum, header.Time)
-	e.vmConfig.SkipAnalysis = core.SkipAnalysis(e.chainConfig, e.blockNum)
-}
-
-func (e *intraBlockExec) execTx(txNum uint64, txIndex int, txn types.Transaction) ([]*types.Log, *core.ExecutionResult, error) {
-	e.stateReader.SetTxNum(txNum)
-	txHash := txn.Hash()
-	e.ibs.Reset()
-	e.ibs.SetTxContext(txHash, e.blockHash, txIndex)
-	gp := new(core.GasPool).AddGas(txn.GetGas()).AddBlobGas(txn.GetBlobGas())
-	msg, err := txn.AsMessage(*e.signer, e.header.BaseFee, e.rules)
-	if err != nil {
-		return nil, nil, err
-	}
-	e.evm.ResetBetweenBlocks(*e.blockCtx, core.NewEVMTxContext(msg), e.ibs, *e.vmConfig, e.rules)
-	if msg.FeeCap().IsZero() {
-		// Only zero-gas transactions may be service ones
-		syscall := func(contract common.Address, data []byte) ([]byte, error) {
-			return core.SysCallContract(contract, data, e.chainConfig, e.ibs, e.header, e.engine, true /* constCall */)
-		}
-		msg.SetIsFree(e.engine.IsServiceTransaction(msg.From(), syscall))
-	}
-	res, err := core.ApplyMessage(e.evm, msg, gp, true /* refunds */, false /* gasBailout */)
-	if err != nil {
-		return nil, nil, fmt.Errorf("%w: blockNum=%d, txNum=%d, %s", err, e.blockNum, txNum, e.ibs.Error())
-	}
-	if e.vmConfig.Tracer != nil {
-		if e.tracer.Found() {
-			e.tracer.SetTransaction(txn)
-		}
-	}
-	return e.ibs.GetLogs(txHash), res, nil
 }
 
 // The Topic list restricts matches to particular event topics. Each event has a list
