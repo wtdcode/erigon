@@ -22,9 +22,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 	"reflect"
 	"strings"
+
+	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/hexutility"
@@ -38,6 +39,9 @@ const (
 	// IncarnationLength length of uint64 for contract incarnations
 	IncarnationLength = 8
 )
+
+// This file is included to allow replace github.com/ethereum/go-ethereum => ./
+type Hash libcommon.Hash
 
 // UnprefixedHash allows marshaling a Hash without 0x prefix.
 type UnprefixedHash libcommon.Hash
@@ -53,6 +57,9 @@ func (h UnprefixedHash) MarshalText() ([]byte, error) {
 }
 
 /////////// Address
+
+// This file is included to allow replace github.com/ethereum/go-ethereum => ./
+type Address libcommon.Address
 
 var addressT = reflect.TypeOf(libcommon.Address{})
 
