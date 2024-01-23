@@ -1071,8 +1071,10 @@ func (m *BorMerger) Merge(ctx context.Context, snapshots *BorRoSnapshots, mergeR
 				continue
 			}
 
-			if err := onDelete(toMerge[t.Enum()]); err != nil {
-				return err
+			if onDelete != nil {
+				if err := onDelete(toMerge[t.Enum()]); err != nil {
+					return err
+				}
 			}
 
 		}
