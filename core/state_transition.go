@@ -386,6 +386,17 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	vmConfig := st.evm.Config()
 	isEIP3860 := vmConfig.HasEip3860(rules)
 
+	if rules.IsNano {
+		for _, blackListAddr := range types.NanoBlackList {
+			if blackListAddr == sender.Address() {
+				return nil, fmt.Errorf("block blacklist account")
+			}
+			if msg.To() != nil && *msg.To() == blackListAddr {
+				return nil, fmt.Errorf("block blacklist account")
+			}
+		}
+	}
+
 	// Check clauses 4-5, subtract intrinsic gas if everything is correct
 	gas, err := IntrinsicGas(st.data, st.msg.AccessList(), contractCreation, rules.IsHomestead, rules.IsIstanbul, isEIP3860)
 	if err != nil {
@@ -407,17 +418,6 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	// Check whether the init code size has been exceeded.
 	if isEIP3860 && contractCreation && len(st.data) > params.MaxInitCodeSize {
 		return nil, fmt.Errorf("%w: code size %v limit %v", ErrMaxInitCodeSizeExceeded, len(st.data), params.MaxInitCodeSize)
-	}
-
-	if rules.IsNano {
-		for _, blackListAddr := range types.NanoBlackList {
-			if blackListAddr == sender.Address() {
-				return nil, fmt.Errorf("block blacklist account")
-			}
-			if msg.To() != nil && *msg.To() == blackListAddr {
-				return nil, fmt.Errorf("block blacklist account")
-			}
-		}
 	}
 
 	// Execute the preparatory steps for state transition which includes:
