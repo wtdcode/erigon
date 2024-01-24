@@ -179,13 +179,13 @@ func ExecuteBlockEphemerallyForBSC(
 		newBlock = block
 		receiptSha = types.DeriveSha(receipts)
 	}
-	if block.Number().Uint64() == 66 {
+	if block.Number().Uint64() == 31103034 {
 		result := make([]map[string]interface{}, 0, len(receipts))
 		for _, receipt := range receipts {
 			txn := block.Transactions()[receipt.TransactionIndex]
 			result = append(result, marshalReceipt(receipt, txn, chainConfig, block.HeaderNoCopy(), txn.Hash(), true))
 		}
-		log.Info("block 66", "receipts", result)
+		log.Info("block 31103034", "receipts", result)
 		time.Sleep(10000000000)
 	}
 
