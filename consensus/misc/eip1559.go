@@ -33,7 +33,7 @@ import (
 // - gas limit check
 // - basefee check
 func VerifyEip1559Header(config *chain.Config, parent, header *types.Header, skipGasLimit bool) error {
-	if !skipGasLimit {
+	if !skipGasLimit && config.Parlia == nil {
 		// Verify that the gas limit remains within allowed bounds
 		parentGasLimit := parent.GasLimit
 		if !config.IsLondon(parent.Number.Uint64()) {
