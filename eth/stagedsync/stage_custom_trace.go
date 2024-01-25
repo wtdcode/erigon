@@ -3,9 +3,13 @@ package stagedsync
 import (
 	"context"
 	"fmt"
+	"runtime"
+	"time"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
+	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/wrap"
 	"github.com/ledgerwatch/erigon/cmd/state/exec3"
@@ -78,10 +82,23 @@ func SpawnCustomTrace(s *StageState, txc wrap.TxContainer, cfg CustomTraceCfg, c
 		startBlock++
 	}
 
+	logEvery := time.NewTicker(10 * time.Second)
+	defer logEvery.Stop()
+	var m runtime.MemStats
+	var prevBlockNumLog uint64 = startBlock
+
 	//TODO: new tracer may get tracer from pool, maybe add it to TxTask field
 	if err = exec3.CustomTraceMapReduce(startBlock, endBlock, exec3.TraceConsumer{
 		NewTracer: func() exec3.GenericTracer { return nil },
 		Collect: func(txTask *state.TxTask) error {
+			select {
+			default:
+			case <-logEvery.C:
+				dbg.ReadMemStats(&m)
+				log.Info("Scanned", "block", txTask.BlockNum, "blk/sec", float64(txTask.BlockNum-prevBlockNumLog)/10, "alloc", libcommon.ByteCount(m.Alloc), "sys", libcommon.ByteCount(m.Sys))
+				prevBlockNumLog = txTask.BlockNum
+			}
+
 			return nil
 		},
 	}, ctx, txc.Ttx, cfg.execArgs, logger); err != nil {

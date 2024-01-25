@@ -270,6 +270,7 @@ func NewTraceWorkers2Pool(consumer TraceConsumer, cfg *ExecArgs, ctx context.Con
 
 	//Reducer
 	g.Go(func() error {
+		defer logger.Warn("[dbg] reduce goroutine exit", "toTxNum", toTxNum)
 		tx, err := cfg.ChainDB.BeginRo(ctx)
 		if err != nil {
 			return err
@@ -379,12 +380,17 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 		return h
 	}
 
+	toTxNum, _, err := rawdbv3.TxNums.Max(tx, toBlock)
+	if err != nil {
+		return err
+	}
+
 	// input queue
 	in := state.NewQueueWithRetry(100_000)
 	defer in.Close()
 
 	var WorkerCount = estimate.AlmostAllCPUs() * 2
-	workers := NewTraceWorkers2Pool(consumer, cfg, ctx, toBlock, in, WorkerCount, logger)
+	workers := NewTraceWorkers2Pool(consumer, cfg, ctx, toTxNum, in, WorkerCount, logger)
 	defer workers.Wait()
 
 	inputTxNum, err := rawdbv3.TxNums.Min(tx, fromBlock)
