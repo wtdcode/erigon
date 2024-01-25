@@ -362,6 +362,7 @@ func processResultQueue2(consumer TraceConsumer, rws *state.ResultsQueue, output
 }
 
 func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx context.Context, tx kv.TemporalTx, cfg *ExecArgs, logger log.Logger) error {
+	log.Info("[CustomTraceMapReduce] start", "fromBlock", fromBlock, "toBlock", toBlock)
 	br := cfg.BlockReader
 	chainConfig := cfg.ChainConfig
 	getHeaderFunc := func(hash common.Hash, number uint64) (h *types.Header) {

@@ -1145,7 +1145,6 @@ func stageCustomTrace(db kv.RwDB, ctx context.Context, logger log.Logger) error 
 		if err := reset2.Reset(ctx, db, stages.CustomTrace); err != nil {
 			return err
 		}
-		panic("not implemented")
 		return nil
 	}
 
