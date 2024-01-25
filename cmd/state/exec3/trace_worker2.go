@@ -229,44 +229,24 @@ type ExecArgs struct {
 	ChainConfig *chain.Config
 }
 
-func NewTraceWorkers2Pool(consumer TraceConsumer, cfg *ExecArgs, ctx context.Context, toTxNum uint64, in *state.QueueWithRetry, workerCount int, logger log.Logger) *errgroup.Group {
+func NewTraceWorkers2Pool(consumer TraceConsumer, cfg *ExecArgs, ctx context.Context, toTxNum uint64, in *state.QueueWithRetry, workerCount int, logger log.Logger) (g *errgroup.Group, clearFunc func()) {
 	workers := make([]*TraceWorker2, workerCount)
 
 	resultChSize := workerCount * 8
 	rws := state.NewResultsQueue(resultChSize, workerCount) // workerCount * 4
 	// we all errors in background workers (except ctx.Cancel), because applyLoop will detect this error anyway.
 	// and in applyLoop all errors are critical
-
-	g, ctx := errgroup.WithContext(ctx)
-	g.Go(func() error {
-
-		ctx, cancel := context.WithCancel(ctx)
-		defer cancel()
-		g, ctx := errgroup.WithContext(ctx)
-		for i := 0; i < workerCount; i++ {
-			workers[i] = NewTraceWorker2(consumer, in, rws, ctx, cfg, logger)
-		}
-		for i := 0; i < workerCount; i++ {
-			i := i
-			g.Go(func() error {
-				return workers[i].Run()
-			})
-		}
-
-		var clearDone bool
-		defer func() {
-			if clearDone {
-				return
-			}
-			clearDone = true
-			cancel()
-			g.Wait()
-			for _, w := range workers {
-				w.ResetTx(nil)
-			}
-		}()
-		return g.Wait()
-	})
+	ctx, cancel := context.WithCancel(ctx)
+	g, ctx = errgroup.WithContext(ctx)
+	for i := 0; i < workerCount; i++ {
+		workers[i] = NewTraceWorker2(consumer, in, rws, ctx, cfg, logger)
+	}
+	for i := 0; i < workerCount; i++ {
+		i := i
+		g.Go(func() error {
+			return workers[i].Run()
+		})
+	}
 
 	//Reducer
 	g.Go(func() error {
@@ -296,7 +276,20 @@ func NewTraceWorkers2Pool(consumer TraceConsumer, cfg *ExecArgs, ctx context.Con
 		return nil
 	})
 
-	return g
+	var clearDone bool
+	clearFunc = func() {
+		if clearDone {
+			return
+		}
+		clearDone = true
+		cancel()
+		g.Wait()
+		for _, w := range workers {
+			w.ResetTx(nil)
+		}
+	}
+
+	return g, clearFunc
 }
 
 func processResultQueue2(consumer TraceConsumer, rws *state.ResultsQueue, outputTxNumIn uint64, applyWorker *TraceWorker2, forceStopAtBlockEnd bool) (outputTxNum uint64, stopedAtBlockEnd bool, err error) {
@@ -390,14 +383,18 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 	defer in.Close()
 
 	var WorkerCount = estimate.AlmostAllCPUs() * 2
-	workers := NewTraceWorkers2Pool(consumer, cfg, ctx, toTxNum, in, WorkerCount, logger)
+	workers, cleanup := NewTraceWorkers2Pool(consumer, cfg, ctx, toTxNum, in, WorkerCount, logger)
 	defer workers.Wait()
+	defer cleanup()
 
 	inputTxNum, err := rawdbv3.TxNums.Min(tx, fromBlock)
 	if err != nil {
 		return err
 	}
 	for blockNum := fromBlock; blockNum <= toBlock; blockNum++ {
+		if blockNum%100 != 0 {
+			continue
+		}
 		b, err := blockWithSenders(nil, tx, br, blockNum)
 		if err != nil {
 			return err
