@@ -808,6 +808,9 @@ func UpgradeBuildInSystemContract(config *chain.Config, blockNumber *big.Int, la
 		network = networkname.DefaultChainName
 	}
 
+	if network == networkname.DevChainName {
+		return
+	}
 	if config.IsOnRamanujan(blockNumber) {
 		applySystemContractUpgrade(RamanujanUpgrade[network], blockNumber, statedb, logger)
 	}

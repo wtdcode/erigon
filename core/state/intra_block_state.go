@@ -740,6 +740,7 @@ func (sdb *IntraBlockState) SetTxContext(thash, bhash libcommon.Hash, ti int) {
 	sdb.thash = thash
 	sdb.bhash = bhash
 	sdb.txIndex = ti
+	sdb.accessList = newAccessList()
 }
 
 // no not lock

@@ -244,9 +244,6 @@ func (c *Config) IsGrayGlacier(num uint64) bool {
 
 // IsShanghai returns whether time is either equal to the Shanghai fork time or greater.
 func (c *Config) IsShanghai(num uint64, time uint64) bool {
-	if num == 0 {
-		return isForked(c.ShanghaiTime, time)
-	}
 	return c.IsLondon(num) && isForked(c.ShanghaiTime, time)
 }
 
@@ -260,9 +257,6 @@ func (c *Config) IsAgra(num uint64) bool {
 
 // IsCancun returns whether time is either equal to the Cancun fork time or greater.
 func (c *Config) IsCancun(num uint64, time uint64) bool {
-	if num == 0 {
-		return isForked(c.CancunTime, time)
-	}
 	return c.IsLondon(num) && isForked(c.CancunTime, time)
 }
 
@@ -606,7 +600,7 @@ func (c *Config) checkCompatible(newcfg *Config, head uint64) *ConfigCompatError
 		return newCompatError("hertz fork block", c.HertzBlock, newcfg.HertzBlock)
 	}
 	if incompatible(c.HertzfixBlock, newcfg.HertzfixBlock, head) {
-		return newCompatError("hertz fork block", c.HertzfixBlock, newcfg.HertzfixBlock)
+		return newCompatError("hertzfix fork block", c.HertzfixBlock, newcfg.HertzfixBlock)
 	}
 	return nil
 }

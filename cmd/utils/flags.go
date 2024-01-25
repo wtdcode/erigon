@@ -99,7 +99,7 @@ var (
 	ChainFlag = cli.StringFlag{
 		Name:  "chain",
 		Usage: "name of the network to join",
-		Value: networkname.MainnetChainName,
+		Value: networkname.BSCChainName,
 	}
 	IdentityFlag = cli.StringFlag{
 		Name:  "identity",

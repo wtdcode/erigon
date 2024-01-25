@@ -74,7 +74,7 @@ var (
 	ChiadoGenesisHash     = libcommon.HexToHash("0xada44fd8d2ecab8b08f256af07ad3e777f17fb434f8f8e678b312f576212ba9a")
 	BSCGenesisHash        = libcommon.HexToHash("0x0d21840abff46b96c84b2ac9e10e4f5cdaeb5693cb665db62a2f3b02d2d57b5b")
 	ChapelGenesisHash     = libcommon.HexToHash("0x6d3c66c5357ec91d5c43af47e234a939b22557cbb552dc45bebbceeed90fbe34")
-	RialtoGenesisHash     = libcommon.HexToHash("0x80b449d100d5c0cf46a4aef50d4545933dc9040ffd1b5f0e22475f9855735eb7")
+	RialtoGenesisHash     = libcommon.HexToHash("0x769b541a5e36539a33e2d7c14e6b5c44e6ecd1e0ef13f257bf054710e6b62df4")
 )
 
 var (
