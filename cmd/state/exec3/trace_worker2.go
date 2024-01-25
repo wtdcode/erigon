@@ -380,7 +380,7 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 		return h
 	}
 
-	toTxNum, _, err := rawdbv3.TxNums.Max(tx, toBlock)
+	toTxNum, err := rawdbv3.TxNums.Max(tx, toBlock)
 	if err != nil {
 		return err
 	}
