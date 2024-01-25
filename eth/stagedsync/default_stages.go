@@ -776,6 +776,7 @@ var DefaultUnwindOrder = UnwindOrder{
 	stages.HashState,
 	stages.IntermediateHashes,
 
+	stages.CustomTrace,
 	stages.Execution,
 	stages.Senders,
 
