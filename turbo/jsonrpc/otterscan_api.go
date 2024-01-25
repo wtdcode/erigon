@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	hexutil2 "github.com/ledgerwatch/erigon-lib/common/hexutil"
+	"github.com/ledgerwatch/erigon/cmd/state/exec3"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/holiman/uint256"
@@ -284,7 +285,7 @@ func (api *OtterscanAPIImpl) searchTransactionsBeforeV3(tx kv.TemporalTx, ctx co
 	txNums := iter.Union[uint64](itFrom, itTo, order.Desc, kv.Unlim)
 	txNumsIter := rawdbv3.TxNums2BlockNums(tx, txNums, order.Desc)
 
-	exec := NewTraceWorker(tx, chainConfig, api.engine(), api._blockReader, nil)
+	exec := exec3.NewTraceWorker(tx, chainConfig, api.engine(), api._blockReader, nil)
 	var blockHash common.Hash
 	var header *types.Header
 	txs := make([]*RPCTransaction, 0, pageSize)
