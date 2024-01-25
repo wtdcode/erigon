@@ -70,7 +70,6 @@ func SpawnCustomTrace(s *StageState, txc wrap.TxContainer, cfg CustomTraceCfg, c
 	// in which case it is important that we skip this stage,
 	// or else we could overwrite stage_at with prematureEndBlock
 	if endBlock <= s.BlockNumber {
-		logger.Warn("[dbg]", "endBlock ", endBlock, "s.BlockNumber", s.BlockNumber)
 		return nil
 	}
 
@@ -83,7 +82,6 @@ func SpawnCustomTrace(s *StageState, txc wrap.TxContainer, cfg CustomTraceCfg, c
 	if err = exec3.CustomTraceMapReduce(startBlock, endBlock, exec3.TraceConsumer{
 		NewTracer: func() exec3.GenericTracer { return nil },
 		Collect: func(txTask *state.TxTask) error {
-			fmt.Printf("result: %d\n", txTask.TxIndex)
 			return nil
 		},
 	}, ctx, txc.Ttx, cfg.execArgs, logger); err != nil {
