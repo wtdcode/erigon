@@ -69,6 +69,7 @@ var AllStages = []SyncStage{
 	Bodies,
 	Senders,
 	Execution,
+	CustomTrace,
 	Translation,
 	HashState,
 	IntermediateHashes,
