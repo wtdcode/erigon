@@ -37,9 +37,9 @@ var (
 	startTxNum     uint64
 	traceFromTx    uint64
 
-	_forceSetHistoryV3     bool
-	workers, wreconWorkers uint64
-	snapshotVersion        uint8 = 1
+	_forceSetHistoryV3    bool
+	workers, reconWorkers uint64
+	snapshotVersion       uint8 = 1
 )
 
 func must(err error) {
