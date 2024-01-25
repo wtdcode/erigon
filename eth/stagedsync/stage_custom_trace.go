@@ -74,10 +74,6 @@ func SpawnCustomTrace(s *StageState, txc wrap.TxContainer, cfg CustomTraceCfg, c
 	}
 
 	startBlock := s.BlockNumber
-	pruneTo := cfg.prune.Receipts.PruneTo(endBlock)
-	if startBlock < pruneTo {
-		startBlock = pruneTo
-	}
 	if startBlock > 0 {
 		startBlock++
 	}
