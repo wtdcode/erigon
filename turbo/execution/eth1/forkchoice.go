@@ -310,8 +310,8 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, blockHas
 	}
 
 	// Main steps:
-	// - process new blocks
-	// - commit(no_sync). NoSync - making data available for readers as-soon-as-possible.
+	// - Process new blocks
+	// - Commit(no_sync). NoSync - making data available for readers as-soon-as-possible.
 	// - Send Notifications: about new blocks, new receipts, state changes, etc...
 	// - Prune(limited time)+Commit(sync). Fsync is here.
 
