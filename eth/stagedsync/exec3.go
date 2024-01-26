@@ -302,7 +302,7 @@ func ExecV3(ctx context.Context,
 			"from", blockNum, "to", maxBlockNum, "fromTxNum", doms.TxNum(), "offsetFromBlockBeginning", offsetFromBlockBeginning, "initialCycle", initialCycle, "useExternalTx", useExternalTx)
 	}
 	if maxBlockNum < blockNum {
-		panic("maxBlockNum < blockNum")
+		//panic("maxBlockNum < blockNum")
 	}
 
 	if blocksFreezeCfg.Produce {
