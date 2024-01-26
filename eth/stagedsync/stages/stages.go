@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/ledgerwatch/erigon-lib/kv"
+	"github.com/ledgerwatch/log/v3"
 )
 
 // SyncStage represents the stages of syncronisation in the Mode.StagedSync mode
@@ -89,6 +90,7 @@ func GetStageProgress(db kv.Getter, stage SyncStage) (uint64, error) {
 }
 
 func SaveStageProgress(db kv.Putter, stage SyncStage, progress uint64) error {
+	log.Warn("[dbg] SaveStageProgress", "st", stage, "to", progress)
 	return db.Put(kv.SyncStageProgress, []byte(stage), encodeBigEndian(progress))
 }
 
