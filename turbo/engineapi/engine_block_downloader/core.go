@@ -13,7 +13,7 @@ import (
 func (e *EngineBlockDownloader) download(hashToDownload libcommon.Hash, requestId int, block *types.Block) {
 	/* Start download process*/
 	// First we schedule the headers download process
-	if !e.scheduleHeadersDownload(requestId, hashToDownload, 0) {
+	if !e.scheduleHeadersDownload(requestId, hashToDownload, uint64(e.syncCfg.LoopBlockLimit)) {
 		e.logger.Warn("[EngineBlockDownloader] could not begin header download")
 		// could it be scheduled? if not nevermind.
 		e.status.Store(headerdownload.Idle)
