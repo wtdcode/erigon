@@ -308,6 +308,13 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, blockHas
 			return
 		}
 	}
+
+	// Main steps:
+	// - process new blocks
+	// - commit(no_sync). NoSync - making data available for readers as-soon-as-possible.
+	// - Send Notifications: about new blocks, new receipts, state changes, etc...
+	// - Prune(limited time)+Commit(sync). Write to disk happening here.
+
 	// Run the forkchoice
 	if _, err := e.executionPipeline.Run(e.db, wrap.TxContainer{Tx: tx}, false); err != nil {
 		err = fmt.Errorf("updateForkChoice: %w", err)
