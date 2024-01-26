@@ -3,34 +3,17 @@ package engine_block_downloader
 import (
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/gointerfaces/execution"
-	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/kv/mdbx"
 	"github.com/ledgerwatch/erigon-lib/kv/membatchwithdb"
 	"github.com/ledgerwatch/erigon/core/types"
-	"github.com/ledgerwatch/erigon/eth/stagedsync/stages"
 	"github.com/ledgerwatch/erigon/turbo/stages/headerdownload"
 )
 
 // download is the process that reverse download a specific block hash.
 func (e *EngineBlockDownloader) download(hashToDownload libcommon.Hash, requestId int, block *types.Block) {
-	var heightToDownload uint64
-	if e.syncCfg.LoopBlockLimit > 0 {
-		if err := e.db.View(e.ctx, func(tx kv.Tx) error {
-			headerProgress, err := stages.GetStageProgress(tx, stages.Headers)
-			if err != nil {
-				return err
-			}
-			heightToDownload = headerProgress + uint64(e.syncCfg.LoopBlockLimit)
-			return nil
-		}); err != nil {
-			e.logger.Warn("[EngineBlockDownloader] Could not begin tx", "err", err)
-			e.status.Store(headerdownload.Idle)
-			return
-		}
-	}
-
+	/* Start download process*/
 	// First we schedule the headers download process
-	if !e.scheduleHeadersDownload(requestId, hashToDownload, heightToDownload) {
+	if !e.scheduleHeadersDownload(requestId, hashToDownload, 0) {
 		e.logger.Warn("[EngineBlockDownloader] could not begin header download")
 		// could it be scheduled? if not nevermind.
 		e.status.Store(headerdownload.Idle)
