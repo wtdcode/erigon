@@ -792,7 +792,7 @@ func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout ti
 }
 
 func (a *AggregatorV3) StepsRangeInDBAsStr(tx kv.Tx) string {
-	var steps []string
+	steps := make([]string, 0, kv.DomainLen+4)
 	for _, d := range a.d {
 		steps = append(steps, d.stepsRangeInDBAsStr(tx))
 	}
@@ -818,7 +818,8 @@ func (as *AggregatorPruneStat) String() string {
 			sb.WriteString(fmt.Sprintf("%s| %s; ", kv.Domain(domain).String(), v.String()))
 		}
 	}
-	var names []string
+
+	names := make([]string, 0, 4)
 	for k := range as.Indices {
 		names = append(names, k)
 	}
@@ -1094,7 +1095,7 @@ type SelectedStaticFilesV3 struct {
 }
 
 func (sf SelectedStaticFilesV3) Close() {
-	var clist [][]*filesItem
+	clist := make([][]*filesItem, 0, kv.DomainLen+4)
 	for id := range sf.d {
 		clist = append(clist, sf.d[id], sf.dIdx[id], sf.dHist[id])
 	}
@@ -1173,7 +1174,7 @@ func (mf MergedFilesV3) FrozenList() (frozen []string) {
 	return frozen
 }
 func (mf MergedFilesV3) Close() {
-	var clist []*filesItem
+	clist := make([]*filesItem, 0, kv.DomainLen+4)
 	for id := range mf.d {
 		clist = append(clist, mf.d[id], mf.dHist[id], mf.dIdx[id])
 	}
