@@ -89,6 +89,8 @@ func SpawnRecoverSendersStage(cfg SendersCfg, s *StageState, u Unwinder, tx kv.R
 		return errStart
 	}
 
+	log.Warn("[dbg] senders.to", "prevStageProgress", prevStageProgress, "toBlock", toBlock, "s.BlockNumber", s.BlockNumber)
+
 	var to = prevStageProgress
 	if toBlock > 0 {
 		to = cmp.Min(prevStageProgress, toBlock)
