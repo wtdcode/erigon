@@ -268,6 +268,7 @@ func ExecBlockV3(s *StageState, u Unwinder, txc wrap.TxContainer, toBlock uint64
 	}
 
 	logPrefix := s.LogPrefix()
+	log.Warn("[dbg] to", "prevStageProgress", prevStageProgress, "toBlock", toBlock)
 	var to = prevStageProgress
 	if toBlock > 0 {
 		to = cmp.Min(prevStageProgress, toBlock)
