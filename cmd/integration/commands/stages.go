@@ -1139,7 +1139,6 @@ func stageCustomTrace(db kv.RwDB, ctx context.Context, logger log.Logger) error 
 	defer agg.Close()
 	if warmup {
 		panic("not implemented")
-		return reset2.WarmupExec(ctx, db)
 	}
 	if reset {
 		if err := reset2.Reset(ctx, db, stages.CustomTrace); err != nil {
