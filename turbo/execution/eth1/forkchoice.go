@@ -364,14 +364,19 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, blockHas
 		}
 
 		var commitStart time.Time
-		if err := e.db.Update(ctx, func(tx kv.RwTx) error { return e.executionPipeline.RunPrune(e.db, tx, false) }); err != nil {
-			err = fmt.Errorf("updateForkChoice: %w", err)
-			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
+		if err := e.db.Update(ctx, func(tx kv.RwTx) error {
+			if err := e.executionPipeline.RunPrune(e.db, tx, false); err != nil {
+				return err
+			}
 			if pruneTimings := e.executionPipeline.PrintTimings(); len(pruneTimings) > 0 {
 				e.logger.Warn("[dbg]", "pruneLen", len(pruneTimings), "%v", fmt.Sprintf("%+v", pruneTimings))
 				timings = append(timings, pruneTimings...)
 			}
 			commitStart = time.Now()
+			return nil
+		}); err != nil {
+			err = fmt.Errorf("updateForkChoice: %w", err)
+			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
 			return
 		}
 		var m runtime.MemStats
