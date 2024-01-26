@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
@@ -355,7 +356,7 @@ func processResultQueue2(consumer TraceConsumer, rws *state.ResultsQueue, output
 	return
 }
 
-func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx context.Context, tx kv.TemporalTx, cfg *ExecArgs, logger log.Logger) error {
+func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx context.Context, tx kv.TemporalTx, cfg *ExecArgs, logger log.Logger) (err error) {
 	log.Info("[CustomTraceMapReduce] start", "fromBlock", fromBlock, "toBlock", toBlock)
 	br := cfg.BlockReader
 	chainConfig := cfg.ChainConfig
@@ -387,6 +388,12 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 	defer workers.Wait()
 	defer cleanup()
 
+	workersExited := &atomic.Bool{}
+	go func() {
+		workers.Wait()
+		workersExited.Store(true)
+	}()
+
 	inputTxNum, err := rawdbv3.TxNums.Min(tx, fromBlock)
 	if err != nil {
 		return err
@@ -395,7 +402,8 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 		if blockNum%100 != 0 {
 			continue
 		}
-		b, err := blockWithSenders(nil, tx, br, blockNum)
+		var b *types.Block
+		b, err = blockWithSenders(nil, tx, br, blockNum)
 		if err != nil {
 			return err
 		}
@@ -456,6 +464,9 @@ func CustomTraceMapReduce(fromBlock, toBlock uint64, consumer TraceConsumer, ctx
 					txTask.Sender = &sender
 					logger.Warn("[Execution] expensive lazy sender recovery", "blockNum", txTask.BlockNum, "txIdx", txTask.TxIndex)
 				}
+			}
+			if workersExited.Load() {
+				return workers.Wait()
 			}
 			in.Add(ctx, txTask)
 			inputTxNum++
