@@ -194,17 +194,6 @@ func (rw *TraceWorker2) RunTxTask(txTask *state.TxTask) {
 		}
 		//txTask.Tracer = tracer
 	}
-
-	// Prepare read set, write set and balanceIncrease set and send for serialisation
-	if txTask.Error == nil {
-		//txTask.BalanceIncreaseSet = ibs.BalanceIncreaseSet()
-		//if err = ibs.MakeWriteSet(rules, rw.stateWriter); err != nil {
-		//	panic(err)
-		//}
-		//txTask.ReadLists = rw.stateReader.ReadSet()
-		//txTask.WriteLists = rw.stateWriter.WriteSet()
-		//txTask.AccountPrevs, txTask.AccountDels, txTask.StoragePrevs, txTask.CodePrevs = rw.stateWriter.PrevAndDels()
-	}
 }
 func (rw *TraceWorker2) ResetTx(chainTx kv.Tx) {
 	if rw.background && rw.chainTx != nil {
