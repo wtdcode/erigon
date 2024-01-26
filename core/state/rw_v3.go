@@ -112,13 +112,13 @@ func (rs *StateV3) applyState(txTask *TxTask, domains *libstate.SharedDomains) e
 
 	//maps are unordered in Go! don't iterate over it. SharedDomains.deleteAccount will call GetLatest(Code) and expecting it not been delete yet
 	if txTask.WriteLists != nil {
-		for _, table := range []string{string(kv.AccountsDomain), string(kv.CodeDomain), string(kv.StorageDomain)} {
-			list, ok := txTask.WriteLists[table]
+		for _, table := range []kv.Domain{kv.AccountsDomain, kv.CodeDomain, kv.StorageDomain} {
+			list, ok := txTask.WriteLists[table.String()]
 			if !ok {
 				continue
 			}
 
-			switch kv.Domain(table) {
+			switch table {
 			case kv.AccountsDomain:
 				for i, key := range list.Keys {
 					if list.Vals[i] == nil {
@@ -412,14 +412,14 @@ func (w *StateWriterBufferedV3) UpdateAccountData(address common.Address, origin
 			return err
 		}
 		if err := w.rs.domains.IterateStoragePrefix(address[:], func(k, v []byte, step uint64) error {
-			w.writeLists[string(kv.StorageDomain)].Push(string(k), nil)
+			w.writeLists[kv.StorageDomain.String()].Push(string(k), nil)
 			return nil
 		}); err != nil {
 			return err
 		}
 	}
 	value := accounts.SerialiseV3(account)
-	w.writeLists[string(kv.AccountsDomain)].Push(string(address[:]), value)
+	w.writeLists[kv.AccountsDomain.String()].Push(string(address[:]), value)
 
 	return nil
 }
@@ -428,7 +428,7 @@ func (w *StateWriterBufferedV3) UpdateAccountCode(address common.Address, incarn
 	if w.trace {
 		fmt.Printf("code: %x, %x, valLen: %d\n", address.Bytes(), codeHash, len(code))
 	}
-	w.writeLists[string(kv.CodeDomain)].Push(string(address[:]), code)
+	w.writeLists[kv.CodeDomain.String()].Push(string(address[:]), code)
 	return nil
 }
 
@@ -436,7 +436,7 @@ func (w *StateWriterBufferedV3) DeleteAccount(address common.Address, original *
 	if w.trace {
 		fmt.Printf("del acc: %x\n", address)
 	}
-	w.writeLists[string(kv.AccountsDomain)].Push(string(address.Bytes()), nil)
+	w.writeLists[kv.AccountsDomain.String()].Push(string(address.Bytes()), nil)
 	return nil
 }
 
@@ -445,7 +445,7 @@ func (w *StateWriterBufferedV3) WriteAccountStorage(address common.Address, inca
 		return nil
 	}
 	compositeS := string(append(address.Bytes(), key.Bytes()...))
-	w.writeLists[string(kv.StorageDomain)].Push(compositeS, value.Bytes())
+	w.writeLists[kv.StorageDomain.String()].Push(compositeS, value.Bytes())
 	if w.trace {
 		fmt.Printf("storage: %x,%x,%x\n", address, *key, value.Bytes())
 	}
@@ -676,9 +676,9 @@ func (r *StateReaderV3) ReadAccountIncarnation(address common.Address) (uint64, 
 var writeListPool = sync.Pool{
 	New: func() any {
 		return map[string]*libstate.KvList{
-			string(kv.AccountsDomain): {},
-			string(kv.StorageDomain):  {},
-			string(kv.CodeDomain):     {},
+			kv.AccountsDomain.String(): {},
+			kv.StorageDomain.String():  {},
+			kv.CodeDomain.String():     {},
 		}
 	},
 }
@@ -706,10 +706,10 @@ func returnWriteList(v map[string]*libstate.KvList) {
 var readListPool = sync.Pool{
 	New: func() any {
 		return map[string]*libstate.KvList{
-			string(kv.AccountsDomain):  {},
-			string(kv.CodeDomain):      {},
+			kv.AccountsDomain.String(): {},
+			kv.CodeDomain.String():     {},
 			libstate.CodeSizeTableFake: {},
-			string(kv.StorageDomain):   {},
+			kv.StorageDomain.String():  {},
 		}
 	},
 }
