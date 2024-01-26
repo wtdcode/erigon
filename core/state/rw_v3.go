@@ -599,7 +599,7 @@ func (r *StateReaderV3) ReadAccountData(address common.Address) (*accounts.Accou
 	}
 	if !r.discardReadList {
 		// lifecycle of `r.readList` is less than lifecycle of `r.rs` and `r.tx`, also `r.rs` and `r.tx` do store data immutable way
-		r.readLists[string(kv.AccountsDomain)].Push(string(address[:]), enc)
+		r.readLists[kv.AccountsDomain.String()].Push(string(address[:]), enc)
 	}
 	if len(enc) == 0 {
 		if r.trace {
@@ -625,7 +625,7 @@ func (r *StateReaderV3) ReadAccountStorage(address common.Address, incarnation u
 		return nil, err
 	}
 	if !r.discardReadList {
-		r.readLists[string(kv.StorageDomain)].Push(string(r.composite), enc)
+		r.readLists[kv.StorageDomain.String()].Push(string(r.composite), enc)
 	}
 	if r.trace {
 		if enc == nil {
@@ -644,7 +644,7 @@ func (r *StateReaderV3) ReadAccountCode(address common.Address, incarnation uint
 	}
 
 	if !r.discardReadList {
-		r.readLists[string(kv.CodeDomain)].Push(string(address[:]), enc)
+		r.readLists[kv.CodeDomain.String()].Push(string(address[:]), enc)
 	}
 	if r.trace {
 		fmt.Printf("ReadAccountCode [%x] => [%x], txNum: %d\n", address, enc, r.txNum)
