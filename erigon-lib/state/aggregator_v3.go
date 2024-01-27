@@ -477,13 +477,11 @@ func (sf AggV3StaticFiles) CleanupOnError() {
 	sf.tracesTo.CleanupOnError()
 }
 
-func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
-	a.logger.Debug("[agg] collate and build", "step", step, "collate_workers", a.collateAndBuildWorkers, "merge_workers", a.mergeWorkers, "compress_workers", a.d[kv.AccountsDomain].compressWorkers)
+func (a *AggregatorV3) buildFiles(ctx context.Context) (builtSomething bool, err error) {
+	//a.logger.Debug("[agg] collate and build", "step", step, "collate_workers", a.collateAndBuildWorkers, "merge_workers", a.mergeWorkers, "compress_workers", a.d[kv.AccountsDomain].compressWorkers)
 
 	var (
 		logEvery      = time.NewTicker(time.Second * 30)
-		txFrom        = step * a.aggregationStep
-		txTo          = (step + 1) * a.aggregationStep
 		stepStartedAt = time.Now()
 	)
 
@@ -508,11 +506,39 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(a.collateAndBuildWorkers)
 	for _, d := range a.d {
-		d := d
+		if d == nil {
+			continue
+		}
 
+		dc := d.MakeContext()
+		defer dc.Close()
+		stepInFiles := dc.maxTxNumInDomainFiles(false) / a.aggregationStep // pruned node may have domain files without history
+		step := stepInFiles + 1
+		dc.Close()
+
+		hasDataInDB := false
+		var lastStepInDB uint64
+		if err = a.db.View(ctx, func(tx kv.Tx) error {
+			var ok bool
+			lastStepInDB, ok = d.LastStepInDB(tx)
+			fmt.Printf("[dbg] %s, %d, %t, tryingBuildStep=%d\n", d.filenameBase, lastStepInDB, ok, step)
+			hasDataInDB = ok && lastStepInDB > step
+			return nil
+		}); err != nil {
+			return builtSomething, err
+		}
+		if !hasDataInDB {
+			continue
+		}
+		builtSomething = true
+
+		d := d
 		a.wg.Add(1)
 		g.Go(func() error {
 			defer a.wg.Done()
+
+			txFrom := step * a.aggregationStep
+			txTo := (step + 1) * a.aggregationStep
 
 			var collation Collation
 			if err := a.db.View(ctx, func(tx kv.Tx) (err error) {
@@ -538,7 +564,7 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 			if err != nil {
 				return err
 			}
-			static.d[dd] = sf
+			a.integrateDomainFiles(dd, sf, txFrom, txTo)
 			return nil
 		})
 	}
@@ -546,6 +572,30 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 
 	// indices are built concurrently
 	for _, d := range []*InvertedIndex{a.logTopics, a.logAddrs, a.tracesFrom, a.tracesTo} {
+		if d == nil {
+			continue
+		}
+		ic := d.MakeContext()
+		defer ic.Close()
+		stepInFiles := ic.maxTxNumInFiles(false) / a.aggregationStep
+		step := stepInFiles + 1
+		ic.Close()
+
+		canBuild := false
+		var lastStepInDB uint64
+		if err = a.db.View(ctx, func(tx kv.Tx) error {
+			var ok bool
+			lastStepInDB, ok = d.LastStepInDB(tx)
+			canBuild = ok && lastStepInDB > step
+			return nil
+		}); err != nil {
+			return builtSomething, err
+		}
+		if !canBuild {
+			continue
+		}
+		builtSomething = true
+
 		d := d
 		a.wg.Add(1)
 		g.Go(func() error {
@@ -566,15 +616,17 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 				return err
 			}
 
+			txFrom := step * a.aggregationStep
+			txTo := (step + 1) * a.aggregationStep
 			switch d.indexKeysTable {
 			case kv.TblLogTopicsKeys:
-				static.logTopics = sf
+				a.integrateIdxFiles(kv.LogTopicIdx, sf, txFrom, txTo)
 			case kv.TblLogAddressKeys:
-				static.logAddrs = sf
+				a.integrateIdxFiles(kv.LogAddrIdx, sf, txFrom, txTo)
 			case kv.TblTracesFromKeys:
-				static.tracesFrom = sf
+				a.integrateIdxFiles(kv.TracesFromIdx, sf, txFrom, txTo)
 			case kv.TblTracesToKeys:
-				static.tracesTo = sf
+				a.integrateIdxFiles(kv.TracesToIdx, sf, txFrom, txTo)
 			default:
 				panic("unknown index " + d.indexKeysTable)
 			}
@@ -584,15 +636,20 @@ func (a *AggregatorV3) buildFiles(ctx context.Context, step uint64) error {
 
 	if err := g.Wait(); err != nil {
 		static.CleanupOnError()
-		return fmt.Errorf("domain collate-build: %w", err)
+		return builtSomething, fmt.Errorf("domain collate-build: %w", err)
 	}
 	mxStepTook.ObserveDuration(stepStartedAt)
-	a.integrateFiles(static, txFrom, txTo)
+
+	ac := a.MakeContext()
+	defer ac.Close()
+	stepInFiles := ac.maxTxNumInDomainFiles(false) / a.aggregationStep // pruned node may have domain files without history
+	step := stepInFiles + 1
+	ac.Close()
 	a.aggregatedStep.Store(step)
 
 	a.logger.Info("[snapshots] aggregation", "step", step, "took", time.Since(stepStartedAt))
 
-	return nil
+	return builtSomething, nil
 }
 
 func (a *AggregatorV3) BuildFiles(toTxNum uint64) (err error) {
@@ -675,19 +732,30 @@ func (a *AggregatorV3) MergeLoop(ctx context.Context) error {
 	}
 }
 
-func (a *AggregatorV3) integrateFiles(sf AggV3StaticFiles, txNumFrom, txNumTo uint64) {
+func (a *AggregatorV3) integrateIdxFiles(idx kv.InvertedIdx, f InvertedFiles, txNumFrom, txNumTo uint64) {
 	a.filesMutationLock.Lock()
 	defer a.filesMutationLock.Unlock()
 	defer a.needSaveFilesListInDB.Store(true)
 	defer a.recalcMaxTxNum()
 
-	for id, d := range a.d {
-		d.integrateFiles(sf.d[id], txNumFrom, txNumTo)
+	switch idx {
+	case kv.LogAddrIdx:
+		a.logAddrs.integrateFiles(f, txNumFrom, txNumTo)
+	case kv.LogTopicIdx:
+		a.logTopics.integrateFiles(f, txNumFrom, txNumTo)
+	case kv.TracesFromIdx:
+		a.tracesFrom.integrateFiles(f, txNumFrom, txNumTo)
+	case kv.TracesToIdx:
+		a.tracesTo.integrateFiles(f, txNumFrom, txNumTo)
 	}
-	a.logAddrs.integrateFiles(sf.logAddrs, txNumFrom, txNumTo)
-	a.logTopics.integrateFiles(sf.logTopics, txNumFrom, txNumTo)
-	a.tracesFrom.integrateFiles(sf.tracesFrom, txNumFrom, txNumTo)
-	a.tracesTo.integrateFiles(sf.tracesTo, txNumFrom, txNumTo)
+}
+
+func (a *AggregatorV3) integrateDomainFiles(domain kv.Domain, f StaticFiles, txNumFrom, txNumTo uint64) {
+	a.filesMutationLock.Lock()
+	defer a.filesMutationLock.Unlock()
+	defer a.needSaveFilesListInDB.Store(true)
+	defer a.recalcMaxTxNum()
+	a.d[domain].integrateFiles(f, txNumFrom, txNumTo)
 }
 
 func (a *AggregatorV3) HasNewFrozenFiles() bool {
@@ -795,32 +863,37 @@ func (ac *AggregatorV3Context) Prune(ctx context.Context, tx kv.RwTx) error {
 	}
 	defer mxPruneTookAgg.ObserveDuration(time.Now())
 
-	step, limit := ac.a.aggregatedStep.Load(), uint64(math2.MaxUint64)
-	txTo := (step + 1) * ac.a.aggregationStep
-	var txFrom uint64
+	limit := uint64(math2.MaxUint64)
 
 	logEvery := time.NewTicker(30 * time.Second)
 	defer logEvery.Stop()
-	ac.a.logger.Info("aggregator prune", "step", step,
-		"range", fmt.Sprintf("[%d,%d)", txFrom, txTo), /*"limit", limit,
-		"stepsLimit", limit/ac.a.aggregationStep,*/"stepsRangeInDB", ac.a.StepsRangeInDBAsStr(tx))
+	ac.a.logger.Info("aggregator prune", "stepsRangeInDB", ac.a.StepsRangeInDBAsStr(tx))
 
-	for _, d := range ac.d {
-		if err := d.Prune(ctx, tx, step, txFrom, txTo, limit, logEvery); err != nil {
+	for _, dc := range ac.d {
+		if dc == nil {
+			continue
+		}
+		step := dc.maxTxNumInDomainFiles(false) / dc.d.aggregationStep
+		if !dc.CanPrune(tx, step) {
+			return nil
+		}
+		if err := dc.Prune(ctx, tx, limit, logEvery); err != nil {
 			return err
 		}
 	}
-	if err := ac.logAddrs.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
-		return err
-	}
-	if err := ac.logTopics.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
-		return err
-	}
-	if err := ac.tracesFrom.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
-		return err
-	}
-	if err := ac.tracesTo.Prune(ctx, tx, txFrom, txTo, limit, logEvery, false); err != nil {
-		return err
+
+	for _, ic := range []*InvertedIndexContext{ac.logAddrs, ac.logTopics, ac.tracesFrom, ac.tracesTo} {
+		if ic == nil {
+			continue
+		}
+		step := ic.maxTxNumInFiles(false) / ic.ii.aggregationStep
+		txTo := (step + 1) * ic.ii.aggregationStep
+		if !ic.CanPrune(tx, step) {
+			return nil
+		}
+		if err := ic.Prune(ctx, tx, 0, txTo, limit, logEvery, false); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -1216,7 +1289,6 @@ func (a *AggregatorV3) BuildFilesInBackground(txNum uint64) chan struct{} {
 		return fin
 	}
 
-	step := a.minimaxTxNumInFiles.Load() / a.aggregationStep
 	a.wg.Add(1)
 	go func() {
 		defer a.wg.Done()
@@ -1231,25 +1303,21 @@ func (a *AggregatorV3) BuildFilesInBackground(txNum uint64) chan struct{} {
 			defer a.snapshotBuildSema.Release(1)
 		}
 
-		// check if db has enough data (maybe we didn't commit them yet or all keys are unique so history is empty)
-		lastInDB := lastIdInDB(a.db, a.d[kv.AccountsDomain])
-		hasData := lastInDB > step // `step` must be fully-written - means `step+1` records must be visible
-		if !hasData {
-			close(fin)
-			return
-		}
-
 		// trying to create as much small-step-files as possible:
 		// - to reduce amount of small merges
 		// - to remove old data from db as early as possible
 		// - during files build, may happen commit of new data. on each loop step getting latest id in db
-		for ; step < lastIdInDB(a.db, a.d[kv.AccountsDomain]); step++ { //`step` must be fully-written - means `step+1` records must be visible
-			if err := a.buildFiles(a.ctx, step); err != nil {
+		for { //`step` must be fully-written - means `step+1` records must be visible
+			builtSomething, err := a.buildFiles(a.ctx)
+			if err != nil {
 				if errors.Is(err, context.Canceled) || errors.Is(err, common2.ErrStopped) {
 					close(fin)
 					return
 				}
 				log.Warn("[snapshots] buildFilesInBackground", "err", err)
+				break
+			}
+			if !builtSomething {
 				break
 			}
 		}
@@ -1509,17 +1577,6 @@ func (br *BackgroundResult) GetAndReset() (bool, error) {
 	has, err := br.has, br.err
 	br.has, br.err = false, nil
 	return has, err
-}
-
-// Inverted index tables only
-func lastIdInDB(db kv.RoDB, domain *Domain) (lstInDb uint64) {
-	if err := db.View(context.Background(), func(tx kv.Tx) error {
-		lstInDb = domain.LastStepInDB(tx)
-		return nil
-	}); err != nil {
-		log.Warn("[snapshots] lastIdInDB", "err", err)
-	}
-	return lstInDb
 }
 
 // AggregatorStep is used for incremental reconstitution, it allows

@@ -576,6 +576,22 @@ func (ii *InvertedIndex) closeWhatNotInList(fNames []string) {
 	}
 }
 
+// LastStepInDB - return the latest available step in db (at-least 1 value in such step)
+func (ii *InvertedIndex) LastStepInDB(tx kv.Tx) (lstInDb uint64, ok bool) {
+	lstIdx, _ := kv.LastKey(tx, ii.indexKeysTable)
+	if len(lstIdx) == 0 {
+		return 0, false
+	}
+	return binary.BigEndian.Uint64(lstIdx) / ii.aggregationStep, true
+}
+func (ii *InvertedIndex) FirstStepInDB(tx kv.Tx) (lstInDb uint64) {
+	lstIdx, _ := kv.FirstKey(tx, ii.indexKeysTable)
+	if len(lstIdx) == 0 {
+		return 0
+	}
+	return binary.BigEndian.Uint64(lstIdx) / ii.aggregationStep
+}
+
 func (ii *InvertedIndex) Close() {
 	ii.warmLocalityIdx.Close()
 	ii.coldLocalityIdx.Close()
@@ -935,24 +951,16 @@ func (ic *InvertedIndexContext) iterateRangeFrozen(key []byte, startTxNum, endTx
 	return it, nil
 }
 
-func (ic *InvertedIndexContext) CanPruneFrom(tx kv.Tx) uint64 {
-	fst, _ := kv.FirstKey(tx, ic.ii.indexKeysTable)
-	if len(fst) > 0 {
-		fstInDb := binary.BigEndian.Uint64(fst)
-		return cmp.Min(fstInDb, math.MaxUint64)
+func (ic *InvertedIndexContext) CanPrune(tx kv.Tx, step uint64) bool {
+	lastStep, ok := ic.ii.LastStepInDB(tx)
+	if !ok {
+		return false
 	}
-	return math.MaxUint64
-}
-
-func (ic *InvertedIndexContext) CanPrune(tx kv.Tx) bool {
-	return ic.CanPruneFrom(tx) < ic.maxTxNumInFiles(false)
+	return lastStep > step
 }
 
 // [txFrom; txTo)
 func (ic *InvertedIndexContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom, txTo, limit uint64, logEvery *time.Ticker, omitProgress bool) error {
-	if !ic.CanPrune(rwTx) {
-		return nil
-	}
 	mxPruneInProgress.Inc()
 	defer mxPruneInProgress.Dec()
 

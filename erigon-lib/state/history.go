@@ -1035,10 +1035,6 @@ func (hc *HistoryContext) statelessIdxReader(i int) *recsplit.IndexReader {
 	return r
 }
 
-func (hc *HistoryContext) CanPrune(tx kv.Tx) bool {
-	return hc.ic.CanPruneFrom(tx) < hc.maxTxNumInFiles(false)
-}
-
 // Prune [txFrom; txTo)
 // `force` flag to prune even if CanPrune returns false
 // `useProgress` flag to restore and update prune progress.
@@ -1046,9 +1042,6 @@ func (hc *HistoryContext) CanPrune(tx kv.Tx) bool {
 //     and will wrongly update progress of steps cleaning and could end up with inconsistent history.
 func (hc *HistoryContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom, txTo, limit uint64, forced, omitProgress bool, logEvery *time.Ticker) error {
 	//fmt.Printf(" prune[%s] %t, %d-%d\n", hc.h.filenameBase, hc.CanPrune(rwTx), txFrom, txTo)
-	if !forced && !hc.CanPrune(rwTx) {
-		return nil
-	}
 	defer func(t time.Time) { mxPruneTookHistory.ObserveDuration(t) }(time.Now())
 
 	historyKeysCursorForDeletes, err := rwTx.RwCursorDupSort(hc.h.indexKeysTable)
@@ -1103,7 +1096,7 @@ func (hc *HistoryContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom, txTo,
 			break
 		}
 		if limit == 0 {
-			return nil
+			break
 		}
 		limit--
 

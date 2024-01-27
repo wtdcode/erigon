@@ -416,6 +416,7 @@ const (
 	// corresponding history tables `Tbl{Account,Storage,Code,Commitment}HistoryKeys` for history
 	// and `Tbl{Account,Storage,Code,Commitment}Idx` for inverted indices
 	TblPruningProgress = "PruningProgress"
+	TblDomainProgress  = "DomainProgress"
 
 	Snapshots = "Snapshots" // name -> hash
 

@@ -103,6 +103,8 @@ Loop:
 }
 
 func TestSharedDomain_IteratePrefix(t *testing.T) {
+	//t.Skip("")
+
 	stepSize := uint64(8)
 	require := require.New(t)
 	db, agg := testDbAndAggregatorv3(t, stepSize)

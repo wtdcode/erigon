@@ -381,7 +381,7 @@ func TestDomain_AfterPrune(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, p2, v)
 
-	err = dc.Prune(ctx, tx, 0, 0, 16, math.MaxUint64, logEvery)
+	err = dc.Prune(ctx, tx, math.MaxUint64, logEvery)
 	require.NoError(t, err)
 
 	isEmpty, err := d.isEmpty(tx)
@@ -558,7 +558,7 @@ func TestIterationMultistep(t *testing.T) {
 			d.integrateFiles(sf, step*d.aggregationStep, (step+1)*d.aggregationStep)
 
 			dc := d.MakeContext()
-			err = dc.Prune(ctx, tx, step, step*d.aggregationStep, (step+1)*d.aggregationStep, math.MaxUint64, logEvery)
+			err = dc.Prune(ctx, tx, math.MaxUint64, logEvery)
 			dc.Close()
 			require.NoError(t, err)
 		}()
@@ -616,7 +616,7 @@ func collateAndMerge(t *testing.T, db kv.RwDB, tx kv.RwTx, d *Domain, txs uint64
 		d.integrateFiles(sf, step*d.aggregationStep, (step+1)*d.aggregationStep)
 
 		dc := d.MakeContext()
-		err = dc.Prune(ctx, tx, step, step*d.aggregationStep, (step+1)*d.aggregationStep, math.MaxUint64, logEvery)
+		err = dc.Prune(ctx, tx, math.MaxUint64, logEvery)
 		dc.Close()
 		require.NoError(t, err)
 	}
@@ -665,7 +665,7 @@ func collateAndMergeOnce(t *testing.T, d *Domain, tx kv.RwTx, step uint64) {
 	d.integrateFiles(sf, txFrom, txTo)
 
 	dc := d.MakeContext()
-	err = dc.Prune(ctx, tx, step, txFrom, txTo, math.MaxUint64, logEvery)
+	err = dc.Prune(ctx, tx, math.MaxUint64, logEvery)
 	dc.Close()
 	require.NoError(t, err)
 
@@ -1345,7 +1345,7 @@ func TestDomainContext_getFromFiles(t *testing.T) {
 
 		logEvery := time.NewTicker(time.Second * 30)
 
-		err = dc.Prune(ctx, tx, step, txFrom, txTo, math.MaxUint64, logEvery)
+		err = dc.Prune(ctx, tx, math.MaxUint64, logEvery)
 		require.NoError(t, err)
 
 		ranges := dc.findMergeRange(txFrom, txTo)
@@ -1718,14 +1718,20 @@ func TestDomain_PruneProgress(t *testing.T) {
 	dc = d.MakeContext()
 	defer dc.Close()
 
-	ct, cancel := context.WithTimeout(context.Background(), time.Millisecond*1)
-	err = dc.Prune(ct, rwTx, 0, 0, aggStep, math.MaxUint64, time.NewTicker(time.Second))
+	err = dc.Prune(context.Background(), rwTx, 1, time.NewTicker(time.Second))
+	require.NoError(t, err)
+	step, key, err := GetExecV3PruneProgress(rwTx, dc.d.keysTable)
+	require.NoError(t, err)
+	require.EqualValues(t, 0, step)
+
+	ct, cancel := context.WithTimeout(context.Background(), time.Nanosecond*1)
+	err = dc.Prune(ct, rwTx, math.MaxUint64, time.NewTicker(time.Second))
 	require.ErrorIs(t, err, context.DeadlineExceeded)
 	cancel()
 
-	step, key, err := GetExecV3PruneProgress(rwTx, dc.d.keysTable)
+	step, key, err = GetExecV3PruneProgress(rwTx, dc.d.keysTable)
 	require.NoError(t, err)
-	require.EqualValues(t, ^0, step)
+	require.NotEqualValues(t, 0, step)
 
 	keysCursor, err := rwTx.RwCursorDupSort(dc.d.keysTable)
 	require.NoError(t, err)
@@ -1741,7 +1747,7 @@ func TestDomain_PruneProgress(t *testing.T) {
 		// step changing should not affect pruning. Prune should finish step 0 first.
 		i++
 		ct, cancel := context.WithTimeout(context.Background(), time.Millisecond*2)
-		err = dc.Prune(ct, rwTx, step, step*aggStep, (aggStep*step)+1, math.MaxUint64, time.NewTicker(time.Second))
+		err = dc.Prune(ct, rwTx, math.MaxUint64, time.NewTicker(time.Second))
 		if err != nil {
 			require.ErrorIs(t, err, context.DeadlineExceeded)
 		} else {

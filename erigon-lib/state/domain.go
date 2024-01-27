@@ -404,12 +404,12 @@ func (d *Domain) kvBtFilePath(fromStep, toStep uint64) string {
 }
 
 // LastStepInDB - return the latest available step in db (at-least 1 value in such step)
-func (d *Domain) LastStepInDB(tx kv.Tx) (lstInDb uint64) {
+func (d *Domain) LastStepInDB(tx kv.Tx) (lstInDb uint64, ok bool) {
 	lstIdx, _ := kv.LastKey(tx, d.History.indexKeysTable)
 	if len(lstIdx) == 0 {
-		return 0
+		return 0, false
 	}
-	return binary.BigEndian.Uint64(lstIdx) / d.aggregationStep
+	return binary.BigEndian.Uint64(lstIdx) / d.aggregationStep, true
 }
 func (d *Domain) FirstStepInDB(tx kv.Tx) (lstInDb uint64) {
 	lstIdx, _ := kv.FirstKey(tx, d.History.indexKeysTable)
@@ -2053,16 +2053,20 @@ func (dc *DomainContext) DomainRangeLatest(roTx kv.Tx, fromKey, toKey []byte, li
 	return fit, nil
 }
 
-func (dc *DomainContext) CanPrune(tx kv.Tx) bool {
-	return dc.hc.ic.CanPruneFrom(tx) < dc.maxTxNumInDomainFiles(false)
+func (dc *DomainContext) CanPrune(tx kv.Tx, step uint64) bool {
+	lastStep, ok := dc.d.LastStepInDB(tx)
+	if !ok {
+		return false
+	}
+	return lastStep > step
 }
 
 // history prunes keys in range [txFrom; txTo), domain prunes any records with rStep <= step.
 // In case of context cancellation pruning stops and returns error, but simply could be started again straight away.
-func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, txTo, limit uint64, logEvery *time.Ticker) error {
-	if !dc.CanPrune(rwTx) {
-		return nil
-	}
+func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, limit uint64, logEvery *time.Ticker) error {
+	step := dc.maxTxNumInDomainFiles(false) / dc.d.aggregationStep
+	txTo := (step + 1) * dc.d.aggregationStep
+	txFrom := uint64(0)
 
 	st := time.Now()
 	mxPruneInProgress.Inc()
@@ -2107,7 +2111,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 			continue
 		}
 		if limit == 0 {
-			return nil
+			break
 		}
 		limit--
 
