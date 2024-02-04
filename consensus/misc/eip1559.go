@@ -18,11 +18,8 @@ package misc
 
 import (
 	"fmt"
-	"github.com/ledgerwatch/erigon/consensus/bor/borcfg"
 	"math/big"
 
-
-	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"

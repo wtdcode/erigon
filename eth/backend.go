@@ -518,7 +518,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 	} else if chainConfig.Bor != nil {
 		consensusConfig = chainConfig.Bor
 	} else if chainConfig.Parlia != nil {
-		consensusConfig = chainConfig.Parlia
+		consensusConfig = &config.Parlia
 	} else {
 		consensusConfig = &config.Ethash
 	}
@@ -1116,13 +1116,13 @@ func (s *Ethereum) StartMining(ctx context.Context, db kv.RwDB, stateDiffClient 
 		}
 	}
 	if prl != nil {
-		if cfg.SigKey == nil {
+		if miner.MiningConfig.SigKey == nil {
 			log.Error("Etherbase account unavailable locally", "err", err)
 			return fmt.Errorf("signer missing: %w", err)
 		}
 
 		prl.Authorize(eb, func(validator libcommon.Address, payload []byte, chainId *big.Int) ([]byte, error) {
-			return crypto.Sign(payload, cfg.SigKey)
+			return crypto.Sign(payload, miner.MiningConfig.SigKey)
 		})
 	}
 
