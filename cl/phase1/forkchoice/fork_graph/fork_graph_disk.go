@@ -389,13 +389,13 @@ func (f *forkGraphDisk) GetStateAtSlot(slot uint64, alwaysCopy bool) (*state.Cac
 }
 
 func (f *forkGraphDisk) GetState(blockRoot libcommon.Hash, alwaysCopy bool) (*state.CachingBeaconState, error) {
-	if f.currentStateBlockRoot == blockRoot {
-		if alwaysCopy {
-			ret, err := f.currentState.Copy()
-			return ret, err
-		}
-		return f.currentState, nil
-	}
+	// if f.currentStateBlockRoot == blockRoot {
+	// 	if alwaysCopy {
+	// 		ret, err := f.currentState.Copy()
+	// 		return ret, err
+	// 	}
+	// 	return f.currentState, nil
+	// }
 
 	// collect all blocks beetwen greatest extending node path and block.
 	blocksInTheWay := []*cltypes.SignedBeaconBlock{}
