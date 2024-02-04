@@ -149,7 +149,6 @@ var DefaultFlags = []cli.Flag{
 	&utils.HeimdallURLFlag,
 	&utils.WebSeedsFlag,
 	&utils.WithoutHeimdallFlag,
-	&utils.HeimdallgRPCAddressFlag,
 	&utils.BorBlockPeriodFlag,
 	&utils.BorBlockSizeFlag,
 	&utils.WithHeimdallMilestones,
@@ -189,4 +188,7 @@ var DefaultFlags = []cli.Flag{
 
 	&utils.StageSyncUpperBoundFlag,
 	&utils.StageSyncStepFlag,
+	&SyncLoopBlockLimitFlag,
+	&SyncLoopBreakAfterFlag,
+	&SyncLoopPruneLimitFlag,
 }

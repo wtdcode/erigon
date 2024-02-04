@@ -15,8 +15,9 @@ require (
 	gfx.cafe/util/go/generic v0.0.0-20230721185457-c559e86c829c
 	github.com/99designs/gqlgen v0.17.40
 	github.com/Giulio2002/bls v0.0.0-20230906201036-c2330c97dc7d
+	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/RoaringBitmap/roaring v1.2.3
-	github.com/VictoriaMetrics/fastcache v1.12.1
+	github.com/VictoriaMetrics/fastcache v1.12.2
 	github.com/alecthomas/kong v0.8.0
 	github.com/anacrolix/log v0.14.3-0.20230823030427-4b296d71a6b4
 	github.com/anacrolix/sync v0.4.0
@@ -41,7 +42,7 @@ require (
 	github.com/fjl/gencodec v0.0.0-20220412091415-8bb9e558978c
 	github.com/gballet/go-verkle v0.0.0-20221121182333-31427a1f2d35
 	github.com/gfx-labs/sse v0.0.0-20231226060816-f747e26a9baa
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/cors v1.2.1
 	github.com/goccy/go-json v0.10.2
 	github.com/gofrs/flock v0.8.1
@@ -49,8 +50,9 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb
 	github.com/google/btree v1.1.2
+	github.com/google/cel-go v0.18.2
 	github.com/google/gofuzz v1.2.0
-	github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/hashicorp/golang-lru/arc/v2 v2.0.6
 	github.com/hashicorp/golang-lru/v2 v2.0.6
@@ -91,7 +93,7 @@ require (
 	github.com/tidwall/btree v1.6.0
 	github.com/ugorji/go/codec v1.1.13
 	github.com/ugorji/go/codec/codecgen v1.1.13
-	github.com/urfave/cli/v2 v2.25.7
+	github.com/urfave/cli/v2 v2.27.1
 	github.com/valyala/fastjson v1.6.4
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/willf/bitset v1.1.10
@@ -100,21 +102,24 @@ require (
 	golang.org/x/crypto v0.17.0
 	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611
 	golang.org/x/net v0.19.0
-	golang.org/x/sync v0.5.0
-	golang.org/x/sys v0.15.0
+	golang.org/x/sync v0.6.0
+	golang.org/x/sys v0.16.0
 	golang.org/x/time v0.5.0
-	google.golang.org/grpc v1.59.0
+	google.golang.org/grpc v1.60.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
-	modernc.org/sqlite v1.27.0
+	modernc.org/sqlite v1.28.0
 	pgregory.net/rapid v1.1.0
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
@@ -131,6 +136,7 @@ require (
 	github.com/anacrolix/stm v0.4.1-0.20221221005312-96d17df0e496 // indirect
 	github.com/anacrolix/upnp v0.1.3-0.20220123035249-922794e51c96 // indirect
 	github.com/anacrolix/utp v0.1.0 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.21.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.14 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.19.0 // indirect
