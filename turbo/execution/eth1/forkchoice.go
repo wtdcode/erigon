@@ -255,13 +255,6 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, original
 			sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
 			return
 		}
-		if e.historyV3 {
-			if err := rawdbv3.TxNums.Truncate(tx, currentParentNumber+1); err != nil {
-				//if err := rawdbv3.TxNums.Truncate(tx, fcuHeader.Number.Uint64()); err != nil {
-				sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
-				return
-			}
-		}
 		// Mark all new canonicals as canonicals
 		for _, canonicalSegment := range newCanonicals {
 			chainReader := consensuschain.NewReader(e.config, tx, e.blockReader, e.logger)
