@@ -289,18 +289,23 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, original
 				}
 				panic(1)
 			}
+			if len(newCanonicals) == 0 {
+				log.Warn(fmt.Sprintf("[dbg] currentParentNumber: %d\n", currentParentNumber))
+				panic(1)
+			}
+			if len(newCanonicals) == 1 {
+				for i, a := range newCanonicals {
+					log.Warn(fmt.Sprintf("[dbg] newCanonicals: %d, %d\n", i, a.number))
+				}
+				panic(1)
+			}
+			if err := rawdbv3.TxNums.Truncate(tx, currentParentNumber+1); err != nil {
+				//if err := rawdbv3.TxNums.Truncate(tx, fcuHeader.Number.Uint64()); err != nil {
+				sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
+				return
+			}
 			if len(newCanonicals) > 0 {
-				if err := rawdbv3.TxNums.Truncate(tx, newCanonicals[0].number); err != nil {
-					sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
-					return
-				}
-				if err := rawdb.AppendCanonicalTxNums(tx, newCanonicals[len(newCanonicals)-1].number); err != nil {
-					sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
-					return
-				}
-			} else {
-				if err := rawdbv3.TxNums.Truncate(tx, currentParentNumber+1); err != nil {
-					//if err := rawdbv3.TxNums.Truncate(tx, fcuHeader.Number.Uint64()); err != nil {
+				if err := rawdb.AppendCanonicalTxNums(tx, currentParentNumber+1); err != nil {
 					sendForkchoiceErrorWithoutWaiting(outcomeCh, err)
 					return
 				}
