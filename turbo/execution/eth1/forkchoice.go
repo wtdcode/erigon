@@ -292,7 +292,7 @@ func (e *EthereumExecutionModule) updateForkChoice(ctx context.Context, original
 		if e.historyV3 {
 			if len(newCanonicals) > 1 {
 				for i, a := range newCanonicals {
-					fmt.Printf("[dbg] newCanonicals: %d, %d\n", i, a.number)
+					log.Warn(fmt.Sprintf("[dbg] newCanonicals: %d, %d\n", i, a.number))
 				}
 				panic(1)
 			}
