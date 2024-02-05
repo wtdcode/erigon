@@ -111,9 +111,9 @@ func (txNums) WriteForGenesis(tx kv.RwTx, maxTxNum uint64) (err error) {
 	binary.BigEndian.PutUint64(v[:], maxTxNum)
 	return tx.Put(kv.MaxTxNum, k[:], v[:])
 }
-func (txNums) Truncate(tx kv.RwTx, blockNum uint64) (err error) {
+func (txNums) Truncate(tx kv.RwTx, fromBlockNum uint64) (err error) {
 	var seek [8]byte
-	binary.BigEndian.PutUint64(seek[:], blockNum)
+	binary.BigEndian.PutUint64(seek[:], fromBlockNum)
 	c, err := tx.RwCursor(kv.MaxTxNum)
 	if err != nil {
 		return err
