@@ -270,7 +270,7 @@ func ConsensusClStages(ctx context.Context,
 					logTicker := time.NewTicker(time.Duration(secsPerLog) * time.Second)
 					// Always start from the current finalized checkpoint
 					downloader.SetHighestProcessedRoot(finalizedCheckpoint.BlockRoot())
-					downloader.SetHighestProcessedSlot(currentSlot.Load())
+					downloader.SetHighestProcessedSlot(8000000)
 					downloader.SetProcessFunction(func(highestSlotProcessed uint64, highestBlockRootProcessed common.Hash, blocks []*cltypes.SignedBeaconBlock) (newHighestSlotProcessed uint64, newHighestBlockRootProcessed common.Hash, err error) {
 						blockBatch := []*types.Block{}
 						for _, block := range blocks {
