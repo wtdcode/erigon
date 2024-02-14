@@ -169,9 +169,11 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	//  - now, if add new type of .torrent files to S3 bucket - existing nodes will start downloading it. maybe need whitelist of file types
 	//  - maybe need download new files if --snap.stop=true
 	if !d.downloadTorrentFile {
+		panic(1)
 		return
 	}
 	if len(d.TorrentUrls()) == 0 {
+		panic(2)
 		return
 	}
 	var addedNew int
@@ -182,6 +184,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	// - what to do if node already synced?
 
 	for name, tUrls := range urlsByName {
+		log.Warn("[dbg] webseed.name", "name", name)
 		tPath := filepath.Join(rootDir, name)
 		if dir.FileExist(tPath) {
 			continue
@@ -197,6 +200,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		e.Go(func() error {
 			for _, url := range tUrls {
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
+				log.Warn("[dbg] webseed.downloadTorrentFilesFromProvider", "name", name, "err", err, "url", url)
 				if err != nil {
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err)
 					continue
