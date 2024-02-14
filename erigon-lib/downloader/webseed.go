@@ -200,13 +200,14 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		e.Go(func() error {
 			for _, url := range tUrls {
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
-				log.Warn("[dbg] webseed.downloadTorrentFilesFromProvider", "name", name, "err", err, "url", url)
 				if err != nil {
+					log.Warn("[dbg] webseed.downloadTorrentFilesFromProvider", "name", name, "err", err, "url", url)
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err)
 					continue
 				}
 				d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name)
 				if err := d.torrentFiles.Create(tPath, res); err != nil {
+					log.Warn("[dbg] webseed.downloadTorrentFilesFromProvider2", "name", name, "err", err, "url", url)
 					d.logger.Debug("[snapshots] saveTorrent", "err", err)
 					continue
 				}
