@@ -64,6 +64,7 @@ func FinishForward(s *StageState, tx kv.RwTx, cfg FinishCfg, initialCycle bool) 
 
 	rawdb.WriteHeadBlockHash(tx, rawdb.ReadHeadHeaderHash(tx))
 	err = s.Update(tx, executionAt)
+	log.Warn("[dbg] finish update progress", "executionAt", executionAt)
 	if err != nil {
 		return err
 	}
