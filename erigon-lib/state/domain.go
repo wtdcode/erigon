@@ -648,7 +648,7 @@ func (d *Domain) openFiles() (err error) {
 				if item.bindex == nil {
 					fPath := d.kvBtFilePath(fromStep, toStep)
 					if dir.FileExist(fPath) {
-						if item.bindex, err = OpenBtreeIndexWithDecompressor(fPath, DefaultBtreeM, item.decompressor, d.compression); err != nil {
+						if item.bindex, err = OpenBtreeIndexWithDecompressor(fPath, DefaultBtreeMForCommitment, item.decompressor, d.compression); err != nil {
 							_, fName := filepath.Split(fPath)
 							d.logger.Warn("[agg] Domain.openFiles", "err", err, "f", fName)
 							// don't interrupt on error. other files may be good
