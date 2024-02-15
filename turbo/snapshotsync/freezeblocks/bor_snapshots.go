@@ -310,7 +310,7 @@ func dumpBorEventRange(startEventId, endEventId uint64, tx kv.Tx, blockNum uint6
 		}
 	}
 	if i == 0 {
-		panic(blockNum)
+		panic(fmt.Sprintf("blockNum=%d, eventId=%d-%d\n", blockNum, startEventId, endEventId))
 	}
 	return nil
 }
