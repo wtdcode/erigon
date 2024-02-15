@@ -112,7 +112,9 @@ func dumpBorEventRange(startEventId, endEventId uint64, tx kv.Tx, blockNum uint6
 	var eventIdBuf [8]byte
 	txnHash := types.ComputeBorTxHash(blockNum, blockHash)
 	binary.BigEndian.PutUint64(blockNumBuf[:], blockNum)
+	i := 0
 	for eventId := startEventId; eventId < endEventId; eventId++ {
+		i++
 		binary.BigEndian.PutUint64(eventIdBuf[:], eventId)
 		event, err := tx.GetOne(kv.BorEvents, eventIdBuf[:])
 		if err != nil {
@@ -126,6 +128,9 @@ func dumpBorEventRange(startEventId, endEventId uint64, tx kv.Tx, blockNum uint6
 		if err := collect(snapshotRecord); err != nil {
 			return err
 		}
+	}
+	if i == 0 {
+		panic(fmt.Sprintf("blockNum=%d, eventId=%d-%d\n", blockNum, startEventId, endEventId))
 	}
 	return nil
 }
