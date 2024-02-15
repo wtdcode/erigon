@@ -393,7 +393,7 @@ func (cell *Cell) fillFromFields(data []byte, pos int, fieldBits PartFlags) (int
 	}
 
 	if l2 > 0 && l2%100_000 == 0 {
-		fmt.Printf("l: %dM, %dM, %dM, %dM\n", l1/1024/1024, l2/1024/1024, l3/1024/1024, l4/1024/1024)
+		log.Warn(fmt.Sprintf("[dbg] l: %dM, %dM, %dM, %dM\n", l1/1024/1024, l2/1024/1024, l3/1024/1024, l4/1024/1024))
 	}
 	return pos, nil
 }
