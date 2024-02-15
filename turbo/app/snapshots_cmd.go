@@ -272,7 +272,7 @@ func doBtSearch(cliCtx *cli.Context) error {
 	var m runtime.MemStats
 	dbg.ReadMemStats(&m)
 	logger.Info("before open", "alloc", common.ByteCount(m.Alloc), "sys", common.ByteCount(m.Sys))
-	idx, err := libstate.OpenBtreeIndex(srcF, dataFilePath, libstate.DefaultBtreeM, libstate.CompressKeys|libstate.CompressVals, false)
+	idx, err := libstate.OpenBtreeIndex(srcF, dataFilePath, libstate.DefaultBtreeMForCommitment, libstate.CompressKeys|libstate.CompressVals, false)
 	if err != nil {
 		return err
 	}
