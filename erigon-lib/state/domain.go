@@ -648,7 +648,11 @@ func (d *Domain) openFiles() (err error) {
 				if item.bindex == nil {
 					fPath := d.kvBtFilePath(fromStep, toStep)
 					if dir.FileExist(fPath) {
-						if item.bindex, err = OpenBtreeIndexWithDecompressor(fPath, DefaultBtreeMForCommitment, item.decompressor, d.compression); err != nil {
+						M := DefaultBtreeM
+						if d.filenameBase == "commitment" {
+							M = DefaultBtreeMForCommitment
+						}
+						if item.bindex, err = OpenBtreeIndexWithDecompressor(fPath, M, item.decompressor, d.compression); err != nil {
 							_, fName := filepath.Split(fPath)
 							d.logger.Warn("[agg] Domain.openFiles", "err", err, "f", fName)
 							// don't interrupt on error. other files may be good
@@ -1315,7 +1319,11 @@ func (d *Domain) buildFiles(ctx context.Context, step uint64, collation Collatio
 
 	{
 		btPath := d.kvBtFilePath(step, step+1)
-		bt, err = CreateBtreeIndexWithDecompressor(btPath, DefaultBtreeMForCommitment, valuesDecomp, d.compression, *d.salt, ps, d.dirs.Tmp, d.logger, d.noFsync)
+		M := DefaultBtreeM
+		if d.filenameBase == "commitment" {
+			M = DefaultBtreeMForCommitment
+		}
+		bt, err = CreateBtreeIndexWithDecompressor(btPath, M, valuesDecomp, d.compression, *d.salt, ps, d.dirs.Tmp, d.logger, d.noFsync)
 		if err != nil {
 			return StaticFiles{}, fmt.Errorf("build %s .bt idx: %w", d.filenameBase, err)
 		}

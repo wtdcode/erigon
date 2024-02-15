@@ -636,7 +636,11 @@ func (dc *DomainContext) mergeFiles(ctx context.Context, domainFiles, indexFiles
 
 	if UseBpsTree {
 		btPath := dc.d.kvBtFilePath(fromStep, toStep)
-		valuesIn.bindex, err = CreateBtreeIndexWithDecompressor(btPath, DefaultBtreeMForCommitment, valuesIn.decompressor, dc.d.compression, *dc.d.salt, ps, dc.d.dirs.Tmp, dc.d.logger, dc.d.noFsync)
+		M := DefaultBtreeM
+		if dc.d.filenameBase == "commitment" {
+			M = DefaultBtreeMForCommitment
+		}
+		valuesIn.bindex, err = CreateBtreeIndexWithDecompressor(btPath, M, valuesIn.decompressor, dc.d.compression, *dc.d.salt, ps, dc.d.dirs.Tmp, dc.d.logger, dc.d.noFsync)
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("merge %s btindex [%d-%d]: %w", dc.d.filenameBase, r.valuesStartTxNum, r.valuesEndTxNum, err)
 		}
