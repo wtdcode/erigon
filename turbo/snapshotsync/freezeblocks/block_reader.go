@@ -1086,7 +1086,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		if err != nil {
 			return nil, err
 		}
-		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight, "events")
+		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight)
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
