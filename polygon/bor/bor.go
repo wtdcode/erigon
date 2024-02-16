@@ -1022,11 +1022,10 @@ func (c *Bor) changeContractCodeIfNeeded(headerNumber uint64, state *state.Intra
 	for blockNumber, genesisAlloc := range c.config.BlockAlloc {
 		if blockNumber == strconv.FormatUint(headerNumber, 10) {
 			allocs, err := types.DecodeGenesisAlloc(genesisAlloc)
+			log.Warn("[bor] allocs", "allocs", allocs, "err", err)
 			if err != nil {
 				return fmt.Errorf("failed to decode genesis alloc: %v", err)
 			}
-			log.Warn("[bor] allocs", "allocs", allocs)
-
 			for addr, account := range allocs {
 				log.Warn("[bor] change contract code", "address", addr)
 				state.SetCode(addr, account.Code)
