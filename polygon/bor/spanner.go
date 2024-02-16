@@ -122,6 +122,7 @@ func (c *ChainSpanner) GetCurrentProducers(spanId uint64, signer libcommon.Addre
 }
 
 func (c *ChainSpanner) CommitSpan(heimdallSpan heimdall.HeimdallSpan, syscall consensus.SystemCall) error {
+	log.Warn("[dbg] CommitSpan1")
 
 	// method
 	const method = "commitSpan"
