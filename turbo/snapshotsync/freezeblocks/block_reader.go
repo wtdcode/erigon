@@ -1084,7 +1084,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 				return nil, err
 			}
 			eventId := binary.BigEndian.Uint64(k)
-			log.Warn("[dbg] BorEventsByBlock101", "eventId", eventId, "endEventId", endEventId)
 			if eventId >= endEventId {
 				break
 			}
