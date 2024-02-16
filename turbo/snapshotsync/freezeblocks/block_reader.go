@@ -1108,7 +1108,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			continue
 		}
 		if sn.IdxBorTxnHash.KeyCount() == 0 {
-			log.Warn("[dbg] BorEventsByBlock4", "block", blockHeight, "events")
+			log.Warn("[dbg] BorEventsByBlock4", "block", blockHeight, "events", sn.IdxBorTxnHash.FileName())
 			continue
 		}
 		reader := recsplit.NewIndexReader(sn.IdxBorTxnHash)
