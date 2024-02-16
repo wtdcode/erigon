@@ -1343,6 +1343,7 @@ func (c *Bor) fetchAndCommitSpan(
 	syscall consensus.SystemCall,
 ) error {
 	var heimdallSpan heimdall.HeimdallSpan
+	log.Warn("[dbg] fetchAndCommitSpan0", "t", fmt.Sprintf("%T, %t", c.HeimdallClient, c.HeimdallClient))
 
 	if c.HeimdallClient == nil {
 		// fixme: move to a new mock or fake and remove c.HeimdallClient completely
