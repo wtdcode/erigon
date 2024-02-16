@@ -978,7 +978,6 @@ func (c *Bor) Finalize(config *chain.Config, header *types.Header, state *state.
 	chain consensus.ChainReader, syscall consensus.SystemCall, logger log.Logger,
 ) (types.Transactions, types.Receipts, error) {
 	headerNumber := header.Number.Uint64()
-	log.Warn("[dbg] fin", "block", headerNumber)
 	if withdrawals != nil || header.WithdrawalsHash != nil {
 		return nil, nil, consensus.ErrUnexpectedWithdrawals
 	}
