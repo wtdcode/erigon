@@ -1090,7 +1090,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			}
 			result = append(result, rlp.RawValue(common.Copy(v)))
 		}
-		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight)
+		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight, "result", len(result))
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
