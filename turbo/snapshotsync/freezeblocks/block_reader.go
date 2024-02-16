@@ -1057,6 +1057,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			return nil, err
 		}
 		if !bytes.Equal(k, buf[:]) {
+			log.Warn("[dbg] BorEventsByBlock1", "block", blockHeight, "events")
 			return result, nil
 		}
 		startEventId := binary.BigEndian.Uint64(v)
@@ -1085,6 +1086,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		if err != nil {
 			return nil, err
 		}
+		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight, "events")
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
@@ -1093,6 +1095,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 	segments := view.Events()
 	var buf []byte
 	result := []rlp.RawValue{}
+	log.Warn("[dbg] BorEventsByBlock3", "block", blockHeight, "events")
 	for i := len(segments) - 1; i >= 0; i-- {
 		sn := segments[i]
 		if sn.from > blockHeight {
@@ -1105,6 +1108,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			continue
 		}
 		if sn.IdxBorTxnHash.KeyCount() == 0 {
+			log.Warn("[dbg] BorEventsByBlock4", "block", blockHeight, "events")
 			continue
 		}
 		reader := recsplit.NewIndexReader(sn.IdxBorTxnHash)
@@ -1117,6 +1121,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			result = append(result, rlp.RawValue(common.Copy(buf[length.Hash+length.BlockNum+8:])))
 		}
 	}
+	log.Warn("[dbg] BorEventsByBlock5", "block", blockHeight, "events")
 	return result, nil
 }
 

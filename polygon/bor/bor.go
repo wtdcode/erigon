@@ -994,7 +994,6 @@ func (c *Bor) Finalize(config *chain.Config, header *types.Header, state *state.
 				log.Error("[bor] committing span", "err", err)
 				return nil, types.Receipts{}, err
 			}
-			log.Warn("[dbg] CommitStates", "block", headerNumber)
 			// commit states
 			if err := c.CommitStates(state, header, cx, syscall); err != nil {
 				err := fmt.Errorf("Finalize.CommitStates: %w", err)
@@ -1455,6 +1454,7 @@ func (c *Bor) CommitStates(
 	syscall consensus.SystemCall,
 ) error {
 	events := chain.Chain.BorEventsByBlock(header.Hash(), header.Number.Uint64())
+	log.Warn("[dbg] CommitStates", "block", header.Number, "events", events)
 	for _, event := range events {
 		if err := c.GenesisContractsClient.CommitState(event, syscall); err != nil {
 			return err

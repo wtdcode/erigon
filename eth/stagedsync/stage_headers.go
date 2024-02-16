@@ -620,6 +620,7 @@ func (cr ChainReaderImpl) HasBlock(hash libcommon.Hash, number uint64) bool {
 }
 func (cr ChainReaderImpl) BorEventsByBlock(hash libcommon.Hash, number uint64) []rlp.RawValue {
 	events, err := cr.blockReader.EventsByBlock(context.Background(), cr.tx, hash, number)
+	log.Warn("[dbg] BorEventsByBlock", "block", number, "events", len(events), "err", err)
 	if err != nil {
 		cr.logger.Error("BorEventsByBlock failed", "err", err)
 		return nil
