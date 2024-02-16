@@ -1057,11 +1057,11 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		if k, v, err = c.Seek(buf[:]); err != nil {
 			return nil, err
 		}
-		log.Warn("[dbg] BorEventsByBlock1111", "block", blockHeight, "more", fmt.Sprintf("k=%x", k))
 		if !bytes.Equal(k, buf[:]) {
 			log.Warn("[dbg] BorEventsByBlock1", "block", blockHeight, "more", fmt.Sprintf("k=%x", k))
 			return result, nil
 		}
+		log.Warn("[dbg] BorEventsByBlock1111", "block", blockHeight, "more", fmt.Sprintf("k=%x, %d", k, binary.BigEndian.Uint64(k)))
 		startEventId := binary.BigEndian.Uint64(v)
 		var endEventId uint64
 		if k, v, err = c.Next(); err != nil {
@@ -1072,7 +1072,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		} else {
 			endEventId = binary.BigEndian.Uint64(v)
 		}
-		log.Warn("[dbg] BorEventsByBlock10", "startEventId", startEventId, "endEventId", endEventId, "more", fmt.Sprintf("k=%x", k))
+		log.Warn("[dbg] BorEventsByBlock10", "startEventId", startEventId, "endEventId", endEventId, "more", fmt.Sprintf("k=%x, %d", k, binary.BigEndian.Uint64(k)))
 		c1, err := tx.Cursor(kv.BorEvents)
 		if err != nil {
 			return nil, err
