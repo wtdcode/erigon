@@ -988,6 +988,7 @@ func (r *BlockReader) ReadAncestor(db kv.Getter, hash common.Hash, number, ances
 }
 
 func (r *BlockReader) EventLookup(ctx context.Context, tx kv.Getter, txnHash common.Hash) (uint64, bool, error) {
+	log.Warn("[dbg] EventLookup")
 	n, err := rawdb.ReadBorTxLookupEntry(tx, txnHash)
 	if err != nil {
 		return 0, false, err
@@ -1221,6 +1222,7 @@ func (r *BlockReader) LastFrozenSpanID() uint64 {
 }
 
 func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]byte, error) {
+	log.Warn("[dbg] Span", "id", spanId)
 	var endBlock uint64
 	if spanId > 0 {
 		endBlock = bor.SpanEndBlockNum(spanId)
