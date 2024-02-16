@@ -646,7 +646,7 @@ func (c *Bor) initFrozenSnapshot(chain consensus.ChainHeaderReader, number uint6
 			return nil, err
 		}
 
-		c.logger.Info("Stored proposer snapshot to disk", "number", 0, "hash", hash)
+		log.Info("Stored proposer snapshot to disk", "number", 0, "hash", hash)
 
 		g := errgroup.Group{}
 		g.SetLimit(estimate.AlmostAllCPUs())
@@ -1319,12 +1319,15 @@ func (c *Bor) checkAndCommitSpan(
 
 	// check span is not set initially
 	if currentSpan.EndBlock == 0 {
+		log.Warn("[dbg] checkAndCommitSpan1", "block", headerNumber)
+
 		return c.fetchAndCommitSpan(currentSpan.ID, state, header, chain, syscall)
 	}
 
 	// if current block is first block of last sprint in current span
 	sprintLength := c.config.CalculateSprintLength(headerNumber)
 	if currentSpan.EndBlock > sprintLength && currentSpan.EndBlock-sprintLength+1 == headerNumber {
+		log.Warn("[dbg] checkAndCommitSpan2", "block", headerNumber)
 		return c.fetchAndCommitSpan(currentSpan.ID+1, state, header, chain, syscall)
 	}
 
