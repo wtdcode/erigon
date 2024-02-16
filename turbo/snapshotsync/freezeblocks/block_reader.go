@@ -993,6 +993,7 @@ func (r *BlockReader) EventLookup(ctx context.Context, tx kv.Getter, txnHash com
 		return 0, false, err
 	}
 	if n != nil {
+		log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("EventLookup %x -> %d, db", txnHash, *n)))
 		return *n, true, nil
 	}
 
@@ -1033,6 +1034,7 @@ func (r *BlockReader) borBlockByEventHash(txnHash common.Hash, segments []*BorEv
 		buf, _ = gg.Next(buf[:0])
 		blockNum = binary.BigEndian.Uint64(buf[length.Hash:])
 		ok = true
+		log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("EventLookup %x -> %d, sn=%s", txnHash, blockNum, gg.FileName())))
 		return
 	}
 	return
@@ -1232,6 +1234,7 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 			return nil, err
 		}
 		if v == nil {
+			log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("span %d not found (db), frozenBlocks=%d", spanId, maxBlockNumInFiles).Error()))
 			return nil, fmt.Errorf("span %d not found (db), frozenBlocks=%d", spanId, maxBlockNumInFiles)
 		}
 		return common.Copy(v), nil
@@ -1260,6 +1263,7 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		gg := sn.seg.MakeGetter()
 		gg.Reset(offset)
 		result, _ := gg.Next(nil)
+		log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("span %d found (sn) %s", spanId, sn.idx.FileName()).Error()))
 		return common.Copy(result), nil
 	}
 	return nil, fmt.Errorf("span %d not found (snapshots)", spanId)
