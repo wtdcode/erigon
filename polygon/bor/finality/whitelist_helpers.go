@@ -35,7 +35,7 @@ func fetchWhitelistCheckpoint(ctx context.Context, heimdallClient heimdall.Heimd
 	// fetch the latest checkpoint from Heimdall
 	checkpoint, err := heimdallClient.FetchCheckpoint(ctx, -1)
 	if err != nil {
-		config.logger.Debug("[bor.heimdall] Failed to fetch latest checkpoint for whitelisting", "err", err)
+		log.Debug("[bor.heimdall] Failed to fetch latest checkpoint for whitelisting", "err", err)
 		return blockNum, blockHash, errCheckpoint
 	}
 
@@ -46,17 +46,17 @@ func fetchWhitelistCheckpoint(ctx context.Context, heimdallClient heimdall.Heimd
 
 	if err != nil {
 		if errors.Is(err, errMissingBlocks) {
-			config.logger.Debug("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
-			config.logger.Debug("[bor.heimdall] Failed to whitelist checkpoint", "err", err)
+			log.Debug("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
+			log.Debug("[bor.heimdall] Failed to whitelist checkpoint", "err", err)
 		} else {
-			config.logger.Info("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
-			config.logger.Warn("[bor.heimdall] Failed to whitelist checkpoint", "err", err)
+			log.Info("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
+			log.Warn("[bor.heimdall] Failed to whitelist checkpoint", "err", err)
 		}
 
 		return blockNum, blockHash, err
 	}
 
-	config.logger.Info("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
+	log.Info("[bor.heimdall] Got new checkpoint", "start", checkpoint.StartBlock.Uint64(), "end", checkpoint.EndBlock.Uint64(), "rootHash", checkpoint.RootHash.String())
 
 	blockNum = checkpoint.EndBlock.Uint64()
 	blockHash = common.HexToHash(hash)
@@ -75,16 +75,16 @@ func fetchWhitelistMilestone(ctx context.Context, heimdallClient heimdall.Heimda
 	// fetch latest milestone
 	milestone, err := heimdallClient.FetchMilestone(ctx, -1)
 	if errors.Is(err, heimdall.ErrServiceUnavailable) {
-		config.logger.Debug("[bor.heimdall] Failed to fetch latest milestone for whitelisting", "err", err)
+		log.Debug("[bor.heimdall] Failed to fetch latest milestone for whitelisting", "err", err)
 		return num, hash, err
 	}
 
 	if err != nil {
-		config.logger.Warn("[bor.heimdall]  Failed to fetch latest milestone for whitelisting", "err", err)
+		log.Warn("[bor.heimdall]  Failed to fetch latest milestone for whitelisting", "err", err)
 		return num, hash, errMilestone
 	}
 
-	config.logger.Debug("[bor.heimdall] Got new milestone", "start", milestone.StartBlock.Uint64(), "end", milestone.EndBlock.Uint64())
+	log.Debug("[bor.heimdall] Got new milestone", "start", milestone.StartBlock.Uint64(), "end", milestone.EndBlock.Uint64())
 
 	num = milestone.EndBlock.Uint64()
 	hash = milestone.Hash

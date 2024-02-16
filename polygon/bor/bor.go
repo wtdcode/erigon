@@ -618,9 +618,9 @@ func ValidateHeaderGas(header *types.Header, parent *types.Header, chainConfig *
 }
 
 func (c *Bor) initFrozenSnapshot(chain consensus.ChainHeaderReader, number uint64, logEvery *time.Ticker) (snap *Snapshot, err error) {
-	c.logger.Info("Initializing frozen snapshots to", "number", number)
+	log.Info("Initializing frozen snapshots to", "number", number)
 	defer func() {
-		c.logger.Info("Done initializing frozen snapshots to", "number", number, "err", err)
+		log.Info("Done initializing frozen snapshots to", "number", number, "err", err)
 	}()
 
 	// Special handling of the headers in the snapshot
@@ -712,7 +712,7 @@ func (c *Bor) snapshot(chain consensus.ChainHeaderReader, number uint64, hash li
 		// If an on-disk snapshot can be found, use that
 		if number%snapshotPersistInterval == 0 {
 			if s, err := LoadSnapshot(c.config, c.Signatures, c.DB, hash); err == nil {
-				c.logger.Trace("Loaded snapshot from disk", "number", number, "hash", hash)
+				log.Warn("Loaded snapshot from disk", "number", number, "hash", hash)
 
 				snap = s
 				break
@@ -794,7 +794,7 @@ func (c *Bor) snapshot(chain consensus.ChainHeaderReader, number uint64, hash li
 			return nil, err
 		}
 
-		c.logger.Trace("Stored proposer snapshot to disk", "number", snap.Number, "hash", snap.Hash)
+		log.Warn("Stored proposer snapshot to disk", "number", snap.Number, "hash", snap.Hash)
 	}
 
 	return snap, err
@@ -978,32 +978,34 @@ func (c *Bor) Finalize(config *chain.Config, header *types.Header, state *state.
 	chain consensus.ChainReader, syscall consensus.SystemCall, logger log.Logger,
 ) (types.Transactions, types.Receipts, error) {
 	headerNumber := header.Number.Uint64()
-
+	log.Warn("[dbg] fin", "block", headerNumber)
 	if withdrawals != nil || header.WithdrawalsHash != nil {
 		return nil, nil, consensus.ErrUnexpectedWithdrawals
 	}
 
 	if isSprintStart(headerNumber, c.config.CalculateSprintLength(headerNumber)) {
 		cx := statefull.ChainContext{Chain: chain, Bor: c}
+		log.Warn("[dbg] isSprintStart", "block", headerNumber)
 
 		if c.blockReader != nil {
 			// check and commit span
 			if err := c.checkAndCommitSpan(state, header, cx, syscall); err != nil {
 				err := fmt.Errorf("Finalize.checkAndCommitSpan: %w", err)
-				c.logger.Error("[bor] committing span", "err", err)
+				log.Error("[bor] committing span", "err", err)
 				return nil, types.Receipts{}, err
 			}
+			log.Warn("[dbg] CommitStates", "block", headerNumber)
 			// commit states
 			if err := c.CommitStates(state, header, cx, syscall); err != nil {
 				err := fmt.Errorf("Finalize.CommitStates: %w", err)
-				c.logger.Error("[bor] Error while committing states", "err", err)
+				log.Error("[bor] Error while committing states", "err", err)
 				return nil, types.Receipts{}, err
 			}
 		}
 	}
 
 	if err := c.changeContractCodeIfNeeded(headerNumber, state); err != nil {
-		c.logger.Error("[bor] Error changing contract code", "err", err)
+		log.Error("[bor] Error changing contract code", "err", err)
 		return nil, types.Receipts{}, err
 	}
 
@@ -1026,7 +1028,7 @@ func (c *Bor) changeContractCodeIfNeeded(headerNumber uint64, state *state.Intra
 			}
 
 			for addr, account := range allocs {
-				c.logger.Trace("[bor] change contract code", "address", addr)
+				log.Warn("[bor] change contract code", "address", addr)
 				state.SetCode(addr, account.Code)
 			}
 		}
@@ -1056,20 +1058,20 @@ func (c *Bor) FinalizeAndAssemble(chainConfig *chain.Config, header *types.Heade
 			// check and commit span
 			if err := c.checkAndCommitSpan(state, header, cx, syscall); err != nil {
 				err := fmt.Errorf("FinalizeAndAssemble.checkAndCommitSpan: %w", err)
-				c.logger.Error("[bor] committing span", "err", err)
+				log.Error("[bor] committing span", "err", err)
 				return nil, nil, types.Receipts{}, err
 			}
 			// commit states
 			if err := c.CommitStates(state, header, cx, syscall); err != nil {
 				err := fmt.Errorf("FinalizeAndAssemble.CommitStates: %w", err)
-				c.logger.Error("[bor] committing states", "err", err)
+				log.Error("[bor] committing states", "err", err)
 				return nil, nil, types.Receipts{}, err
 			}
 		}
 	}
 
 	if err := c.changeContractCodeIfNeeded(headerNumber, state); err != nil {
-		c.logger.Error("[bor] Error changing contract code", "err", err)
+		log.Error("[bor] Error changing contract code", "err", err)
 		return nil, nil, types.Receipts{}, err
 	}
 
@@ -1118,7 +1120,7 @@ func (c *Bor) Seal(chain consensus.ChainHeaderReader, block *types.Block, result
 
 	// For 0-period chains, refuse to seal empty blocks (no reward but would spin sealing)
 	if c.config.CalculatePeriod(number) == 0 && len(block.Transactions()) == 0 {
-		c.logger.Trace("[bor] Sealing paused, waiting for transactions")
+		log.Warn("[bor] Sealing paused, waiting for transactions")
 		return nil
 	}
 
@@ -1150,23 +1152,23 @@ func (c *Bor) Seal(chain consensus.ChainHeaderReader, block *types.Block, result
 
 	go func() {
 		// Wait until sealing is terminated or delay timeout.
-		c.logger.Info("[bor] Waiting for slot to sign and propagate", "number", number, "hash", header.Hash, "delay", common.PrettyDuration(delay), "TxCount", block.Transactions().Len(), "Signer", signer)
+		log.Info("[bor] Waiting for slot to sign and propagate", "number", number, "hash", header.Hash, "delay", common.PrettyDuration(delay), "TxCount", block.Transactions().Len(), "Signer", signer)
 
 		select {
 		case <-stop:
-			c.logger.Info("[bor] Stopped sealing operation for block", "number", number)
+			log.Info("[bor] Stopped sealing operation for block", "number", number)
 			results <- nil
 			return
 		case <-time.After(delay):
 
 			if c.headerProgress != nil && c.headerProgress.Progress() >= number {
-				c.logger.Info("Discarding sealing operation for block", "number", number)
+				log.Info("Discarding sealing operation for block", "number", number)
 				results <- nil
 				return
 			}
 
 			if wiggle > 0 {
-				c.logger.Info(
+				log.Info(
 					"[bor] Sealed out-of-turn",
 					"number", number,
 					"wiggle", common.PrettyDuration(wiggle),
@@ -1175,7 +1177,7 @@ func (c *Bor) Seal(chain consensus.ChainHeaderReader, block *types.Block, result
 					"signer", signer.Hex(),
 				)
 			} else {
-				c.logger.Info(
+				log.Info(
 					"[bor] Sealed in-turn",
 					"number", number,
 					"delay", delay,
@@ -1187,7 +1189,7 @@ func (c *Bor) Seal(chain consensus.ChainHeaderReader, block *types.Block, result
 		select {
 		case results <- block.WithSeal(header):
 		default:
-			c.logger.Warn("Sealing result was not read by miner", "number", number, "sealhash", SealHash(header, c.config))
+			log.Warn("Sealing result was not read by miner", "number", number, "sealhash", SealHash(header, c.config))
 		}
 	}()
 	return nil
