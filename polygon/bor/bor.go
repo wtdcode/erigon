@@ -1321,7 +1321,6 @@ func (c *Bor) checkAndCommitSpan(
 
 		return c.fetchAndCommitSpan(currentSpan.ID, state, header, chain, syscall)
 	}
-	log.Warn("[dbg] isSprintStart3", "currentSpan.EndBlock", currentSpan.EndBlock)
 
 	// if current block is first block of last sprint in current span
 	sprintLength := c.config.CalculateSprintLength(headerNumber)
@@ -1329,7 +1328,6 @@ func (c *Bor) checkAndCommitSpan(
 		log.Warn("[dbg] checkAndCommitSpan2", "block", headerNumber)
 		return c.fetchAndCommitSpan(currentSpan.ID+1, state, header, chain, syscall)
 	}
-	log.Warn("[dbg] isSprintStart4")
 
 	return nil
 }

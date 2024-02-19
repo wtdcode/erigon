@@ -1058,10 +1058,8 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			return nil, err
 		}
 		if !bytes.Equal(k, buf[:]) {
-			log.Warn("[dbg] BorEventsByBlock1", "block", blockHeight, "more", fmt.Sprintf("k=%x", k))
 			return result, nil
 		}
-		log.Warn("[dbg] BorEventsByBlock1111", "block", blockHeight, "more", fmt.Sprintf("k=%x, %d", k, binary.BigEndian.Uint64(k)))
 		startEventId := binary.BigEndian.Uint64(v)
 		var endEventId uint64
 		if k, v, err = c.Next(); err != nil {
@@ -1072,7 +1070,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		} else {
 			endEventId = binary.BigEndian.Uint64(v)
 		}
-		log.Warn("[dbg] BorEventsByBlock10", "startEventId", startEventId, "endEventId", endEventId, "more", fmt.Sprintf("k=%x, %d", k, binary.BigEndian.Uint64(k)))
 		c1, err := tx.Cursor(kv.BorEvents)
 		if err != nil {
 			return nil, err
@@ -1089,7 +1086,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			}
 			result = append(result, rlp.RawValue(common.Copy(v)))
 		}
-		log.Warn("[dbg] BorEventsByBlock2", "block", blockHeight, "result", len(result))
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
@@ -1098,7 +1094,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 	segments := view.Events()
 	var buf []byte
 	result := []rlp.RawValue{}
-	log.Warn("[dbg] BorEventsByBlock3", "block", blockHeight, "events")
 	for i := len(segments) - 1; i >= 0; i-- {
 		sn := segments[i]
 		if sn.from > blockHeight {
@@ -1111,7 +1106,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			continue
 		}
 		if sn.IdxBorTxnHash.KeyCount() == 0 {
-			log.Warn("[dbg] BorEventsByBlock4", "block", blockHeight, "events", sn.IdxBorTxnHash.FileName())
 			continue
 		}
 		reader := recsplit.NewIndexReader(sn.IdxBorTxnHash)
@@ -1124,7 +1118,6 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			result = append(result, rlp.RawValue(common.Copy(buf[length.Hash+length.BlockNum+8:])))
 		}
 	}
-	log.Warn("[dbg] BorEventsByBlock5", "block", blockHeight, "events")
 	return result, nil
 }
 
