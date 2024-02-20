@@ -1036,8 +1036,11 @@ func (r *BlockReader) borBlockByEventHash(txnHash common.Hash, segments []*BorEv
 		buf, _ = gg.Next(buf[:0])
 		blockNum = binary.BigEndian.Uint64(buf[length.Hash:])
 		ok = true
-		log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("EventLookup %x -> %d, sn=%s", txnHash, blockNum, gg.FileName())))
+		log.Warn(fmt.Sprintf("[dbg] %s", fmt.Errorf("borBlockByEventHash %x -> %d, sn=%s", txnHash, blockNum, gg.FileName())))
 		return
+	}
+	if !ok {
+		log.Warn("[dbg] borBlockByEventHash not found", "txnHash", fmt.Sprintf("%x\n", txnHash))
 	}
 	return
 }
