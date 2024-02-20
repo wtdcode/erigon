@@ -1144,17 +1144,17 @@ func stageExec(db kv.RwDB, ctx context.Context, logger log.Logger) error {
 		return nil
 	}
 
-	{
-		chain := stagedsync.ChainReader{Cfg: *chainConfig, Db: tx, BlockReader: br, Logger: logger}
-		header, err := br.HeaderByNumber(context.Background(), txc.Tx, s.BlockNumber)
-		if err != nil {
-			panic(err)
-		}
-		err = engine.Prepare(chain, header, nil)
-		if err != nil {
-			panic(err)
-		}
-	}
+	//{
+	//	chain := stagedsync.ChainReader{Cfg: *chainConfig, Db: tx, BlockReader: br, Logger: logger}
+	//	header, err := br.HeaderByNumber(context.Background(), txc.Tx, s.BlockNumber)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	err = engine.Prepare(chain, header, nil)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//}
 	err := stagedsync.SpawnExecuteBlocksStage(s, sync, txc, block, ctx, cfg, true /* initialCycle */, logger)
 	if err != nil {
 		return err
