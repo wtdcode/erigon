@@ -365,7 +365,6 @@ func doIntegrity(cliCtx *cli.Context) error {
 	search := common.HexToHash("0x23b6c3c6c254a0952a59c85f00cac9c8b080f0d65c7df0f0070c0b47eda6c3dc")
 	chainDB.View(ctx, func(tx kv.Tx) error {
 		bn, ok, err := blockReader.EventLookup(ctx, tx, search)
-		fmt.Printf("[dbg] EventLookup(%x): %d, %t, %s\n", search, bn, ok, err)
 		return nil
 	})
 
