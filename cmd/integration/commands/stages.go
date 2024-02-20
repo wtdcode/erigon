@@ -1812,7 +1812,6 @@ func initConsensusEngine(ctx context.Context, cc *chain2.Config, dir string, db 
 	} else {
 		consensusConfig = &config.Ethash
 	}
-	log.Warn("[dbg] init", "t", fmt.Sprintf("%T, %t", heimdallClient, heimdallClient == nil))
 	return ethconsensusconfig.CreateConsensusEngine(ctx, &nodecfg.Config{Dirs: datadir.New(dir)}, cc, consensusConfig, config.Miner.Notify, config.Miner.Noverify,
 		heimdallClient, config.WithoutHeimdall, blockReader, db.ReadOnly(), logger), heimdallClient
 }
