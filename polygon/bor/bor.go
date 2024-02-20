@@ -984,7 +984,6 @@ func (c *Bor) Finalize(config *chain.Config, header *types.Header, state *state.
 
 	if isSprintStart(headerNumber, c.config.CalculateSprintLength(headerNumber)) {
 		cx := statefull.ChainContext{Chain: chain, Bor: c}
-		log.Warn("[dbg] isSprintStart", "block", headerNumber)
 
 		if c.blockReader != nil {
 			// check and commit span
