@@ -679,7 +679,7 @@ func (c *Bor) initFrozenSnapshot(chain consensus.ChainHeaderReader, number uint6
 			}
 			select {
 			case <-logEvery.C:
-				log.Info("Computing validator proposer prorities (forward)", "blockNum", i)
+				log.Info("Computing validator proposer priorities (forward)", "blockNum", i)
 			default:
 			}
 		}
