@@ -716,6 +716,8 @@ func (c *Bor) snapshot(chain consensus.ChainHeaderReader, number uint64, hash li
 
 				snap = s
 				break
+			} else {
+				log.Warn("Loaded snapshot from disk", "number", number, "err", err)
 			}
 		}
 
