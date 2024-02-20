@@ -1340,9 +1340,9 @@ func (c *Bor) fetchAndCommitSpan(
 	syscall consensus.SystemCall,
 ) error {
 	var heimdallSpan heimdall.HeimdallSpan
-	log.Warn("[dbg] fetchAndCommitSpan0", "t", fmt.Sprintf("%T, %t", c.HeimdallClient, c.HeimdallClient))
 
 	if c.HeimdallClient == nil {
+		log.Warn("[dbg] fetchAndCommitSpan01", "t", fmt.Sprintf("%T, %t", c.HeimdallClient, c.HeimdallClient))
 		// fixme: move to a new mock or fake and remove c.HeimdallClient completely
 		s, err := c.getNextHeimdallSpanForTest(newSpanID, state, header, chain, syscall)
 		if err != nil {
@@ -1351,6 +1351,7 @@ func (c *Bor) fetchAndCommitSpan(
 
 		heimdallSpan = *s
 	} else {
+		log.Warn("[dbg] fetchAndCommitSpan02", "t", fmt.Sprintf("%T, %t", c.HeimdallClient, c.HeimdallClient))
 		spanJson := chain.Chain.BorSpan(newSpanID)
 		if err := json.Unmarshal(spanJson, &heimdallSpan); err != nil {
 			return err
