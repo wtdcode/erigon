@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	lru "github.com/hashicorp/golang-lru/arc/v2"
@@ -69,6 +70,7 @@ func LoadSnapshot(config *borcfg.BorConfig, sigcache *lru.ARCCache[common.Hash, 
 	if err != nil {
 		return nil, err
 	}
+	log.Warn("[dbg] read snap", "hash", fmt.Sprintf("%x", hash), "blob", string(blob))
 
 	snap := new(Snapshot)
 
@@ -95,7 +97,7 @@ func (s *Snapshot) Store(db kv.RwDB) error {
 	if err != nil {
 		return err
 	}
-	log.Warn("[dbg] store snap", "n", s.Number)
+	log.Warn("[dbg] store snap", "n", s.Number, "hash", fmt.Sprintf("%x", s.Hash), "blob", string(blob))
 
 	return db.Update(context.Background(), func(tx kv.RwTx) error {
 		return tx.Put(kv.BorSeparate, append([]byte("bor-"), s.Hash[:]...), blob)
