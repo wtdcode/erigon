@@ -95,6 +95,7 @@ func (s *Snapshot) Store(db kv.RwDB) error {
 	if err != nil {
 		return err
 	}
+	log.Warn("[dbg] store snap", "n", s.Number)
 
 	return db.Update(context.Background(), func(tx kv.RwTx) error {
 		return tx.Put(kv.BorSeparate, append([]byte("bor-"), s.Hash[:]...), blob)
