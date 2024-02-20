@@ -988,7 +988,6 @@ func (r *BlockReader) ReadAncestor(db kv.Getter, hash common.Hash, number, ances
 }
 
 func (r *BlockReader) EventLookup(ctx context.Context, tx kv.Getter, txnHash common.Hash) (uint64, bool, error) {
-	log.Warn("[dbg] EventLookup")
 	n, err := rawdb.ReadBorTxLookupEntry(tx, txnHash)
 	if err != nil {
 		return 0, false, err
@@ -999,6 +998,7 @@ func (r *BlockReader) EventLookup(ctx context.Context, tx kv.Getter, txnHash com
 	}
 
 	if r.borSn == nil {
+		log.Warn("[dbg] EventLookup not found", "hash", fmt.Sprintf("%x", txnHash))
 		return 0, false, nil
 	}
 
@@ -1010,6 +1010,7 @@ func (r *BlockReader) EventLookup(ctx context.Context, tx kv.Getter, txnHash com
 		return 0, false, err
 	}
 	if !ok {
+		log.Warn("[dbg] EventLookup not found", "hash", fmt.Sprintf("%x", txnHash))
 		return 0, false, nil
 	}
 	return blockNum, true, nil
@@ -1085,6 +1086,9 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			}
 			result = append(result, rlp.RawValue(common.Copy(v)))
 		}
+		if len(result) == 0 {
+			log.Warn("[dbg] EventsByBlock not found", "blockHeight", blockHeight)
+		}
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
@@ -1116,6 +1120,9 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			buf, _ = gg.Next(buf[:0])
 			result = append(result, rlp.RawValue(common.Copy(buf[length.Hash+length.BlockNum+8:])))
 		}
+	}
+	if len(result) == 0 {
+		log.Warn("[dbg] EventsByBlock not found", "blockHeight", blockHeight)
 	}
 	return result, nil
 }
