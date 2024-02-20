@@ -17,6 +17,7 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru/arc/v2"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/xsleonard/go-merkle"
 	"golang.org/x/crypto/sha3"
@@ -618,7 +619,7 @@ func ValidateHeaderGas(header *types.Header, parent *types.Header, chainConfig *
 }
 
 func (c *Bor) initFrozenSnapshot(chain consensus.ChainHeaderReader, number uint64, logEvery *time.Ticker) (snap *Snapshot, err error) {
-	log.Info("Initializing frozen snapshots to", "number", number)
+	log.Info("Initializing frozen snapshots to", "number", number, "stack", dbg.Stack())
 	defer func() {
 		log.Info("Done initializing frozen snapshots to", "number", number, "err", err)
 	}()
