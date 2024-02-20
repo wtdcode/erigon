@@ -1806,8 +1806,6 @@ func initConsensusEngine(ctx context.Context, cc *chain2.Config, dir string, db 
 	} else if cc.Bor != nil {
 		consensusConfig = cc.Bor
 		config.HeimdallURL = HeimdallURL
-
-		config.WithoutHeimdall = true
 		if !config.WithoutHeimdall {
 			heimdallClient = heimdall.NewHeimdallClient(config.HeimdallURL, logger)
 		}
