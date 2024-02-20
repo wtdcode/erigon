@@ -734,6 +734,7 @@ func (c *Bor) snapshot(chain consensus.ChainHeaderReader, number uint64, hash li
 		} else {
 			// No explicit parents (or no more left), reach out to the database
 			if chain == nil {
+				log.Warn("Loaded snapshot from disk4, chain is nil")
 				break
 			}
 
