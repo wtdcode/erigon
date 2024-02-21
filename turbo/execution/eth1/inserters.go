@@ -12,7 +12,6 @@ import (
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/rpc"
 	"github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_utils"
-	"github.com/ledgerwatch/log/v3"
 )
 
 func (s *EthereumExecutionModule) validatePayloadBlobs(expectedBlobHashes []libcommon.Hash, transactions []types.Transaction, blobGasUsed uint64) error {
@@ -64,14 +63,6 @@ func (e *EthereumExecutionModule) InsertBlocks(ctx context.Context, req *executi
 			// Parent's total difficulty
 			parentTd, err = rawdb.ReadTd(tx, header.ParentHash, height-1)
 			if err != nil || parentTd == nil {
-				{
-					keys, _ := rawdb.AllTd(tx, height)
-					log.Warn(fmt.Sprintf("[dbg] all tds: %d->%x", height, keys))
-					keys, _ = rawdb.AllTd(tx, height-1)
-					log.Warn(fmt.Sprintf("[dbg] all tds: %d->%x", height, keys))
-					keys, _ = rawdb.AllTd(tx, height-2)
-					log.Warn(fmt.Sprintf("[dbg] all tds: %d->%x", height, keys))
-				}
 				return nil, fmt.Errorf("parent's total difficulty not found with hash %x and height %d: %v", header.ParentHash, height-1, err)
 			}
 		}

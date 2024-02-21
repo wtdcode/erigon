@@ -150,6 +150,10 @@ func printStages(tx kv.Tx, snapshots *freezeblocks.RoSnapshots, borSn *freezeblo
 		if err != nil {
 			return err
 		}
+		lastTD, err := rawdbv3.LastKey(tx, kv.HeaderTD)
+		if err != nil {
+			return err
+		}
 		firstNonGenesisBody, err := rawdbv3.SecondKey(tx, kv.BlockBody)
 		if err != nil {
 			return err
@@ -160,9 +164,10 @@ func printStages(tx kv.Tx, snapshots *freezeblocks.RoSnapshots, borSn *freezeblo
 		}
 		fstHeader := u64or0(firstNonGenesisHeader)
 		lstHeader := u64or0(lastHeaders)
+		lstTD := u64or0(lastTD)
 		fstBody := u64or0(firstNonGenesisBody)
 		lstBody := u64or0(lastBody)
-		fmt.Fprintf(w, "in db: first header %d, last header %d, first body %d, last body %d\n", fstHeader, lstHeader, fstBody, lstBody)
+		fmt.Fprintf(w, "in db: first header %d, last header %d, first body %d, last body %d, last td %d\n", fstHeader, lstHeader, fstBody, lstBody, lstTD)
 	}
 
 	fmt.Fprintf(w, "--\n")
