@@ -1461,7 +1461,11 @@ func (c *Bor) CommitStates(
 		}
 	}
 
-	//c.HeimdallClient.StateSyncEvents()
+	remote, err := c.HeimdallClient.StateSyncEvents(context.Background(), 2774291, 2774291+50)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("[dbg] remote FetchStateSyncEvents: %d\n", len(remote))
 	return nil
 }
 
