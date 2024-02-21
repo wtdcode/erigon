@@ -83,6 +83,7 @@ func (c *ChainSpanner) GetCurrentSpan(syscall consensus.SystemCall) (*heimdall.S
 		EndBlock:   ret.EndBlock.Uint64(),
 	}
 
+	log.Warn("[dbg] GetCurrentSpan", "id", span.ID)
 	return &span, nil
 }
 
@@ -98,6 +99,7 @@ func (c *ChainSpanner) GetCurrentValidators(spanId uint64, signer libcommon.Addr
 		return nil, err
 	}
 
+	log.Warn("[dbg] GetCurrentValidators", "id", len(span.ValidatorSet.Validators))
 	return span.ValidatorSet.Validators, nil
 }
 
@@ -122,8 +124,6 @@ func (c *ChainSpanner) GetCurrentProducers(spanId uint64, signer libcommon.Addre
 }
 
 func (c *ChainSpanner) CommitSpan(heimdallSpan heimdall.HeimdallSpan, syscall consensus.SystemCall) error {
-	log.Warn("[dbg] CommitSpan1")
-
 	// method
 	const method = "commitSpan"
 
