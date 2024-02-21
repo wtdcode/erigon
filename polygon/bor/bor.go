@@ -1357,7 +1357,7 @@ func (c *Bor) fetchAndCommitSpan(
 		if err := json.Unmarshal(spanJson, &heimdallSpan); err != nil {
 			return err
 		}
-		log.Warn("[dbg] fetchAndCommitSpan02", "newSpanID", newSpanID, "endBlockNum", heimdallSpan.EndBlock)
+		log.Warn(fmt.Sprintf("[dbg] BorSpan(%d) -> %d", newSpanID, heimdallSpan.ID))
 	}
 
 	// check if chain id matches with heimdall span
