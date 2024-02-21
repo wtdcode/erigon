@@ -731,6 +731,16 @@ func ReadTd(db kv.Getter, hash common.Hash, number uint64) (*big.Int, error) {
 	}
 	return td, nil
 }
+func AllTd(db kv.Tx, number uint64) (keys [][]byte, err error) {
+	err = db.ForPrefix(kv.HeaderTD, hexutility.EncodeTs(number), func(k, v []byte) error {
+		keys = append(keys, common.Copy(k))
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed ReadTd: %w", err)
+	}
+	return keys, nil
+}
 
 func ReadTdByHash(db kv.Getter, hash common.Hash) (*big.Int, error) {
 	headNumber := ReadHeaderNumber(db, hash)
