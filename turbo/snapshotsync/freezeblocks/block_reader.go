@@ -1073,6 +1073,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		} else {
 			endEventId = binary.BigEndian.Uint64(v)
 		}
+		log.Warn("[dbg] EventsByBlock", "blockNum", blockHeight, "startEventId", startEventId, "endEventId", endEventId)
 		c1, err := tx.Cursor(kv.BorEvents)
 		if err != nil {
 			return nil, err

@@ -1460,6 +1460,8 @@ func (c *Bor) CommitStates(
 			return err
 		}
 	}
+
+	c.HeimdallClient.StateSyncEvents()
 	return nil
 }
 
