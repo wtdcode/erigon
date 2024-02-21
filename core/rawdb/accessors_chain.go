@@ -718,6 +718,7 @@ func AppendCanonicalTxNums(tx kv.RwTx, from uint64) (err error) {
 
 // ReadTd retrieves a block's total difficulty corresponding to the hash.
 func ReadTd(db kv.Getter, hash common.Hash, number uint64) (*big.Int, error) {
+	log.Warn("[dbg] ReadTd", "number", number)
 	data, err := db.GetOne(kv.HeaderTD, dbutils.HeaderKey(number, hash))
 	if err != nil {
 		return nil, fmt.Errorf("failed ReadTd: %w", err)
@@ -742,6 +743,7 @@ func ReadTdByHash(db kv.Getter, hash common.Hash) (*big.Int, error) {
 
 // WriteTd stores the total difficulty of a block into the database.
 func WriteTd(db kv.Putter, hash common.Hash, number uint64, td *big.Int) error {
+	log.Warn("[dbg] WriteTd", "number", number)
 	data, err := rlp.EncodeToBytes(td)
 	if err != nil {
 		return fmt.Errorf("failed to RLP encode block total difficulty: %w", err)
