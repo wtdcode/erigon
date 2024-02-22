@@ -22,6 +22,9 @@
   "maxBlobGasPerBlock": 262144,
   "targetBlobGasPerBlock": 131072,
   "blobGasPriceUpdateFraction": 1112826,
+  "noPruneContracts": {
+    "0xbabe2bed00000000000000000000000000000003": true
+  },
   "aura": {
     "stepDuration": 5,
     "blockReward": 0,
