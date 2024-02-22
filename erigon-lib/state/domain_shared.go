@@ -6,13 +6,14 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/ledgerwatch/erigon-lib/common/assert"
 	"math"
 	"path/filepath"
 	"runtime"
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/ledgerwatch/erigon-lib/common/assert"
 
 	"github.com/ledgerwatch/log/v3"
 

@@ -27,17 +27,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ledgerwatch/erigon-lib/kv"
-	"github.com/ledgerwatch/log/v3"
-
 	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/background"
 	"github.com/ledgerwatch/erigon-lib/common/cmp"
 	"github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/erigon-lib/compress"
 	"github.com/ledgerwatch/erigon-lib/etl"
+	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/recsplit"
 	"github.com/ledgerwatch/erigon-lib/recsplit/eliasfano32"
+	"github.com/ledgerwatch/log/v3"
 )
 
 func (d *Domain) endTxNumMinimax() uint64 {
@@ -425,6 +424,9 @@ func (ic *InvertedIndexContext) staticFilesInRange(startTxNum, endTxNum uint64) 
 	for _, f := range files {
 		if f == nil {
 			panic("must not happen")
+		}
+		if f.decompressor == nil {
+			panic("must not happen12")
 		}
 	}
 

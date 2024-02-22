@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	types2 "github.com/ledgerwatch/erigon-lib/types"
 	"io/fs"
 	"math/big"
 	"math/rand"
@@ -13,6 +12,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	types2 "github.com/ledgerwatch/erigon-lib/types"
 
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/log/v3"
