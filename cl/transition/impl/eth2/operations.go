@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ledgerwatch/erigon-lib/metrics"
+
 	"github.com/ledgerwatch/erigon/cl/abstract"
 
 	"github.com/ledgerwatch/erigon/cl/transition/impl/eth2/statechange"
@@ -747,6 +748,7 @@ func (I *impl) ProcessBlockHeader(s abstract.BeaconState, block *cltypes.BeaconB
 		return fmt.Errorf("unable to hash tree root of latest block header: %v", err)
 	}
 	if block.ParentRoot != latestRoot {
+		fmt.Println(blockHeader.Root, blockHeader.Slot)
 		return fmt.Errorf("block parent root: %x, does not match latest block root: %x", block.ParentRoot, latestRoot)
 	}
 

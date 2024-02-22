@@ -11,6 +11,7 @@ import (
 
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 	"github.com/ledgerwatch/erigon/cl/clparams"
+	"github.com/ledgerwatch/erigon/eth/ethutils"
 
 	"github.com/ledgerwatch/log/v3"
 
@@ -156,6 +157,15 @@ func (s *EngineServer) newPayload(ctx context.Context, req *engine_types.Executi
 		return nil, err
 	}
 
+	if version <= clparams.CapellaVersion {
+		if req.BlobGasUsed != nil {
+			return nil, &rpc.InvalidParamsError{Message: "Unexpected pre-cancun blobGasUsed"}
+		}
+		if req.ExcessBlobGas != nil {
+			return nil, &rpc.InvalidParamsError{Message: "Unexpected pre-cancun excessBlobGas"}
+		}
+	}
+
 	if version >= clparams.DenebVersion {
 		if req.BlobGasUsed == nil || req.ExcessBlobGas == nil || parentBeaconBlockRoot == nil {
 			return nil, &rpc.InvalidParamsError{Message: "blobGasUsed/excessBlobGas/beaconRoot missing"}
@@ -196,6 +206,30 @@ func (s *EngineServer) newPayload(ctx context.Context, req *engine_types.Executi
 			Status:          engine_types.InvalidStatus,
 			ValidationError: engine_types.NewStringifiedError(err),
 		}, nil
+	}
+
+	if version >= clparams.DenebVersion {
+		err := ethutils.ValidateBlobs(req.BlobGasUsed.Uint64(), s.config.GetMaxBlobGasPerBlock(), s.config.GetMaxBlobsPerBlock(), expectedBlobHashes, &transactions)
+		if errors.Is(err, ethutils.ErrNilBlobHashes) {
+			return nil, &rpc.InvalidParamsError{Message: "nil blob hashes array"}
+		}
+		if errors.Is(err, ethutils.ErrMaxBlobGasUsed) {
+			bad, latestValidHash := s.hd.IsBadHeaderPoS(req.ParentHash)
+			if !bad {
+				latestValidHash = req.ParentHash
+			}
+			return &engine_types.PayloadStatus{
+				Status:          engine_types.InvalidStatus,
+				ValidationError: engine_types.NewStringifiedErrorFromString("blobs/blobgas exceeds max"),
+				LatestValidHash: &latestValidHash,
+			}, nil
+		}
+		if errors.Is(err, ethutils.ErrMismatchBlobHashes) {
+			return &engine_types.PayloadStatus{
+				Status:          engine_types.InvalidStatus,
+				ValidationError: engine_types.NewStringifiedErrorFromString("mismatch in blob hashes"),
+			}, nil
+		}
 	}
 
 	possibleStatus, err := s.getQuickPayloadStatusIfPossible(blockHash, uint64(req.BlockNumber), header.ParentHash, nil, true)
@@ -425,26 +459,24 @@ func (s *EngineServer) forkchoiceUpdated(ctx context.Context, forkchoiceState *e
 		}
 	}
 
-	if payloadAttributes != nil {
-		if version < clparams.DenebVersion && payloadAttributes.ParentBeaconBlockRoot != nil {
-			return nil, &engine_helpers.InvalidPayloadAttributesErr // Unexpected Beacon Root
-		}
-		if version >= clparams.DenebVersion && payloadAttributes.ParentBeaconBlockRoot == nil {
-			return nil, &engine_helpers.InvalidPayloadAttributesErr // Beacon Root missing
-		}
-
-		timestamp := uint64(payloadAttributes.Timestamp)
-		if !s.config.IsCancun(timestamp) && version >= clparams.DenebVersion { // V3 before cancun
-			return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
-		}
-		if s.config.IsCancun(timestamp) && version < clparams.DenebVersion { // Not V3 after cancun
-			return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
-		}
-	}
-
 	// No need for payload building
 	if payloadAttributes == nil || status.Status != engine_types.ValidStatus {
 		return &engine_types.ForkChoiceUpdatedResponse{PayloadStatus: status}, nil
+	}
+
+	if version < clparams.DenebVersion && payloadAttributes.ParentBeaconBlockRoot != nil {
+		return nil, &engine_helpers.InvalidPayloadAttributesErr // Unexpected Beacon Root
+	}
+	if version >= clparams.DenebVersion && payloadAttributes.ParentBeaconBlockRoot == nil {
+		return nil, &engine_helpers.InvalidPayloadAttributesErr // Beacon Root missing
+	}
+
+	timestamp := uint64(payloadAttributes.Timestamp)
+	if !s.config.IsCancun(timestamp) && version >= clparams.DenebVersion { // V3 before cancun
+		return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
+	}
+	if s.config.IsCancun(timestamp) && version < clparams.DenebVersion { // Not V3 after cancun
+		return nil, &rpc.UnsupportedForkError{Message: "Unsupported fork"}
 	}
 
 	if !s.proposing {
@@ -453,7 +485,6 @@ func (s *EngineServer) forkchoiceUpdated(ctx context.Context, forkchoiceState *e
 
 	headHeader := s.chainRW.GetHeaderByHash(forkchoiceState.HeadHash)
 
-	timestamp := uint64(payloadAttributes.Timestamp)
 	if headHeader.Time >= timestamp {
 		return nil, &engine_helpers.InvalidPayloadAttributesErr
 	}
@@ -734,7 +765,7 @@ func (e *EngineServer) HandleNewPayload(
 		}
 	}
 
-	if err := e.chainRW.InsertBlockAndWait(block, versionedHashes); err != nil {
+	if err := e.chainRW.InsertBlockAndWait(block); err != nil {
 		return nil, err
 	}
 
