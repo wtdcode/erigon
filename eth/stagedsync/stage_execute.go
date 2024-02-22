@@ -178,7 +178,7 @@ func executeBlock(
 	receipts = execRs.Receipts
 	stateSyncReceipt = execRs.StateSyncReceipt
 
-	if writeReceipts {
+	if writeReceipts || filterNoPruneReceipts(receipts, cfg.chainConfig).Len() > 0 {
 		if err = rawdb.AppendReceipts(tx, blockNum, receipts); err != nil {
 			return err
 		}
@@ -199,6 +199,21 @@ func executeBlock(
 		return callTracer.WriteToDb(tx, block, *cfg.vmConfig)
 	}
 	return nil
+}
+
+// Filters out receipts of contracts that may be needed by CL, such as deposit contract
+func filterNoPruneReceipts(receipts types.Receipts, chainCfg *chain.Config) types.Receipts {
+	cr := types.Receipts{}
+	for _, r := range receipts {
+		for _, l := range r.Logs {
+			if chainCfg.NoPruneContracts[l.Address] {
+				cr = append(cr, r)
+				break
+			}
+		}
+	}
+	receipts = cr
+	return cr
 }
 
 func newStateReaderWriter(
@@ -922,10 +937,11 @@ func PruneExecutionStage(s *PruneState, tx kv.RwTx, cfg ExecuteBlockCfg, ctx con
 			if err = rawdb.PruneTable(tx, kv.BorReceipts, cfg.prune.Receipts.PruneTo(s.ForwardProgress), ctx, math.MaxUint32); err != nil {
 				return err
 			}
+			// EDIT: Don't prune yet, let LogIndex stage take care of it
 			// LogIndex.Prune will read everything what not pruned here
-			if err = rawdb.PruneTable(tx, kv.Log, cfg.prune.Receipts.PruneTo(s.ForwardProgress), ctx, math.MaxInt32); err != nil {
-				return err
-			}
+			// if err = rawdb.PruneTable(tx, kv.Log, cfg.prune.Receipts.PruneTo(s.ForwardProgress), ctx, math.MaxInt32); err != nil {
+			// 	return err
+			// }
 		}
 		if cfg.prune.CallTraces.Enabled() {
 			if err = rawdb.PruneTableDupSort(tx, kv.CallTraceSet, logPrefix, cfg.prune.CallTraces.PruneTo(s.ForwardProgress), logEvery, ctx); err != nil {
