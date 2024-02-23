@@ -459,9 +459,10 @@ func (ii *InvertedIndex) openFiles() error {
 	g := &errgroup.Group{}
 	g.SetLimit(32)
 	ii.files.Walk(func(items []*filesItem) bool {
-		for _, item := range items {
-			item := item
+		for i := range items {
+			i := i
 			g.Go(func() error {
+				item := items[i]
 				fromStep, toStep := item.startTxNum/ii.aggregationStep, item.endTxNum/ii.aggregationStep
 				if item.decompressor == nil {
 					fPath := ii.efFilePath(fromStep, toStep)
