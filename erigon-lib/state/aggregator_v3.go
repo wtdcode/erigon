@@ -250,10 +250,14 @@ func (a *AggregatorV3) OpenFolder(readonly bool) error {
 			return d.OpenFolder(readonly)
 		})
 	}
-	eg.Go(func() error { return a.logAddrs.OpenFolder(readonly) })
-	eg.Go(func() error { return a.logTopics.OpenFolder(readonly) })
-	eg.Go(func() error { return a.tracesFrom.OpenFolder(readonly) })
-	eg.Go(func() error { return a.tracesTo.OpenFolder(readonly) })
+	a.logAddrs.OpenFolder(readonly)
+	a.logTopics.OpenFolder(readonly)
+	a.tracesFrom.OpenFolder(readonly)
+	a.tracesTo.OpenFolder(readonly)
+	//eg.Go(func() error { return a.logAddrs.OpenFolder(readonly) })
+	//eg.Go(func() error { return a.logTopics.OpenFolder(readonly) })
+	//eg.Go(func() error { return a.tracesFrom.OpenFolder(readonly) })
+	//eg.Go(func() error { return a.tracesTo.OpenFolder(readonly) })
 	if err := eg.Wait(); err != nil {
 		return err
 	}
