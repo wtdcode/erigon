@@ -459,6 +459,8 @@ func (ii *InvertedIndex) openFiles() error {
 	g := &errgroup.Group{}
 	g.SetLimit(32)
 	ii.files.Scan(func(item *filesItem) bool {
+		fmt.Printf("[dbg] pointer: %p", item)
+
 		g.Go(func() error {
 			fromStep, toStep := item.startTxNum/ii.aggregationStep, item.endTxNum/ii.aggregationStep
 			if item.decompressor == nil {
