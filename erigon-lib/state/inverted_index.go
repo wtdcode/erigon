@@ -458,7 +458,7 @@ func (ii *InvertedIndex) openFiles() error {
 	invalidFileItemsLock := sync.Mutex{}
 	g := &errgroup.Group{}
 	g.SetLimit(32)
-	ii.files.Scan(func(item *filesItem) bool {
+	ii.files.ScanMut(func(item *filesItem) bool {
 		fmt.Printf("[dbg] pointer: %p", item)
 
 		g.Go(func() error {
