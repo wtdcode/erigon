@@ -459,8 +459,6 @@ func (ii *InvertedIndex) openFiles() error {
 	g := &errgroup.Group{}
 	g.SetLimit(32)
 	ii.files.ScanMut(func(item *filesItem) bool {
-		fmt.Printf("[dbg] pointer: %p", item)
-
 		g.Go(func() error {
 			fromStep, toStep := item.startTxNum/ii.aggregationStep, item.endTxNum/ii.aggregationStep
 			if item.decompressor == nil {
@@ -488,6 +486,7 @@ func (ii *InvertedIndex) openFiles() error {
 			if item.index == nil {
 				fPath := ii.efAccessorFilePath(fromStep, toStep)
 				if dir.FileExist(fPath) {
+					fmt.Printf("[dbg] pointer: %s\n", fPath)
 					if item.index, err = recsplit.OpenIndex(fPath); err != nil {
 						_, fName := filepath.Split(fPath)
 						ii.logger.Warn("[agg] InvertedIndex.openFiles", "err", err, "f", fName)
