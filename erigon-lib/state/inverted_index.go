@@ -456,10 +456,8 @@ func (ii *InvertedIndex) openFiles() error {
 	var err error
 	var invalidFileItems []*filesItem
 	invalidFileItemsLock := sync.Mutex{}
-	g := &errgroup.Group{}
-	g.SetLimit(32)
-	ii.files.ScanMut(func(item *filesItem) bool {
-		g.Go(func() error {
+	ii.files.Walk(func(items []*filesItem) bool {
+		for _, item := range items {
 			fromStep, toStep := item.startTxNum/ii.aggregationStep, item.endTxNum/ii.aggregationStep
 			if item.decompressor == nil {
 				fPath := ii.efFilePath(fromStep, toStep)
@@ -469,7 +467,7 @@ func (ii *InvertedIndex) openFiles() error {
 					invalidFileItemsLock.Lock()
 					invalidFileItems = append(invalidFileItems, item)
 					invalidFileItemsLock.Unlock()
-					return nil //nolint
+					continue
 				}
 
 				if item.decompressor, err = compress.NewDecompressor(fPath); err != nil {
@@ -479,14 +477,13 @@ func (ii *InvertedIndex) openFiles() error {
 					invalidFileItems = append(invalidFileItems, item)
 					invalidFileItemsLock.Unlock()
 					// don't interrupt on error. other files may be good. but skip indices open.
-					return nil //nolint
+					continue
 				}
 			}
 
 			if item.index == nil {
 				fPath := ii.efAccessorFilePath(fromStep, toStep)
 				if dir.FileExist(fPath) {
-					fmt.Printf("[dbg] pointer: %s\n", fPath)
 					if item.index, err = recsplit.OpenIndex(fPath); err != nil {
 						_, fName := filepath.Split(fPath)
 						ii.logger.Warn("[agg] InvertedIndex.openFiles", "err", err, "f", fName)
@@ -504,13 +501,10 @@ func (ii *InvertedIndex) openFiles() error {
 					}
 				}
 			}
-			return nil
-		})
+		}
+
 		return true
 	})
-	if err := g.Wait(); err != nil {
-		return err
-	}
 	for _, item := range invalidFileItems {
 		ii.files.Delete(item)
 	}
