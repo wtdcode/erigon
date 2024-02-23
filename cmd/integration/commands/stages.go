@@ -169,6 +169,7 @@ var cmdStageExec = &cobra.Command{
 	Use:   "stage_exec",
 	Short: "",
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("[dbg] alex\n")
 		logger := debug.SetupCobra(cmd, "integration")
 		db, err := openDB(dbCfg(kv.ChainDB, chaindata), true, logger)
 		if err != nil {
@@ -1731,6 +1732,7 @@ func allSnapshots(ctx context.Context, db kv.RoDB, logger log.Logger) (*freezebl
 			g := &errgroup.Group{}
 			g.Go(func() error { return _allSnapshotsSingleton.ReopenFolder() })
 			g.Go(func() error { return _allBorSnapshotsSingleton.ReopenFolder() })
+			fmt.Printf("[dbg] alex12\n")
 			_aggSingleton.OpenFolder(true)
 			err := g.Wait()
 			if err != nil {
