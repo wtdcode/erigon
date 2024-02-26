@@ -3,6 +3,7 @@ package jsonrpc
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
@@ -33,18 +34,22 @@ func (api *APIImpl) GetTransactionByHash(ctx context.Context, txnHash common.Has
 
 	// https://infura.io/docs/ethereum/json-rpc/eth-getTransactionByHash
 	blockNum, ok, err := api.txnLookup(tx, txnHash)
+	fmt.Printf("txnLookup: %d, %t, %s\n", blockNum, ok, err)
 	if err != nil {
 		return nil, err
 	}
+
 	// Private API returns 0 if transaction is not found.
 	if blockNum == 0 && chainConfig.Bor != nil {
 		blockNum, ok, err = api._blockReader.EventLookup(ctx, tx, txnHash)
+		fmt.Printf("EventLookup: %d, %t, %s\n", blockNum, ok, err)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if ok {
 		block, err := api.blockByNumberWithSenders(tx, blockNum)
+		fmt.Printf("blockByNumberWithSenders: %t, %s\n", block == nil, err)
 		if err != nil {
 			return nil, err
 		}
@@ -79,6 +84,7 @@ func (api *APIImpl) GetTransactionByHash(ctx context.Context, txnHash common.Has
 
 		return NewRPCTransaction(txn, blockHash, blockNum, txnIndex, baseFee), nil
 	}
+	fmt.Printf("dbg here1\n")
 
 	curHeader := rawdb.ReadCurrentHeader(tx)
 	if curHeader == nil {
