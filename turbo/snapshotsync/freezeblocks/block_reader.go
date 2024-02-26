@@ -559,6 +559,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 	}
 
 	if r.sn == nil {
+		fmt.Printf("[dbg] block2\n")
 		return
 	}
 
@@ -566,6 +567,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 	defer view.Close()
 	seg, ok := view.HeadersSegment(blockHeight)
 	if !ok {
+		fmt.Printf("[dbg] block3\n")
 		return
 	}
 
@@ -575,6 +577,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if h == nil {
+		fmt.Printf("[dbg] block4\n")
 		return
 	}
 
@@ -583,6 +586,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 	var txsAmount uint32
 	bodySeg, ok := view.BodiesSegment(blockHeight)
 	if !ok {
+		fmt.Printf("[dbg] block5\n")
 		return
 	}
 	b, baseTxnId, txsAmount, buf, err = r.bodyFromSnapshot(blockHeight, bodySeg, buf)
@@ -590,6 +594,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if b == nil {
+		fmt.Printf("[dbg] block6\n")
 		return
 	}
 	if txsAmount == 0 {
@@ -603,6 +608,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 
 	txnSeg, ok := view.TxsSegment(blockHeight)
 	if !ok {
+		fmt.Printf("[dbg] block7\n")
 		return
 	}
 	var txs []types.Transaction
@@ -611,6 +617,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if !ok {
+		fmt.Printf("[dbg] block8\n")
 		return
 	}
 	block = types.NewBlockFromStorage(hash, h, txs, b.Uncles, b.Withdrawals)

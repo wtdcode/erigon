@@ -187,6 +187,7 @@ func (api *BaseAPI) blockWithSenders(tx kv.Tx, hash common.Hash, number uint64) 
 		}
 	}
 	block, _, err := api._blockReader.BlockWithSenders(context.Background(), tx, hash, number)
+	fmt.Printf("blockWithSenders1: %t, %s\n", block == nil, err)
 	if err != nil {
 		return nil, err
 	}
