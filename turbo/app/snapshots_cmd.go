@@ -537,6 +537,9 @@ func doIndicesCommand(cliCtx *cli.Context) error {
 	if err := freezeblocks.RemoveIncompatibleIndices(dirs.Snap); err != nil {
 		return err
 	}
+	if err := freezeblocks.RemoveIncompatibleIndices(dirs.Snap); err != nil {
+		return err
+	}
 
 	cfg := ethconfig.NewSnapCfg(true, false, true)
 	chainConfig := fromdb.ChainConfig(chainDB)
