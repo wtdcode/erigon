@@ -24,5 +24,7 @@ func MountPointForDirPath(dirPath string) string {
 	}
 	mountPoint := string(mountPointBytes)
 
+	log.Info("[diskutils] DR Mount point:", mountPoint)
+
 	return mountPoint
 }

@@ -14,7 +14,7 @@ func MountPointForDirPath(dirPath string) string {
 	// Get the file information for the directory path
 	fileInfo, err := os.Stat(dirPath)
 	if err != nil {
-		log.Debug("[diskutils] Error getting file info for dir path:", dirPath, "Error:", err)
+		log.Info("[diskutils] Error getting file info for dir path:", dirPath, "Error:", err)
 		return "/"
 	}
 
@@ -28,13 +28,13 @@ func MountPointForDirPath(dirPath string) string {
 	linkPath := fmt.Sprintf("/dev/disk/by-uuid/%x", dev)
 	link, err := os.Readlink(linkPath)
 	if err != nil {
-		log.Debug("[diskutils] Error getting symbolic link for device ID:", dev, "Error:", err)
+		log.Info("[diskutils] Error getting symbolic link for device ID:", dev, "Error:", err)
 		return "/"
 	}
 
 	// Print the mount point
 	fmt.Println("Mount point:", link)
-	log.Info("[diskutils] Mount point:", link)
+	log.Info("[diskutils] LX Mount point:", link)
 
 	return link
 }
