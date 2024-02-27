@@ -34,6 +34,7 @@ func MountPointForDirPath(dirPath string) string {
 
 	// Print the mount point
 	fmt.Println("Mount point:", link)
+	log.Info("[diskutils] Mount point:", link)
 
 	return link
 }
