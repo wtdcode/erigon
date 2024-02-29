@@ -1298,7 +1298,7 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		if sn.idx.KeyCount() == 0 {
 			continue
 		}
-		fmt.Printf("[dbg] span(%d): %s, %d, %d\n", spanId, sn.idx.FileName(), sn.idx.KeyCount(), sn.idx.BaseDataID())
+		fmt.Printf("[dbg] span(%d): %s, %d, %d, read(%d)\n", spanId, sn.idx.FileName(), sn.idx.KeyCount(), sn.idx.BaseDataID(), spanId-sn.idx.BaseDataID())
 		offset := sn.idx.OrdinalLookup(spanId - sn.idx.BaseDataID())
 		gg := sn.seg.MakeGetter()
 		gg.Reset(offset)
