@@ -1292,8 +1292,8 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		if spanId < spanFrom {
 			continue
 		}
-		spanTo := bor.SpanIDAt(sn.to)
-		if spanId >= spanTo {
+		spanTo := bor.SpanIDAt(sn.to - 1)
+		if spanId > spanTo {
 			continue
 		}
 		if sn.idx.KeyCount() == 0 {
