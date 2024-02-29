@@ -1177,6 +1177,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		if err != nil {
 			return nil, err
 		}
+		log.Warn("[dbg] EventsByBlock1", "l", len(result))
 		return result, nil
 	}
 	borTxHash := types.ComputeBorTxHash(blockHeight, hash)
@@ -1205,6 +1206,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		reader := recsplit.NewIndexReader(idxBorTxnHash)
 		blockEventId, ok := reader.Lookup(borTxHash[:])
 		if !ok {
+			log.Warn("[dbg] EventsByBlock2", "l", len(result))
 			continue
 		}
 		offset := idxBorTxnHash.OrdinalLookup(blockEventId)
@@ -1215,6 +1217,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 			result = append(result, rlp.RawValue(common.Copy(buf[length.Hash+length.BlockNum+8:])))
 		}
 	}
+	log.Warn("[dbg] EventsByBlock3", "l", len(result))
 	return result, nil
 }
 
