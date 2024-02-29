@@ -1352,6 +1352,7 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 			err := fmt.Errorf("span %d not found (db), frozenBlocks=%d", spanId, maxBlockNumInFiles)
 			return nil, fmt.Errorf("%w: %w", SpanNotFoundErr, err)
 		}
+		log.Warn("[dbg] Span1", "spanId", spanId)
 		return common.Copy(v), nil
 	}
 	view := r.borSn.View()
@@ -1379,6 +1380,7 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		gg := sn.MakeGetter()
 		gg.Reset(offset)
 		result, _ := gg.Next(nil)
+		log.Warn("[dbg] Span2", "spanId", spanId)
 		return common.Copy(result), nil
 	}
 	err := fmt.Errorf("span %d not found (snapshots)", spanId)
