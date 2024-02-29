@@ -1298,6 +1298,9 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		if sn.idx.KeyCount() == 0 {
 			continue
 		}
+		if sn.idx.BaseDataID()+sn.idx.KeyCount() < spanId {
+			return 0, fmt.Errorf("snapshot has not enough events: %d + %d < %d", sn.idx.BaseDataID(), sn.idx.KeyCount(), spanId)
+		}
 		fmt.Printf("[dbg] span(%d): %s, %d, %d, read(%d)\n", spanId, sn.idx.FileName(), sn.idx.KeyCount(), sn.idx.BaseDataID(), spanId-sn.idx.BaseDataID())
 		offset := sn.idx.OrdinalLookup(spanId - sn.idx.BaseDataID())
 		gg := sn.seg.MakeGetter()
