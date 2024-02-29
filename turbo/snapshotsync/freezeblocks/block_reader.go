@@ -1050,6 +1050,9 @@ func (r *BlockReader) BorStartEventID(ctx context.Context, tx kv.Tx, hash common
 		if err != nil {
 			return 0, err
 		}
+		if len(v) == 0 {
+			return 0, fmt.Errorf("BorEventNums not found: %d\n", blockHeight)
+		}
 		startEventId := binary.BigEndian.Uint64(v)
 		return startEventId, nil
 	}
