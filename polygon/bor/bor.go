@@ -1466,39 +1466,41 @@ func (c *Bor) CommitStates(
 		}
 
 		startEventID := chain.Chain.BorStartEventID(header.Hash(), blockNum)
-		log.Warn("[dbg] fallback to remote bor events", "blockNum", blockNum, "startEventID", startEventID, "events_from_db_or_snaps", len(events))
-		remote, err := c.HeimdallClient.FetchStateSyncEvents(context.Background(), startEventID, to, 0)
-		if err != nil {
-			return err
-		}
-		if len(remote) > 0 {
-			chainID := c.chainConfig.ChainID.String()
-
-			var merged []*heimdall.EventRecordWithTime
-			events = events[:0]
-			for _, event := range remote {
-				if event.ChainID != chainID {
-					continue
-				}
-				if event.Time.After(to) {
-					continue
-				}
-				merged = append(merged, event)
+		if startEventID > 0 {
+			log.Warn("[dbg] fallback to remote bor events", "blockNum", blockNum, "startEventID", startEventID, "events_from_db_or_snaps", len(events))
+			remote, err := c.HeimdallClient.FetchStateSyncEvents(context.Background(), startEventID, to, 0)
+			if err != nil {
+				return err
 			}
+			if len(remote) > 0 {
+				chainID := c.chainConfig.ChainID.String()
 
-			for _, ev := range merged {
-				eventRecordWithoutTime := ev.BuildEventRecord()
-
-				recordBytes, err := rlp.EncodeToBytes(eventRecordWithoutTime)
-				if err != nil {
-					panic(err)
+				var merged []*heimdall.EventRecordWithTime
+				events = events[:0]
+				for _, event := range remote {
+					if event.ChainID != chainID {
+						continue
+					}
+					if event.Time.After(to) {
+						continue
+					}
+					merged = append(merged, event)
 				}
 
-				data, err := stateReceiverABI.Pack("commitState", big.NewInt(ev.Time.Unix()), recordBytes)
-				if err != nil {
-					panic(err)
+				for _, ev := range merged {
+					eventRecordWithoutTime := ev.BuildEventRecord()
+
+					recordBytes, err := rlp.EncodeToBytes(eventRecordWithoutTime)
+					if err != nil {
+						panic(err)
+					}
+
+					data, err := stateReceiverABI.Pack("commitState", big.NewInt(ev.Time.Unix()), recordBytes)
+					if err != nil {
+						panic(err)
+					}
+					events = append(events, data)
 				}
-				events = append(events, data)
 			}
 		}
 	}
