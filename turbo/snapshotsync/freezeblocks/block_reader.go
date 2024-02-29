@@ -1292,15 +1292,16 @@ func (r *BlockReader) Span(ctx context.Context, tx kv.Getter, spanId uint64) ([]
 		if spanId < spanFrom {
 			continue
 		}
-		spanTo := bor.SpanIDAt(sn.to - 1)
-		if spanId > spanTo {
+		spanTo := bor.SpanIDAt(sn.to)
+		if spanId >= spanTo {
 			continue
 		}
 		if sn.idx.KeyCount() == 0 {
 			continue
 		}
 		if sn.idx.BaseDataID()+sn.idx.KeyCount() < spanId {
-			return nil, fmt.Errorf("snapshot(%s=%d-%d) has not enough events: %d + %d < %d", sn.seg.FileName1, spanFrom, spanTo, sn.idx.BaseDataID(), sn.idx.KeyCount(), spanId)
+			continue
+			//return nil, fmt.Errorf("snapshot(%s=%d-%d) has not enough events: %d + %d < %d", sn.seg.FileName1, spanFrom, spanTo, sn.idx.BaseDataID(), sn.idx.KeyCount(), spanId)
 		}
 		fmt.Printf("[dbg] span(%d): %s, %d, %d, read(%d)\n", spanId, sn.idx.FileName(), sn.idx.KeyCount(), sn.idx.BaseDataID(), spanId-sn.idx.BaseDataID())
 		offset := sn.idx.OrdinalLookup(spanId - sn.idx.BaseDataID())
