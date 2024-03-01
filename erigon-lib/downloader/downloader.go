@@ -407,7 +407,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 	maxDownloadBlock, _ := downloads.MaxBlock(0)
 
 	for _, item := range snapCfg.Preverified {
-		fileInfo, isStateFile, ok := snaptype.ParseFileName(snapDir, item.Name)
+		_, isStateFile, ok := snaptype.ParseFileName(snapDir, item.Name)
 		if !ok {
 			continue
 		}
