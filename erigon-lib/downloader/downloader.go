@@ -419,9 +419,9 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 		}
 
 		if maxDownloadBlock > 0 {
-			if fileInfo.From > maxDownloadBlock {
-				missingItems = append(missingItems, item)
-			}
+			//if fileInfo.From > maxDownloadBlock {
+			missingItems = append(missingItems, item)
+			//}
 		} else {
 			if !downloads.Contains(item.Name, true) {
 				missingItems = append(missingItems, item)
