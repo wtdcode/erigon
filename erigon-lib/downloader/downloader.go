@@ -429,6 +429,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 		}
 	}
 
+	fmt.Printf("[dbg] Downloading %s, missing %s\n", downloads, missingItems)
 	lock.Downloads = snapcfg.Merge(downloads, missingItems)
 	return lock, nil
 }
