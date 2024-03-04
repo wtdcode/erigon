@@ -599,6 +599,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 							isActive = isActive || p.DownloadRate() > 0
 						}
 						if !isActive {
+							t.AllowDataDownload()
 							retries[t.Name()]++
 							if retries[t.Name()] == 10 {
 								log.Warn("t.VerifyData", "name", t.Name())
