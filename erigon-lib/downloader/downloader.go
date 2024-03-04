@@ -591,6 +591,20 @@ func (d *Downloader) mainLoop(silent bool) error {
 				select {
 				case <-t.GotInfo():
 					if _, ok := started[t.Name()]; ok {
+						isActive := false
+						for _, p := range t.PeerConns() {
+							isActive = isActive || p.DownloadRate() > 0
+						}
+						for _, p := range t.WebseedPeerConns() {
+							isActive = isActive || p.DownloadRate() > 0
+						}
+						if !isActive {
+							retries[t.Name()]++
+							if retries[t.Name()] == 10 {
+								t.VerifyData()
+							}
+						}
+
 						continue
 					}
 					started[t.Name()] = true
@@ -619,8 +633,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 						log.Warn("[dbg] download done", "file", t.Name())
 					}
 				}(t)
-				fmt.Printf("a: %#v\n", t.Stats())
-				retries[t.Name()]++
 			}
 
 			select {
