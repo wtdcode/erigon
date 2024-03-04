@@ -601,6 +601,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 					case <-d.ctx.Done():
 						return
 					case <-t.Complete.On():
+						log.Warn("[dbg] download done", "file", t.Name())
 					}
 				}(t)
 			}
