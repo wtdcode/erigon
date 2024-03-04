@@ -601,6 +601,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 						if !isActive {
 							retries[t.Name()]++
 							if retries[t.Name()] == 10 {
+								log.Warn("t.VerifyData", "name", t.Name())
 								t.VerifyData()
 							}
 						}
