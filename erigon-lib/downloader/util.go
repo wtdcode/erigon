@@ -449,7 +449,7 @@ func ScheduleVerifyFile(ctx context.Context, t *torrent.Torrent, completePieces 
 			return nil
 		})
 	}
-	return nil
+	return wg.Wait()
 }
 
 func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, completePieces *atomic.Uint64) error {
