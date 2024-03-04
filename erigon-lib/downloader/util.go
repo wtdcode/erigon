@@ -455,8 +455,8 @@ func ScheduleVerifyFile(ctx context.Context, t *torrent.Torrent, completePieces 
 func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, completePieces *atomic.Uint64) error {
 	info := t.Info()
 	file := info.UpvertedFiles()[0]
-	filename := filepath.Join(append([]string{root, info.Name}, file.Path...)...)
-	f, err := os.Open(filename)
+	fPath := filepath.Join(append([]string{root, info.Name}, file.Path...)...)
+	f, err := os.Open(fPath)
 	if err != nil {
 		return err
 	}

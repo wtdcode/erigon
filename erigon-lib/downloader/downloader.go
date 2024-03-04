@@ -36,6 +36,7 @@ import (
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/c2h5oh/datasize"
+	dir2 "github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/tidwall/btree"
 	"golang.org/x/sync/errgroup"
@@ -872,6 +873,10 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 			return ctx.Err()
 		}
 
+		if !dir2.FileExist(filepath.Join(d.SnapDir(), t.Name())) {
+			continue
+		}
+
 		if len(whiteList) > 0 {
 			name := t.Name()
 			exactOrPartialMatch := slices.ContainsFunc(whiteList, func(s string) bool {
@@ -902,7 +907,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 				case <-logEvery.C:
 					d.logger.Info("[snapshots] Verify",
 						"progress", fmt.Sprintf("%.2f%%", 100*float64(completedPieces.Load())/float64(total)),
-						"files", fmt.Sprintf("%d/%d", completedFiles.Load(), len(allTorrents)),
+						"files", fmt.Sprintf("%d/%d", completedFiles.Load(), len(toVerify)),
 						"sz_gb", downloadercfg.DefaultPieceSize*completedPieces.Load()/1024/1024/1024,
 					)
 				}
