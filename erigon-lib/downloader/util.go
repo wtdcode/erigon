@@ -33,9 +33,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/anacrolix/torrent/storage"
 	"github.com/c2h5oh/datasize"
-	"github.com/edsrzf/mmap-go"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -489,28 +487,4 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 		}
 	}
 	return nil
-}
-
-func mmapFile(name string) (mm storage.FileMapping, err error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return
-	}
-	defer func() {
-		if err != nil {
-			f.Close()
-		}
-	}()
-	fi, err := f.Stat()
-	if err != nil {
-		return
-	}
-	if fi.Size() == 0 {
-		return
-	}
-	reg, err := mmap.MapRegion(f, -1, mmap.RDONLY, mmap.COPY, 0)
-	if err != nil {
-		return
-	}
-	return storage.WrapFileMapping(reg, f), nil
 }
