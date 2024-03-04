@@ -898,7 +898,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 				case <-ctx.Done():
 					return
 				case <-logEvery.C:
-					d.logger.Info("[snapshots] Verify", "progress", fmt.Sprintf("%.2f%%", 100*float64(completedPieces.Load())/float64(total)), "files", fmt.Sprintf("%d/%d", completedFiles.Load(), len(allTorrents)), "sz_gb", downloadercfg.DefaultPieceSize*completedPieces.Load()/1024/1024)
+					d.logger.Info("[snapshots] Verify", "progress", fmt.Sprintf("%.2f%%", 100*float64(completedPieces.Load())/float64(total)), "files", fmt.Sprintf("%d/%d", completedFiles.Load(), len(allTorrents)), "sz_gb", downloadercfg.DefaultPieceSize*completedPieces.Load()/1024/1024/1024)
 				}
 			}
 		}()
