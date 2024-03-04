@@ -439,10 +439,15 @@ func IsLocal(path string) bool {
 }
 
 func ScheduleVerifyFile(ctx context.Context, t *torrent.Torrent, completePieces *atomic.Uint64) error {
+	wg, ctx := errgroup.WithContext(ctx)
+	wg.SetLimit(1024)
 	for i := 0; i < t.NumPieces(); i++ {
-		t.Piece(i).VerifyData()
-
-		completePieces.Add(1)
+		i := i
+		wg.Go(func() error {
+			t.Piece(i).VerifyData()
+			completePieces.Add(1)
+			return nil
+		})
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
