@@ -563,6 +563,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 		//atomic.StoreUint64(&d.stats.DroppedCompleted, 0)
 		//atomic.StoreUint64(&d.stats.DroppedTotal, 0)
 		//d.addTorrentFilesFromDisk(false)
+		started := map[string]bool{}
 		retries := map[string]int{}
 		for {
 			torrents := d.torrentClient.Torrents()
@@ -585,6 +586,15 @@ func (d *Downloader) mainLoop(silent bool) error {
 					}
 
 					continue
+				}
+
+				select {
+				case <-t.GotInfo():
+					if _, ok := started[t.Name()]; ok {
+						continue
+					}
+					started[t.Name()] = true
+				default:
 				}
 
 				if err := sem.Acquire(d.ctx, 1); err != nil {
