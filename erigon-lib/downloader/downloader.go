@@ -885,7 +885,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 	d.logger.Info("[snapshots] Verify start")
 	defer d.logger.Info("[snapshots] Verify done", "files", len(toVerify), "whiteList", whiteList)
 
-	completedPieces := &atomic.Uint64{}
+	completedPieces, completedFiles := &atomic.Uint64{}, &atomic.Uint64{}
 
 	{
 		logEvery := time.NewTicker(20 * time.Second)
@@ -898,7 +898,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 				case <-ctx.Done():
 					return
 				case <-logEvery.C:
-					d.logger.Info("[snapshots] Verify", "progress", fmt.Sprintf("%.2f%%", 100*float64(completedPieces.Load())/float64(total)), "sz", datasize.ByteSize(downloadercfg.DefaultPieceSize*completedPieces.Load()))
+					d.logger.Info("[snapshots] Verify", "progress", fmt.Sprintf("%.2f%%", 100*float64(completedPieces.Load())/float64(total)), "files", fmt.Sprintf("%d/%d", completedFiles.Load(), len(allTorrents)), "sz", datasize.ByteSize(downloadercfg.DefaultPieceSize*completedPieces.Load()))
 				}
 			}
 		}()
@@ -911,6 +911,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 	for _, t := range toVerify {
 		t := t
 		g.Go(func() error {
+			defer completedFiles.Add(1)
 			if failFast {
 				return VerifyFileFailFast(ctx, t, d.SnapDir(), completedPieces)
 			}
