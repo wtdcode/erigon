@@ -35,6 +35,7 @@ import (
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/anacrolix/torrent/mmap_span"
 	"github.com/anacrolix/torrent/storage"
+	"github.com/c2h5oh/datasize"
 	"github.com/edsrzf/mmap-go"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
@@ -155,12 +156,14 @@ func BuildTorrentIfNeed(ctx context.Context, fName, root string, torrentFiles *T
 		return nil
 	}
 
-	defer func(t time.Time) { fmt.Printf("util.go:158: %s,%s\n", time.Since(t), fName) }(time.Now())
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fName}
 	if err := info.BuildFromFilePath(fPath); err != nil {
 		return fmt.Errorf("createTorrentFileFromSegment: %w", err)
 	}
 	info.Name = fName
+	defer func(t time.Time) {
+		fmt.Printf("util.go:158: %s,%s,%s\n", time.Since(t), fName, datasize.ByteSize(info.Length).String())
+	}(time.Now())
 
 	return CreateTorrentFileFromInfo(root, info, nil, torrentFiles)
 }
