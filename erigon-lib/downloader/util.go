@@ -155,7 +155,7 @@ func BuildTorrentIfNeed(ctx context.Context, fName, root string, torrentFiles *T
 		return nil
 	}
 
-	defer func(t time.Time) { fmt.Printf("util.go:158: %s\n", time.Since(t)) }(time.Now())
+	defer func(t time.Time) { fmt.Printf("util.go:158: %s,%s\n", time.Since(t), fName) }(time.Now())
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fName}
 	if err := info.BuildFromFilePath(fPath); err != nil {
 		return fmt.Errorf("createTorrentFileFromSegment: %w", err)
