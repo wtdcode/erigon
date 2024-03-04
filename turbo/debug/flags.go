@@ -123,6 +123,7 @@ func SetupCobra(cmd *cobra.Command, filePrefix string) log.Logger {
 
 	go ListenSignals(nil, logger)
 	pprof, err := flags.GetBool(pprofFlag.Name)
+	fmt.Printf("a: %t\n", pprof)
 	if err != nil {
 		log.Error("failed setting config flags from yaml/toml file", "err", err)
 		panic(err)
