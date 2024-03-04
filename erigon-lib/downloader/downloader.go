@@ -610,6 +610,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 					}
 				}(t)
 				fmt.Printf("a: %d\n", t.Stats())
+				retries[t.Name()]++
 			}
 
 			select {
