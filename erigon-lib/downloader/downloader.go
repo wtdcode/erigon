@@ -563,6 +563,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 		//atomic.StoreUint64(&d.stats.DroppedCompleted, 0)
 		//atomic.StoreUint64(&d.stats.DroppedTotal, 0)
 		//d.addTorrentFilesFromDisk(false)
+		retries := map[string]int{}
 		for {
 			torrents := d.torrentClient.Torrents()
 			select {
@@ -608,6 +609,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 						log.Warn("[dbg] download done", "file", t.Name())
 					}
 				}(t)
+				fmt.Printf("a: %d\n", t.Stats())
 			}
 
 			select {
