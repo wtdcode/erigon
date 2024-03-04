@@ -69,7 +69,9 @@ type Downloader struct {
 	stopMainLoop context.CancelFunc
 	wg           sync.WaitGroup
 
-	webseeds  *WebSeeds
+	webseeds         *WebSeeds
+	webseedsDiscover bool
+
 	logger    log.Logger
 	verbosity log.Lvl
 
@@ -127,6 +129,7 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 		verbosity:         verbosity,
 		torrentFiles:      &TorrentFiles{dir: cfg.Dirs.Snap},
 		snapshotLock:      lock,
+		webseedsDiscover:  discover,
 	}
 
 	d.webseeds.torrentFiles = d.torrentFiles
@@ -146,21 +149,6 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 		}
 	}
 
-	// CornerCase: no peers -> no anoncments to trackers -> no magnetlink resolution (but magnetlink has filename)
-	// means we can start adding weebseeds without waiting for `<-t.GotInfo()`
-	d.wg.Add(1)
-
-	go func() {
-		defer d.wg.Done()
-		if !discover {
-			return
-		}
-		d.webseeds.Discover(d.ctx, d.cfg.WebSeedUrls, d.cfg.WebSeedFiles, d.cfg.Dirs.Snap)
-		// webseeds.Discover may create new .torrent files on disk
-		if err := d.addTorrentFilesFromDisk(true); err != nil && !errors.Is(err, context.Canceled) {
-			d.logger.Warn("[snapshots] addTorrentFilesFromDisk", "err", err)
-		}
-	}()
 	return d, nil
 }
 
@@ -505,6 +493,20 @@ func (d *Downloader) MainLoopInBackground(silent bool) {
 }
 
 func (d *Downloader) mainLoop(silent bool) error {
+	if d.webseedsDiscover {
+		// CornerCase: no peers -> no anoncments to trackers -> no magnetlink resolution (but magnetlink has filename)
+		// means we can start adding weebseeds without waiting for `<-t.GotInfo()`
+		d.wg.Add(1)
+		go func() {
+			defer d.wg.Done()
+			d.webseeds.Discover(d.ctx, d.cfg.WebSeedUrls, d.cfg.WebSeedFiles, d.cfg.Dirs.Snap)
+			// webseeds.Discover may create new .torrent files on disk
+			if err := d.addTorrentFilesFromDisk(true); err != nil && !errors.Is(err, context.Canceled) {
+				d.logger.Warn("[snapshots] addTorrentFilesFromDisk", "err", err)
+			}
+		}()
+	}
+
 	var sem = semaphore.NewWeighted(int64(d.cfg.DownloadSlots))
 
 	d.wg.Add(1)
