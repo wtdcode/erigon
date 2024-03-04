@@ -448,11 +448,6 @@ func ScheduleVerifyFile(ctx context.Context, t *torrent.Torrent, completePieces 
 			completePieces.Add(1)
 			return nil
 		})
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
 	}
 	return nil
 }
