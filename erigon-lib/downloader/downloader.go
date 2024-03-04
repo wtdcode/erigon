@@ -592,11 +592,13 @@ func (d *Downloader) mainLoop(silent bool) error {
 					return
 				case <-t.GotInfo():
 				}
+				log.Warn("[dbg] download start", "file", t.Name())
 				t.DownloadAll()
 				d.wg.Add(1)
 				go func(t *torrent.Torrent) {
 					defer d.wg.Done()
 					defer sem.Release(1)
+
 					select {
 					case <-d.ctx.Done():
 						return
