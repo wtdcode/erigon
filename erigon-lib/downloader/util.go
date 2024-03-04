@@ -162,7 +162,7 @@ func BuildTorrentIfNeed(ctx context.Context, fName, root string, torrentFiles *T
 	}
 	info.Name = fName
 	defer func(t time.Time) {
-		fmt.Printf("util.go:158: %s,%s,%s\n", time.Since(t), fName, datasize.ByteSize(info.Length).String())
+		fmt.Printf("util.go:158: %s,%s,%s\n", time.Since(t), fName, datasize.ByteSize(info.Length))
 	}(time.Now())
 
 	return CreateTorrentFileFromInfo(root, info, nil, torrentFiles)
