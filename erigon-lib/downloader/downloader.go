@@ -619,7 +619,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 						log.Warn("[dbg] download done", "file", t.Name())
 					}
 				}(t)
-				fmt.Printf("a: %d\n", t.Stats())
+				fmt.Printf("a: %#v\n", t.Stats())
 				retries[t.Name()]++
 			}
 
