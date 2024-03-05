@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
-	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -21,8 +20,8 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/tidwall/btree"
+	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
-	"golang.org/x/sync/semaphore"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/chain/snapcfg"
@@ -304,7 +303,7 @@ func (s *RoSnapshots) BlocksAvailable() uint64 {
 		return 0
 	}
 
-	return s.idxMax.Load()
+	return cmp.Min(s.segmentsMax.Load(), s.idxMax.Load())
 }
 func (s *RoSnapshots) LogStat(label string) {
 	var m runtime.MemStats
@@ -824,10 +823,7 @@ func BuildMissedIndices(logPrefix string, ctx context.Context, dirs datadir.Dirs
 				ps.Add(p)
 				defer notifySegmentIndexingFinished(sn.Name())
 				defer ps.Delete(p)
-				if err := buildIdx(gCtx, sn, chainConfig, tmpDir, p, log.LvlInfo, logger); err != nil {
-					return fmt.Errorf("%s: %w", sn.Name(), err)
-				}
-				return nil
+				return buildIdx(gCtx, sn, chainConfig, tmpDir, p, log.LvlInfo, logger)
 			})
 		}
 	}
@@ -1033,14 +1029,10 @@ func typedSegments(dir string, minBlock uint64, types []snaptype.Type) (res []sn
 				log.Debug("[snapshots] see gap", "type", segType, "from", lst.from)
 			}
 			res = append(res, l...)
-			if len(m) > 0 {
-				lst := m[len(m)-1]
-				log.Debug("[snapshots] see gap", "type", segType, "from", lst.from)
-			}
-
 			missingSnapshots = append(missingSnapshots, m...)
 		}
 	}
+
 	return res, missingSnapshots, nil
 }
 
@@ -1067,9 +1059,6 @@ type BlockRetire struct {
 	working               atomic.Bool
 	needSaveFilesListInDB atomic.Bool
 
-	// shared semaphore with AggregatorV3 to allow only one type of snapshot building at a time
-	snBuildAllowed *semaphore.Weighted
-
 	workers int
 	tmpDir  string
 	db      kv.RoDB
@@ -1082,33 +1071,13 @@ type BlockRetire struct {
 	chainConfig *chain.Config
 }
 
-func NewBlockRetire(
-	compressWorkers int,
-	dirs datadir.Dirs,
-	blockReader services.FullBlockReader,
-	blockWriter *blockio.BlockWriter,
-	db kv.RoDB,
-	chainConfig *chain.Config,
-	notifier services.DBEventNotifier,
-	snBuildAllowed *semaphore.Weighted,
-	logger log.Logger,
-) *BlockRetire {
-	return &BlockRetire{
-		workers:        compressWorkers,
-		tmpDir:         dirs.Tmp,
-		dirs:           dirs,
-		blockReader:    blockReader,
-		blockWriter:    blockWriter,
-		db:             db,
-		snBuildAllowed: snBuildAllowed,
-		chainConfig:    chainConfig,
-		notifier:       notifier,
-		logger:         logger,
-	}
+func NewBlockRetire(compressWorkers int, dirs datadir.Dirs, blockReader services.FullBlockReader, blockWriter *blockio.BlockWriter, db kv.RoDB, chainConfig *chain.Config, notifier services.DBEventNotifier, logger log.Logger) *BlockRetire {
+	return &BlockRetire{workers: compressWorkers, tmpDir: dirs.Tmp, dirs: dirs, blockReader: blockReader, blockWriter: blockWriter, db: db, chainConfig: chainConfig, notifier: notifier, logger: logger}
 }
 
-func (br *BlockRetire) SetWorkers(workers int) { br.workers = workers }
-func (br *BlockRetire) GetWorkers() int        { return br.workers }
+func (br *BlockRetire) SetWorkers(workers int) {
+	br.workers = workers
+}
 
 func (br *BlockRetire) IO() (services.FullBlockReader, *blockio.BlockWriter) {
 	return br.blockReader, br.blockWriter
@@ -1127,12 +1096,11 @@ func (br *BlockRetire) HasNewFrozenFiles() bool {
 }
 
 func CanRetire(curBlockNum uint64, blocksInSnapshots uint64, chainConfig *chain.Config) (blockFrom, blockTo uint64, can bool) {
-	var keep uint64 = params.FullImmutabilityThreshold / 20 //TODO: we will remove `/20` after some db optimizations
-	if curBlockNum <= keep {
+	if curBlockNum <= params.FullImmutabilityThreshold {
 		return
 	}
 	blockFrom = blocksInSnapshots + 1
-	return canRetire(blockFrom, curBlockNum-keep, chainConfig)
+	return canRetire(blockFrom, curBlockNum-params.FullImmutabilityThreshold, chainConfig)
 }
 
 func canRetire(from, to uint64, chainConfig *chain.Config) (blockFrom, blockTo uint64, can bool) {
@@ -1180,22 +1148,15 @@ func CanDeleteTo(curBlockNum uint64, blocksInSnapshots uint64) (blockTo uint64) 
 		return 0
 	}
 
-	var keep uint64 = params.FullImmutabilityThreshold / 20 //TODO: we will remove `/20` after some db optimizations
-	if curBlockNum+999 < keep {
+	if curBlockNum+999 < params.FullImmutabilityThreshold {
 		// To prevent overflow of uint64 below
 		return blocksInSnapshots + 1
 	}
-	hardLimit := (curBlockNum/1_000)*1_000 - keep
+	hardLimit := (curBlockNum/1_000)*1_000 - params.FullImmutabilityThreshold
 	return cmp.Min(hardLimit, blocksInSnapshots+1)
 }
 
 func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, maxBlockNum uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDelete func(l []string) error) (bool, error) {
-	select {
-	case <-ctx.Done():
-		return false, ctx.Err()
-	default:
-	}
-
 	notifier, logger, blockReader, tmpDir, db, workers := br.notifier, br.logger, br.blockReader, br.tmpDir, br.db, br.workers
 	snapshots := br.snapshots()
 
@@ -1258,7 +1219,7 @@ func (br *BlockRetire) PruneAncientBlocks(tx kv.RwTx, limit int) error {
 	}
 
 	if canDeleteTo := CanDeleteTo(currentProgress, br.blockReader.FrozenBlocks()); canDeleteTo > 0 {
-		br.logger.Trace("[snapshots] Prune Blocks", "to", canDeleteTo, "limit", limit)
+		br.logger.Info("[snapshots] Prune Blocks", "to", canDeleteTo, "limit", limit)
 		if err := br.blockWriter.PruneBlocks(context.Background(), tx, canDeleteTo, limit); err != nil {
 			return err
 		}
@@ -1266,7 +1227,7 @@ func (br *BlockRetire) PruneAncientBlocks(tx kv.RwTx, limit int) error {
 
 	if br.chainConfig.Bor != nil {
 		if canDeleteTo := CanDeleteTo(currentProgress, br.blockReader.FrozenBorBlocks()); canDeleteTo > 0 {
-			br.logger.Trace("[snapshots] Prune Bor Blocks", "to", canDeleteTo, "limit", limit)
+			br.logger.Info("[snapshots] Prune Bor Blocks", "to", canDeleteTo, "limit", limit)
 			if err := br.blockWriter.PruneBorBlocks(context.Background(), tx, canDeleteTo, limit,
 				func(block uint64) uint64 { return uint64(heimdall.SpanIdAt(block)) }); err != nil {
 				return err
@@ -1277,7 +1238,7 @@ func (br *BlockRetire) PruneAncientBlocks(tx kv.RwTx, limit int) error {
 	return nil
 }
 
-func (br *BlockRetire) RetireBlocksInBackground(ctx context.Context, minBlockNum, maxBlockNum uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDeleteSnapshots func(l []string) error) {
+func (br *BlockRetire) RetireBlocksInBackground(ctx context.Context, minBlockNum uint64, maxBlockNum uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDeleteSnapshots func(l []string) error) {
 	if maxBlockNum > br.maxScheduledBlock.Load() {
 		br.maxScheduledBlock.Store(maxBlockNum)
 	}
@@ -1287,16 +1248,8 @@ func (br *BlockRetire) RetireBlocksInBackground(ctx context.Context, minBlockNum
 	}
 
 	go func() {
-		defer br.working.Store(false)
 
-		if br.snBuildAllowed != nil {
-			//we are inside own goroutine - it's fine to block here
-			if err := br.snBuildAllowed.Acquire(ctx, 1); err != nil {
-				br.logger.Warn("[snapshots] retire blocks", "err", err)
-				return
-			}
-			defer br.snBuildAllowed.Release(1)
-		}
+		defer br.working.Store(false)
 
 		for {
 			maxBlockNum := br.maxScheduledBlock.Load()
@@ -1379,6 +1332,7 @@ func (br *BlockRetire) buildMissedIndicesIfNeed(ctx context.Context, logPrefix s
 	if snapshots.IndicesMax() >= snapshots.SegmentsMax() {
 		return nil
 	}
+	snapshots.LogStat("missed-idx")
 	if !snapshots.Cfg().Produce && snapshots.IndicesMax() == 0 {
 		return fmt.Errorf("please remove --snap.stop, erigon can't work without creating basic indices")
 	}
@@ -1388,7 +1342,6 @@ func (br *BlockRetire) buildMissedIndicesIfNeed(ctx context.Context, logPrefix s
 	if !snapshots.SegmentsReady() {
 		return fmt.Errorf("not all snapshot segments are available")
 	}
-	snapshots.LogStat("missed-idx")
 
 	// wait for Downloader service to download all expected snapshots
 	indexWorkers := estimate.IndexSnapshot.Workers()
@@ -2412,21 +2365,11 @@ func (v *View) TxsSegment(blockNum uint64) (*Segment, bool) {
 	return v.Segment(snaptype.Transactions, blockNum)
 }
 
-func RemoveIncompatibleIndices(dirs datadir.Dirs) error {
-	l, err := dir2.ListFiles(dirs.Snap, ".idx")
+func RemoveIncompatibleIndices(snapsDir string) error {
+	l, err := dir2.ListFiles(snapsDir, ".idx")
 	if err != nil {
 		return err
 	}
-	l1, err := dir2.ListFiles(dirs.SnapAccessors, ".efi")
-	if err != nil {
-		return err
-	}
-	l2, err := dir2.ListFiles(dirs.SnapAccessors, ".vi")
-	if err != nil {
-		return err
-	}
-	l = append(append(l, l1...), l2...)
-
 	for _, fPath := range l {
 		index, err := recsplit.OpenIndex(fPath)
 		if err != nil {
