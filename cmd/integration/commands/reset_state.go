@@ -8,6 +8,7 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/ledgerwatch/erigon-lib/chain/snapcfg"
 	"github.com/ledgerwatch/erigon/turbo/backup"
 	"github.com/ledgerwatch/log/v3"
 
@@ -122,6 +123,7 @@ func printStages(tx kv.Tx, snapshots *freezeblocks.RoSnapshots, borSn *freezeblo
 	fmt.Fprintf(w, "--\n")
 	fmt.Fprintf(w, "prune distance: %s\n\n", pm.String())
 	fmt.Fprintf(w, "blocks.v2: %t, blocks=%d, segments=%d, indices=%d\n", snapshots.Cfg().Enabled, snapshots.BlocksAvailable(), snapshots.SegmentsMax(), snapshots.IndicesMax())
+	fmt.Fprintf(w, "blocks.v2 dbg: %d, %d, %d\n", snapcfg.KnownCfg(chain).MergeLimit(18_400_000), snapcfg.KnownCfg(chain).MergeLimit(18_500_000), snapcfg.KnownCfg(chain).MergeLimit(18_600_000))
 	fmt.Fprintf(w, "blocks.bor.v2: segments=%d, indices=%d\n\n", borSn.SegmentsMax(), borSn.IndicesMax())
 	h3, err := kvcfg.HistoryV3.Enabled(tx)
 	if err != nil {
