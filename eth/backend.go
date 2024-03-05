@@ -188,6 +188,8 @@ type Ethereum struct {
 
 	// zk
 	dataStream *datastreamer.StreamServer
+	l1Syncer   *syncer.L1Syncer
+	etherMan   *etherman.Client
 }
 
 func splitAddrIntoHostAndPort(addr string) (host string, port int, err error) {
@@ -491,7 +493,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		backend.newTxs2 = make(chan types2.Announcements, 1024)
 		//defer close(newTxs)
 		backend.txPool2DB, backend.txPool2, backend.txPool2Fetch, backend.txPool2Send, backend.txPool2GrpcServer, err = txpooluitl.AllComponents(
-			ctx, config.TxPool, kvcache.NewDummy(), backend.newTxs2, backend.chainDB, backend.sentriesClient.Sentries(), stateDiffClient,
+			ctx, config.TxPool, config.Zk, kvcache.NewDummy(), backend.newTxs2, backend.chainDB, backend.sentriesClient.Sentries(), stateDiffClient,
 		)
 		if err != nil {
 			return nil, err
@@ -728,10 +730,10 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		if sequencer.IsSequencer() {
 			// if we are sequencing transactions, we do the sequencing loop...
 
-			etherMan := newEtherMan(cfg)
+			backend.etherMan = newEtherMan(cfg)
 			l1Topics := [][]libcommon.Hash{{contracts.UpdateL1InfoTreeTopic, contracts.InitialSequenceBatchesTopic}}
-			zkL1Syncer := syncer.NewL1Syncer(
-				etherMan.EthClient,
+			backend.l1Syncer = syncer.NewL1Syncer(
+				backend.etherMan.EthClient,
 				[]libcommon.Address{cfg.L1Rollup, cfg.L1PolygonRollupManager},
 				l1Topics,
 				cfg.L1BlockRange,
@@ -765,7 +767,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 				backend.chainConfig,
 				backend.chainDB,
 				witnessGenerator,
-				zkL1Syncer,
+				backend.l1Syncer,
 			)
 
 			verifier.StartWork()
@@ -782,7 +784,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 				backend.forkValidator,
 				backend.engine,
 				backend.dataStream,
-				zkL1Syncer,
+				backend.l1Syncer,
 				backend.txPool2,
 				backend.txPool2DB,
 				verifier,
@@ -935,8 +937,8 @@ func (backend *Ethereum) Init(stack *node.Node, config *ethconfig.Config) error 
 	if casted, ok := backend.engine.(*bor.Bor); ok {
 		borDb = casted.DB
 	}
-	apiList := commands.APIList(chainKv, borDb, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, backend.agg, httpRpcCfg, backend.engine, config.Zk.L2RpcUrl)
-	authApiList := commands.AuthAPIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, backend.agg, httpRpcCfg, backend.engine)
+	apiList := commands.APIList(chainKv, borDb, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, backend.agg, httpRpcCfg, backend.engine, config.Zk, backend.l1Syncer)
+	authApiList := commands.AuthAPIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, backend.agg, httpRpcCfg, backend.engine, config.Zk)
 	go func() {
 		if err := cli.StartRpcServer(ctx, httpRpcCfg, apiList, authApiList); err != nil {
 			log.Error(err.Error())

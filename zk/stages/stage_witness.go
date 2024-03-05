@@ -417,7 +417,7 @@ func (g *WitnessGenerator) GenerateWitness(tx kv.Tx, ctx context.Context, startB
 			globalExitRoots = append(globalExitRoots, gersInBetween...)
 		}
 
-		blockGer, _, err := hermezDb.GetBlockGlobalExitRoot(blockNum)
+		blockGer, err := hermezDb.GetBlockGlobalExitRoot(blockNum)
 		if err != nil {
 			return nil, err
 		}
