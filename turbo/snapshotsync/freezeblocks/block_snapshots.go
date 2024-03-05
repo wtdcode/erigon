@@ -1001,7 +1001,7 @@ func SegmentsCaplin(dir string, minBlock uint64) (res []snaptype.FileInfo, missi
 		l, m = noGaps(noOverlaps(l), minBlock)
 		if len(m) > 0 {
 			lst := m[len(m)-1]
-			log.Debug("[snapshots] see gap", "type", snaptype.Enums.BeaconBlocks, "from", lst.from)
+			log.Debug("[snapshots] see gap", "type", snaptype.Enums.BeaconBlocks, "from", lst.from, "minBlock", minBlock)
 		}
 		res = append(res, l...)
 		res = append(res, lSidecars...)
@@ -1038,7 +1038,7 @@ func typedSegments(dir string, minBlock uint64, types []snaptype.Type) (res []sn
 			l, m = noGaps(noOverlaps(segmentsTypeCheck(dir, l)), minBlock)
 			if len(m) > 0 {
 				lst := m[len(m)-1]
-				log.Debug("[snapshots] see gap", "type", segType, "from", lst.from)
+				log.Debug("[snapshots] see gap", "type", segType, "from", lst.from, "minBlock", minBlock)
 			}
 			res = append(res, l...)
 			missingSnapshots = append(missingSnapshots, m...)
