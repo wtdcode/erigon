@@ -1,0 +1,1193 @@
+goroutine profile: total 20161
+12096 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xe0b205 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138				runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84						sync/cond.go:70
+#	0xe0b204	github.com/anacrolix/torrent.(*webseedPeer).requester+0xa4	github.com/anacrolix/torrent@v1.54.0/webseed-peer.go:123
+
+2280 @ 0x45fe2e 0x4703a5 0xe09994 0x493821
+#	0xe09993	github.com/anacrolix/torrent.(*trackerScraper).Run.func1+0xb3	github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:208
+
+1830 @ 0x45fe2e 0x4703a5 0xe09873 0x493821
+#	0xe09872	github.com/anacrolix/torrent.(*trackerScraper).Run+0x4f2	github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:250
+
+1080 @ 0x45fe2e 0x42a6a5 0x42a2f7 0x20f9ec5 0x493821
+#	0x20f9ec4	github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8.1+0xc4	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:400
+
+483 @ 0x45fe2e 0x42a6a5 0x42a2f7 0x20f9ff7 0x493821
+#	0x20f9ff6	github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8.1+0x1f6	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:386
+
+448 @ 0x45fe2e 0x4703a5 0xe0824c 0xe094c5 0x493821
+#	0xe0824b	github.com/anacrolix/torrent.(*trackerScraper).announce+0x20b	github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:129
+#	0xe094c4	github.com/anacrolix/torrent.(*trackerScraper).Run+0x144	github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:218
+
+200 @ 0x45fe2e 0x42b40d 0x42b032 0x16f7e45 0x493821
+#	0x16f7e44	github.com/ledgerwatch/erigon/p2p/sentry.NewPeerInfo.func1+0x44	github.com/ledgerwatch/erigon/p2p/sentry/sentry_grpc_server.go:138
+
+200 @ 0x45fe2e 0x4703a5 0x1367aee 0x13733f6 0x493821
+#	0x1367aed	github.com/ledgerwatch/erigon/p2p.(*Peer).run+0x2ad		github.com/ledgerwatch/erigon/p2p/peer.go:315
+#	0x13733f5	github.com/ledgerwatch/erigon/p2p.(*Server).runPeer+0x1d5	github.com/ledgerwatch/erigon/p2p/server.go:1160
+
+200 @ 0x45fe2e 0x4703a5 0x1367fc7 0x493821
+#	0x1367fc6	github.com/ledgerwatch/erigon/p2p.(*Peer).pingLoop+0x146	github.com/ledgerwatch/erigon/p2p/peer.go:342
+
+200 @ 0x45fe2e 0x4703a5 0x1369e3b 0x16fa070 0x16fd0e5 0x136936e 0x493821
+#	0x1369e3a	github.com/ledgerwatch/erigon/p2p.(*protoRW).ReadMsg+0xba		github.com/ledgerwatch/erigon/p2p/peer.go:549
+#	0x16fa06f	github.com/ledgerwatch/erigon/p2p/sentry.runPeer+0x40f			github.com/ledgerwatch/erigon/p2p/sentry/sentry_grpc_server.go:384
+#	0x16fd0e4	github.com/ledgerwatch/erigon/p2p/sentry.NewGrpcServer.func1+0x824	github.com/ledgerwatch/erigon/p2p/sentry/sentry_grpc_server.go:641
+#	0x136936d	github.com/ledgerwatch/erigon/p2p.(*Peer).startProtocols.func1+0x8d	github.com/ledgerwatch/erigon/p2p/peer.go:481
+
+198 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x1366402 0x4dd770 0x135d7b7 0x135e11c 0x135de17 0x13749ca 0x13683a7 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279				internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267						internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24							net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44							net/net.go:179
+#	0x1366401	github.com/ledgerwatch/erigon/p2p.(*meteredConn).Read+0x21		github.com/ledgerwatch/erigon/p2p/metrics.go:63
+#	0x4dd76f	io.ReadAtLeast+0x8f							io/io.go:335
+#	0x135d7b6	github.com/ledgerwatch/erigon/p2p/rlpx.(*readBuffer).read+0x1d6		github.com/ledgerwatch/erigon/p2p/rlpx/buffer.go:64
+#	0x135e11b	github.com/ledgerwatch/erigon/p2p/rlpx.(*sessionState).readFrame+0xfb	github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:166
+#	0x135de16	github.com/ledgerwatch/erigon/p2p/rlpx.(*Conn).Read+0x56		github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:136
+#	0x13749c9	github.com/ledgerwatch/erigon/p2p.(*rlpxTransport).ReadMsg+0x129	github.com/ledgerwatch/erigon/p2p/transport.go:67
+#	0x13683a6	github.com/ledgerwatch/erigon/p2p.(*Peer).readLoop+0xc6			github.com/ledgerwatch/erigon/p2p/peer.go:364
+
+141 @ 0x45fe2e 0x42a6a5 0x42a2f7 0x20fa034 0x493821
+#	0x20fa033	github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8.1+0x233	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:395
+
+106 @ 0x45fe2e 0x4703a5 0xd95ac5 0xdded8e 0x493821
+#	0xd95ac4	github.com/anacrolix/torrent/internal/alloclim.(*Reservation).Wait+0x124	github.com/anacrolix/torrent@v1.54.0/internal/alloclim/r.go:84
+#	0xdded8d	github.com/anacrolix/torrent.(*PeerConn).peerRequestDataReader+0x6d		github.com/anacrolix/torrent@v1.54.0/peerconn.go:619
+
+86 @ 0x45fe2e 0x490785 0xdca5d0 0xdcb365 0x493821
+#	0x490784	time.Sleep+0x124							runtime/time.go:195
+#	0xdca5cf	github.com/anacrolix/torrent.(*Client).dialAndCompleteHandshake+0x6f	github.com/anacrolix/torrent@v1.54.0/client.go:750
+#	0xdcb364	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x64		github.com/anacrolix/torrent@v1.54.0/client.go:863
+
+42 @ 0x45fe2e 0x4703a5 0x5fa7ba 0x493821
+#	0x5fa7b9	net.(*netFD).connect.func2+0x79	net/fd_unix.go:118
+
+36 @ 0x45fe2e 0x4703a5 0x201b013 0x20260a7 0x493821
+#	0x201b012	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialWorker).loop+0x372	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_worker.go:149
+#	0x20260a6	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialWorkerLoop+0x106	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:295
+
+32 @ 0x45fe2e 0x4703a5 0x201a5af 0x201aa88 0x2025a33 0x2025545 0x1ffd2ec 0x1ffd125 0x20e8cc2 0x20e99c6 0x493821
+#	0x201a5ae	github.com/libp2p/go-libp2p/p2p/net/swarm.(*activeDial).dial+0x24e		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:60
+#	0x201aa87	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialSync).Dial+0x87			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:98
+#	0x2025a32	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialPeer+0x472		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:265
+#	0x2025544	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).DialPeer+0x24		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:227
+#	0x1ffd2eb	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).dialPeer+0x12b		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:738
+#	0x1ffd124	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).Connect+0x104		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:731
+#	0x20e8cc1	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).ConnectWithPeer+0x141	github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:31
+#	0x20e99c5	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).listenForPeers.func1+0x65	github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:111
+
+31 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x5fa313 0x5fa2f7 0x5fa314 0x610bb2 0x610714 0x605411 0x615409 0x6152a5 0x6152a6 0x5eebb5 0x5ee4e8 0x5edba5 0x5ed5fe 0x1f2df05 0x1f2d948 0x1f312ff 0x1f318ec 0x1f315f4 0x2028247 0x201e6e7 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84							runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26							internal/poll/fd_poll_runtime.go:84
+#	0x5fa312	internal/poll.(*pollDesc).waitWrite+0x732						internal/poll/fd_poll_runtime.go:93
+#	0x5fa2f6	internal/poll.(*FD).WaitWrite+0x716							internal/poll/fd_unix.go:683
+#	0x5fa313	net.(*netFD).connect+0x733								net/fd_unix.go:141
+#	0x610bb1	net.(*netFD).dial+0x3b1									net/sock_posix.go:151
+#	0x610713	net.socket+0x293									net/sock_posix.go:70
+#	0x605410	net.internetSocket+0xf0									net/ipsock_posix.go:142
+#	0x615408	net.(*sysDialer).doDialTCPProto+0xe8							net/tcpsock_posix.go:78
+#	0x6152a4	net.(*sysDialer).doDialTCP+0x64								net/tcpsock_posix.go:68
+#	0x6152a5	net.(*sysDialer).dialTCP+0x65								net/tcpsock_posix.go:64
+#	0x5eebb4	net.(*sysDialer).dialSingle+0x254							net/dial.go:649
+#	0x5ee4e7	net.(*sysDialer).dialSerial+0x247							net/dial.go:614
+#	0x5edba4	net.(*sysDialer).dialParallel+0x3e4							net/dial.go:515
+#	0x5ed5fd	net.(*Dialer).DialContext+0x6dd								net/dial.go:506
+#	0x1f2df04	github.com/libp2p/go-libp2p/p2p/net/reuseport.(*dialer).DialContext+0x2a4		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/reuseport/dialer.go:91
+#	0x1f2d947	github.com/libp2p/go-libp2p/p2p/net/reuseport.(*Transport).DialContext+0xe7		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/reuseport/dial.go:36
+#	0x1f312fe	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).maDial+0x15e		github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:171
+#	0x1f318eb	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).dialWithScope+0x24b	github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:198
+#	0x1f315f3	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).Dial+0x233		github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:185
+#	0x2028246	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialAddr+0x386			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:533
+#	0x201e6e6	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialLimiter).executeDial+0xe6		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/limiter.go:219
+
+31 @ 0x45fe2e 0x4703a5 0x2082086 0x208209c 0x2023662 0x493821
+#	0x2082085	github.com/libp2p/go-mplex.(*Multiplex).Accept+0x65			github.com/libp2p/go-mplex@v0.7.0/multiplex.go:180
+#	0x208209b	github.com/libp2p/go-libp2p-mplex.(*conn).AcceptStream+0x7b		github.com/libp2p/go-libp2p-mplex@v0.9.0/conn.go:39
+#	0x2023661	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Conn).start.func1+0xa1	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_conn.go:114
+
+30 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x6a6897 0x4dd770 0x1e4f475 0x1e4f454 0x1e4eb65 0x6a6363 0x6a6a87 0x15de713 0x20801fe 0x207f18d 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84								runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26								internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279							internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267									internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24										net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44										net/net.go:179
+#	0x6a6896	bufio.(*Reader).Read+0x196									bufio/bufio.go:244
+#	0x4dd76f	io.ReadAtLeast+0x8f										io/io.go:335
+#	0x1e4f474	io.ReadFull+0x34										io/io.go:354
+#	0x1e4f453	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).readNextInsecureMsgLen+0x13	github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:133
+#	0x1e4eb64	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).Read+0x204			github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:52
+#	0x6a6362	bufio.(*Reader).fill+0x102									bufio/bufio.go:113
+#	0x6a6a86	bufio.(*Reader).ReadByte+0x26									bufio/bufio.go:272
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52						github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x20801fd	github.com/libp2p/go-mplex.(*Multiplex).readNextHeader+0x1d					github.com/libp2p/go-mplex@v0.7.0/multiplex.go:566
+#	0x207f18c	github.com/libp2p/go-mplex.(*Multiplex).handleIncoming+0x12c					github.com/libp2p/go-mplex@v0.7.0/multiplex.go:374
+
+30 @ 0x45fe2e 0x4703a5 0x207e77f 0x493821
+#	0x207e77e	github.com/libp2p/go-mplex.(*Multiplex).handleOutgoing+0xbe	github.com/libp2p/go-mplex@v0.7.0/multiplex.go:262
+
+26 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x2001c2d 0x1ffee22 0x20b1dd5 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad			github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59				github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17			github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x2001c2c	github.com/multiformats/go-multistream.(*lazyClientConn[...]).Read+0xac	github.com/multiformats/go-multistream@v0.4.1/lazyClient.go:68
+#	0x1ffee21	github.com/libp2p/go-libp2p/p2p/host/basic.(*streamWrapper).Read+0x21	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:1054
+#	0x20b1dd4	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handlePeerDead+0x74	github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:147
+
+26 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x4dd770 0x1faf891 0x1faf874 0x15de713 0x1faf14a 0x1faf4ef 0x20b1014 0x1ffc01f 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad					github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59						github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17					github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c				github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x4dd76f	io.ReadAtLeast+0x8f									io/io.go:335
+#	0x1faf890	io.ReadFull+0x30									io/io.go:354
+#	0x1faf873	github.com/libp2p/go-msgio.(*simpleByteReader).ReadByte+0x13				github.com/libp2p/go-msgio@v0.3.0/varint.go:185
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52					github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1faf149	github.com/libp2p/go-msgio.(*varintReader).nextMsgLen+0x29				github.com/libp2p/go-msgio@v0.3.0/varint.go:119
+#	0x1faf4ee	github.com/libp2p/go-msgio.(*varintReader).ReadMsg+0xae					github.com/libp2p/go-msgio@v0.3.0/varint.go:149
+#	0x20b1013	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleNewStream+0x3f3			github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:66
+#	0x1ffc01e	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).SetStreamHandler.func1+0x3e	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:598
+
+26 @ 0x45fe2e 0x4703a5 0x20b1ffa 0x493821
+#	0x20b1ff9	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleSendingMessages+0x159	github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:175
+
+12 @ 0x45fe2e 0x42b40d 0x42b012 0xdbcacc 0x493821
+#	0xdbcacb	github.com/anacrolix/go-libutp.(*Conn).waitForConnect.func1+0x2b	github.com/anacrolix/go-libutp@v1.3.1/conn.go:70
+
+12 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbc94b 0xdc0ce5 0xdef32f 0xdc9cce 0xdd3f3e 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138				runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84						sync/cond.go:70
+#	0xdbc94a	github.com/anacrolix/go-libutp.(*Conn).waitForConnect+0xca	github.com/anacrolix/go-libutp@v1.3.1/conn.go:86
+#	0xdc0ce4	github.com/anacrolix/go-libutp.(*Socket).DialContext+0x284	github.com/anacrolix/go-libutp@v1.3.1/socket.go:442
+#	0xdef32e	github.com/anacrolix/torrent.utpSocketSocket.Dial+0xee		github.com/anacrolix/torrent@v1.54.0/socket.go:183
+#	0xdc9ccd	github.com/anacrolix/torrent.dialFromSocket+0x4d		github.com/anacrolix/torrent@v1.54.0/client.go:648
+#	0xdd3f3d	github.com/anacrolix/torrent.(*dialPool).add.func1+0x3d		github.com/anacrolix/torrent@v1.54.0/dial-pool.go:25
+
+11 @ 0x45fe2e 0x42b40d 0x42b012 0xdca909 0xdca98a 0xdcb365 0x493821
+#	0xdca908	github.com/anacrolix/torrent.(*dialPool).getFirst+0x3a8			github.com/anacrolix/torrent@v1.54.0/dial-pool.go:15
+#	0xdca989	github.com/anacrolix/torrent.(*Client).dialAndCompleteHandshake+0x429	github.com/anacrolix/torrent@v1.54.0/client.go:771
+#	0xdcb364	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x64		github.com/anacrolix/torrent@v1.54.0/client.go:863
+
+11 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x5fa313 0x5fa2f7 0x5fa314 0x610bb2 0x610714 0x605411 0x615409 0x6152a5 0x6152a6 0x5eebb5 0x5ee4e8 0x5edba5 0x5ed5fe 0xe1c748 0xdc9cce 0xdd3f3e 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x5fa312	internal/poll.(*pollDesc).waitWrite+0x732			internal/poll/fd_poll_runtime.go:93
+#	0x5fa2f6	internal/poll.(*FD).WaitWrite+0x716				internal/poll/fd_unix.go:683
+#	0x5fa313	net.(*netFD).connect+0x733					net/fd_unix.go:141
+#	0x610bb1	net.(*netFD).dial+0x3b1						net/sock_posix.go:151
+#	0x610713	net.socket+0x293						net/sock_posix.go:70
+#	0x605410	net.internetSocket+0xf0						net/ipsock_posix.go:142
+#	0x615408	net.(*sysDialer).doDialTCPProto+0xe8				net/tcpsock_posix.go:78
+#	0x6152a4	net.(*sysDialer).doDialTCP+0x64					net/tcpsock_posix.go:68
+#	0x6152a5	net.(*sysDialer).dialTCP+0x65					net/tcpsock_posix.go:64
+#	0x5eebb4	net.(*sysDialer).dialSingle+0x254				net/dial.go:649
+#	0x5ee4e7	net.(*sysDialer).dialSerial+0x247				net/dial.go:614
+#	0x5edba4	net.(*sysDialer).dialParallel+0x3e4				net/dial.go:515
+#	0x5ed5fd	net.(*Dialer).DialContext+0x6dd					net/dial.go:506
+#	0xe1c747	github.com/anacrolix/torrent/dialer.WithNetwork.Dial+0x47	github.com/anacrolix/torrent@v1.54.0/dialer/dialer.go:33
+#	0xdc9ccd	github.com/anacrolix/torrent.dialFromSocket+0x4d		github.com/anacrolix/torrent@v1.54.0/client.go:648
+#	0xdd3f3d	github.com/anacrolix/torrent.(*dialPool).add.func1+0x3d		github.com/anacrolix/torrent@v1.54.0/dial-pool.go:25
+
+9 @ 0x45fe2e 0x4703a5 0x20e1118 0x20e19a8 0x20ea090 0x493821
+#	0x20e1117	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp.Do+0x137				github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:44
+#	0x20e19a7	github.com/ledgerwatch/erigon/cl/sentinel/handshake.(*HandShaker).ValidatePeer+0x327	github.com/ledgerwatch/erigon/cl/sentinel/handshake/handshake.go:84
+#	0x20ea08f	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).onConnection.func1+0x4f		github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:148
+
+8 @ 0x45fe2e 0x42b40d 0x42b032 0x1740345 0x493821
+#	0x1740344	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.pumpStreamLoop[...].func2+0xa4	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:217
+
+8 @ 0x45fe2e 0x4703a5 0x20b9745 0x493821
+#	0x20b9744	github.com/libp2p/go-libp2p-pubsub.(*GossipSubRouter).connector+0xc4	github.com/libp2p/go-libp2p-pubsub@v0.9.3/gossipsub.go:947
+
+8 @ 0x45fe2e 0x4703a5 0x20dc21f 0x493821
+#	0x20dc21e	github.com/libp2p/go-libp2p-pubsub.(*validation).validateWorker+0xbe	github.com/libp2p/go-libp2p-pubsub@v0.9.3/validation.go:283
+
+8 @ 0x45fe2e 0x4703a5 0x8f2a9e 0x493821
+#	0x8f2a9d	github.com/ledgerwatch/erigon-lib/common.RootContext.func1+0x19d	github.com/ledgerwatch/erigon-lib@v1.0.0/common/cli.go:40
+
+8 @ 0x45fe2e 0x4703a5 0xdd6c3c 0xdd67f6 0x493821
+#	0xdd6c3b	github.com/anacrolix/torrent.(*peerConnMsgWriter).run+0x2bb		github.com/anacrolix/torrent@v1.54.0/peer-conn-msg-writer.go:85
+#	0xdd67f5	github.com/anacrolix/torrent.(*PeerConn).messageWriterRunner+0xd5	github.com/anacrolix/torrent@v1.54.0/peer-conn-msg-writer.go:47
+
+6 @ 0x45fe2e 0x4703a5 0x1702952 0xb6530d 0x493821
+#	0x1702951	github.com/ledgerwatch/erigon/p2p/sentry.(*GrpcServer).Messages+0x231			github.com/ledgerwatch/erigon/p2p/sentry/sentry_grpc_server.go:1192
+#	0xb6530c	github.com/ledgerwatch/erigon-lib/direct.(*SentryClientDirect).Messages.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:253
+
+6 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbd0a8 0xdd3939 0xdea21e 0x4dd770 0xdd5030 0xdd5000 0xdcbdfb 0xdcc734 0xdc98c5 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138				runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84						sync/cond.go:70
+#	0xdbd0a7	github.com/anacrolix/go-libutp.(*Conn).Read+0x87		github.com/anacrolix/go-libutp@v1.3.1/conn.go:151
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38	github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd	github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4dd76f	io.ReadAtLeast+0x8f						io/io.go:335
+#	0xdd502f	io.ReadFull+0x8f						io/io.go:354
+#	0xdd4fff	github.com/anacrolix/torrent.handleEncryption+0x5f		github.com/anacrolix/torrent@v1.54.0/handshake.go:45
+#	0xdcbdfa	github.com/anacrolix/torrent.(*Client).receiveHandshakes+0x17a	github.com/anacrolix/torrent@v1.54.0/client.go:957
+#	0xdcc733	github.com/anacrolix/torrent.(*Client).runReceivedConn+0xb3	github.com/anacrolix/torrent@v1.54.0/client.go:1018
+#	0xdc98c4	github.com/anacrolix/torrent.(*Client).incomingConnection+0x384	github.com/anacrolix/torrent@v1.54.0/client.go:588
+
+5 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbd0a8 0xdd3939 0xdea21e 0xdd4f31 0x6a6897 0x4dd770 0xbfb050 0xbfb033 0xbf9385 0xde189f 0xde013a 0xdcd225 0xdfcd19 0xdcb650 0xdcb63b 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138						runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84								sync/cond.go:70
+#	0xdbd0a7	github.com/anacrolix/go-libutp.(*Conn).Read+0x87				github.com/anacrolix/go-libutp@v1.3.1/conn.go:151
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38			github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd			github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0xdd4f30	github.com/anacrolix/torrent.deadlineReader.Read+0xf0				github.com/anacrolix/torrent@v1.54.0/handshake.go:27
+#	0x6a6896	bufio.(*Reader).Read+0x196							bufio/bufio.go:244
+#	0x4dd76f	io.ReadAtLeast+0x8f								io/io.go:335
+#	0xbfb04f	io.ReadFull+0x4f								io/io.go:354
+#	0xbfb032	github.com/anacrolix/torrent/peer_protocol.(*Integer).Read+0x32			github.com/anacrolix/torrent@v1.54.0/peer_protocol/int.go:29
+#	0xbf9384	github.com/anacrolix/torrent/peer_protocol.(*Decoder).Decode+0x64		github.com/anacrolix/torrent@v1.54.0/peer_protocol/decoder.go:25
+#	0xde189e	github.com/anacrolix/torrent.(*PeerConn).mainReadLoop.func2+0x7e		github.com/anacrolix/torrent@v1.54.0/peerconn.go:726
+#	0xde0139	github.com/anacrolix/torrent.(*PeerConn).mainReadLoop+0x2b9			github.com/anacrolix/torrent@v1.54.0/peerconn.go:727
+#	0xdcd224	github.com/anacrolix/torrent.(*Torrent).runHandshookConn+0x484			github.com/anacrolix/torrent@v1.54.0/client.go:1084
+#	0xdfcd18	github.com/anacrolix/torrent.(*Torrent).logRunHandshookConn+0x38		github.com/anacrolix/torrent@v1.54.0/torrent.go:1697
+#	0xdcb64f	github.com/anacrolix/torrent.(*Torrent).runHandshookConnLoggingErr+0x34f	github.com/anacrolix/torrent@v1.54.0/torrent.go:1704
+#	0xdcb63a	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x33a			github.com/anacrolix/torrent@v1.54.0/client.go:885
+
+4 @ 0x45fe2e 0x4703a5 0x13297b8 0x493821
+#	0x13297b7	github.com/ledgerwatch/erigon/p2p/enode.(*FairMix).runSource+0x177	github.com/ledgerwatch/erigon/p2p/enode/iter.go:284
+
+4 @ 0x45fe2e 0x4703a5 0x18c0dba 0x7e0c36 0x493821
+#	0x18c0db9	github.com/ledgerwatch/erigon/eth/stagedsync.blocksReadAhead.func1+0x159	github.com/ledgerwatch/erigon/eth/stagedsync/stage_execute.go:625
+#	0x7e0c35	golang.org/x/sync/errgroup.(*Group).Go.func1+0x55				golang.org/x/sync@v0.6.0/errgroup/errgroup.go:78
+
+4 @ 0x45fe2e 0x4703a5 0x201a5af 0x201aa88 0x2025a33 0x2025545 0x1ffd2ec 0x1ffd125 0x1ffc47d 0x20ef190 0x71eb69 0x1cb6a94 0x71eb69 0x1cb4710 0x20e125c 0x493821
+#	0x201a5ae	github.com/libp2p/go-libp2p/p2p/net/swarm.(*activeDial).dial+0x24e		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:60
+#	0x201aa87	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialSync).Dial+0x87			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:98
+#	0x2025a32	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialPeer+0x472		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:265
+#	0x2025544	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).DialPeer+0x24		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:227
+#	0x1ffd2eb	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).dialPeer+0x12b		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:738
+#	0x1ffd124	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).Connect+0x104		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:731
+#	0x1ffc47c	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0xfc		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:634
+#	0x20ef18f	github.com/ledgerwatch/erigon/cl/sentinel.New.NewRequestHandler.func4+0x1af	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:75
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb6a93	github.com/go-chi/chi/v5.(*Mux).routeHTTP+0x2b3					github.com/go-chi/chi/v5@v5.0.11/mux.go:443
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb470f	github.com/go-chi/chi/v5.(*Mux).ServeHTTP+0x32f					github.com/go-chi/chi/v5@v5.0.11/mux.go:90
+#	0x20e125b	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp.Do.func1+0xbb		github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:38
+
+4 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x13d2ce2 0x13d29c5 0x20e4c49 0x20e4176 0x1ffc01f 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad										github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59											github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17										github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c									github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x13d2ce1	github.com/ledgerwatch/erigon/cl/sentinel/communication/ssz_snappy.ReadUvarint+0x81						github.com/ledgerwatch/erigon/cl/sentinel/communication/ssz_snappy/encoding.go:107
+#	0x13d29c4	github.com/ledgerwatch/erigon/cl/sentinel/communication/ssz_snappy.DecodeAndReadNoForkDigest+0x44				github.com/ledgerwatch/erigon/cl/sentinel/communication/ssz_snappy/encoding.go:83
+#	0x20e4c48	github.com/ledgerwatch/erigon/cl/sentinel/handlers.(*ConsensusHandlers).goodbyeHandler+0xe8					github.com/ledgerwatch/erigon/cl/sentinel/handlers/heartbeats.go:46
+#	0x20e4175	github.com/ledgerwatch/erigon/cl/sentinel/handlers.NewConsensusHandlers.(*ConsensusHandlers).wrapStreamHandler.func1+0x215	github.com/ledgerwatch/erigon/cl/sentinel/handlers/handlers.go:186
+#	0x1ffc01e	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).SetStreamHandler.func1+0x3e						github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:598
+
+4 @ 0x45fe2e 0x4703a5 0x20d2e45 0x20ec046 0x493821
+#	0x20d2e44	github.com/libp2p/go-libp2p-pubsub.(*Subscription).Next+0x84			github.com/libp2p/go-libp2p-pubsub@v0.9.3/subscription.go:26
+#	0x20ec045	github.com/ledgerwatch/erigon/cl/sentinel.(*GossipSubscription).run+0x105	github.com/ledgerwatch/erigon/cl/sentinel/gossip.go:361
+
+3 @ 0x45fe2e 0x42a6a5 0x42a2f7 0x20ec225 0x493821
+#	0x20ec224	github.com/ledgerwatch/erigon/cl/sentinel.(*GossipSubscription).run+0x2e4	github.com/ledgerwatch/erigon/cl/sentinel/gossip.go:372
+
+3 @ 0x45fe2e 0x42b40d 0x42b032 0xbf9e2f 0x493821
+#	0xbf9e2e	github.com/anacrolix/torrent/peer_protocol.handshakeWriter+0x4e	github.com/anacrolix/torrent@v1.54.0/peer_protocol/handshake.go:36
+
+3 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0xdd3939 0xdea21e 0x4de693 0x4de693 0xdd4f31 0x6a6897 0x4dd770 0xbfb050 0xbfb033 0xbf9385 0xde189f 0xde013a 0xdcd225 0xdfcd19 0xdcc805 0xdcc7ee 0xdc98c5 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84						runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26						internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279					internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267							internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24								net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44								net/net.go:179
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38			github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd			github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4de692	io.(*multiReader).Read+0x92							io/multi.go:26
+#	0x4de692	io.(*multiReader).Read+0x92							io/multi.go:26
+#	0xdd4f30	github.com/anacrolix/torrent.deadlineReader.Read+0xf0				github.com/anacrolix/torrent@v1.54.0/handshake.go:27
+#	0x6a6896	bufio.(*Reader).Read+0x196							bufio/bufio.go:244
+#	0x4dd76f	io.ReadAtLeast+0x8f								io/io.go:335
+#	0xbfb04f	io.ReadFull+0x4f								io/io.go:354
+#	0xbfb032	github.com/anacrolix/torrent/peer_protocol.(*Integer).Read+0x32			github.com/anacrolix/torrent@v1.54.0/peer_protocol/int.go:29
+#	0xbf9384	github.com/anacrolix/torrent/peer_protocol.(*Decoder).Decode+0x64		github.com/anacrolix/torrent@v1.54.0/peer_protocol/decoder.go:25
+#	0xde189e	github.com/anacrolix/torrent.(*PeerConn).mainReadLoop.func2+0x7e		github.com/anacrolix/torrent@v1.54.0/peerconn.go:726
+#	0xde0139	github.com/anacrolix/torrent.(*PeerConn).mainReadLoop+0x2b9			github.com/anacrolix/torrent@v1.54.0/peerconn.go:727
+#	0xdcd224	github.com/anacrolix/torrent.(*Torrent).runHandshookConn+0x484			github.com/anacrolix/torrent@v1.54.0/client.go:1084
+#	0xdfcd18	github.com/anacrolix/torrent.(*Torrent).logRunHandshookConn+0x38		github.com/anacrolix/torrent@v1.54.0/torrent.go:1697
+#	0xdcc804	github.com/anacrolix/torrent.(*Torrent).runHandshookConnLoggingErr+0x184	github.com/anacrolix/torrent@v1.54.0/torrent.go:1704
+#	0xdcc7ed	github.com/anacrolix/torrent.(*Client).runReceivedConn+0x16d			github.com/anacrolix/torrent@v1.54.0/client.go:1047
+#	0xdc98c4	github.com/anacrolix/torrent.(*Client).incomingConnection+0x384			github.com/anacrolix/torrent@v1.54.0/client.go:588
+
+3 @ 0x45fe2e 0x4703a5 0x133f7bf 0x493821
+#	0x133f7be	github.com/ledgerwatch/erigon/p2p/discover.(*Table).loop+0x35e	github.com/ledgerwatch/erigon/p2p/discover/table.go:270
+
+3 @ 0x45fe2e 0x4703a5 0x135054f 0x1350325 0x134fb7f 0x134fa2e 0x133d76f 0x493821
+#	0x135054e	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).waitForNodes+0x1ce					github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:396
+#	0x1350324	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).findnode+0xa4					github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:383
+#	0x134fb7e	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).lookupWorker+0x11e					github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:325
+#	0x134fa2d	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).newRandomLookup.(*UDPv5).newLookup.func1+0x2d	github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:313
+#	0x133d76e	github.com/ledgerwatch/erigon/p2p/discover.(*lookup).query+0xae						github.com/ledgerwatch/erigon/p2p/discover/lookup.go:163
+
+3 @ 0x45fe2e 0x4703a5 0x1ffc6b7 0x20b1799 0x493821
+#	0x1ffc6b6	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0x336	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:655
+#	0x20b1798	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleNewPeer+0xb8		github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:115
+
+3 @ 0x45fe2e 0x4703a5 0x1ffc6b7 0x20ef190 0x71eb69 0x1cb6a94 0x71eb69 0x1cb4710 0x20e125c 0x493821
+#	0x1ffc6b6	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0x336		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:655
+#	0x20ef18f	github.com/ledgerwatch/erigon/cl/sentinel.New.NewRequestHandler.func4+0x1af	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:75
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb6a93	github.com/go-chi/chi/v5.(*Mux).routeHTTP+0x2b3					github.com/go-chi/chi/v5@v5.0.11/mux.go:443
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb470f	github.com/go-chi/chi/v5.(*Mux).ServeHTTP+0x32f					github.com/go-chi/chi/v5@v5.0.11/mux.go:90
+#	0x20e125b	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp.Do.func1+0xbb		github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:38
+
+3 @ 0x45fe2e 0x4703a5 0x1ffd3b0 0x1ffd125 0x20e8cc2 0x20e99c6 0x493821
+#	0x1ffd3af	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).dialPeer+0x1ef		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:748
+#	0x1ffd124	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).Connect+0x104		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:731
+#	0x20e8cc1	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).ConnectWithPeer+0x141	github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:31
+#	0x20e99c5	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).listenForPeers.func1+0x65	github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:111
+
+3 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x1d09925 0x1d0992f 0x1e4bba7 0x1fd5cb9 0x1fd56a5 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad					github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59						github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17					github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c				github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49			github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52					github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e					github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24				github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x1d09924	github.com/multiformats/go-multistream.ReadNextToken[...]+0x24				github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x1d0992e	github.com/multiformats/go-multistream.readMultistreamHeader+0x2e			github.com/multiformats/go-multistream@v0.4.1/client.go:331
+#	0x1e4bba6	github.com/multiformats/go-multistream.SelectProtoOrFail[...]+0x186			github.com/multiformats/go-multistream@v0.4.1/client.go:66
+#	0x1fd5cb8	github.com/libp2p/go-libp2p/p2p/protocol/identify.(*idService).identifyConn+0x358	github.com/libp2p/go-libp2p@v0.31.0/p2p/protocol/identify/id.go:426
+#	0x1fd56a4	github.com/libp2p/go-libp2p/p2p/protocol/identify.(*idService).IdentifyWait.func1+0x84	github.com/libp2p/go-libp2p@v0.31.0/p2p/protocol/identify/id.go:398
+
+2 @ 0x45fe2e 0x42b40d 0x42b032 0xb656b7 0xb656d1 0x174122b 0x1740b7c 0x1739d85 0x493821
+#	0xb656b6	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).Recv+0x36					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:291
+#	0xb656d0	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).RecvMsg+0x50					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:301
+#	0x174122a	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.pumpStreamLoop[...]+0x48a				github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:234
+#	0x1740b7b	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.sentryReconnectAndPumpStreamLoop[...]+0x4fb	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:169
+#	0x1739d84	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.(*MultiClient).RecvUploadMessageLoop+0x1e4		github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:80
+
+2 @ 0x45fe2e 0x42b40d 0x42b032 0xb656b7 0xb656d1 0x174122b 0x1740b7c 0x173a0f1 0x493821
+#	0xb656b6	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).Recv+0x36					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:291
+#	0xb656d0	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).RecvMsg+0x50					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:301
+#	0x174122a	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.pumpStreamLoop[...]+0x48a				github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:234
+#	0x1740b7b	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.sentryReconnectAndPumpStreamLoop[...]+0x4fb	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:169
+#	0x173a0f0	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.(*MultiClient).RecvUploadHeadersMessageLoop+0x1b0	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:95
+
+2 @ 0x45fe2e 0x42b40d 0x42b032 0xb656b7 0xb656d1 0x174122b 0x1740b7c 0x173a511 0x493821
+#	0xb656b6	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).Recv+0x36					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:291
+#	0xb656d0	github.com/ledgerwatch/erigon-lib/direct.(*SentryMessagesStreamC).RecvMsg+0x50					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:301
+#	0x174122a	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.pumpStreamLoop[...]+0x48a				github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:234
+#	0x1740b7b	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.sentryReconnectAndPumpStreamLoop[...]+0x4fb	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:169
+#	0x173a510	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.(*MultiClient).RecvMessageLoop+0x250		github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:113
+
+2 @ 0x45fe2e 0x42b40d 0x42b032 0xb65dd7 0xb65df1 0x174122b 0x1740b7c 0x173a7f7 0x493821
+#	0xb65dd6	github.com/ledgerwatch/erigon-lib/direct.(*SentryPeersStreamC).Recv+0x36					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:360
+#	0xb65df0	github.com/ledgerwatch/erigon-lib/direct.(*SentryPeersStreamC).RecvMsg+0x50					github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:370
+#	0x174122a	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.pumpStreamLoop[...]+0x48a				github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:234
+#	0x1740b7b	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.sentryReconnectAndPumpStreamLoop[...]+0x4fb	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:169
+#	0x173a7f6	github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client.(*MultiClient).PeerEventsLoop+0x116		github.com/ledgerwatch/erigon/p2p/sentry/sentry_multi_client/sentry_multi_client.go:128
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x1366402 0x4dd770 0x135d7b7 0x135e24a 0x135de17 0x13749ca 0x13683a7 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279				internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267						internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24							net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44							net/net.go:179
+#	0x1366401	github.com/ledgerwatch/erigon/p2p.(*meteredConn).Read+0x21		github.com/ledgerwatch/erigon/p2p/metrics.go:63
+#	0x4dd76f	io.ReadAtLeast+0x8f							io/io.go:335
+#	0x135d7b6	github.com/ledgerwatch/erigon/p2p/rlpx.(*readBuffer).read+0x1d6		github.com/ledgerwatch/erigon/p2p/rlpx/buffer.go:64
+#	0x135e249	github.com/ledgerwatch/erigon/p2p/rlpx.(*sessionState).readFrame+0x229	github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:187
+#	0x135de16	github.com/ledgerwatch/erigon/p2p/rlpx.(*Conn).Read+0x56		github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:136
+#	0x13749c9	github.com/ledgerwatch/erigon/p2p.(*rlpxTransport).ReadMsg+0x129	github.com/ledgerwatch/erigon/p2p/transport.go:67
+#	0x13683a6	github.com/ledgerwatch/erigon/p2p.(*Peer).readLoop+0xc6			github.com/ledgerwatch/erigon/p2p/peer.go:364
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x6a6897 0x4dd770 0x1e4f475 0x1e4f454 0x1e4ddf0 0x1e4d2da 0x1e4fb08 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84								runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26								internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279							internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267									internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24										net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44										net/net.go:179
+#	0x6a6896	bufio.(*Reader).Read+0x196									bufio/bufio.go:244
+#	0x4dd76f	io.ReadAtLeast+0x8f										io/io.go:335
+#	0x1e4f474	io.ReadFull+0x34										io/io.go:354
+#	0x1e4f453	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).readNextInsecureMsgLen+0x13	github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:133
+#	0x1e4ddef	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).readHandshakeMessage+0x4f	github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/handshake.go:206
+#	0x1e4d2d9	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).runHandshake+0x579		github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/handshake.go:89
+#	0x1e4fb07	github.com/libp2p/go-libp2p/p2p/security/noise.newSecureSession.func1+0x27			github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/session.go:70
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x6a6897 0x4dd770 0x1e4f475 0x1e4f454 0x1e4eb65 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x1d09925 0x1d0992f 0x1e4bba7 0x1e4b785 0x1e47530 0x1e47c9c 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84								runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26								internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279							internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267									internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24										net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44										net/net.go:179
+#	0x6a6896	bufio.(*Reader).Read+0x196									bufio/bufio.go:244
+#	0x4dd76f	io.ReadAtLeast+0x8f										io/io.go:335
+#	0x1e4f474	io.ReadFull+0x34										io/io.go:354
+#	0x1e4f453	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).readNextInsecureMsgLen+0x13	github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:133
+#	0x1e4eb64	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).Read+0x204			github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:52
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49				github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52						github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e						github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24					github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x1d09924	github.com/multiformats/go-multistream.ReadNextToken[...]+0x24					github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x1d0992e	github.com/multiformats/go-multistream.readMultistreamHeader+0x2e				github.com/multiformats/go-multistream@v0.4.1/client.go:331
+#	0x1e4bba6	github.com/multiformats/go-multistream.SelectProtoOrFail[...]+0x186				github.com/multiformats/go-multistream@v0.4.1/client.go:66
+#	0x1e4b784	github.com/multiformats/go-multistream.SelectOneOf[...]+0xe4					github.com/multiformats/go-multistream@v0.4.1/client.go:99
+#	0x1e4752f	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).negotiateMuxer+0x12f			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:231
+#	0x1e47c9b	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).setupMuxer.func1+0x7b			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:281
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0xdd3939 0xdea21e 0x4dd770 0xdd5030 0xdd5000 0xdcbdfb 0xdcc734 0xdc98c5 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279			internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267					internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24						net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44						net/net.go:179
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38	github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd	github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4dd76f	io.ReadAtLeast+0x8f						io/io.go:335
+#	0xdd502f	io.ReadFull+0x8f						io/io.go:354
+#	0xdd4fff	github.com/anacrolix/torrent.handleEncryption+0x5f		github.com/anacrolix/torrent@v1.54.0/handshake.go:45
+#	0xdcbdfa	github.com/anacrolix/torrent.(*Client).receiveHandshakes+0x17a	github.com/anacrolix/torrent@v1.54.0/client.go:957
+#	0xdcc733	github.com/anacrolix/torrent.(*Client).runReceivedConn+0xb3	github.com/anacrolix/torrent@v1.54.0/client.go:1018
+#	0xdc98c4	github.com/anacrolix/torrent.(*Client).incomingConnection+0x384	github.com/anacrolix/torrent@v1.54.0/client.go:588
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x5084eb 0x5084d9 0x5f8c05 0x618651 0x616510 0x6166aa 0xc57a2f 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x5084ea	internal/poll.(*pollDesc).waitRead+0x22a				internal/poll/fd_poll_runtime.go:89
+#	0x5084d8	internal/poll.(*FD).ReadFromInet4+0x218					internal/poll/fd_unix.go:247
+#	0x5f8c04	net.(*netFD).readFromInet4+0x24						net/fd_posix.go:66
+#	0x618650	net.(*UDPConn).readFrom+0x1b0						net/udpsock_posix.go:52
+#	0x61650f	net.(*UDPConn).readFromUDP+0x2f						net/udpsock.go:149
+#	0x6166a9	net.(*UDPConn).ReadFrom+0x49						net/udpsock.go:158
+#	0xc57a2e	github.com/anacrolix/torrent/tracker/udp.(*ConnClient).reader+0x6e	github.com/anacrolix/torrent@v1.54.0/tracker/udp/conn-client.go:39
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50886b 0x508859 0x5f8d05 0x618519 0x616510 0x6164aa 0x134a5dd 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x50886a	internal/poll.(*pollDesc).waitRead+0x22a				internal/poll/fd_poll_runtime.go:89
+#	0x508858	internal/poll.(*FD).ReadFromInet6+0x218					internal/poll/fd_unix.go:274
+#	0x5f8d04	net.(*netFD).readFromInet6+0x24						net/fd_posix.go:72
+#	0x618518	net.(*UDPConn).readFrom+0x78						net/udpsock_posix.go:59
+#	0x61650f	net.(*UDPConn).readFromUDP+0x2f						net/udpsock.go:149
+#	0x6164a9	net.(*UDPConn).ReadFromUDP+0x49						net/udpsock.go:141
+#	0x134a5dc	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv4).readLoop+0x13c	github.com/ledgerwatch/erigon/p2p/discover/v4_udp.go:697
+
+2 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0x1371448 0x136ebae 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab				internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299					internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28						net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d						net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f						net/tcpsock.go:315
+#	0x1371447	github.com/ledgerwatch/erigon/p2p.(*Server).listenLoop+0x727		github.com/ledgerwatch/erigon/p2p/server.go:951
+#	0x136ebad	github.com/ledgerwatch/erigon/p2p.(*Server).setupListening.func2+0x6d	github.com/ledgerwatch/erigon/p2p/server.go:763
+
+2 @ 0x45fe2e 0x4703a5 0x132f805 0x493821
+#	0x132f804	github.com/ledgerwatch/erigon/p2p/enode.(*DB).expirer+0xe4	github.com/ledgerwatch/erigon/p2p/enode/nodedb.go:410
+
+2 @ 0x45fe2e 0x4703a5 0x134837e 0x493821
+#	0x134837d	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv4).loop+0x37d	github.com/ledgerwatch/erigon/p2p/discover/v4_udp.go:585
+
+2 @ 0x45fe2e 0x4703a5 0x13497a7 0x493821
+#	0x13497a6	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv4).loop.func1+0x1e6	github.com/ledgerwatch/erigon/p2p/discover/v4_udp.go:543
+
+2 @ 0x45fe2e 0x4703a5 0x136280f 0x493821
+#	0x136280e	github.com/ledgerwatch/erigon/p2p.(*dialScheduler).loop+0x2ee	github.com/ledgerwatch/erigon/p2p/dial.go:251
+
+2 @ 0x45fe2e 0x4703a5 0x13637ba 0x493821
+#	0x13637b9	github.com/ledgerwatch/erigon/p2p.(*dialScheduler).readNodes+0x119	github.com/ledgerwatch/erigon/p2p/dial.go:336
+
+2 @ 0x45fe2e 0x4703a5 0x136f3b7 0x493821
+#	0x136f3b6	github.com/ledgerwatch/erigon/p2p.(*Server).run+0x5f6	github.com/ledgerwatch/erigon/p2p/server.go:804
+
+2 @ 0x45fe2e 0x4703a5 0x1702ff2 0xb659ad 0x493821
+#	0x1702ff1	github.com/ledgerwatch/erigon/p2p/sentry.(*GrpcServer).PeerEvents+0xd1			github.com/ledgerwatch/erigon/p2p/sentry/sentry_grpc_server.go:1228
+#	0xb659ac	github.com/ledgerwatch/erigon-lib/direct.(*SentryClientDirect).PeerEvents.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentry_client.go:318
+
+2 @ 0x45fe2e 0x4703a5 0x1e47973 0x1e4687d 0x1e45fba 0x1f31a49 0x1f315f4 0x2028247 0x201e6e7 0x493821
+#	0x1e47972	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).setupMuxer+0x292		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:290
+#	0x1e4687c	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).upgrade+0x81c			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:182
+#	0x1e45fb9	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).Upgrade+0x79			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:125
+#	0x1f31a48	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).dialWithScope+0x3a8	github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:219
+#	0x1f315f3	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).Dial+0x233		github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:185
+#	0x2028246	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialAddr+0x386			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:533
+#	0x201e6e6	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialLimiter).executeDial+0xe6		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/limiter.go:219
+
+2 @ 0x45fe2e 0x4703a5 0x1e4f9cd 0x1e50a35 0x1e47347 0x1e4642a 0x1e45fba 0x1f31a49 0x1f315f4 0x2028247 0x201e6e7 0x493821
+#	0x1e4f9cc	github.com/libp2p/go-libp2p/p2p/security/noise.newSecureSession+0x48c			github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/session.go:73
+#	0x1e50a34	github.com/libp2p/go-libp2p/p2p/security/noise.(*Transport).SecureOutbound+0xf4		github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/transport.go:69
+#	0x1e47346	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).setupSecurity+0x126		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:214
+#	0x1e46429	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).upgrade+0x3c9			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:155
+#	0x1e45fb9	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).Upgrade+0x79			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:125
+#	0x1f31a48	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).dialWithScope+0x3a8	github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:219
+#	0x1f315f3	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).Dial+0x233		github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:185
+#	0x2028246	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialAddr+0x386			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:533
+#	0x201e6e6	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialLimiter).executeDial+0xe6		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/limiter.go:219
+
+2 @ 0x45fe2e 0x4703a5 0x1ffcb47 0x20ef190 0x71eb69 0x1cb6a94 0x71eb69 0x1cb4710 0x20e125c 0x493821
+#	0x1ffcb46	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0x7c6		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:684
+#	0x20ef18f	github.com/ledgerwatch/erigon/cl/sentinel.New.NewRequestHandler.func4+0x1af	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:75
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb6a93	github.com/go-chi/chi/v5.(*Mux).routeHTTP+0x2b3					github.com/go-chi/chi/v5@v5.0.11/mux.go:443
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28						net/http/server.go:2136
+#	0x1cb470f	github.com/go-chi/chi/v5.(*Mux).ServeHTTP+0x32f					github.com/go-chi/chi/v5@v5.0.11/mux.go:90
+#	0x20e125b	github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp.Do.func1+0xbb		github.com/ledgerwatch/erigon/cl/sentinel/httpreqresp/server.go:38
+
+2 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x1d09925 0x1d0992f 0x1e4bba7 0x1e4b785 0x1ffcea8 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad				github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59					github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17				github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49		github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52				github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e				github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24			github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x1d09924	github.com/multiformats/go-multistream.ReadNextToken[...]+0x24			github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x1d0992e	github.com/multiformats/go-multistream.readMultistreamHeader+0x2e		github.com/multiformats/go-multistream@v0.4.1/client.go:331
+#	0x1e4bba6	github.com/multiformats/go-multistream.SelectProtoOrFail[...]+0x186		github.com/multiformats/go-multistream@v0.4.1/client.go:66
+#	0x1e4b784	github.com/multiformats/go-multistream.SelectOneOf[...]+0xe4			github.com/multiformats/go-multistream@v0.4.1/client.go:99
+#	0x1ffcea7	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream.func1+0x87	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:681
+
+2 @ 0x45fe2e 0x4703a5 0xc57127 0xc5787e 0x493821
+#	0xc57126	github.com/anacrolix/torrent/tracker/udp.(*Client).requestWriter+0x146	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:177
+#	0xc5787d	github.com/anacrolix/torrent/tracker/udp.(*Client).request.func2+0x3d	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:205
+
+2 @ 0x45fe2e 0x4703a5 0xc5756e 0xc5630d 0xc58346 0xc5df2a 0xc5d95f 0xe08978 0xe094c5 0x493821
+#	0xc5756d	github.com/anacrolix/torrent/tracker/udp.(*Client).request+0x32d	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:207
+#	0xc5630c	github.com/anacrolix/torrent/tracker/udp.(*Client).Announce+0x2ec	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:39
+#	0xc58345	github.com/anacrolix/torrent/tracker/udp.(*ConnClient).Announce+0xa5	github.com/anacrolix/torrent@v1.54.0/tracker/udp/conn-client.go:126
+#	0xc5df29	github.com/anacrolix/torrent/tracker.(*udpClient).Announce+0xc9		github.com/anacrolix/torrent@v1.54.0/tracker/udp.go:40
+#	0xc5d95e	github.com/anacrolix/torrent/tracker.Announce.Do+0x5fe			github.com/anacrolix/torrent@v1.54.0/tracker/tracker.go:82
+#	0xe08977	github.com/anacrolix/torrent.(*trackerScraper).announce+0x937		github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:173
+#	0xe094c4	github.com/anacrolix/torrent.(*trackerScraper).Run+0x144		github.com/anacrolix/torrent@v1.54.0/tracker_scraper.go:218
+
+2 @ 0x45fe2e 0x4703a5 0xc5756e 0xc56b36 0xc56abd 0xc56d6e 0xc56d82 0xc57095 0xc5787e 0x493821
+#	0xc5756d	github.com/anacrolix/torrent/tracker/udp.(*Client).request+0x32d		github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:207
+#	0xc56b35	github.com/anacrolix/torrent/tracker/udp.(*Client).doConnectRoundTrip+0x35	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:107
+#	0xc56abc	github.com/anacrolix/torrent/tracker/udp.(*Client).connect+0x3c			github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:102
+#	0xc56d6d	github.com/anacrolix/torrent/tracker/udp.(*Client).connIdForRequest+0xed	github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:127
+#	0xc56d81	github.com/anacrolix/torrent/tracker/udp.(*Client).writeRequest+0x101		github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:150
+#	0xc57094	github.com/anacrolix/torrent/tracker/udp.(*Client).requestWriter+0xb4		github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:173
+#	0xc5787d	github.com/anacrolix/torrent/tracker/udp.(*Client).request.func2+0x3d		github.com/anacrolix/torrent@v1.54.0/tracker/udp/client.go:205
+
+2 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xbf43d7 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138				runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84						sync/cond.go:70
+#	0xbf43d6	github.com/anacrolix/torrent/mse.(*handshake).writer+0x176	github.com/anacrolix/torrent@v1.54.0/mse/mse.go:261
+
+2 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbd0a8 0xdd3939 0xdea21e 0x4de693 0x4de693 0x4dd770 0xbfa865 0xbfa807 0xdcc436 0xdcc0ea 0xdcc734 0xdc98c5 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138				runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84						sync/cond.go:70
+#	0xdbd0a7	github.com/anacrolix/go-libutp.(*Conn).Read+0x87		github.com/anacrolix/go-libutp@v1.3.1/conn.go:151
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38	github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd	github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4de692	io.(*multiReader).Read+0x92					io/multi.go:26
+#	0x4de692	io.(*multiReader).Read+0x92					io/multi.go:26
+#	0x4dd76f	io.ReadAtLeast+0x8f						io/io.go:335
+#	0xbfa864	io.ReadFull+0x424						io/io.go:354
+#	0xbfa806	github.com/anacrolix/torrent/peer_protocol.Handshake+0x3c6	github.com/anacrolix/torrent@v1.54.0/peer_protocol/handshake.go:160
+#	0xdcc435	github.com/anacrolix/torrent.(*Client).connBtHandshake+0x115	github.com/anacrolix/torrent@v1.54.0/client.go:997
+#	0xdcc0e9	github.com/anacrolix/torrent.(*Client).receiveHandshakes+0x469	github.com/anacrolix/torrent@v1.54.0/client.go:978
+#	0xdcc733	github.com/anacrolix/torrent.(*Client).runReceivedConn+0xb3	github.com/anacrolix/torrent@v1.54.0/client.go:1018
+#	0xdc98c4	github.com/anacrolix/torrent.(*Client).incomingConnection+0x384	github.com/anacrolix/torrent@v1.54.0/client.go:588
+
+1 @ 0x4308a9 0x48fd29 0x8eef93 0x493821
+#	0x48fd28	os/signal.signal_recv+0x28	runtime/sigqueue.go:152
+#	0x8eef92	os/signal.loop+0x12		os/signal/signal_unix.go:23
+
+1 @ 0x454b31 0x48d55d 0xb80091 0xb7fec5 0xb7c966 0xbe97a8 0xbea2a5 0x71eb69 0x720482 0x72184e 0x71d734 0x493821
+#	0x48d55c	runtime/pprof.runtime_goroutineProfileWithLabels+0x1c	runtime/mprof.go:844
+#	0xb80090	runtime/pprof.writeRuntimeProfile+0xb0			runtime/pprof/pprof.go:734
+#	0xb7fec4	runtime/pprof.writeGoroutine+0x44			runtime/pprof/pprof.go:694
+#	0xb7c965	runtime/pprof.(*Profile).WriteTo+0x145			runtime/pprof/pprof.go:329
+#	0xbe97a7	net/http/pprof.handler.ServeHTTP+0x4a7			net/http/pprof/pprof.go:267
+#	0xbea2a4	net/http/pprof.Index+0xe4				net/http/pprof/pprof.go:384
+#	0x71eb68	net/http.HandlerFunc.ServeHTTP+0x28			net/http/server.go:2136
+#	0x720481	net/http.(*ServeMux).ServeHTTP+0x141			net/http/server.go:2514
+#	0x72184d	net/http.serverHandler.ServeHTTP+0x8d			net/http/server.go:2938
+#	0x71d733	net/http.(*conn).serve+0x5f3				net/http/server.go:2009
+
+1 @ 0x45e439 0x494cfb 0x110acf2 0x110ba6b 0x115d7ec 0x1166363 0x115f9dd 0x1166b49 0x116ec3a 0x117519e 0x1176968 0x115bccb 0x1180e4c 0x11e2949 0x11d8738 0x11d7126 0x131fb89 0x132072a 0x131ec96 0x185d59f 0x18a71d6 0x18bccb3 0x18bdaef 0x189be6f 0x190a339 0x1909411 0x1c8ecac 0x493821
+#	0x110acf1	github.com/ledgerwatch/erigon-lib/compress.(*Getter).nextPos+0xb1					github.com/ledgerwatch/erigon-lib@v1.0.0/compress/decompress.go:441
+#	0x110ba6a	github.com/ledgerwatch/erigon-lib/compress.(*Getter).NextUncompressed+0x6a				github.com/ledgerwatch/erigon-lib@v1.0.0/compress/decompress.go:615
+#	0x115d7eb	github.com/ledgerwatch/erigon-lib/state.(*getter).Next+0x4b						github.com/ledgerwatch/erigon-lib@v1.0.0/state/archive.go:45
+#	0x1166362	github.com/ledgerwatch/erigon-lib/state.(*BtIndex).keyCmp+0x1e2						github.com/ledgerwatch/erigon-lib@v1.0.0/state/btree_index.go:926
+#	0x115f9dc	github.com/ledgerwatch/erigon-lib/state.(*BpsTree).Get+0x4fc						github.com/ledgerwatch/erigon-lib@v1.0.0/state/bps_tree.go:290
+#	0x1166b48	github.com/ledgerwatch/erigon-lib/state.(*BtIndex).Get+0xa8						github.com/ledgerwatch/erigon-lib@v1.0.0/state/btree_index.go:1011
+#	0x116ec39	github.com/ledgerwatch/erigon-lib/state.(*DomainContext).getFromFile+0x3d9				github.com/ledgerwatch/erigon-lib@v1.0.0/state/domain.go:1014
+#	0x117519d	github.com/ledgerwatch/erigon-lib/state.(*DomainContext).getLatestFromFiles+0x2bd			github.com/ledgerwatch/erigon-lib@v1.0.0/state/domain.go:1687
+#	0x1176967	github.com/ledgerwatch/erigon-lib/state.(*DomainContext).GetLatest+0x767				github.com/ledgerwatch/erigon-lib@v1.0.0/state/domain.go:1882
+#	0x115bcca	github.com/ledgerwatch/erigon-lib/state.(*AggregatorV3Context).GetLatest+0x14a				github.com/ledgerwatch/erigon-lib@v1.0.0/state/aggregator_v3.go:1716
+#	0x1180e4b	github.com/ledgerwatch/erigon-lib/state.(*SharedDomains).LatestAccount+0xab				github.com/ledgerwatch/erigon-lib@v1.0.0/state/domain_shared.go:366
+#	0x11e2948	github.com/ledgerwatch/erigon/core/state.(*StateReaderV3).ReadAccountData+0x68				github.com/ledgerwatch/erigon/core/state/rw_v3.go:596
+#	0x11d8737	github.com/ledgerwatch/erigon/core/state.(*IntraBlockState).getStateObject+0xd7				github.com/ledgerwatch/erigon/core/state/intra_block_state.go:493
+#	0x11d7125	github.com/ledgerwatch/erigon/core/state.(*IntraBlockState).GetNonce+0x25				github.com/ledgerwatch/erigon/core/state/intra_block_state.go:224
+#	0x131fb88	github.com/ledgerwatch/erigon/core.(*StateTransition).preCheck+0xa8					github.com/ledgerwatch/erigon/core/state_transition.go:278
+#	0x1320729	github.com/ledgerwatch/erigon/core.(*StateTransition).TransitionDb+0x1c9				github.com/ledgerwatch/erigon/core/state_transition.go:362
+#	0x131ec95	github.com/ledgerwatch/erigon/core.ApplyMessage+0x35							github.com/ledgerwatch/erigon/core/state_transition.go:185
+#	0x185d59e	github.com/ledgerwatch/erigon/cmd/state/exec3.(*Worker).RunTxTaskNoLock+0xe7e				github.com/ledgerwatch/erigon/cmd/state/exec3/state.go:253
+#	0x18a71d5	github.com/ledgerwatch/erigon/eth/stagedsync.ExecV3+0x3bb5						github.com/ledgerwatch/erigon/eth/stagedsync/exec3.go:761
+#	0x18bccb2	github.com/ledgerwatch/erigon/eth/stagedsync.ExecBlockV3+0x3d2						github.com/ledgerwatch/erigon/eth/stagedsync/stage_execute.go:280
+#	0x18bdaee	github.com/ledgerwatch/erigon/eth/stagedsync.SpawnExecuteBlocksStage+0x1ae				github.com/ledgerwatch/erigon/eth/stagedsync/stage_execute.go:383
+#	0x189be6e	github.com/ledgerwatch/erigon/eth/stagedsync.PipelineStages.func10+0xee					github.com/ledgerwatch/erigon/eth/stagedsync/default_stages.go:304
+#	0x190a338	github.com/ledgerwatch/erigon/eth/stagedsync.(*Sync).runStage+0x198					github.com/ledgerwatch/erigon/eth/stagedsync/sync.go:518
+#	0x1909410	github.com/ledgerwatch/erigon/eth/stagedsync.(*Sync).Run+0x2b0						github.com/ledgerwatch/erigon/eth/stagedsync/sync.go:396
+#	0x1c8ecab	github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).updateForkChoice+0x214b	github.com/ledgerwatch/erigon/turbo/execution/eth1/forkchoice.go:371
+
+1 @ 0x45fe2e 0x42a6a5 0x42a2f7 0x20f2d08 0x20f5f67 0x20f5b45 0x493821
+#	0x20f2d07	github.com/ledgerwatch/erigon/cl/sentinel/service.(*gossipNotifier).notify+0x167		github.com/ledgerwatch/erigon/cl/sentinel/service/notifiers.go:37
+#	0x20f5f66	github.com/ledgerwatch/erigon/cl/sentinel/service.(*SentinelServer).handleGossipPacket+0x326	github.com/ledgerwatch/erigon/cl/sentinel/service/service.go:358
+#	0x20f5b44	github.com/ledgerwatch/erigon/cl/sentinel/service.(*SentinelServer).ListenToGossip+0x144	github.com/ledgerwatch/erigon/cl/sentinel/service/service.go:324
+
+1 @ 0x45fe2e 0x42a6a5 0x42a2f7 0xb63e1b 0x20f4002 0xb63bed 0x493821
+#	0xb63e1a	github.com/ledgerwatch/erigon-lib/direct.(*SentinelSubscribeGossipS).Send+0x7a			github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentinel_client.go:112
+#	0x20f4001	github.com/ledgerwatch/erigon/cl/sentinel/service.(*SentinelServer).SubscribeGossip+0x301	github.com/ledgerwatch/erigon/cl/sentinel/service/service.go:131
+#	0xb63bec	github.com/ledgerwatch/erigon-lib/direct.(*SentinelClientDirect).SubscribeGossip.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/sentinel_client.go:80
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x16c8d75 0x493821
+#	0x16c8d74	github.com/ledgerwatch/erigon/cl/phase1/network.(*GossipManager).SubscribeSignedBeaconBlocks.func1+0x34	github.com/ledgerwatch/erigon/cl/phase1/network/gossip_manager.go:61
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x1a49549 0xb62ead 0x493821
+#	0x1a49548	github.com/ledgerwatch/erigon/ethdb/privateapi.(*MiningServer).OnPendingLogs+0x68	github.com/ledgerwatch/erigon/ethdb/privateapi/mining.go:95
+#	0xb62eac	github.com/ledgerwatch/erigon-lib/direct.(*MiningClient).OnPendingLogs.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/mining_client.go:152
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x1c70146 0x493821
+#	0x1c70145	github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli.stopAuthenticatedRpcServer+0x85	github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli/config.go:773
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x2100b27 0x2103a6c 0x2110e6d 0x493821
+#	0x2100b26	github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage+0x3e6	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:45
+#	0x2103a6b	github.com/ledgerwatch/erigon/cmd/caplin/caplin1.RunCaplinPhase1+0x1f0b			github.com/ledgerwatch/erigon/cmd/caplin/caplin1/run.go:271
+#	0x2110e6c	github.com/ledgerwatch/erigon/eth.New.func15+0x3ec					github.com/ledgerwatch/erigon/eth/backend.go:849
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x2101ad5 0x493821
+#	0x2101ad4	github.com/ledgerwatch/erigon/cmd/caplin/caplin1.OpenCaplinDatabase.func1+0x34	github.com/ledgerwatch/erigon/cmd/caplin/caplin1/run.go:90
+
+1 @ 0x45fe2e 0x42b40d 0x42b012 0x211d48e 0x211d47c 0x213cb45 0x212d07f 0x7caebd 0x7c77fb 0x213c665 0x213c63d 0x45f9bb 0x493821
+#	0x211d48d	github.com/ledgerwatch/erigon/node.(*Node).Wait+0x6d			github.com/ledgerwatch/erigon/node/node.go:268
+#	0x211d47b	github.com/ledgerwatch/erigon/turbo/node.(*ErigonNode).Serve+0x5b	github.com/ledgerwatch/erigon/turbo/node/node.go:34
+#	0x213cb44	main.runErigon+0x404							github.com/ledgerwatch/erigon/cmd/erigon/main.go:75
+#	0x212d07e	github.com/ledgerwatch/erigon/turbo/app.MakeApp.func1+0x19e		github.com/ledgerwatch/erigon/turbo/app/make_app.go:52
+#	0x7caebc	github.com/urfave/cli/v2.(*Command).Run+0x9dc				github.com/urfave/cli/v2@v2.27.1/command.go:279
+#	0x7c77fa	github.com/urfave/cli/v2.(*App).RunContext+0x5da			github.com/urfave/cli/v2@v2.27.1/app.go:337
+#	0x213c664	github.com/urfave/cli/v2.(*App).Run+0x84				github.com/urfave/cli/v2@v2.27.1/app.go:311
+#	0x213c63c	main.main+0x5c								github.com/ledgerwatch/erigon/cmd/erigon/main.go:34
+#	0x45f9ba	runtime.main+0x2ba							runtime/proc.go:267
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0x12ccc7c 0x493821
+#	0x12ccc7b	github.com/ledgerwatch/erigon/consensus/ethash.(*meterArbiter).tick+0x7b	github.com/ledgerwatch/erigon/consensus/ethash/meter.go:143
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0x1a71d5f 0x493821
+#	0x1a71d5e	gopkg.in/natefinch/lumberjack%2ev2.(*Logger).millRun+0x3e	gopkg.in/natefinch/lumberjack.v2@v2.2.1/lumberjack.go:379
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0x1e4529a 0x20298ef 0x493821
+#	0x1e45299	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*listener).Accept+0x39		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/listener.go:163
+#	0x20298ee	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).AddListenAddr.func2+0xee	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_listen.go:129
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb60ce5 0x1a4d03d 0x17f111d 0x493821
+#	0xb60ce4	github.com/ledgerwatch/erigon-lib/direct.(*SubscribeStreamC).Recv+0x24				github.com/ledgerwatch/erigon-lib@v1.0.0/direct/eth_backend_client.go:102
+#	0x1a4d03c	github.com/ledgerwatch/erigon/cmd/rpcdaemon/rpcservices.(*RemoteBackend).Subscribe+0x17c	github.com/ledgerwatch/erigon/cmd/rpcdaemon/rpcservices/eth_backend.go:205
+#	0x17f111c	github.com/ledgerwatch/erigon/turbo/rpchelper.New.func1+0xdc					github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:76
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb61265 0x1a47b8b 0x1a4688a 0xb60ff2 0x493821
+#	0xb61264	github.com/ledgerwatch/erigon-lib/direct.(*SubscribeLogsStreamS).Recv+0x24			github.com/ledgerwatch/erigon-lib@v1.0.0/direct/eth_backend_client.go:158
+#	0x1a47b8a	github.com/ledgerwatch/erigon/ethdb/privateapi.(*LogsFilterAggregator).subscribeLogs+0xaa	github.com/ledgerwatch/erigon/ethdb/privateapi/logsfilter.go:133
+#	0x1a46889	github.com/ledgerwatch/erigon/ethdb/privateapi.(*EthBackendServer).SubscribeLogs+0x29		github.com/ledgerwatch/erigon/ethdb/privateapi/ethbackend.go:256
+#	0xb60ff1	github.com/ledgerwatch/erigon-lib/direct.(*EthBackendClientDirect).SubscribeLogs.func1+0x91	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/eth_backend_client.go:125
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb61485 0x1a4d2bf 0x17f0f26 0x493821
+#	0xb61484	github.com/ledgerwatch/erigon-lib/direct.(*SubscribeLogsStreamC).Recv+0x24			github.com/ledgerwatch/erigon-lib@v1.0.0/direct/eth_backend_client.go:185
+#	0x1a4d2be	github.com/ledgerwatch/erigon/cmd/rpcdaemon/rpcservices.(*RemoteBackend).SubscribeLogs+0x1be	github.com/ledgerwatch/erigon/cmd/rpcdaemon/rpcservices/eth_backend.go:229
+#	0x17f0f25	github.com/ledgerwatch/erigon/turbo/rpchelper.New.func2+0xe5					github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:101
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb62625 0x17f1609 0x17f0b33 0x493821
+#	0xb62624	github.com/ledgerwatch/erigon-lib/direct.(*MiningOnPendingBlockC).Recv+0x24		github.com/ledgerwatch/erigon-lib@v1.0.0/direct/mining_client.go:85
+#	0x17f1608	github.com/ledgerwatch/erigon/turbo/rpchelper.(*Filters).subscribeToPendingBlocks+0x108	github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:226
+#	0x17f0b32	github.com/ledgerwatch/erigon/turbo/rpchelper.New.func4+0x92				github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:147
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb631a5 0x17f1b49 0x17f0973 0x493821
+#	0xb631a4	github.com/ledgerwatch/erigon-lib/direct.(*MiningOnPendingLogsC).Recv+0x24		github.com/ledgerwatch/erigon-lib@v1.0.0/direct/mining_client.go:186
+#	0x17f1b48	github.com/ledgerwatch/erigon/turbo/rpchelper.(*Filters).subscribeToPendingLogs+0x108	github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:270
+#	0x17f0972	github.com/ledgerwatch/erigon/turbo/rpchelper.New.func5+0x92				github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:168
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xb66305 0x1c6d05a 0x1c6ce77 0x493821
+#	0xb66304	github.com/ledgerwatch/erigon-lib/direct.(*StateDiffStreamC).Recv+0x24			github.com/ledgerwatch/erigon-lib@v1.0.0/direct/state_diff_client.go:72
+#	0x1c6d059	github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli.subscribeToStateChanges+0xf9		github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli/config.go:219
+#	0x1c6ce76	github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli.subscribeToStateChangesLoop.func1+0x96	github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli/config.go:201
+
+1 @ 0x45fe2e 0x42b40d 0x42b032 0xdc0745 0xdc8518 0x493821
+#	0xdc0744	github.com/anacrolix/go-libutp.(*Socket).Accept+0x24		github.com/anacrolix/go-libutp@v1.3.1/socket.go:387
+#	0xdc8517	github.com/anacrolix/torrent.(*Client).acceptConnections+0x57	github.com/anacrolix/torrent@v1.54.0/client.go:502
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x1366402 0x4dd770 0x135d7b7 0x135e11c 0x135de17 0x13749ca 0x137559c 0x1375356 0x13726d0 0x1371ce5 0x13716f0 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84						runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26						internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279					internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267							internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24								net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44								net/net.go:179
+#	0x1366401	github.com/ledgerwatch/erigon/p2p.(*meteredConn).Read+0x21			github.com/ledgerwatch/erigon/p2p/metrics.go:63
+#	0x4dd76f	io.ReadAtLeast+0x8f								io/io.go:335
+#	0x135d7b6	github.com/ledgerwatch/erigon/p2p/rlpx.(*readBuffer).read+0x1d6			github.com/ledgerwatch/erigon/p2p/rlpx/buffer.go:64
+#	0x135e11b	github.com/ledgerwatch/erigon/p2p/rlpx.(*sessionState).readFrame+0xfb		github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:166
+#	0x135de16	github.com/ledgerwatch/erigon/p2p/rlpx.(*Conn).Read+0x56			github.com/ledgerwatch/erigon/p2p/rlpx/rlpx.go:136
+#	0x13749c9	github.com/ledgerwatch/erigon/p2p.(*rlpxTransport).ReadMsg+0x129		github.com/ledgerwatch/erigon/p2p/transport.go:67
+#	0x137559b	github.com/ledgerwatch/erigon/p2p.readProtocolHandshake+0x5b			github.com/ledgerwatch/erigon/p2p/transport.go:163
+#	0x1375355	github.com/ledgerwatch/erigon/p2p.(*rlpxTransport).doProtoHandshake+0xb5	github.com/ledgerwatch/erigon/p2p/transport.go:149
+#	0x13726cf	github.com/ledgerwatch/erigon/p2p.(*Server).setupConn+0x96f			github.com/ledgerwatch/erigon/p2p/server.go:1091
+#	0x1371ce4	github.com/ledgerwatch/erigon/p2p.(*Server).SetupConn+0x1a4			github.com/ledgerwatch/erigon/p2p/server.go:1025
+#	0x13716ef	github.com/ledgerwatch/erigon/p2p.(*Server).listenLoop.func2+0x6f		github.com/ledgerwatch/erigon/p2p/server.go:991
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x1d09925 0x1d0992f 0x1e49e0f 0x1e482d3 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84							runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26							internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279						internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267								internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24									net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44									net/net.go:179
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49			github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52					github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e					github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24				github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x1d09924	github.com/multiformats/go-multistream.ReadNextToken[...]+0x24				github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x1d0992e	github.com/multiformats/go-multistream.readMultistreamHeader+0x2e			github.com/multiformats/go-multistream@v0.4.1/client.go:331
+#	0x1e49e0e	github.com/multiformats/go-multistream.SelectWithSimopenOrFail[...]+0x1ae		github.com/multiformats/go-multistream@v0.4.1/client.go:141
+#	0x1e482d2	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).negotiateSecurity.func1+0x132	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:328
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x7175b7 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84		runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26		internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279	internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267			internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24				net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44				net/net.go:179
+#	0x7175b6	net/http.(*connReader).backgroundRead+0x36	net/http/server.go:683
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0x7179eb 0x6a6363 0x6a6493 0x71d89c 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84		runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26		internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279	internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267			internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24				net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44				net/net.go:179
+#	0x7179ea	net/http.(*connReader).Read+0x14a		net/http/server.go:791
+#	0x6a6362	bufio.(*Reader).fill+0x102			bufio/bufio.go:113
+#	0x6a6492	bufio.(*Reader).Peek+0x52			bufio/bufio.go:151
+#	0x71d89b	net/http.(*conn).serve+0x75b			net/http/server.go:2044
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x507b3a 0x507b28 0x5f8a05 0x60b665 0xdd3939 0xdea21e 0x4ddec3 0x4dd770 0xbf48be 0xbf4883 0xbf5132 0xbf6d07 0xbf709b 0xdcb86d 0xdca18b 0xdca4af 0xdcac68 0xdcb365 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x507b39	internal/poll.(*pollDesc).waitRead+0x279				internal/poll/fd_poll_runtime.go:89
+#	0x507b27	internal/poll.(*FD).Read+0x267						internal/poll/fd_unix.go:164
+#	0x5f8a04	net.(*netFD).Read+0x24							net/fd_posix.go:55
+#	0x60b664	net.(*conn).Read+0x44							net/net.go:179
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38		github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd		github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4ddec2	io.(*LimitedReader).Read+0x42						io/io.go:480
+#	0x4dd76f	io.ReadAtLeast+0x8f							io/io.go:335
+#	0xbf48bd	io.ReadFull+0x7d							io/io.go:354
+#	0xbf4882	github.com/anacrolix/torrent/mse.readUntil+0x42				github.com/anacrolix/torrent@v1.54.0/mse/mse.go:349
+#	0xbf5131	github.com/anacrolix/torrent/mse.(*handshake).initerSteps+0x6d1		github.com/anacrolix/torrent@v1.54.0/mse/mse.go:396
+#	0xbf6d06	github.com/anacrolix/torrent/mse.(*handshake).Do+0x266			github.com/anacrolix/torrent@v1.54.0/mse/mse.go:536
+#	0xbf709a	github.com/anacrolix/torrent/mse.InitiateHandshake+0x1da		github.com/anacrolix/torrent@v1.54.0/mse/mse.go:556
+#	0xdcb86c	github.com/anacrolix/torrent.(*Client).initiateHandshakes+0xec		github.com/anacrolix/torrent@v1.54.0/client.go:897
+#	0xdca18a	github.com/anacrolix/torrent.(*Client).initiateProtocolHandshakes+0x18a	github.com/anacrolix/torrent@v1.54.0/client.go:707
+#	0xdca4ae	github.com/anacrolix/torrent.doProtocolHandshakeOnDialResult+0x22e	github.com/anacrolix/torrent@v1.54.0/client.go:722
+#	0xdcac67	github.com/anacrolix/torrent.(*Client).dialAndCompleteHandshake+0x707	github.com/anacrolix/torrent@v1.54.0/client.go:796
+#	0xdcb364	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x64		github.com/anacrolix/torrent@v1.54.0/client.go:863
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x5084eb 0x5084d9 0x5f8c05 0x618651 0x616510 0x6164aa 0x135270a 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x5084ea	internal/poll.(*pollDesc).waitRead+0x22a				internal/poll/fd_poll_runtime.go:89
+#	0x5084d8	internal/poll.(*FD).ReadFromInet4+0x218					internal/poll/fd_unix.go:247
+#	0x5f8c04	net.(*netFD).readFromInet4+0x24						net/fd_posix.go:66
+#	0x618650	net.(*UDPConn).readFrom+0x1b0						net/udpsock_posix.go:52
+#	0x61650f	net.(*UDPConn).readFromUDP+0x2f						net/udpsock.go:149
+#	0x6164a9	net.(*UDPConn).ReadFromUDP+0x49						net/udpsock.go:141
+#	0x1352709	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).readLoop+0xe9	github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:639
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x509c16 0x509c03 0x5f9225 0x60b825 0x1e4f1ff 0x1e4f1f1 0x207e95a 0x207e7c5 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84							runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26							internal/poll/fd_poll_runtime.go:84
+#	0x509c15	internal/poll.(*pollDesc).waitWrite+0x2d5						internal/poll/fd_poll_runtime.go:93
+#	0x509c02	internal/poll.(*FD).Write+0x2c2								internal/poll/fd_unix.go:388
+#	0x5f9224	net.(*netFD).Write+0x24									net/fd_posix.go:96
+#	0x60b824	net.(*conn).Write+0x44									net/net.go:191
+#	0x1e4f1fe	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).writeMsgInsecure+0x27e	github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:154
+#	0x1e4f1f0	github.com/libp2p/go-libp2p/p2p/security/noise.(*secureSession).Write+0x270		github.com/libp2p/go-libp2p@v0.31.0/p2p/security/noise/rw.go:122
+#	0x207e959	github.com/libp2p/go-mplex.(*Multiplex).doWriteMsg+0x59					github.com/libp2p/go-mplex@v0.7.0/multiplex.go:283
+#	0x207e7c4	github.com/libp2p/go-mplex.(*Multiplex).handleOutgoing+0x104				github.com/libp2p/go-mplex@v0.7.0/multiplex.go:267
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0x1d43ba4 0x1e4455e 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84						runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26						internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab					internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299						internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28							net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d							net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f							net/tcpsock.go:315
+#	0x1d43ba3	github.com/multiformats/go-multiaddr/net.(*maListener).Accept+0x23		github.com/multiformats/go-multiaddr@v0.12.1/net/net.go:243
+#	0x1e4455d	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*listener).handleIncoming+0xfd	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/listener.go:75
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0x721ca4 0x1a80a6f 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab			internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299				internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28					net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d					net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f					net/tcpsock.go:315
+#	0x721ca3	net/http.(*Server).Serve+0x363					net/http/server.go:3056
+#	0x1a80a6e	github.com/ledgerwatch/erigon/node.StartHTTPEndpoint.func1+0xee	github.com/ledgerwatch/erigon/node/endpoints.go:80
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0x721ca4 0x721911 0x1a772a5 0x1a772a6 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab			internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299				internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28					net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d					net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f					net/tcpsock.go:315
+#	0x721ca3	net/http.(*Server).Serve+0x363					net/http/server.go:3056
+#	0x721910	net/http.(*Server).ListenAndServe+0x70				net/http/server.go:2985
+#	0x1a772a4	net/http.ListenAndServe+0x64					net/http/server.go:3239
+#	0x1a772a5	github.com/ledgerwatch/erigon/turbo/debug.StartPProf.func1+0x65	github.com/ledgerwatch/erigon/turbo/debug/flags.go:235
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0x721ca4 0x721911 0x8cbded 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab			internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299				internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28					net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d					net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f					net/tcpsock.go:315
+#	0x721ca3	net/http.(*Server).Serve+0x363					net/http/server.go:3056
+#	0x721910	net/http.(*Server).ListenAndServe+0x70				net/http/server.go:2985
+#	0x8cbdec	github.com/ledgerwatch/erigon-lib/metrics.Setup.func1+0x2c	github.com/ledgerwatch/erigon-lib@v1.0.0/metrics/setup.go:28
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0xb11522 0x1a446b9 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab				internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299					internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28						net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d						net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f						net/tcpsock.go:315
+#	0xb11521	google.golang.org/grpc.(*Server).Serve+0x461				google.golang.org/grpc@v1.61.0/server.go:885
+#	0x1a446b8	github.com/ledgerwatch/erigon/ethdb/privateapi.StartGrpc.func1+0x78	github.com/ledgerwatch/erigon/ethdb/privateapi/all.go:47
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0xb11522 0x20f739a 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84					runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26					internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab				internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299					internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28						net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d						net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f						net/tcpsock.go:315
+#	0xb11521	google.golang.org/grpc.(*Server).Serve+0x461				google.golang.org/grpc@v1.61.0/server.go:885
+#	0x20f7399	github.com/ledgerwatch/erigon/cl/sentinel/service.StartServe+0x1f9	github.com/ledgerwatch/erigon/cl/sentinel/service/start.go:92
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50bd2c 0x50bd1a 0x5faa29 0x61589e 0x614730 0xdc8518 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x50bd2b	internal/poll.(*pollDesc).waitRead+0x2ab			internal/poll/fd_poll_runtime.go:89
+#	0x50bd19	internal/poll.(*FD).Accept+0x299				internal/poll/fd_unix.go:611
+#	0x5faa28	net.(*netFD).accept+0x28					net/fd_unix.go:172
+#	0x61589d	net.(*TCPListener).accept+0x1d					net/tcpsock_posix.go:152
+#	0x61472f	net.(*TCPListener).Accept+0x2f					net/tcpsock.go:315
+#	0xdc8517	github.com/anacrolix/torrent.(*Client).acceptConnections+0x57	github.com/anacrolix/torrent@v1.54.0/client.go:502
+
+1 @ 0x45fe2e 0x458557 0x48d985 0x506847 0x50c9aa 0x50c993 0x60f816 0xdb91fb 0xdba7f0 0xdba7d8 0xdbf639 0x493821
+#	0x48d984	internal/poll.runtime_pollWait+0x84				runtime/netpoll.go:343
+#	0x506846	internal/poll.(*pollDesc).wait+0x26				internal/poll/fd_poll_runtime.go:84
+#	0x50c9a9	internal/poll.(*pollDesc).waitRead+0x129			internal/poll/fd_poll_runtime.go:89
+#	0x50c992	internal/poll.(*FD).RawRead+0x112				internal/poll/fd_unix.go:708
+#	0x60f815	net.(*rawConn).Read+0x35					net/rawconn.go:44
+#	0xdb91fa	github.com/anacrolix/mmsg/socket.(*Conn).recvMsgs+0x17a		github.com/anacrolix/mmsg@v1.0.0/socket/rawconn_mmsg.go:34
+#	0xdba7ef	github.com/anacrolix/mmsg/socket.(*Conn).RecvMsgs+0xef		github.com/anacrolix/mmsg@v1.0.0/socket/socket.go:272
+#	0xdba7d7	github.com/anacrolix/mmsg.(*Conn).RecvMsgs+0xd7			github.com/anacrolix/mmsg@v1.0.0/mmsg.go:49
+#	0xdbf638	github.com/anacrolix/go-libutp.(*Socket).packetReader+0x1d8	github.com/anacrolix/go-libutp@v1.3.1/socket.go:196
+
+1 @ 0x45fe2e 0x4703a5 0x12cda5c 0x493821
+#	0x12cda5b	github.com/ledgerwatch/erigon/consensus/ethash.(*remoteSealer).loop+0x1fb	github.com/ledgerwatch/erigon/consensus/ethash/sealer.go:162
+
+1 @ 0x45fe2e 0x4703a5 0x133cf87 0x133dcde 0x20e961b 0x493821
+#	0x133cf86	github.com/ledgerwatch/erigon/p2p/discover.(*lookup).advance+0xa6		github.com/ledgerwatch/erigon/p2p/discover/lookup.go:73
+#	0x133dcdd	github.com/ledgerwatch/erigon/p2p/discover.(*lookupIterator).Next+0x9d		github.com/ledgerwatch/erigon/p2p/discover/lookup.go:236
+#	0x20e961a	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).listenForPeers+0x4da	github.com/ledgerwatch/erigon/cl/sentinel/discovery.go:93
+
+1 @ 0x45fe2e 0x4703a5 0x13513bc 0x493821
+#	0x13513bb	github.com/ledgerwatch/erigon/p2p/discover.(*UDPv5).dispatch+0x1fb	github.com/ledgerwatch/erigon/p2p/discover/v5_udp.go:514
+
+1 @ 0x45fe2e 0x4703a5 0x15d917e 0x15dc465 0x16a5d6d 0x20fb265 0x20f95e3 0x21045d9 0x493821
+#	0x15d917d	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlockAndWait+0x29d	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:298
+#	0x15dc464	github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).NewPayload+0x264				github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:42
+#	0x16a5d6c	github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnBlock+0x48c						github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_block.go:84
+#	0x20fb264	github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func1+0x64							github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:190
+#	0x20f95e2	github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8+0xae2							github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:423
+#	0x21045d8	github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1+0xd8						github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40
+
+1 @ 0x45fe2e 0x4703a5 0x16a342a 0x493821
+#	0x16a3429	github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).StartAttestationsRTT.func1+0xa9	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_attestation.go:138
+
+1 @ 0x45fe2e 0x4703a5 0x16ccdb9 0x493821
+#	0x16ccdb8	github.com/ledgerwatch/erigon/cl/persistence.NewGossipSource.func1+0xd8	github.com/ledgerwatch/erigon/cl/persistence/block_store.go:94
+
+1 @ 0x45fe2e 0x4703a5 0x171091d 0x493821
+#	0x171091c	github.com/ledgerwatch/erigon/turbo/stages/headerdownload.(*HeaderDownload).StartPoSDownloader.func1+0x43c	github.com/ledgerwatch/erigon/turbo/stages/headerdownload/header_algos.go:1312
+
+1 @ 0x45fe2e 0x4703a5 0x1744f65 0xb661cd 0x493821
+#	0x1744f64	github.com/ledgerwatch/erigon-lib/kv/remotedbserver.(*KvServer).StateChanges+0x104		github.com/ledgerwatch/erigon-lib@v1.0.0/kv/remotedbserver/remotedbserver.go:444
+#	0xb661cc	github.com/ledgerwatch/erigon-lib/direct.(*StateDiffClientDirect).StateChanges.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/state_diff_client.go:55
+
+1 @ 0x45fe2e 0x4703a5 0x186b495 0x186b0ff 0x493821
+#	0x186b494	github.com/ledgerwatch/erigon-lib/downloader.(*Downloader).mainLoop+0x234			github.com/ledgerwatch/erigon-lib@v1.0.0/downloader/downloader.go:638
+#	0x186b0fe	github.com/ledgerwatch/erigon-lib/downloader.(*Downloader).MainLoopInBackground.func1+0x5e	github.com/ledgerwatch/erigon-lib@v1.0.0/downloader/downloader.go:511
+
+1 @ 0x45fe2e 0x4703a5 0x186c225 0x493821
+#	0x186c224	github.com/ledgerwatch/erigon-lib/downloader.(*Downloader).mainLoop.func1+0x164	github.com/ledgerwatch/erigon-lib@v1.0.0/downloader/downloader.go:620
+
+1 @ 0x45fe2e 0x4703a5 0x1a44d32 0x493821
+#	0x1a44d31	github.com/ledgerwatch/erigon/ethdb/privateapi.NewEthBackendServer.func1+0x171	github.com/ledgerwatch/erigon/ethdb/privateapi/ethbackend.go:83
+
+1 @ 0x45fe2e 0x4703a5 0x1a4580e 0xb609ed 0x493821
+#	0x1a4580d	github.com/ledgerwatch/erigon/ethdb/privateapi.(*EthBackendServer).Subscribe+0x24d	github.com/ledgerwatch/erigon/ethdb/privateapi/ethbackend.go:168
+#	0xb609ec	github.com/ledgerwatch/erigon-lib/direct.(*EthBackendClientDirect).Subscribe.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/eth_backend_client.go:68
+
+1 @ 0x45fe2e 0x4703a5 0x1a497b1 0xb6232d 0x493821
+#	0x1a497b0	github.com/ledgerwatch/erigon/ethdb/privateapi.(*MiningServer).OnPendingBlock+0xd0	github.com/ledgerwatch/erigon/ethdb/privateapi/mining.go:112
+#	0xb6232c	github.com/ledgerwatch/erigon-lib/direct.(*MiningClient).OnPendingBlock.func1+0x6c	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/mining_client.go:50
+
+1 @ 0x45fe2e 0x4703a5 0x1a7799d 0x493821
+#	0x1a7799c	github.com/ledgerwatch/erigon/turbo/debug.ListenSignals+0x1dc	github.com/ledgerwatch/erigon/turbo/debug/signal.go:25
+
+1 @ 0x45fe2e 0x4703a5 0x1d4f067 0x493821
+#	0x1d4f066	github.com/libp2p/go-libp2p/p2p/host/peerstore/pstoremem.(*memoryAddrBook).background+0x126	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/peerstore/pstoremem/addr_book.go:116
+
+1 @ 0x45fe2e 0x4703a5 0x1d67b50 0x493821
+#	0x1d67b4f	github.com/libp2p/go-libp2p/p2p/host/resource-manager.(*resourceManager).background+0x10f	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/resource-manager/rcmgr.go:371
+
+1 @ 0x45fe2e 0x4703a5 0x1e25b75 0x493821
+#	0x1e25b74	github.com/libp2p/go-libp2p/p2p/net/connmgr.(*BasicConnMgr).background+0x134	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/connmgr/connmgr.go:347
+
+1 @ 0x45fe2e 0x4703a5 0x1e2aa6f 0x493821
+#	0x1e2aa6e	github.com/libp2p/go-libp2p/p2p/net/connmgr.(*decayer).process+0x20e	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/connmgr/decay.go:164
+
+1 @ 0x45fe2e 0x4703a5 0x1e47f65 0x1e47271 0x1e4642a 0x1e45fba 0x1f31a49 0x1f315f4 0x2028247 0x201e6e7 0x493821
+#	0x1e47f64	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).negotiateSecurity+0x184	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:332
+#	0x1e47270	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).setupSecurity+0x50		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:206
+#	0x1e46429	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).upgrade+0x3c9			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:155
+#	0x1e45fb9	github.com/libp2p/go-libp2p/p2p/net/upgrader.(*upgrader).Upgrade+0x79			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/upgrader/upgrader.go:125
+#	0x1f31a48	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).dialWithScope+0x3a8	github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:219
+#	0x1f315f3	github.com/libp2p/go-libp2p/p2p/transport/tcp.(*TcpTransport).Dial+0x233		github.com/libp2p/go-libp2p@v0.31.0/p2p/transport/tcp/tcp.go:185
+#	0x2028246	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialAddr+0x386			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:533
+#	0x201e6e6	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialLimiter).executeDial+0xe6		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/limiter.go:219
+
+1 @ 0x45fe2e 0x4703a5 0x1fb874f 0x493821
+#	0x1fb874e	github.com/libp2p/go-libp2p/p2p/host/autonat.(*AmbientAutoNAT).background+0x2ee	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/autonat/autonat.go:173
+
+1 @ 0x45fe2e 0x4703a5 0x1fbfa39 0x493821
+#	0x1fbfa38	github.com/libp2p/go-libp2p/p2p/host/pstoremanager.(*PeerstoreManager).background+0x2b8	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/pstoremanager/pstoremanager.go:96
+
+1 @ 0x45fe2e 0x4703a5 0x1fd4028 0x493821
+#	0x1fd4027	github.com/libp2p/go-libp2p/p2p/protocol/identify.(*idService).loop+0x447	github.com/libp2p/go-libp2p@v0.31.0/p2p/protocol/identify/id.go:268
+
+1 @ 0x45fe2e 0x4703a5 0x1fd4225 0x493821
+#	0x1fd4224	github.com/libp2p/go-libp2p/p2p/protocol/identify.(*idService).loop.func1+0xe4	github.com/libp2p/go-libp2p@v0.31.0/p2p/protocol/identify/id.go:258
+
+1 @ 0x45fe2e 0x4703a5 0x1fdcfb0 0x493821
+#	0x1fdcfaf	github.com/libp2p/go-libp2p/p2p/protocol/identify.(*ObservedAddrManager).worker+0x1cf	github.com/libp2p/go-libp2p@v0.31.0/p2p/protocol/identify/obsaddr.go:258
+
+1 @ 0x45fe2e 0x4703a5 0x1ffb99e 0x493821
+#	0x1ffb99d	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).background+0x1fd	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:551
+
+1 @ 0x45fe2e 0x4703a5 0x1ffcb47 0x20b1799 0x493821
+#	0x1ffcb46	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0x7c6	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:684
+#	0x20b1798	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleNewPeer+0xb8		github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:115
+
+1 @ 0x45fe2e 0x4703a5 0x201a5af 0x201aa88 0x2025a33 0x2025545 0x1ffd2ec 0x1ffd125 0x1ffc47d 0x20b1799 0x493821
+#	0x201a5ae	github.com/libp2p/go-libp2p/p2p/net/swarm.(*activeDial).dial+0x24e	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:60
+#	0x201aa87	github.com/libp2p/go-libp2p/p2p/net/swarm.(*dialSync).Dial+0x87		github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/dial_sync.go:98
+#	0x2025a32	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).dialPeer+0x472	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:265
+#	0x2025544	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Swarm).DialPeer+0x24	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:227
+#	0x1ffd2eb	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).dialPeer+0x12b	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:738
+#	0x1ffd124	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).Connect+0x104	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:731
+#	0x1ffc47c	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream+0xfc	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:634
+#	0x20b1798	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleNewPeer+0xb8		github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:115
+
+1 @ 0x45fe2e 0x4703a5 0x2024ad9 0x493821
+#	0x2024ad8	github.com/libp2p/go-libp2p/p2p/net/swarm.(*DialBackoff).background+0xd8	github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_dial.go:127
+
+1 @ 0x45fe2e 0x4703a5 0x208052f 0x20802fc 0x207fabc 0x493821
+#	0x208052e	github.com/libp2p/go-mplex.(*Multiplex).getBufferInbound+0x12e	github.com/libp2p/go-mplex@v0.7.0/multiplex.go:629
+#	0x20802fb	github.com/libp2p/go-mplex.(*Multiplex).readNextChunk+0x1b	github.com/libp2p/go-mplex@v0.7.0/multiplex.go:597
+#	0x207fabb	github.com/libp2p/go-mplex.(*Multiplex).handleIncoming+0xa5b	github.com/libp2p/go-mplex@v0.7.0/multiplex.go:485
+
+1 @ 0x45fe2e 0x4703a5 0x20807a5 0x207e2d1 0x20810f6 0x2080ff7 0x20821f8 0x202c94d 0x20015b9 0x1ffee82 0x20b23db 0x20b202b 0x493821
+#	0x20807a4	github.com/libp2p/go-mplex.(*Multiplex).getBufferOutbound+0x84			github.com/libp2p/go-mplex@v0.7.0/multiplex.go:642
+#	0x207e2d0	github.com/libp2p/go-mplex.(*Multiplex).sendMsg+0x70				github.com/libp2p/go-mplex@v0.7.0/multiplex.go:229
+#	0x20810f5	github.com/libp2p/go-mplex.(*Stream).write+0x95					github.com/libp2p/go-mplex@v0.7.0/stream.go:166
+#	0x2080ff6	github.com/libp2p/go-mplex.(*Stream).Write+0x96					github.com/libp2p/go-mplex@v0.7.0/stream.go:148
+#	0x20821f7	github.com/libp2p/go-libp2p-mplex.(*stream).Write+0x17				github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:26
+#	0x202c94c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Write+0x2c			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:66
+#	0x20015b8	github.com/multiformats/go-multistream.(*lazyClientConn[...]).Write+0xf8	github.com/multiformats/go-multistream@v0.4.1/lazyClient.go:134
+#	0x1ffee81	github.com/libp2p/go-libp2p/p2p/host/basic.(*streamWrapper).Write+0x21		github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:1058
+#	0x20b23da	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleSendingMessages.func1+0x1ba	github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:169
+#	0x20b202a	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handleSendingMessages+0x18a	github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:181
+
+1 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x1e4a885 0x1e4a875 0x1e4bbf7 0x1e4b785 0x1ffcea8 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad				github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59					github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17				github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c			github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49		github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52				github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e				github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24			github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x1e4a884	github.com/multiformats/go-multistream.ReadNextToken[...]+0x44			github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x1e4a874	github.com/multiformats/go-multistream.readProto[...]+0x34			github.com/multiformats/go-multistream@v0.4.1/client.go:351
+#	0x1e4bbf6	github.com/multiformats/go-multistream.SelectProtoOrFail[...]+0x1d6		github.com/multiformats/go-multistream@v0.4.1/client.go:67
+#	0x1e4b784	github.com/multiformats/go-multistream.SelectOneOf[...]+0xe4			github.com/multiformats/go-multistream@v0.4.1/client.go:99
+#	0x1ffcea7	github.com/libp2p/go-libp2p/p2p/host/basic.(*BasicHost).NewStream.func1+0x87	github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:681
+
+1 @ 0x45fe2e 0x4703a5 0x208094e 0x2080c3a 0x2082138 0x202c82d 0x1d0a2ea 0x15de713 0x1d0a10f 0x1d09fe5 0x200194f 0x20018ed 0x2000efb 0x4b0ddf 0x2001be5 0x2001b98 0x1ffee22 0x20b1dd5 0x493821
+#	0x208094d	github.com/libp2p/go-mplex.(*Stream).waitForData+0xad					github.com/libp2p/go-mplex@v0.7.0/stream.go:70
+#	0x2080c39	github.com/libp2p/go-mplex.(*Stream).Read+0x59						github.com/libp2p/go-mplex@v0.7.0/stream.go:117
+#	0x2082137	github.com/libp2p/go-libp2p-mplex.(*stream).Read+0x17					github.com/libp2p/go-libp2p-mplex@v0.9.0/stream.go:17
+#	0x202c82c	github.com/libp2p/go-libp2p/p2p/net/swarm.(*Stream).Read+0x2c				github.com/libp2p/go-libp2p@v0.31.0/p2p/net/swarm/swarm_stream.go:55
+#	0x1d0a2e9	github.com/multiformats/go-multistream.(*byteReader).ReadByte+0x49			github.com/multiformats/go-multistream@v0.4.1/multistream.go:322
+#	0x15de712	github.com/multiformats/go-varint.ReadUvarint+0x52					github.com/multiformats/go-varint@v0.0.7/varint.go:80
+#	0x1d0a10e	github.com/multiformats/go-multistream.lpReadBuf+0x8e					github.com/multiformats/go-multistream@v0.4.1/multistream.go:286
+#	0x1d09fe4	github.com/multiformats/go-multistream.ReadNextTokenBytes+0x24				github.com/multiformats/go-multistream@v0.4.1/multistream.go:269
+#	0x200194e	github.com/multiformats/go-multistream.ReadNextToken[...]+0xae				github.com/multiformats/go-multistream@v0.4.1/multistream.go:258
+#	0x20018ec	github.com/multiformats/go-multistream.(*lazyClientConn[...]).doReadHandshake+0x4c	github.com/multiformats/go-multistream@v0.4.1/lazyClient.go:74
+#	0x2000efa	github.com/multiformats/go-multistream.(*lazyClientConn[...]).Read.func1+0xda		github.com/multiformats/go-multistream@v0.4.1/lazyClient.go:59
+#	0x4b0dde	sync.(*Once).doSlow+0xbe								sync/once.go:74
+#	0x2001be4	sync.(*Once).Do+0x64									sync/once.go:65
+#	0x2001b97	github.com/multiformats/go-multistream.(*lazyClientConn[...]).Read+0x17			github.com/multiformats/go-multistream@v0.4.1/lazyClient.go:57
+#	0x1ffee21	github.com/libp2p/go-libp2p/p2p/host/basic.(*streamWrapper).Read+0x21			github.com/libp2p/go-libp2p@v0.31.0/p2p/host/basic/basic_host.go:1054
+#	0x20b1dd4	github.com/libp2p/go-libp2p-pubsub.(*PubSub).handlePeerDead+0x74			github.com/libp2p/go-libp2p-pubsub@v0.9.3/comm.go:147
+
+1 @ 0x45fe2e 0x4703a5 0x20832bd 0x493821
+#	0x20832bc	github.com/libp2p/go-libp2p-pubsub/timecache.background+0x13c	github.com/libp2p/go-libp2p-pubsub@v0.9.3/timecache/util.go:16
+
+1 @ 0x45fe2e 0x4703a5 0x20b0a97 0x493821
+#	0x20b0a96	github.com/libp2p/go-libp2p-pubsub.(*backoff).cleanupLoop+0xd6	github.com/libp2p/go-libp2p-pubsub@v0.9.3/backoff.go:100
+
+1 @ 0x45fe2e 0x4703a5 0x20bd2d5 0x493821
+#	0x20bd2d4	github.com/libp2p/go-libp2p-pubsub.(*GossipSubRouter).heartbeatTimer+0x1d4	github.com/libp2p/go-libp2p-pubsub@v0.9.3/gossipsub.go:1332
+
+1 @ 0x45fe2e 0x4703a5 0x20c6dbf 0x493821
+#	0x20c6dbe	github.com/libp2p/go-libp2p-pubsub.(*PubSub).processLoop+0x4be	github.com/libp2p/go-libp2p-pubsub@v0.9.3/pubsub.go:573
+
+1 @ 0x45fe2e 0x4703a5 0x20cd590 0x493821
+#	0x20cd58f	github.com/libp2p/go-libp2p-pubsub.(*peerScore).background+0x2af	github.com/libp2p/go-libp2p-pubsub@v0.9.3/score.go:428
+
+1 @ 0x45fe2e 0x4703a5 0x20eadb2 0x493821
+#	0x20eadb1	github.com/ledgerwatch/erigon/cl/sentinel.(*Sentinel).forkWatcher+0x131	github.com/ledgerwatch/erigon/cl/sentinel/gossip.go:169
+
+1 @ 0x45fe2e 0x4703a5 0x2104105 0x493821
+#	0x2104104	github.com/ledgerwatch/erigon/cmd/caplin/caplin1.RunCaplinPhase1.func3+0xc4	github.com/ledgerwatch/erigon/cmd/caplin/caplin1/run.go:194
+
+1 @ 0x45fe2e 0x4703a5 0x2111085 0x493821
+#	0x2111084	github.com/ledgerwatch/erigon/eth.New.func14+0x144	github.com/ledgerwatch/erigon/eth/backend.go:742
+
+1 @ 0x45fe2e 0x4703a5 0x21130ef 0x493821
+#	0x21130ee	github.com/ledgerwatch/erigon/eth.New.func7+0x14e	github.com/ledgerwatch/erigon/eth/backend.go:474
+
+1 @ 0x45fe2e 0x4703a5 0x2120eec 0x493821
+#	0x2120eeb	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runSnapshotListener.func1+0x1eb	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:80
+
+1 @ 0x45fe2e 0x4703a5 0x2121725 0x493821
+#	0x2121724	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runSegmentIndexingListener.func1+0x204	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:151
+
+1 @ 0x45fe2e 0x4703a5 0x21219ac 0x493821
+#	0x21219ab	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runSegmentIndexingFinishedListener.func1+0x1ab	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:171
+
+1 @ 0x45fe2e 0x4703a5 0x2122429 0x493821
+#	0x2122428	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runSyncStagesListListener.func1+0x1c8	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:235
+
+1 @ 0x45fe2e 0x4703a5 0x2122af4 0x493821
+#	0x2122af3	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runBlockExecutionListener.func1+0x1f3	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:283
+
+1 @ 0x45fe2e 0x4703a5 0xdd2b25 0x493821
+#	0xdd2b24	github.com/anacrolix/torrent.(*Client).acceptLimitClearer+0xa4	github.com/anacrolix/torrent@v1.54.0/client.go:1740
+
+1 @ 0x45fe2e 0x4713d8 0x4713af 0x48f685 0x4b0a7d 0x16a261b 0x16a25e8 0x16a3052 0x16ca749 0x16c9ac5 0x16ca3cc 0x493821
+#	0x48f684	sync.runtime_SemacquireMutex+0x24								runtime/sema.go:77
+#	0x4b0a7c	sync.(*Mutex).lockSlow+0x15c									sync/mutex.go:171
+#	0x16a261a	sync.(*Mutex).Lock+0x9a										sync/mutex.go:90
+#	0x16a25e7	github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnAttestation+0x67	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_attestation.go:23
+#	0x16a3051	github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnAggregateAndProof+0x371	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_attestation.go:111
+#	0x16ca748	github.com/ledgerwatch/erigon/cl/phase1/network.operationsContract[...]+0x228			github.com/ledgerwatch/erigon/cl/phase1/network/gossip_manager.go:77
+#	0x16c9ac4	github.com/ledgerwatch/erigon/cl/phase1/network.(*GossipManager).onRecv+0xd04			github.com/ledgerwatch/erigon/cl/phase1/network/gossip_manager.go:192
+#	0x16ca3cb	github.com/ledgerwatch/erigon/cl/phase1/network.(*GossipManager).Start+0xeb			github.com/ledgerwatch/erigon/cl/phase1/network/gossip_manager.go:215
+
+1 @ 0x45fe2e 0x4713d8 0x4713af 0x48f685 0x4b0a7d 0x16aaf17 0x16aaee9 0x210427d 0x493821
+#	0x48f684	sync.runtime_SemacquireMutex+0x24							runtime/sema.go:77
+#	0x4b0a7c	sync.(*Mutex).lockSlow+0x15c								sync/mutex.go:171
+#	0x16aaf16	sync.(*Mutex).Lock+0x56									sync/mutex.go:90
+#	0x16aaee8	github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnTick+0x28	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_tick.go:7
+#	0x210427c	github.com/ledgerwatch/erigon/cmd/caplin/caplin1.RunCaplinPhase1.func2+0x5c		github.com/ledgerwatch/erigon/cmd/caplin/caplin1/run.go:176
+
+1 @ 0x45fe2e 0x4713d8 0x4713af 0x48f685 0x4b0a7d 0x212134e 0x212131c 0x493821
+#	0x48f684	sync.runtime_SemacquireMutex+0x24									runtime/sema.go:77
+#	0x4b0a7c	sync.(*Mutex).lockSlow+0x15c										sync/mutex.go:171
+#	0x212134d	sync.(*Mutex).Lock+0x24d										sync/mutex.go:90
+#	0x212131b	github.com/ledgerwatch/erigon/diagnostics.(*DiagnosticClient).runSegmentDownloadingListener.func1+0x21b	github.com/ledgerwatch/erigon/diagnostics/diagnostic.go:130
+
+1 @ 0x45fe2e 0x4713d8 0x4713af 0x48f685 0x4b0a7d 0x4b0d70 0x4b0d3e 0x4b0cf9 0x493821
+#	0x48f684	sync.runtime_SemacquireMutex+0x24	runtime/sema.go:77
+#	0x4b0a7c	sync.(*Mutex).lockSlow+0x15c		sync/mutex.go:171
+#	0x4b0d6f	sync.(*Mutex).Lock+0x4f			sync/mutex.go:90
+#	0x4b0d3d	sync.(*Once).doSlow+0x1d		sync/once.go:70
+#	0x4b0cf8	sync.(*Once).Do+0x18			sync/once.go:65
+
+1 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbd0a8 0xdd3939 0xdea21e 0x4dd770 0xbf3f37 0xbf3efe 0xbf6beb 0xbf709b 0xdcb86d 0xdca18b 0xdca4af 0xdcac68 0xdcb365 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138					runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84							sync/cond.go:70
+#	0xdbd0a7	github.com/anacrolix/go-libutp.(*Conn).Read+0x87			github.com/anacrolix/go-libutp@v1.3.1/conn.go:151
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38		github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd		github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4dd76f	io.ReadAtLeast+0x8f							io/io.go:335
+#	0xbf3f36	io.ReadFull+0x96							io/io.go:354
+#	0xbf3efd	github.com/anacrolix/torrent/mse.(*handshake).establishS+0x5d		github.com/anacrolix/torrent@v1.54.0/mse/mse.go:183
+#	0xbf6bea	github.com/anacrolix/torrent/mse.(*handshake).Do+0x14a			github.com/anacrolix/torrent@v1.54.0/mse/mse.go:524
+#	0xbf709a	github.com/anacrolix/torrent/mse.InitiateHandshake+0x1da		github.com/anacrolix/torrent@v1.54.0/mse/mse.go:556
+#	0xdcb86c	github.com/anacrolix/torrent.(*Client).initiateHandshakes+0xec		github.com/anacrolix/torrent@v1.54.0/client.go:897
+#	0xdca18a	github.com/anacrolix/torrent.(*Client).initiateProtocolHandshakes+0x18a	github.com/anacrolix/torrent@v1.54.0/client.go:707
+#	0xdca4ae	github.com/anacrolix/torrent.doProtocolHandshakeOnDialResult+0x22e	github.com/anacrolix/torrent@v1.54.0/client.go:722
+#	0xdcac67	github.com/anacrolix/torrent.(*Client).dialAndCompleteHandshake+0x707	github.com/anacrolix/torrent@v1.54.0/client.go:796
+#	0xdcb364	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x64		github.com/anacrolix/torrent@v1.54.0/client.go:863
+
+1 @ 0x45fe2e 0x48f939 0x48f919 0x4aed25 0xdbd0a8 0xdd3939 0xdea21e 0x4dd770 0xbfa865 0xbfa807 0xdcc436 0xdcb9c5 0xdca18b 0xdca4af 0xdcb0e5 0xdcb365 0x493821
+#	0x48f918	sync.runtime_notifyListWait+0x138					runtime/sema.go:527
+#	0x4aed24	sync.(*Cond).Wait+0x84							sync/cond.go:70
+#	0xdbd0a7	github.com/anacrolix/go-libutp.(*Conn).Read+0x87			github.com/anacrolix/go-libutp@v1.3.1/conn.go:151
+#	0xdd3938	github.com/anacrolix/torrent.connStatsReadWriter.Read+0x38		github.com/anacrolix/torrent@v1.54.0/conn_stats.go:114
+#	0xdea21d	github.com/anacrolix/torrent.(*rateLimitedReader).Read+0xdd		github.com/anacrolix/torrent@v1.54.0/ratelimitreader.go:43
+#	0x4dd76f	io.ReadAtLeast+0x8f							io/io.go:335
+#	0xbfa864	io.ReadFull+0x424							io/io.go:354
+#	0xbfa806	github.com/anacrolix/torrent/peer_protocol.Handshake+0x3c6		github.com/anacrolix/torrent@v1.54.0/peer_protocol/handshake.go:160
+#	0xdcc435	github.com/anacrolix/torrent.(*Client).connBtHandshake+0x115		github.com/anacrolix/torrent@v1.54.0/client.go:997
+#	0xdcb9c4	github.com/anacrolix/torrent.(*Client).initiateHandshakes+0x244		github.com/anacrolix/torrent@v1.54.0/client.go:911
+#	0xdca18a	github.com/anacrolix/torrent.(*Client).initiateProtocolHandshakes+0x18a	github.com/anacrolix/torrent@v1.54.0/client.go:707
+#	0xdca4ae	github.com/anacrolix/torrent.doProtocolHandshakeOnDialResult+0x22e	github.com/anacrolix/torrent@v1.54.0/client.go:722
+#	0xdcb0e4	github.com/anacrolix/torrent.(*Client).dialAndCompleteHandshake+0xb84	github.com/anacrolix/torrent@v1.54.0/client.go:826
+#	0xdcb364	github.com/anacrolix/torrent.(*Client).outgoingConnection+0x64		github.com/anacrolix/torrent@v1.54.0/client.go:863
+
+1 @ 0x45fe2e 0x490785 0x17f0d87 0x493821
+#	0x490784	time.Sleep+0x124						runtime/time.go:195
+#	0x17f0d86	github.com/ledgerwatch/erigon/turbo/rpchelper.New.func3+0x126	github.com/ledgerwatch/erigon/turbo/rpchelper/filters.go:131
+

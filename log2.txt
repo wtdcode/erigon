@@ -1,0 +1,1763 @@
+[INFO] [02-21|11:55:36.680] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|11:55:36.681] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|11:55:36.681] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|11:55:36.681] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|11:55:36.681] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|11:55:36.683] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|11:55:36.683] torrent verbosity                        level=WRN
+[INFO] [02-21|11:55:36.683] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|11:55:36.684] Set global gas cap                       cap=50000000
+[INFO] [02-21|11:55:36.684] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|11:55:36.687] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+[INFO] [02-21|11:55:36.692] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|11:55:36.695] Re-Opening DB in exclusive mode to apply migrations 
+[INFO] [02-21|11:55:36.700] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|11:55:36.700] Apply migration                          name=db_schema_version5
+[INFO] [02-21|11:55:36.701] Applied migration                        name=db_schema_version5
+[INFO] [02-21|11:55:36.702] Apply migration                          name=txs_begin_end
+[INFO] [02-21|11:55:36.703] Applied migration                        name=txs_begin_end
+[INFO] [02-21|11:55:36.703] Apply migration                          name=txs_v3
+[INFO] [02-21|11:55:36.704] Applied migration                        name=txs_v3
+[INFO] [02-21|11:55:36.704] Apply migration                          name=prohibit_new_downloads_lock
+[INFO] [02-21|11:55:36.705] Applied migration                        name=prohibit_new_downloads_lock
+[INFO] [02-21|11:55:36.706] Updated DB schema to                     version=6.1.0
+[INFO] [02-21|11:55:36.710] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[DBUG] [02-21|11:55:36.718] [db] open                                lable=inMem sizeLimit=2GB pageSize=4096
+[INFO] [02-21|11:55:36.722] Writing custom genesis block             hash=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[INFO] [02-21|11:55:36.726] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|11:55:38.546] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|11:55:58.671] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|11:55:58.672] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|11:55:58.672] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[WARN] [02-21|11:55:58.672] [dbg] ReadTd                             number=0
+[INFO] [02-21|11:55:58.672] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|11:55:58.672] new subscription to logs established 
+[INFO] [02-21|11:55:58.672] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|11:55:58.812] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|11:55:58.927] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:55:59.064] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:55:59.554] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:55:59.673] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:55:59.862] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:56:00.081] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|11:57:49.900] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|11:57:49.900] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|11:57:49.901] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|11:57:49.901] new subscription to newHeaders established 
+[INFO] [02-21|11:57:49.901] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|11:57:49.901] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|11:57:49.907] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|11:57:49.909] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|11:57:49.909] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|11:57:49.910] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[INFO] [02-21|11:57:49.912] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|11:57:49.913] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|11:57:49.914] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|11:57:49.914] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|11:57:49.936] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|11:57:49.974] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|11:57:49.990] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|11:57:49.991] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|11:57:49.991] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|11:57:49.992] Static peers                             len=0
+[INFO] [02-21|11:57:49.992] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QOLmtDgsrFLmgvwajdo3Q12wyGJfRae-rZh3eIZh2wzKREQ7wmThl6mz8z_8H2xyZ7qcmHtJ-huzB7TowX7UAP4Bh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQKnmKguq8YcMjAd04x5xid35Ey-wPQAatzQllIoO7QDNIhzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|11:57:49.992] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|11:57:49.999] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|11:57:49.999] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398496
+[DBUG] [02-21|11:57:56.769] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|11:57:56.769] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:57:58.281] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|11:57:58.281] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:58:01.326] [downloader] Collecting...               from=5333976 to=5333976 len=1
+[DBUG] [02-21|11:58:01.326] [downloader] posAnchor is nil 
+[INFO] [02-21|11:58:02.686] Backfilling finished 
+[DBUG] [02-21|11:58:05.009] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|11:58:05.009] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|11:58:05.012] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=15.01296286s next=ForwardSync
+[INFO] [02-21|11:58:05.012] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398496 to=4398590
+[DBUG] [02-21|11:58:05.765] OnBlock                                  elapsed=10.49979ms
+[DBUG] [02-21|11:58:05.775] OnBlock                                  elapsed=9.22162ms
+[DBUG] [02-21|11:58:05.785] OnBlock                                  elapsed=9.12105ms
+[DBUG] [02-21|11:58:05.796] OnBlock                                  elapsed=9.4304ms
+[DBUG] [02-21|11:58:05.806] OnBlock                                  elapsed=9.22902ms
+[DBUG] [02-21|11:58:05.817] OnBlock                                  elapsed=9.45936ms
+[DBUG] [02-21|11:58:05.827] OnBlock                                  elapsed=9.12198ms
+[DBUG] [02-21|11:58:05.837] OnBlock                                  elapsed=9.439ms
+[DBUG] [02-21|11:58:05.848] OnBlock                                  elapsed=10.3475ms
+[DBUG] [02-21|11:58:05.858] OnBlock                                  elapsed=9.53185ms
+[DBUG] [02-21|11:58:05.868] OnBlock                                  elapsed=9.68845ms
+[DBUG] [02-21|11:58:05.878] OnBlock                                  elapsed=9.07777ms
+[DBUG] [02-21|11:58:05.889] OnBlock                                  elapsed=11.33493ms
+[DBUG] [02-21|11:58:05.899] OnBlock                                  elapsed=9.32564ms
+[DBUG] [02-21|11:58:05.909] OnBlock                                  elapsed=9.340391ms
+[DBUG] [02-21|11:58:05.921] OnBlock                                  elapsed=9.948949ms
+[DBUG] [02-21|11:58:05.931] OnBlock                                  elapsed=9.50899ms
+[DBUG] [02-21|11:58:05.942] OnBlock                                  elapsed=9.11332ms
+[DBUG] [02-21|11:58:05.951] OnBlock                                  elapsed=8.73485ms
+[DBUG] [02-21|11:58:05.961] OnBlock                                  elapsed=9.69887ms
+[DBUG] [02-21|11:58:05.972] OnBlock                                  elapsed=9.55043ms
+[DBUG] [02-21|11:58:05.982] OnBlock                                  elapsed=9.6596ms
+[DBUG] [02-21|11:58:05.991] OnBlock                                  elapsed=8.57565ms
+[DBUG] [02-21|11:58:06.002] OnBlock                                  elapsed=9.353619ms
+[DBUG] [02-21|11:58:06.011] OnBlock                                  elapsed=8.5768ms
+[DBUG] [02-21|11:58:06.022] OnBlock                                  elapsed=10.49381ms
+[DBUG] [02-21|11:58:06.033] OnBlock                                  elapsed=10.531309ms
+[DBUG] [02-21|11:58:06.045] OnBlock                                  elapsed=9.13351ms
+[DBUG] [02-21|11:58:06.055] OnBlock                                  elapsed=9.17445ms
+[DBUG] [02-21|11:58:06.064] OnBlock                                  elapsed=9.25768ms
+[DBUG] [02-21|11:58:06.080] OnBlock                                  elapsed=14.79096ms
+[DBUG] [02-21|11:58:06.090] OnBlock                                  elapsed=9.39366ms
+[DBUG] [02-21|11:58:06.100] OnBlock                                  elapsed=9.69837ms
+[DBUG] [02-21|11:58:06.111] OnBlock                                  elapsed=10.42227ms
+[DBUG] [02-21|11:58:06.122] OnBlock                                  elapsed=10.38369ms
+[DBUG] [02-21|11:58:06.132] OnBlock                                  elapsed=8.98774ms
+[DBUG] [02-21|11:58:06.142] OnBlock                                  elapsed=9.62195ms
+[DBUG] [02-21|11:58:06.151] OnBlock                                  elapsed=8.504069ms
+[DBUG] [02-21|11:58:06.161] OnBlock                                  elapsed=9.909989ms
+[DBUG] [02-21|11:58:06.171] OnBlock                                  elapsed=9.297169ms
+[DBUG] [02-21|11:58:06.181] OnBlock                                  elapsed=9.1984ms
+[DBUG] [02-21|11:58:06.191] OnBlock                                  elapsed=9.30839ms
+[DBUG] [02-21|11:58:06.203] OnBlock                                  elapsed=8.97855ms
+[DBUG] [02-21|11:58:06.214] OnBlock                                  elapsed=9.40755ms
+[DBUG] [02-21|11:58:06.223] OnBlock                                  elapsed=9.17315ms
+[DBUG] [02-21|11:58:06.235] OnBlock                                  elapsed=9.6039ms
+[DBUG] [02-21|11:58:06.244] OnBlock                                  elapsed=8.97897ms
+[DBUG] [02-21|11:58:06.254] OnBlock                                  elapsed=9.651169ms
+[DBUG] [02-21|11:58:06.264] OnBlock                                  elapsed=9.33394ms
+[DBUG] [02-21|11:58:06.275] OnBlock                                  elapsed=9.920781ms
+[DBUG] [02-21|11:58:06.288] OnBlock                                  elapsed=9.08868ms
+[DBUG] [02-21|11:58:06.299] OnBlock                                  elapsed=9.30567ms
+[DBUG] [02-21|11:58:06.308] OnBlock                                  elapsed=9.10354ms
+[DBUG] [02-21|11:58:06.319] OnBlock                                  elapsed=9.86927ms
+[DBUG] [02-21|11:58:06.892] OnBlock                                  elapsed=12.70995ms
+[DBUG] [02-21|11:58:06.903] OnBlock                                  elapsed=9.89441ms
+[DBUG] [02-21|11:58:06.913] OnBlock                                  elapsed=9.5796ms
+[DBUG] [02-21|11:58:06.923] OnBlock                                  elapsed=9.3642ms
+[DBUG] [02-21|11:58:06.934] OnBlock                                  elapsed=9.837219ms
+[DBUG] [02-21|11:58:06.943] OnBlock                                  elapsed=9.40753ms
+[DBUG] [02-21|11:58:06.971] OnBlock                                  elapsed=26.59216ms
+[DBUG] [02-21|11:58:06.981] OnBlock                                  elapsed=9.97117ms
+[DBUG] [02-21|11:58:06.992] OnBlock                                  elapsed=10.12022ms
+[DBUG] [02-21|11:58:07.001] OnBlock                                  elapsed=8.91217ms
+[DBUG] [02-21|11:58:07.012] OnBlock                                  elapsed=10.31784ms
+[DBUG] [02-21|11:58:07.022] OnBlock                                  elapsed=8.935909ms
+[DBUG] [02-21|11:58:07.043] OnBlock                                  elapsed=9.7317ms
+[DBUG] [02-21|11:58:07.060] OnBlock                                  elapsed=9.32184ms
+[DBUG] [02-21|11:58:07.071] OnBlock                                  elapsed=8.72828ms
+[DBUG] [02-21|11:58:07.080] OnBlock                                  elapsed=9.28339ms
+[DBUG] [02-21|11:58:07.102] OnBlock                                  elapsed=9.133049ms
+[DBUG] [02-21|11:58:07.113] OnBlock                                  elapsed=9.532981ms
+[DBUG] [02-21|11:58:07.123] OnBlock                                  elapsed=9.06005ms
+[DBUG] [02-21|11:58:07.133] OnBlock                                  elapsed=9.80421ms
+[DBUG] [02-21|11:58:07.143] OnBlock                                  elapsed=9.05303ms
+[DBUG] [02-21|11:58:07.154] OnBlock                                  elapsed=10.8855ms
+[DBUG] [02-21|11:58:07.166] OnBlock                                  elapsed=10.11949ms
+[DBUG] [02-21|11:58:07.177] OnBlock                                  elapsed=9.94247ms
+[DBUG] [02-21|11:58:07.187] OnBlock                                  elapsed=9.8554ms
+[DBUG] [02-21|11:58:07.197] OnBlock                                  elapsed=9.55473ms
+[DBUG] [02-21|11:58:07.208] OnBlock                                  elapsed=10.43063ms
+[DBUG] [02-21|11:58:07.218] OnBlock                                  elapsed=9.53138ms
+[DBUG] [02-21|11:58:07.229] OnBlock                                  elapsed=10.134829ms
+[DBUG] [02-21|11:58:07.239] OnBlock                                  elapsed=8.90369ms
+[DBUG] [02-21|11:58:07.249] OnBlock                                  elapsed=10.24252ms
+[DBUG] [02-21|11:58:07.263] OnBlock                                  elapsed=13.14817ms
+[DBUG] [02-21|11:58:07.276] OnBlock                                  elapsed=11.01598ms
+[DBUG] [02-21|11:58:07.287] OnBlock                                  elapsed=10.41739ms
+[DBUG] [02-21|11:58:07.298] OnBlock                                  elapsed=10.54649ms
+[DBUG] [02-21|11:58:07.310] OnBlock                                  elapsed=10.66869ms
+[DBUG] [02-21|11:58:07.337] clstage finish                           app=caplin stage=ForwardSync in=2.324878215s next=CatchUpBlocks
+[DBUG] [02-21|11:58:12.303] [downloader] Collecting...               from=5333977 to=5333977 len=1
+[DBUG] [02-21|11:58:12.303] [downloader] posAnchor is nil 
+[INFO] [02-21|11:58:20.144] [1/12 Snapshots] Total difficulty index: 1643k/5174k 
+[DBUG] [02-21|11:58:24.043] Pruned old blocks                        pruneSlot=4398464
+[DBUG] [02-21|11:58:24.499] Received block via gossip                peers=3 slot=4398592
+[DBUG] [02-21|11:58:27.338] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000750897s next=CatchUpBlocks
+[DBUG] [02-21|11:58:36.668] Received block via gossip                peers=3 slot=4398593
+[DBUG] [02-21|11:58:40.290] [downloader] Collecting...               from=5333979 to=5333979 len=1
+[DBUG] [02-21|11:58:40.291] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:58:47.338] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000571357s next=CatchUpBlocks
+[DBUG] [02-21|11:58:49.147] Received block via gossip                peers=5 slot=4398594
+[DBUG] [02-21|11:58:49.909] [p2p] Dial scheduler                     protocol=67 peers=3/33 tried=328 static=20 connect: connection refused=6 i/o timeout=37 connect: no route to host=2
+[DBUG] [02-21|11:58:49.909] [p2p] Discovery table                    protocol=67 version=v4 len=161 live=7 unsol=413 ips=229 db=0 reval=11 RPC timeout=3 invalid ID in response record=1 unsolicited reply=45 unknown node=5
+[DBUG] [02-21|11:58:49.911] [p2p] Server                             protocol=67 peers=3 trusted=0 inbound=1 too many peers=2 EOF=1
+[DBUG] [02-21|11:58:49.914] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=350 static=20 connect: connection refused=4 i/o timeout=34 connect: no route to host=1
+[DBUG] [02-21|11:58:49.914] [p2p] Discovery table                    protocol=68 version=v4 len=152 live=8 unsol=436 ips=203 db=0 reval=10 RPC timeout=2 unknown node=4 unsolicited reply=47
+[DBUG] [02-21|11:58:49.936] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0
+[DBUG] [02-21|11:58:49.991] [p2p] Discovery table                    protocol=any version=v5 len=97 live=6 unsol=0 ips=127 db=0 reval=11 RPC timeout=4
+[INFO] [02-21|11:58:49.992] P2P                                      app=caplin peers=5
+[INFO] [02-21|11:58:50.144] [1/12 Snapshots] Total difficulty index: 3213k/5174k 
+[INFO] [02-21|11:58:58.672] [p2p] GoodPeers                          eth67=3
+[DBUG] [02-21|11:59:00.501] Received block via gossip                peers=8 slot=4398595
+[DBUG] [02-21|11:59:06.538] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-3772988997
+[DBUG] [02-21|11:59:07.339] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000752137s next=CatchUpBlocks
+[DBUG] [02-21|11:59:08.622] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|11:59:08.622] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:59:12.639] Received block via gossip                peers=6 slot=4398596
+[INFO] [02-21|11:59:20.143] [1/12 Snapshots] Total difficulty index: 4761k/5174k 
+[DBUG] [02-21|11:59:24.741] Received block via gossip                peers=5 slot=4398597
+[DBUG] [02-21|11:59:27.341] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001908026s next=CatchUpBlocks
+[DBUG] [02-21|11:59:27.666] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|11:59:27.666] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:59:29.305] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-2552528257
+[DBUG] [02-21|11:59:36.501] Received block via gossip                peers=6 slot=4398598
+[DBUG] [02-21|11:59:37.395] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|11:59:37.395] [downloader] posAnchor is nil 
+[DBUG] [02-21|11:59:47.343] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001591947s next=CatchUpBlocks
+[DBUG] [02-21|11:59:48.250] Received block via gossip                peers=5 slot=4398599
+[DBUG] [02-21|11:59:49.909] [p2p] Dial scheduler                     protocol=67 peers=5/33 tried=656 static=20 connect: connection refused=17 i/o timeout=74 connect: no route to host=2
+[DBUG] [02-21|11:59:49.909] [p2p] Discovery table                    protocol=67 version=v4 len=168 live=16 unsol=467 ips=236 db=0 reval=22 RPC timeout=5 invalid ID in response record=1 unsolicited reply=56 unknown node=20
+[DBUG] [02-21|11:59:49.910] [p2p] Server                             protocol=67 peers=5 trusted=0 inbound=1
+[DBUG] [02-21|11:59:49.915] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=665 static=20 connect: connection refused=11 i/o timeout=67 connect: no route to host=1
+[DBUG] [02-21|11:59:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=154 live=18 unsol=500 ips=205 db=0 reval=22 RPC timeout=4 unknown node=9 unsolicited reply=59 expired=2
+[DBUG] [02-21|11:59:49.936] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|11:59:49.992] [p2p] Discovery table                    protocol=any version=v5 len=125 live=13 unsol=0 ips=174 db=0 reval=23 RPC timeout=9
+[INFO] [02-21|11:59:49.993] P2P                                      app=caplin peers=8
+[INFO] [02-21|11:59:50.144] [1/12 Snapshots] MaxTxNums index: 4812k/5174k 
+[INFO] [02-21|11:59:52.889] [snapshots:download] Blocks Stat         blocks=5175k indices=5175k alloc=1.8GB sys=3.4GB
+[INFO] [02-21|11:59:54.668] [1/12 Snapshots] DONE                    in=2m4.75729004s block=5174999
+[DBUG] [02-21|11:59:54.668] [2/12 BlockHashes] DONE                  in=45.41µs
+[DBUG] [02-21|11:59:54.668] [3/12 Senders] DONE                      in=117.37µs
+[WARN] [02-21|11:59:54.668] [dbg] exec3                              stack="[stage_execute.go:240 stage_execute.go:384 default_stages.go:321 sync.go:518 sync.go:396 ethereum_execution.go:254 asm_amd64.s:1650]"
+[INFO] [02-21|11:59:54.668] [4/12 Execution] Blocks execution        from=0 to=5174999
+[INFO] [02-21|11:59:54.671] [4/12 Execution] starting                from=5168536 to=5174999 fromTxNum=149999966 offsetFromBlockBeginning=33 initialCycle=true useExternalTx=false
+[INFO] [02-21|11:59:54.671] [snapshots] db has steps amount: accounts:0.0, storage:0.0, code:0.0, commitment:0.0, logaddrs: 0.0, logtopics: 0.0, tracesfrom: 0.0, tracesto: 0.0 
+[DBUG] [02-21|12:00:01.833] Received block via gossip                peers=8 slot=4398600
+[DBUG] [02-21|12:00:07.344] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001477567s next=CatchUpBlocks
+[DBUG] [02-21|12:00:09.979] [downloader] Collecting...               from=5333986 to=5333986 len=1
+[DBUG] [02-21|12:00:09.979] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:00:12.668] Received block via gossip                peers=11 slot=4398601
+[INFO] [02-21|12:00:14.676] [4/12 Execution] Transaction replay      blk=5169148 tx/s=2357.5 buffer=18.4MB/256.0MB stepsInDB=0.00 step=96.0 alloc=2.0GB sys=3.4GB
+[DBUG] [02-21|12:00:24.528] Received block via gossip                peers=8 slot=4398602
+[DBUG] [02-21|12:00:27.345] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001024237s next=CatchUpBlocks
+[DBUG] [02-21|12:00:30.876] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|12:00:30.876] [downloader] posAnchor is nil 
+[INFO] [02-21|12:00:34.696] [4/12 Execution] Transaction replay      blk=5169727 tx/s=2634.8 buffer=34.5MB/256.0MB stepsInDB=0.00 step=96.1 alloc=3.0GB sys=3.6GB
+[DBUG] [02-21|12:00:36.600] Received block via gossip                peers=4 slot=4398603
+[DBUG] [02-21|12:00:47.347] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001286626s next=CatchUpBlocks
+[DBUG] [02-21|12:00:48.582] Received block via gossip                peers=5 slot=4398604
+[DBUG] [02-21|12:00:49.910] [p2p] Dial scheduler                     protocol=67 peers=4/33 tried=979 static=20 connect: connection refused=24 i/o timeout=131 connect: no route to host=2
+[DBUG] [02-21|12:00:49.910] [p2p] Discovery table                    protocol=67 version=v4 len=164 live=24 unsol=491 ips=232 db=0 reval=34 RPC timeout=9 invalid ID in response record=1 unsolicited reply=61 unknown node=22
+[DBUG] [02-21|12:00:49.910] [p2p] Server                             protocol=67 peers=4 trusted=0 inbound=1 EOF=1
+[DBUG] [02-21|12:00:49.915] [p2p] Dial scheduler                     protocol=68 peers=1/33 tried=1028 static=20 connect: connection refused=22 i/o timeout=104 connect: no route to host=1
+[DBUG] [02-21|12:00:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=152 live=25 unsol=500 ips=204 db=0 reval=33 invalid ID in response record=1 RPC timeout=5 unknown node=19 unsolicited reply=62 expired=2
+[DBUG] [02-21|12:00:49.937] [p2p] Server                             protocol=68 peers=1 trusted=0 inbound=0 too many peers=2
+[DBUG] [02-21|12:00:49.992] [p2p] Discovery table                    protocol=any version=v5 len=140 live=23 unsol=0 ips=199 db=0 reval=35 RPC timeout=11
+[INFO] [02-21|12:00:49.992] P2P                                      app=caplin peers=8
+[INFO] [02-21|12:00:54.710] [4/12 Execution] Transaction replay      blk=5170302 tx/s=2912.3 buffer=52.0MB/256.0MB stepsInDB=0.00 step=96.1 alloc=2.1GB sys=3.7GB
+[DBUG] [02-21|12:01:01.836] Received block via gossip                peers=5 slot=4398605
+[DBUG] [02-21|12:01:07.348] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001304007s next=CatchUpBlocks
+[INFO] [02-21|12:01:14.693] [4/12 Execution] Transaction replay      blk=5170862 tx/s=3153.2 buffer=69.4MB/256.0MB stepsInDB=0.00 step=96.1 alloc=2.9GB sys=3.7GB
+[DBUG] [02-21|12:01:21.182] [downloader] Collecting...               from=5187022 to=5187022 len=1
+[DBUG] [02-21|12:01:21.182] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:01:24.589] Received block via gossip                peers=5 slot=4398607
+[DBUG] [02-21|12:01:27.349] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000372436s next=CatchUpBlocks
+[INFO] [02-21|12:01:34.700] [4/12 Execution] Transaction replay      blk=5171389 tx/s=3940.3 buffer=81.0MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.4GB sys=3.7GB
+[DBUG] [02-21|12:01:37.238] Received block via gossip                peers=7 slot=4398608
+[DBUG] [02-21|12:01:47.350] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000940257s next=CatchUpBlocks
+[DBUG] [02-21|12:01:48.676] Received block via gossip                peers=16 slot=4398609
+[DBUG] [02-21|12:01:49.909] [p2p] Dial scheduler                     protocol=67 peers=4/33 tried=1306 static=20 connect: connection refused=32 i/o timeout=166 connect: no route to host=3
+[DBUG] [02-21|12:01:49.910] [p2p] Discovery table                    protocol=67 version=v4 len=173 live=33 unsol=500 ips=251 db=0 reval=45 RPC timeout=11 invalid ID in response record=1 unknown node=32 unsolicited reply=63
+[DBUG] [02-21|12:01:49.910] [p2p] Server                             protocol=67 peers=4 trusted=0 inbound=1 too many peers=1
+[DBUG] [02-21|12:01:49.914] [p2p] Dial scheduler                     protocol=68 peers=2/33 tried=1344 static=20 connect: connection refused=28 i/o timeout=143 connect: no route to host=1
+[DBUG] [02-21|12:01:49.914] [p2p] Discovery table                    protocol=68 version=v4 len=155 live=35 unsol=500 ips=206 db=0 reval=44 RPC timeout=5 invalid ID in response record=1 unknown node=27 unsolicited reply=68 expired=2
+[DBUG] [02-21|12:01:49.936] [p2p] Server                             protocol=68 peers=2 trusted=0 inbound=0 EOF=1
+[DBUG] [02-21|12:01:49.991] [p2p] Discovery table                    protocol=any version=v5 len=168 live=31 unsol=0 ips=237 db=0 reval=47 RPC timeout=14
+[INFO] [02-21|12:01:49.992] P2P                                      app=caplin peers=6
+[INFO] [02-21|12:01:54.684] [4/12 Execution] Transaction replay      blk=5171907 tx/s=3037.2 buffer=95.1MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.7GB sys=3.7GB
+[INFO] [02-21|12:01:58.673] [p2p] GoodPeers                          eth68=2 eth67=4
+[DBUG] [02-21|12:02:00.491] Received block via gossip                peers=6 slot=4398610
+[DBUG] [02-21|12:02:07.350] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000746997s next=CatchUpBlocks
+[DBUG] [02-21|12:02:12.521] Received block via gossip                peers=5 slot=4398611
+[INFO] [02-21|12:02:14.682] [4/12 Execution] Transaction replay      blk=5172433 tx/s=3065.6 buffer=112.4MB/256.0MB stepsInDB=0.00 step=96.3 alloc=3.5GB sys=3.9GB
+[DBUG] [02-21|12:02:27.351] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000957746s next=CatchUpBlocks
+[INFO] [02-21|12:02:34.676] [4/12 Execution] Transaction replay      blk=5172983 tx/s=3125.2 buffer=129.1MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.1GB sys=3.9GB
+[DBUG] [02-21|12:02:36.418] Received block via gossip                peers=8 slot=4398613
+[DBUG] [02-21|12:02:45.749] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|12:02:45.749] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:02:47.352] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000691107s next=CatchUpBlocks
+[DBUG] [02-21|12:02:47.358] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:02:47.358] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:02:49.909] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=1645 static=20 connect: connection refused=40 i/o timeout=202 connect: no route to host=3
+[DBUG] [02-21|12:02:49.909] [p2p] Discovery table                    protocol=67 version=v4 len=173 live=41 unsol=500 ips=250 db=0 reval=56 RPC timeout=12 invalid ID in response record=2 unsolicited reply=75 unknown node=43
+[DBUG] [02-21|12:02:49.910] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2
+[DBUG] [02-21|12:02:49.915] [p2p] Dial scheduler                     protocol=68 peers=2/33 tried=1663 static=20 connect: connection refused=33 i/o timeout=177 connect: no route to host=1
+[DBUG] [02-21|12:02:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=157 live=41 unsol=500 ips=218 db=0 reval=55 RPC timeout=10 invalid ID in response record=1 unknown node=27 unsolicited reply=86 expired=2
+[DBUG] [02-21|12:02:49.936] [p2p] Server                             protocol=68 peers=2 trusted=0 inbound=0
+[DBUG] [02-21|12:02:49.992] [p2p] Discovery table                    protocol=any version=v5 len=166 live=41 unsol=0 ips=235 db=0 reval=59 RPC timeout=16
+[INFO] [02-21|12:02:49.993] P2P                                      app=caplin peers=4
+[DBUG] [02-21|12:02:50.013] Received block via gossip                peers=4 slot=4398614
+[INFO] [02-21|12:02:54.678] [4/12 Execution] Transaction replay      blk=5173504 tx/s=2758.7 buffer=144.6MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.4GB sys=3.9GB
+[DBUG] [02-21|12:03:00.384] Received block via gossip                peers=4 slot=4398615
+[DBUG] [02-21|12:03:07.352] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000183477s next=CatchUpBlocks
+[DBUG] [02-21|12:03:13.575] Received block via gossip                peers=5 slot=4398616
+[INFO] [02-21|12:03:14.690] [4/12 Execution] Transaction replay      blk=5174057 tx/s=2709.5 buffer=161.8MB/256.0MB stepsInDB=0.00 step=96.4 alloc=2.8GB sys=3.9GB
+[DBUG] [02-21|12:03:25.124] Received block via gossip                peers=9 slot=4398617
+[DBUG] [02-21|12:03:27.353] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000160687s next=CatchUpBlocks
+[INFO] [02-21|12:03:34.698] [4/12 Execution] Transaction replay      blk=5174598 tx/s=2803.4 buffer=178.5MB/256.0MB stepsInDB=0.00 step=96.4 alloc=3.2GB sys=3.9GB
+[DBUG] [02-21|12:03:36.522] [downloader] Collecting...               from=5334001 to=5334001 len=1
+[DBUG] [02-21|12:03:36.522] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:03:37.003] Received block via gossip                peers=8 slot=4398618
+[DBUG] [02-21|12:03:47.354] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001075197s next=CatchUpBlocks
+[DBUG] [02-21|12:03:49.757] Received block via gossip                peers=13 slot=4398619
+[DBUG] [02-21|12:03:49.909] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=1989 static=20 connect: connection refused=48 i/o timeout=238 connect: no route to host=3
+[DBUG] [02-21|12:03:49.909] [p2p] Discovery table                    protocol=67 version=v4 len=171 live=49 unsol=500 ips=249 db=0 reval=67 RPC timeout=15 invalid ID in response record=2 unknown node=58 unsolicited reply=113
+[DBUG] [02-21|12:03:49.910] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:03:49.915] [p2p] Dial scheduler                     protocol=68 peers=2/33 tried=2024 static=20 connect: no route to host=2 connect: connection refused=40 i/o timeout=215
+[DBUG] [02-21|12:03:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=155 live=49 unsol=500 ips=213 db=0 reval=66 RPC timeout=12 invalid ID in response record=1 unknown node=30 unsolicited reply=98 expired=2
+[DBUG] [02-21|12:03:49.936] [p2p] Server                             protocol=68 peers=2 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:03:49.992] [p2p] Discovery table                    protocol=any version=v5 len=165 live=49 unsol=0 ips=232 db=0 reval=71 RPC timeout=20
+[INFO] [02-21|12:03:49.993] P2P                                      app=caplin peers=10
+[INFO] [02-21|12:03:50.015] Executed                                 blocks=5174999 txs=150694782 repeats=0
+[DBUG] [02-21|12:04:00.301] Received block via gossip                peers=10 slot=4398620
+[DBUG] [02-21|12:04:07.356] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001825647s next=CatchUpBlocks
+[INFO] [02-21|12:04:13.584] [4/12 Execution][agg] computing trie     progress=342k/1441k alloc=3.0GB sys=5.0GB
+[DBUG] [02-21|12:04:13.809] Received block via gossip                peers=17 slot=4398621
+[DBUG] [02-21|12:04:24.233] Received block via gossip                peers=14 slot=4398622
+[DBUG] [02-21|12:04:25.424] [downloader] Collecting...               from=5213000 to=5213000 len=1
+[DBUG] [02-21|12:04:25.424] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:04:27.357] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000938347s next=CatchUpBlocks
+[INFO] [02-21|12:04:33.583] [4/12 Execution][agg] computing trie     progress=848k/1441k alloc=4.0GB sys=5.5GB
+[DBUG] [02-21|12:04:34.855] [downloader] Collecting...               from=5334006 to=5334006 len=1
+[DBUG] [02-21|12:04:34.855] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:04:36.584] Received block via gossip                peers=16 slot=4398623
+[DBUG] [02-21|12:04:39.622] [downloader] Collecting...               from=5334007 to=5334007 len=1
+[DBUG] [02-21|12:04:39.622] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:04:47.358] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000898778s next=CatchUpBlocks
+[DBUG] [02-21|12:04:48.329] Received block via gossip                peers=9 slot=4398624
+[DBUG] [02-21|12:04:49.910] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=2302 static=20 i/o timeout=271 connect: no route to host=4 connect: connection refused=52
+[DBUG] [02-21|12:04:49.910] [p2p] Discovery table                    protocol=67 version=v4 len=169 live=57 unsol=500 ips=247 db=0 reval=78 RPC timeout=17 invalid ID in response record=2 invalid IP in response record: LAN address from WAN host=1 unsolicited reply=145 unknown node=70
+[DBUG] [02-21|12:04:49.910] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2
+[DBUG] [02-21|12:04:49.915] [p2p] Dial scheduler                     protocol=68 peers=3/33 tried=2336 static=20 connect: connection refused=49 i/o timeout=247 connect: no route to host=3
+[DBUG] [02-21|12:04:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=156 live=59 unsol=500 ips=215 db=0 reval=77 RPC timeout=12 invalid ID in response record=1 expired=2 unknown node=32 unsolicited reply=100
+[DBUG] [02-21|12:04:49.936] [p2p] Server                             protocol=68 peers=3 trusted=0 inbound=1
+[DBUG] [02-21|12:04:49.992] [p2p] Discovery table                    protocol=any version=v5 len=164 live=55 unsol=0 ips=229 db=0 reval=83 RPC timeout=25
+[INFO] [02-21|12:04:49.992] P2P                                      app=caplin peers=10
+[INFO] [02-21|12:04:53.583] [4/12 Execution][agg] computing trie     progress=1215k/1441k alloc=4.8GB sys=5.8GB
+[INFO] [02-21|12:04:58.673] [p2p] GoodPeers                          eth68=3 eth67=6
+[DBUG] [02-21|12:05:00.643] Received block via gossip                peers=10 slot=4398625
+[DBUG] [02-21|12:05:07.358] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000741658s next=ForwardSync
+[INFO] [02-21|12:05:07.358] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398528 to=4398625
+[DBUG] [02-21|12:05:12.706] Received block via gossip                peers=10 slot=4398626
+[DBUG] [02-21|12:05:17.542] OnBlock                                  elapsed=28.10045ms
+[DBUG] [02-21|12:05:17.552] OnBlock                                  elapsed=9.770679ms
+[DBUG] [02-21|12:05:17.563] OnBlock                                  elapsed=9.98004ms
+[DBUG] [02-21|12:05:17.573] OnBlock                                  elapsed=9.22511ms
+[DBUG] [02-21|12:05:17.585] OnBlock                                  elapsed=9.86947ms
+[DBUG] [02-21|12:05:17.598] OnBlock                                  elapsed=10.04377ms
+[DBUG] [02-21|12:05:17.608] OnBlock                                  elapsed=9.20843ms
+[DBUG] [02-21|12:05:17.619] OnBlock                                  elapsed=9.41601ms
+[DBUG] [02-21|12:05:17.631] OnBlock                                  elapsed=9.36014ms
+[DBUG] [02-21|12:05:17.642] OnBlock                                  elapsed=10.27869ms
+[DBUG] [02-21|12:05:17.655] OnBlock                                  elapsed=10.22062ms
+[DBUG] [02-21|12:05:17.666] OnBlock                                  elapsed=9.605949ms
+[DBUG] [02-21|12:05:17.676] OnBlock                                  elapsed=9.76669ms
+[DBUG] [02-21|12:05:17.686] OnBlock                                  elapsed=9.07741ms
+[DBUG] [02-21|12:05:17.698] OnBlock                                  elapsed=10.8644ms
+[DBUG] [02-21|12:05:17.709] OnBlock                                  elapsed=9.6086ms
+[DBUG] [02-21|12:05:17.719] OnBlock                                  elapsed=9.67222ms
+[DBUG] [02-21|12:05:17.730] OnBlock                                  elapsed=9.59421ms
+[DBUG] [02-21|12:05:17.740] OnBlock                                  elapsed=9.54961ms
+[DBUG] [02-21|12:05:17.753] OnBlock                                  elapsed=10.984269ms
+[DBUG] [02-21|12:05:17.763] OnBlock                                  elapsed=9.99759ms
+[DBUG] [02-21|12:05:17.779] OnBlock                                  elapsed=9.46348ms
+[DBUG] [02-21|12:05:17.789] OnBlock                                  elapsed=9.44215ms
+[DBUG] [02-21|12:05:17.800] OnBlock                                  elapsed=10.03624ms
+[DBUG] [02-21|12:05:17.812] OnBlock                                  elapsed=11.49585ms
+[DBUG] [02-21|12:05:17.825] OnBlock                                  elapsed=9.58483ms
+[DBUG] [02-21|12:05:17.835] OnBlock                                  elapsed=9.502359ms
+[DBUG] [02-21|12:05:17.847] OnBlock                                  elapsed=9.586829ms
+[DBUG] [02-21|12:05:17.857] OnBlock                                  elapsed=8.866749ms
+[DBUG] [02-21|12:05:17.867] OnBlock                                  elapsed=10.19711ms
+[DBUG] [02-21|12:05:17.901] Pruned old blocks                        pruneSlot=4398496
+[DBUG] [02-21|12:05:17.902] OnBlock                                  elapsed=33.66689ms
+[DBUG] [02-21|12:05:17.922] OnBlock                                  elapsed=17.204389ms
+[DBUG] [02-21|12:05:17.933] OnBlock                                  elapsed=10.35786ms
+[DBUG] [02-21|12:05:17.945] clstage finish                           app=caplin stage=ForwardSync in=10.586326727s next=CatchUpBlocks
+[DBUG] [02-21|12:05:19.558] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:05:19.558] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:05:24.204] Received block via gossip                peers=13 slot=4398627
+[DBUG] [02-21|12:05:36.348] Received block via gossip                peers=13 slot=4398628
+[DBUG] [02-21|12:05:37.946] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000924428s next=CatchUpBlocks
+[INFO] [02-21|12:05:42.322] [4/12 Execution] DONE                    in=5m47.653553038s block=0
+[DBUG] [02-21|12:05:42.323] [11/12 TxLookup] DONE                    in=1.166009ms
+[DBUG] [02-21|12:05:42.325] [12/12 Finish] DONE                      in=2.233959ms
+[DBUG] [02-21|12:05:48.395] Received block via gossip                peers=12 slot=4398629
+[DBUG] [02-21|12:05:49.910] [p2p] Dial scheduler                     protocol=67 peers=7/33 tried=2638 static=20 connect: connection refused=62 i/o timeout=308 connect: no route to host=4
+[DBUG] [02-21|12:05:49.910] [p2p] Discovery table                    protocol=67 version=v4 len=168 live=65 unsol=500 ips=246 db=0 reval=89 invalid IP in response record: LAN address from WAN host=1 RPC timeout=19 invalid ID in response record=2 unsolicited reply=175 unknown node=85
+[DBUG] [02-21|12:05:49.910] [p2p] Server                             protocol=67 peers=7 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:05:49.915] [p2p] Dial scheduler                     protocol=68 peers=3/33 tried=2662 static=20 connect: connection refused=59 i/o timeout=291 connect: no route to host=3
+[DBUG] [02-21|12:05:49.915] [p2p] Discovery table                    protocol=68 version=v4 len=155 live=65 unsol=500 ips=215 db=0 reval=89 RPC timeout=14 invalid ID in response record=1 unknown node=45 unsolicited reply=114 expired=4
+[DBUG] [02-21|12:05:49.937] [p2p] Server                             protocol=68 peers=3 trusted=0 inbound=1
+[DBUG] [02-21|12:05:49.992] [p2p] Discovery table                    protocol=any version=v5 len=164 live=61 unsol=0 ips=227 db=0 reval=95 RPC timeout=31
+[INFO] [02-21|12:05:49.993] P2P                                      app=caplin peers=10
+[DBUG] [02-21|12:05:57.947] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001272767s next=CatchUpBlocks
+[WARN] [02-21|12:05:58.361] [dbg] ReadTd                             number=4704831
+[WARN] [02-21|12:05:58.362] [dbg] ReadTd                             number=5333825
+[WARN] [02-21|12:05:58.362] [dbg] InsertBlocks                       from=4704832 to=5334010
+panic: parent's total difficulty not found with hash be7fbfd6a657e69d5eecff3dbe7e60d7fcffbdfb60d4a99a7fcabd3193b8e885 and height 5333825: <nil>
+
+goroutine 541164 [running]:
+github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).InsertBlocks(0xc041ff7c20, {0x30602d8, 0xc001560140}, 0xc08eab0a00)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/inserters.go:74 +0xa25
+github.com/ledgerwatch/erigon-lib/direct.(*ExecutionClientDirect).InsertBlocks(0xc198379110?, {0x30602d8?, 0xc001560140?}, 0x1?, {0x2602e00?, 0xc15b0859b8?, 0x26fec00?})
+	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/execution_client.go:54 +0x25
+github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlocks({{0x30602d8, 0xc001560140}, 0xc000faa640, {0x307c608, 0xc04406cfe0}, 0x3e8}, {0xc19f8ed000, 0x111, 0xc1983a8be0?})
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:304 +0x178
+github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).InsertBlocks(0x0?, {0xc19f8ed000?, 0x0?, 0x0?}, 0x0?)
+	github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:77 +0x78
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8({0x30602d8, 0xc197af0820}, {0x3073440, 0xc197efa660}, 0xc0016d3600, {0xb, 0x218f0, 0x218f1, 0x431e25, 0x431e22, ...})
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:428 +0x56c
+github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1()
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40 +0xd9
+created by github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage in goroutine 65713
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:34 +0x3c9
+exit status 2
+[INFO] [02-21|12:15:33.214] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|12:15:33.214] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|12:15:33.214] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|12:15:33.214] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|12:15:33.214] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|12:15:33.216] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|12:15:33.216] torrent verbosity                        level=WRN
+[INFO] [02-21|12:15:33.216] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|12:15:33.217] Set global gas cap                       cap=50000000
+[INFO] [02-21|12:15:33.218] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|12:15:33.238] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+[INFO] [02-21|12:15:33.244] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:15:33.245] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|12:15:35.810] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|12:15:55.946] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|12:15:55.947] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|12:15:55.947] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[WARN] [02-21|12:15:55.948] [dbg] ReadTd                             number=5174999
+[INFO] [02-21|12:15:55.948] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|12:15:55.948] new subscription to logs established 
+[INFO] [02-21|12:15:55.948] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|12:15:56.103] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|12:15:56.218] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:15:56.300] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|12:15:56.300] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|12:15:56.300] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|12:15:56.300] new subscription to newHeaders established 
+[INFO] [02-21|12:15:56.301] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|12:15:56.301] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|12:15:56.306] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:15:56.308] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:15:56.309] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:15:56.310] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[INFO] [02-21|12:15:56.312] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|12:15:56.313] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:15:56.314] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:15:56.315] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:15:56.315] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:15:56.344] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:15:56.370] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|12:15:56.388] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|12:15:56.388] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:15:56.389] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:15:56.389] Static peers                             len=0
+[INFO] [02-21|12:15:56.389] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QCKuN7a1ABGjQLpLHWfNuAucyb03sCMhuTe1qiM2BVF5XXR5L63COhogtbrhlgUQPK82kkGldbry8rWrfktB0VABh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQOYJCOrjcsrd6DWdkPtHpFQYcFXSGMSHQT3IFXOH3SC0IhzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|12:15:56.389] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|12:15:56.399] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|12:15:56.400] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398592
+[DBUG] [02-21|12:15:56.455] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:15:56.585] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[INFO] [02-21|12:15:56.608] [snapshots:download] Blocks Stat         blocks=5175k indices=5175k alloc=1.7GB sys=1.8GB
+[DBUG] [02-21|12:15:56.608] [1/12 Snapshots] DONE                    in=298.005007ms
+[DBUG] [02-21|12:15:56.608] [2/12 BlockHashes] DONE                  in=36.15µs
+[DBUG] [02-21|12:15:56.609] [3/12 Senders] DONE                      in=176.69µs
+[WARN] [02-21|12:15:56.609] [dbg] exec3                              stack="[stage_execute.go:240 stage_execute.go:384 default_stages.go:321 sync.go:518 sync.go:396 ethereum_execution.go:254 asm_amd64.s:1650]"
+[DBUG] [02-21|12:15:56.611] [4/12 Execution] DONE                    in=2.27143ms
+[DBUG] [02-21|12:15:56.611] [11/12 TxLookup] DONE                    in=55.87µs
+[DBUG] [02-21|12:15:56.611] [12/12 Finish] DONE                      in=29.87µs
+[DBUG] [02-21|12:15:56.873] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:15:56.988] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:15:59.983] [downloader] Collecting...               from=5174999 to=5174999 len=1
+[DBUG] [02-21|12:15:59.983] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:16:06.050] [downloader] Collecting...               from=5334063 to=5334063 len=1
+[DBUG] [02-21|12:16:06.050] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:16:16.365] [downloader] Collecting...               from=5334064 to=5334064 len=1
+[DBUG] [02-21|12:16:16.365] [downloader] posAnchor is nil 
+[WARN] [02-21|12:16:23.236] [dbg] ReadTd                             number=4704831
+[INFO] [02-21|12:16:23.240] Backfilling finished 
+[DBUG] [02-21|12:16:26.412] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|12:16:26.412] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|12:16:26.415] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=30.015529581s next=ForwardSync
+[INFO] [02-21|12:16:26.415] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398592 to=4398682
+[DBUG] [02-21|12:16:28.725] OnBlock                                  elapsed=10.363959ms
+[DBUG] [02-21|12:16:28.735] OnBlock                                  elapsed=9.55448ms
+[DBUG] [02-21|12:16:28.745] OnBlock                                  elapsed=8.98328ms
+[DBUG] [02-21|12:16:28.757] OnBlock                                  elapsed=9.21487ms
+[DBUG] [02-21|12:16:28.767] OnBlock                                  elapsed=9.64805ms
+[DBUG] [02-21|12:16:28.777] OnBlock                                  elapsed=8.78014ms
+[DBUG] [02-21|12:16:28.786] OnBlock                                  elapsed=9.10857ms
+[DBUG] [02-21|12:16:28.796] OnBlock                                  elapsed=8.82687ms
+[DBUG] [02-21|12:16:28.806] OnBlock                                  elapsed=9.778749ms
+[DBUG] [02-21|12:16:28.816] OnBlock                                  elapsed=8.89443ms
+[DBUG] [02-21|12:16:28.826] OnBlock                                  elapsed=9.00957ms
+[DBUG] [02-21|12:16:28.835] OnBlock                                  elapsed=9.02077ms
+[DBUG] [02-21|12:16:28.845] OnBlock                                  elapsed=9.59696ms
+[DBUG] [02-21|12:16:28.856] OnBlock                                  elapsed=10.82712ms
+[DBUG] [02-21|12:16:28.866] OnBlock                                  elapsed=9.25534ms
+[DBUG] [02-21|12:16:28.883] OnBlock                                  elapsed=8.98191ms
+[DBUG] [02-21|12:16:28.892] OnBlock                                  elapsed=9.16318ms
+[DBUG] [02-21|12:16:28.902] OnBlock                                  elapsed=9.599289ms
+[DBUG] [02-21|12:16:28.914] OnBlock                                  elapsed=11.16354ms
+[DBUG] [02-21|12:16:28.928] OnBlock                                  elapsed=10.38861ms
+[DBUG] [02-21|12:16:28.939] OnBlock                                  elapsed=9.75941ms
+[DBUG] [02-21|12:16:28.949] OnBlock                                  elapsed=9.71035ms
+[DBUG] [02-21|12:16:28.959] OnBlock                                  elapsed=10.32028ms
+[DBUG] [02-21|12:16:28.974] OnBlock                                  elapsed=11.53436ms
+[DBUG] [02-21|12:16:28.986] OnBlock                                  elapsed=9.80087ms
+[DBUG] [02-21|12:16:28.996] OnBlock                                  elapsed=10.00788ms
+[DBUG] [02-21|12:16:29.007] OnBlock                                  elapsed=9.594339ms
+[DBUG] [02-21|12:16:29.017] OnBlock                                  elapsed=10.14015ms
+[DBUG] [02-21|12:16:29.028] OnBlock                                  elapsed=10.20208ms
+[DBUG] [02-21|12:16:29.063] OnBlock                                  elapsed=34.39351ms
+[DBUG] [02-21|12:16:29.074] OnBlock                                  elapsed=10.77972ms
+[DBUG] [02-21|12:16:29.084] OnBlock                                  elapsed=10.09444ms
+[DBUG] [02-21|12:16:29.095] OnBlock                                  elapsed=10.243699ms
+[DBUG] [02-21|12:16:29.115] OnBlock                                  elapsed=10.218621ms
+[DBUG] [02-21|12:16:29.125] OnBlock                                  elapsed=9.59713ms
+[DBUG] [02-21|12:16:29.136] OnBlock                                  elapsed=10.48139ms
+[DBUG] [02-21|12:16:29.147] OnBlock                                  elapsed=10.00593ms
+[DBUG] [02-21|12:16:29.157] OnBlock                                  elapsed=10.2283ms
+[DBUG] [02-21|12:16:29.168] OnBlock                                  elapsed=9.70976ms
+[DBUG] [02-21|12:16:29.178] OnBlock                                  elapsed=9.86114ms
+[DBUG] [02-21|12:16:29.189] OnBlock                                  elapsed=10.13836ms
+[DBUG] [02-21|12:16:29.201] OnBlock                                  elapsed=10.03267ms
+[DBUG] [02-21|12:16:29.211] OnBlock                                  elapsed=9.70732ms
+[DBUG] [02-21|12:16:29.221] OnBlock                                  elapsed=9.888299ms
+[DBUG] [02-21|12:16:29.232] OnBlock                                  elapsed=10.64223ms
+[DBUG] [02-21|12:16:29.244] OnBlock                                  elapsed=9.88278ms
+[DBUG] [02-21|12:16:29.255] OnBlock                                  elapsed=10.74772ms
+[DBUG] [02-21|12:16:29.267] OnBlock                                  elapsed=9.72944ms
+[DBUG] [02-21|12:16:29.277] OnBlock                                  elapsed=10.17595ms
+[DBUG] [02-21|12:16:29.288] OnBlock                                  elapsed=10.13594ms
+[DBUG] [02-21|12:16:29.299] OnBlock                                  elapsed=10.532949ms
+[DBUG] [02-21|12:16:29.310] OnBlock                                  elapsed=10.25484ms
+[DBUG] [02-21|12:16:29.322] OnBlock                                  elapsed=10.15545ms
+[DBUG] [02-21|12:16:29.334] OnBlock                                  elapsed=11.27381ms
+[DBUG] [02-21|12:16:29.347] OnBlock                                  elapsed=10.99111ms
+[DBUG] [02-21|12:16:30.527] OnBlock                                  elapsed=9.05172ms
+[DBUG] [02-21|12:16:30.536] OnBlock                                  elapsed=9.07672ms
+[DBUG] [02-21|12:16:30.546] OnBlock                                  elapsed=9.06827ms
+[DBUG] [02-21|12:16:30.556] OnBlock                                  elapsed=9.19018ms
+[DBUG] [02-21|12:16:30.566] OnBlock                                  elapsed=9.3988ms
+[DBUG] [02-21|12:16:30.575] OnBlock                                  elapsed=9.18417ms
+[DBUG] [02-21|12:16:30.605] OnBlock                                  elapsed=29.273369ms
+[DBUG] [02-21|12:16:30.618] OnBlock                                  elapsed=10.913579ms
+[DBUG] [02-21|12:16:30.628] OnBlock                                  elapsed=9.76957ms
+[DBUG] [02-21|12:16:30.638] OnBlock                                  elapsed=8.74182ms
+[DBUG] [02-21|12:16:30.647] OnBlock                                  elapsed=8.94459ms
+[DBUG] [02-21|12:16:30.657] OnBlock                                  elapsed=9.30937ms
+[DBUG] [02-21|12:16:30.667] OnBlock                                  elapsed=9.23281ms
+[DBUG] [02-21|12:16:30.677] OnBlock                                  elapsed=9.61444ms
+[DBUG] [02-21|12:16:30.687] OnBlock                                  elapsed=9.35579ms
+[DBUG] [02-21|12:16:30.696] OnBlock                                  elapsed=9.32661ms
+[DBUG] [02-21|12:16:30.706] OnBlock                                  elapsed=8.65048ms
+[DBUG] [02-21|12:16:30.718] OnBlock                                  elapsed=9.57262ms
+[DBUG] [02-21|12:16:30.729] OnBlock                                  elapsed=9.7174ms
+[DBUG] [02-21|12:16:30.738] OnBlock                                  elapsed=8.78233ms
+[DBUG] [02-21|12:16:30.748] OnBlock                                  elapsed=8.98499ms
+[DBUG] [02-21|12:16:30.757] OnBlock                                  elapsed=9.35747ms
+[DBUG] [02-21|12:16:30.768] OnBlock                                  elapsed=9.36605ms
+[DBUG] [02-21|12:16:30.778] OnBlock                                  elapsed=9.42747ms
+[DBUG] [02-21|12:16:30.787] OnBlock                                  elapsed=8.99075ms
+[DBUG] [02-21|12:16:30.797] OnBlock                                  elapsed=9.04147ms
+[DBUG] [02-21|12:16:30.808] OnBlock                                  elapsed=8.85458ms
+[DBUG] [02-21|12:16:30.817] OnBlock                                  elapsed=9.03386ms
+[DBUG] [02-21|12:16:30.827] OnBlock                                  elapsed=9.52714ms
+[DBUG] [02-21|12:16:30.837] OnBlock                                  elapsed=8.72386ms
+[DBUG] [02-21|12:16:30.846] OnBlock                                  elapsed=8.82619ms
+[DBUG] [02-21|12:16:30.857] OnBlock                                  elapsed=10.36483ms
+[DBUG] [02-21|12:16:30.876] clstage finish                           app=caplin stage=ForwardSync in=4.461162622s next=CatchUpBlocks
+[WARN] [02-21|12:16:31.091] [dbg] ReadTd                             number=4704830
+[WARN] [02-21|12:16:31.091] [dbg] ReadTd                             number=5333917
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks                       len=162 from=4704831 to=5334065
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=4704831
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333918
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333919
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333920
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333921
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333922
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333923
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333924
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333925
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333926
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333927
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333928
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333929
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333930
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333931
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333932
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333933
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333934
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333935
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333936
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333937
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333938
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333939
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333940
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333941
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333942
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333943
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333944
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333945
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333946
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333947
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333948
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333949
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333950
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333951
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333952
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333953
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333954
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333955
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333956
+[WARN] [02-21|12:16:31.091] [dbg] InsertBlocks2                      block=5333957
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333958
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333959
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333960
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333961
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333962
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333963
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333964
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333965
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333966
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333967
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333968
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333969
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333970
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333971
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333972
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333973
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333973
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333974
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333974
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333975
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333975
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333976
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333976
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333977
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333977
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333978
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333978
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333979
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333980
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333981
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333982
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333983
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333984
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333985
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333986
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333987
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333988
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333989
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333990
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333991
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333992
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333993
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333994
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333995
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333996
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333997
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333998
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5333999
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334000
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334001
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334002
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334003
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334004
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334005
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334006
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334007
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334008
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334009
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334010
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334011
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334012
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334013
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334014
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334015
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334016
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334017
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334018
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334019
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334020
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334021
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334022
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334023
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334024
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334025
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334026
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334027
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334027
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334028
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334028
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334029
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334029
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334030
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334030
+[WARN] [02-21|12:16:31.092] [dbg] InsertBlocks2                      block=5334031
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334031
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334032
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334032
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334033
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334033
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334034
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334035
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334036
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334037
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334038
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334039
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334040
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334041
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334042
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334043
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334044
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334045
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334046
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334047
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334048
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334049
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334050
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334051
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334052
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334053
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334054
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334055
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334056
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334057
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334058
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334059
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334060
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334061
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334062
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334063
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334064
+[WARN] [02-21|12:16:31.093] [dbg] InsertBlocks2                      block=5334065
+panic: parent's total difficulty not found with hash 7149f784651c336fa7ced214bdccc556df4a1a76843f8f661db61d3d7d9a61a2 and height 5333917: <nil>
+
+goroutine 53093 [running]:
+github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).InsertBlocks(0xc0522c1200, {0x3060318, 0xc001713590}, 0xc06e2174c0)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/inserters.go:77 +0xa25
+github.com/ledgerwatch/erigon-lib/direct.(*ExecutionClientDirect).InsertBlocks(0xc0009f5ab0?, {0x3060318?, 0xc001713590?}, 0x1?, {0x2602e00?, 0xc0519b59b8?, 0x26fec00?})
+	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/execution_client.go:54 +0x25
+github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlocks({{0x3060318, 0xc001713590}, 0xc0009f72c0, {0x307c648, 0xc052281720}, 0x3e8}, {0xc04c1bb000, 0xa2, 0xc0011533b0?})
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:304 +0x178
+github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).InsertBlocks(0x0?, {0xc04c1bb000?, 0x0?, 0x0?}, 0x0?)
+	github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:77 +0x78
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8({0x3060318, 0xc001910280}, {0x3073480, 0xc0005351c0}, 0xc05d0011e0, {0x1, 0x218f1, 0x218f2, 0x431e5a, 0x431e5a, ...})
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:428 +0x56c
+github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1()
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40 +0xd9
+created by github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage in goroutine 13033
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:34 +0x3c9
+exit status 2
+[INFO] [02-21|12:19:59.978] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|12:19:59.979] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|12:19:59.979] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|12:19:59.979] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|12:19:59.979] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|12:19:59.981] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|12:19:59.981] torrent verbosity                        level=WRN
+[INFO] [02-21|12:19:59.981] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|12:19:59.982] Set global gas cap                       cap=50000000
+[INFO] [02-21|12:19:59.983] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|12:19:59.985] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+[INFO] [02-21|12:19:59.990] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:19:59.991] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|12:20:02.153] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|12:20:22.248] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|12:20:22.249] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|12:20:22.249] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[INFO] [02-21|12:20:22.249] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|12:20:22.249] new subscription to logs established 
+[INFO] [02-21|12:20:22.249] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|12:20:22.361] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|12:20:22.458] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:22.655] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:22.771] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:22.876] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:23.180] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:23.311] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|12:20:23.312] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|12:20:23.312] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|12:20:23.312] new subscription to newHeaders established 
+[INFO] [02-21|12:20:23.312] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|12:20:23.313] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|12:20:23.318] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:20:23.321] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:20:23.321] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:20:23.322] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[INFO] [02-21|12:20:23.323] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|12:20:23.325] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:20:23.327] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:20:23.327] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:20:23.327] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:20:23.329] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:20:23.382] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|12:20:23.405] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|12:20:23.405] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:20:23.406] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:20:23.406] Static peers                             len=0
+[INFO] [02-21|12:20:23.407] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QFIxXyWKsgpxpOcuKYJk1jN6hWPsVkxcMHd5la7zoXD4NVqcu7peHASiKuAZiZ0RxC3qV4vtSzKa2ldjDpsIazcBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQP7aDkHqdTb9JOmjWjjI6zE45404EROn512ZFfoHmEn5YhzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|12:20:23.407] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|12:20:23.415] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|12:20:23.415] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398624
+[INFO] [02-21|12:20:23.612] [snapshots:download] Blocks Stat         blocks=5175k indices=5175k alloc=1.6GB sys=1.6GB
+[DBUG] [02-21|12:20:23.612] [1/12 Snapshots] DONE                    in=290.156757ms
+[DBUG] [02-21|12:20:23.612] [2/12 BlockHashes] DONE                  in=36.53µs
+[DBUG] [02-21|12:20:23.612] [3/12 Senders] DONE                      in=108.98µs
+[WARN] [02-21|12:20:23.612] [dbg] exec3                              stack="[stage_execute.go:240 stage_execute.go:384 default_stages.go:321 sync.go:518 sync.go:396 ethereum_execution.go:254 asm_amd64.s:1650]"
+[DBUG] [02-21|12:20:23.615] [4/12 Execution] DONE                    in=2.29988ms
+[DBUG] [02-21|12:20:23.615] [11/12 TxLookup] DONE                    in=67.96µs
+[DBUG] [02-21|12:20:23.615] [12/12 Finish] DONE                      in=20.8µs
+[DBUG] [02-21|12:20:48.612] Received block via gossip                peers=2 slot=4398704
+[INFO] [02-21|12:20:52.699] Backfilling finished 
+[DBUG] [02-21|12:20:53.423] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|12:20:53.424] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|12:20:53.426] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=30.011143171s next=ForwardSync
+[INFO] [02-21|12:20:53.426] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398624 to=4398704
+[DBUG] [02-21|12:20:54.657] OnBlock                                  elapsed=10.43155ms
+[DBUG] [02-21|12:20:54.674] OnBlock                                  elapsed=10.04469ms
+[DBUG] [02-21|12:20:54.688] OnBlock                                  elapsed=10.28412ms
+[DBUG] [02-21|12:20:54.699] OnBlock                                  elapsed=10.52775ms
+[DBUG] [02-21|12:20:54.713] OnBlock                                  elapsed=10.01215ms
+[DBUG] [02-21|12:20:54.725] OnBlock                                  elapsed=11.08068ms
+[DBUG] [02-21|12:20:54.736] OnBlock                                  elapsed=9.83385ms
+[DBUG] [02-21|12:20:54.761] OnBlock                                  elapsed=16.15685ms
+[DBUG] [02-21|12:20:54.779] OnBlock                                  elapsed=15.011739ms
+[DBUG] [02-21|12:20:54.797] OnBlock                                  elapsed=15.937439ms
+[DBUG] [02-21|12:20:54.810] OnBlock                                  elapsed=9.94311ms
+[DBUG] [02-21|12:20:54.822] OnBlock                                  elapsed=8.94117ms
+[DBUG] [02-21|12:20:54.832] OnBlock                                  elapsed=8.90556ms
+[DBUG] [02-21|12:20:54.844] OnBlock                                  elapsed=9.19544ms
+[DBUG] [02-21|12:20:54.853] OnBlock                                  elapsed=9.34601ms
+[DBUG] [02-21|12:20:54.865] OnBlock                                  elapsed=8.93455ms
+[DBUG] [02-21|12:20:54.878] OnBlock                                  elapsed=9.77023ms
+[DBUG] [02-21|12:20:54.888] OnBlock                                  elapsed=9.218689ms
+[DBUG] [02-21|12:20:54.897] OnBlock                                  elapsed=9.032169ms
+[DBUG] [02-21|12:20:54.907] OnBlock                                  elapsed=8.92117ms
+[DBUG] [02-21|12:20:54.916] OnBlock                                  elapsed=8.95597ms
+[DBUG] [02-21|12:20:54.926] OnBlock                                  elapsed=9.10337ms
+[DBUG] [02-21|12:20:54.935] OnBlock                                  elapsed=8.96287ms
+[DBUG] [02-21|12:20:54.946] OnBlock                                  elapsed=9.75795ms
+[DBUG] [02-21|12:20:54.957] OnBlock                                  elapsed=9.43053ms
+[DBUG] [02-21|12:20:54.966] OnBlock                                  elapsed=9.30379ms
+[DBUG] [02-21|12:20:54.976] OnBlock                                  elapsed=8.84055ms
+[DBUG] [02-21|12:20:54.988] OnBlock                                  elapsed=11.556699ms
+[DBUG] [02-21|12:20:54.998] OnBlock                                  elapsed=10.140511ms
+[DBUG] [02-21|12:20:55.008] OnBlock                                  elapsed=8.921839ms
+[DBUG] [02-21|12:20:55.018] OnBlock                                  elapsed=9.36864ms
+[DBUG] [02-21|12:20:55.043] OnBlock                                  elapsed=24.92627ms
+[DBUG] [02-21|12:20:55.054] OnBlock                                  elapsed=10.80154ms
+[DBUG] [02-21|12:20:55.064] OnBlock                                  elapsed=9.24875ms
+[DBUG] [02-21|12:20:55.074] OnBlock                                  elapsed=9.229169ms
+[DBUG] [02-21|12:20:55.083] OnBlock                                  elapsed=9.04956ms
+[DBUG] [02-21|12:20:55.093] OnBlock                                  elapsed=9.15006ms
+[DBUG] [02-21|12:20:55.102] OnBlock                                  elapsed=8.655ms
+[DBUG] [02-21|12:20:55.111] OnBlock                                  elapsed=9.28369ms
+[DBUG] [02-21|12:20:55.121] OnBlock                                  elapsed=9.14788ms
+[DBUG] [02-21|12:20:55.131] OnBlock                                  elapsed=9.36837ms
+[DBUG] [02-21|12:20:55.140] OnBlock                                  elapsed=8.73614ms
+[DBUG] [02-21|12:20:55.150] OnBlock                                  elapsed=9.31553ms
+[DBUG] [02-21|12:20:55.160] OnBlock                                  elapsed=9.51262ms
+[DBUG] [02-21|12:20:55.171] OnBlock                                  elapsed=8.792319ms
+[DBUG] [02-21|12:20:55.180] OnBlock                                  elapsed=8.96418ms
+[DBUG] [02-21|12:20:55.190] OnBlock                                  elapsed=9.35792ms
+[DBUG] [02-21|12:20:55.200] OnBlock                                  elapsed=9.69439ms
+[DBUG] [02-21|12:20:55.209] OnBlock                                  elapsed=9.14399ms
+[DBUG] [02-21|12:20:55.219] OnBlock                                  elapsed=9.11126ms
+[DBUG] [02-21|12:20:55.229] OnBlock                                  elapsed=9.14516ms
+[DBUG] [02-21|12:20:55.238] OnBlock                                  elapsed=9.27273ms
+[DBUG] [02-21|12:20:55.248] OnBlock                                  elapsed=9.02127ms
+[DBUG] [02-21|12:20:55.257] OnBlock                                  elapsed=9.41609ms
+[DBUG] [02-21|12:20:55.267] OnBlock                                  elapsed=8.8151ms
+[DBUG] [02-21|12:20:55.276] OnBlock                                  elapsed=8.95063ms
+[DBUG] [02-21|12:20:55.973] OnBlock                                  elapsed=10.57735ms
+[DBUG] [02-21|12:20:55.984] OnBlock                                  elapsed=9.85707ms
+[DBUG] [02-21|12:20:55.994] OnBlock                                  elapsed=9.30429ms
+[DBUG] [02-21|12:20:56.004] OnBlock                                  elapsed=9.61579ms
+[DBUG] [02-21|12:20:56.014] OnBlock                                  elapsed=9.38763ms
+[DBUG] [02-21|12:20:56.036] OnBlock                                  elapsed=8.910351ms
+[DBUG] [02-21|12:20:56.062] OnBlock                                  elapsed=25.184739ms
+[DBUG] [02-21|12:20:56.073] OnBlock                                  elapsed=10.87035ms
+[DBUG] [02-21|12:20:56.084] OnBlock                                  elapsed=9.57637ms
+[DBUG] [02-21|12:20:56.095] OnBlock                                  elapsed=8.95454ms
+[DBUG] [02-21|12:20:56.105] OnBlock                                  elapsed=9.2862ms
+[DBUG] [02-21|12:20:56.115] OnBlock                                  elapsed=9.20528ms
+[DBUG] [02-21|12:20:56.126] OnBlock                                  elapsed=8.88054ms
+[DBUG] [02-21|12:20:56.135] OnBlock                                  elapsed=9.04227ms
+[DBUG] [02-21|12:20:56.145] OnBlock                                  elapsed=8.83016ms
+[DBUG] [02-21|12:20:56.157] OnBlock                                  elapsed=10.32462ms
+[DBUG] [02-21|12:20:56.167] OnBlock                                  elapsed=9.27943ms
+[DBUG] [02-21|12:20:56.176] OnBlock                                  elapsed=9.27404ms
+[DBUG] [02-21|12:20:56.187] OnBlock                                  elapsed=10.12358ms
+[DBUG] [02-21|12:20:56.200] OnBlock                                  elapsed=10.95328ms
+[DBUG] [02-21|12:20:56.210] OnBlock                                  elapsed=9.313691ms
+[DBUG] [02-21|12:20:56.220] OnBlock                                  elapsed=9.176469ms
+[DBUG] [02-21|12:20:56.230] OnBlock                                  elapsed=10.29428ms
+[DBUG] [02-21|12:20:56.233] clstage finish                           app=caplin stage=ForwardSync in=2.8072868s next=CatchUpBlocks
+[WARN] [02-21|12:20:56.446] failed to insert blocks                  app=caplin stage=CatchUpBlocks err="InsertBlocks: gap 4704830 -> 5333949"
+[DBUG] [02-21|12:20:56.446] waiting for blocks...                    app=caplin stage=CatchUpBlocks seenSlot=4398704 targetSlot=4398704 requestedSlots=0
+[DBUG] [02-21|12:21:00.961] Received block via gossip                peers=9 slot=4398705
+[DBUG] [02-21|12:21:12.565] Received block via gossip                peers=1 slot=4398706
+[DBUG] [02-21|12:21:21.447] error executing clstage                  app=caplin stage=CatchUpBlocks err="timeout waiting for blocks"
+[DBUG] [02-21|12:21:21.447] clstage finish                           app=caplin stage=CatchUpBlocks in=25.214096743s next=CatchUpBlocks
+[DBUG] [02-21|12:21:21.498] waiting for blocks...                    app=caplin stage=CatchUpBlocks seenSlot=4398704 targetSlot=4398706 requestedSlots=2
+[WARN] [02-21|12:21:21.501] [dbg] InsertBlocks                       len=1 from=5334088 to=5334088
+[WARN] [02-21|12:21:21.501] [dbg] InsertBlocks2                      block=5334088
+panic: parent's total difficulty not found with hash 37788df1f52207540d1995a6467d6f5f8f9a025f89e073eb3c70a1ffb6a172ea and height 5334087: <nil>
+
+goroutine 73193 [running]:
+github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).InsertBlocks(0xc00926b7a0, {0x30602f8, 0xc00165f590}, 0xc09f83cd40)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/inserters.go:87 +0xb34
+github.com/ledgerwatch/erigon-lib/direct.(*ExecutionClientDirect).InsertBlocks(0x51bafc0?, {0x30602f8?, 0xc00165f590?}, 0x431?, {0x2602e00?, 0x51c0640?, 0xfe?})
+	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/execution_client.go:54 +0x25
+github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlockAndWait({{0x30602f8, 0xc00165f590}, 0xc000b0da40, {0x307c628, 0xc0520a4840}, 0x3e8}, 0xc09f4f8a80)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:324 +0x1a2
+github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).NewPayload(0xc009274540, 0xc000fd5d40, 0x4f4f10e3bf60a7cb?, {0xa9746d5f577a89f6?, 0xc0520e3500?, 0xc09f476e40?})
+	github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:42 +0x265
+github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnBlock(0xc048122b40, 0xc067fd2150, 0x1, 0x9f?)
+	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_block.go:93 +0x504
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func1({0x3090f80, 0xc072dc48a0}, 0x4f4f10e3bf60a7cb?, 0xf6?, 0x89?)
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:193 +0x5a
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8({0x30602f8, 0xc072292e10}, {0x3073460, 0xc067761060}, 0xc0553d8630, {0x7, 0x218f2, 0x218f3, 0x431e72, 0x431e70, ...})
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:533 +0x1206
+github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1()
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40 +0xd9
+created by github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage in goroutine 14540
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:34 +0x3c9
+exit status 2
+[INFO] [02-21|12:22:52.864] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|12:22:52.865] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|12:22:52.865] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|12:22:52.865] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|12:22:52.865] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|12:22:52.866] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|12:22:52.867] torrent verbosity                        level=WRN
+[INFO] [02-21|12:22:52.867] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|12:22:52.868] Set global gas cap                       cap=50000000
+[INFO] [02-21|12:22:52.868] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|12:22:52.870] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+[INFO] [02-21|12:22:52.875] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:22:52.884] Re-Opening DB in exclusive mode to apply migrations 
+[INFO] [02-21|12:22:52.891] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:22:52.892] Apply migration                          name=db_schema_version5
+[INFO] [02-21|12:22:52.897] Applied migration                        name=db_schema_version5
+[INFO] [02-21|12:22:52.897] Apply migration                          name=txs_begin_end
+[INFO] [02-21|12:22:52.901] Applied migration                        name=txs_begin_end
+[INFO] [02-21|12:22:52.901] Apply migration                          name=txs_v3
+[INFO] [02-21|12:22:52.903] Applied migration                        name=txs_v3
+[INFO] [02-21|12:22:52.903] Apply migration                          name=prohibit_new_downloads_lock
+[INFO] [02-21|12:22:52.904] Applied migration                        name=prohibit_new_downloads_lock
+[INFO] [02-21|12:22:52.904] Updated DB schema to                     version=6.1.0
+[INFO] [02-21|12:22:52.909] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[DBUG] [02-21|12:22:52.918] [db] open                                lable=inMem sizeLimit=2GB pageSize=4096
+[INFO] [02-21|12:22:52.922] Writing custom genesis block             hash=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[INFO] [02-21|12:22:52.925] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|12:22:54.881] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|12:23:14.998] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|12:23:14.999] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|12:23:14.999] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[INFO] [02-21|12:23:14.999] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|12:23:14.999] new subscription to logs established 
+[INFO] [02-21|12:23:14.999] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|12:23:15.129] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|12:23:15.242] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:15.369] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:15.405] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|12:23:15.405] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|12:23:15.405] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|12:23:15.405] new subscription to newHeaders established 
+[INFO] [02-21|12:23:15.405] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|12:23:15.406] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|12:23:15.411] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:23:15.413] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:23:15.414] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:23:15.415] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[INFO] [02-21|12:23:15.416] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|12:23:15.417] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:23:15.448] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:23:15.448] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:23:15.448] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:23:15.482] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:15.501] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|12:23:15.519] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|12:23:15.519] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:23:15.520] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:23:15.520] Static peers                             len=0
+[INFO] [02-21|12:23:15.520] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QP2TRHlVitE_MBAy41fYML4qM5Z6Z7pKTiw2swp20o0nYHqHd9sU_nTamlIn4wfUOqqZzphGeuReutgwa3uoITwBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQMB3Jkdi0pv7Z69gBR77-H04_UCrMCbpJLbAVERmPjjOohzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|12:23:15.520] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|12:23:15.528] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|12:23:15.529] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398624
+[DBUG] [02-21|12:23:15.590] [downloader] Collecting...               from=5334098 to=5334098 len=1
+[DBUG] [02-21|12:23:15.590] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:23:15.604] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:16.058] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:16.189] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:23:16.468] [downloader] Collecting...               from=5334095 to=5334095 len=1
+[DBUG] [02-21|12:23:16.468] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:23:16.963] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:23:16.963] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:23:16.993] [downloader] Collecting...               from=5334071 to=5334071 len=1
+[DBUG] [02-21|12:23:16.993] [downloader] posAnchor is nil 
+[INFO] [02-21|12:23:29.225] Backfilling finished 
+[DBUG] [02-21|12:23:30.537] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|12:23:30.537] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|12:23:30.540] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=15.011089771s next=ForwardSync
+[INFO] [02-21|12:23:30.540] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398624 to=4398717
+[DBUG] [02-21|12:23:31.879] OnBlock                                  elapsed=10.45848ms
+[DBUG] [02-21|12:23:31.892] OnBlock                                  elapsed=9.60346ms
+[DBUG] [02-21|12:23:31.905] OnBlock                                  elapsed=9.96087ms
+[DBUG] [02-21|12:23:31.918] OnBlock                                  elapsed=9.868ms
+[DBUG] [02-21|12:23:31.928] OnBlock                                  elapsed=9.65818ms
+[DBUG] [02-21|12:23:31.938] OnBlock                                  elapsed=9.81448ms
+[DBUG] [02-21|12:23:31.948] OnBlock                                  elapsed=9.47668ms
+[DBUG] [02-21|12:23:31.959] OnBlock                                  elapsed=9.96066ms
+[DBUG] [02-21|12:23:31.969] OnBlock                                  elapsed=9.91144ms
+[DBUG] [02-21|12:23:31.979] OnBlock                                  elapsed=9.25667ms
+[DBUG] [02-21|12:23:31.989] OnBlock                                  elapsed=10.22677ms
+[DBUG] [02-21|12:23:31.999] OnBlock                                  elapsed=9.39609ms
+[DBUG] [02-21|12:23:32.009] OnBlock                                  elapsed=9.03438ms
+[DBUG] [02-21|12:23:32.018] OnBlock                                  elapsed=8.81709ms
+[DBUG] [02-21|12:23:32.028] OnBlock                                  elapsed=9.5348ms
+[DBUG] [02-21|12:23:32.038] OnBlock                                  elapsed=9.83295ms
+[DBUG] [02-21|12:23:32.048] OnBlock                                  elapsed=9.78109ms
+[DBUG] [02-21|12:23:32.058] OnBlock                                  elapsed=8.88708ms
+[DBUG] [02-21|12:23:32.067] OnBlock                                  elapsed=9.09946ms
+[DBUG] [02-21|12:23:32.090] OnBlock                                  elapsed=9.83836ms
+[DBUG] [02-21|12:23:32.100] OnBlock                                  elapsed=9.8644ms
+[DBUG] [02-21|12:23:32.110] OnBlock                                  elapsed=10.069ms
+[DBUG] [02-21|12:23:32.120] OnBlock                                  elapsed=9.22631ms
+[DBUG] [02-21|12:23:32.131] OnBlock                                  elapsed=9.762ms
+[DBUG] [02-21|12:23:32.142] OnBlock                                  elapsed=9.686249ms
+[DBUG] [02-21|12:23:32.152] OnBlock                                  elapsed=9.05397ms
+[DBUG] [02-21|12:23:32.161] OnBlock                                  elapsed=9.19413ms
+[DBUG] [02-21|12:23:32.171] OnBlock                                  elapsed=9.54944ms
+[DBUG] [02-21|12:23:32.181] OnBlock                                  elapsed=9.59575ms
+[DBUG] [02-21|12:23:32.191] OnBlock                                  elapsed=9.15996ms
+[DBUG] [02-21|12:23:32.201] OnBlock                                  elapsed=9.94966ms
+[DBUG] [02-21|12:23:32.229] OnBlock                                  elapsed=27.9501ms
+[DBUG] [02-21|12:23:32.241] OnBlock                                  elapsed=11.31298ms
+[DBUG] [02-21|12:23:32.251] OnBlock                                  elapsed=9.655929ms
+[DBUG] [02-21|12:23:32.261] OnBlock                                  elapsed=9.105799ms
+[DBUG] [02-21|12:23:32.270] OnBlock                                  elapsed=9.00261ms
+[DBUG] [02-21|12:23:32.280] OnBlock                                  elapsed=9.48076ms
+[DBUG] [02-21|12:23:32.290] OnBlock                                  elapsed=9.04508ms
+[DBUG] [02-21|12:23:32.300] OnBlock                                  elapsed=9.53496ms
+[DBUG] [02-21|12:23:32.310] OnBlock                                  elapsed=9.47667ms
+[DBUG] [02-21|12:23:32.320] OnBlock                                  elapsed=9.60576ms
+[DBUG] [02-21|12:23:32.329] OnBlock                                  elapsed=8.78756ms
+[DBUG] [02-21|12:23:32.339] OnBlock                                  elapsed=9.3646ms
+[DBUG] [02-21|12:23:32.349] OnBlock                                  elapsed=9.84886ms
+[DBUG] [02-21|12:23:32.360] OnBlock                                  elapsed=9.40259ms
+[DBUG] [02-21|12:23:32.370] OnBlock                                  elapsed=9.1924ms
+[DBUG] [02-21|12:23:32.380] OnBlock                                  elapsed=9.6244ms
+[DBUG] [02-21|12:23:32.390] OnBlock                                  elapsed=9.62692ms
+[DBUG] [02-21|12:23:32.400] OnBlock                                  elapsed=9.7115ms
+[DBUG] [02-21|12:23:32.410] OnBlock                                  elapsed=9.38575ms
+[DBUG] [02-21|12:23:32.420] OnBlock                                  elapsed=9.65013ms
+[DBUG] [02-21|12:23:32.429] OnBlock                                  elapsed=9.027449ms
+[DBUG] [02-21|12:23:32.439] OnBlock                                  elapsed=8.74099ms
+[DBUG] [02-21|12:23:32.449] OnBlock                                  elapsed=9.99378ms
+[DBUG] [02-21|12:23:32.464] OnBlock                                  elapsed=13.59318ms
+[DBUG] [02-21|12:23:32.478] OnBlock                                  elapsed=13.84085ms
+[DBUG] [02-21|12:23:33.320] OnBlock                                  elapsed=11.01615ms
+[DBUG] [02-21|12:23:33.331] OnBlock                                  elapsed=9.895469ms
+[DBUG] [02-21|12:23:33.341] OnBlock                                  elapsed=9.40221ms
+[DBUG] [02-21|12:23:33.350] OnBlock                                  elapsed=9.24585ms
+[DBUG] [02-21|12:23:33.360] OnBlock                                  elapsed=9.54125ms
+[DBUG] [02-21|12:23:33.377] OnBlock                                  elapsed=9.305749ms
+[DBUG] [02-21|12:23:33.402] OnBlock                                  elapsed=24.95395ms
+[DBUG] [02-21|12:23:33.414] OnBlock                                  elapsed=11.70823ms
+[DBUG] [02-21|12:23:33.425] OnBlock                                  elapsed=10.02985ms
+[DBUG] [02-21|12:23:33.434] OnBlock                                  elapsed=9.051859ms
+[DBUG] [02-21|12:23:33.446] OnBlock                                  elapsed=10.184691ms
+[DBUG] [02-21|12:23:33.456] OnBlock                                  elapsed=9.869539ms
+[DBUG] [02-21|12:23:33.466] OnBlock                                  elapsed=9.17927ms
+[DBUG] [02-21|12:23:33.477] OnBlock                                  elapsed=10.33791ms
+[DBUG] [02-21|12:23:33.486] OnBlock                                  elapsed=8.74223ms
+[DBUG] [02-21|12:23:33.496] OnBlock                                  elapsed=9.73224ms
+[DBUG] [02-21|12:23:33.505] OnBlock                                  elapsed=9.02945ms
+[DBUG] [02-21|12:23:33.515] OnBlock                                  elapsed=9.48256ms
+[DBUG] [02-21|12:23:33.525] OnBlock                                  elapsed=9.26989ms
+[DBUG] [02-21|12:23:33.535] OnBlock                                  elapsed=10.0448ms
+[DBUG] [02-21|12:23:33.546] OnBlock                                  elapsed=9.720189ms
+[DBUG] [02-21|12:23:33.557] OnBlock                                  elapsed=9.93407ms
+[DBUG] [02-21|12:23:33.568] OnBlock                                  elapsed=9.519199ms
+[DBUG] [02-21|12:23:33.578] OnBlock                                  elapsed=9.37772ms
+[DBUG] [02-21|12:23:33.588] OnBlock                                  elapsed=9.67415ms
+[DBUG] [02-21|12:23:33.600] OnBlock                                  elapsed=10.86941ms
+[DBUG] [02-21|12:23:33.610] OnBlock                                  elapsed=9.78512ms
+[DBUG] [02-21|12:23:33.621] OnBlock                                  elapsed=9.93325ms
+[DBUG] [02-21|12:23:33.633] OnBlock                                  elapsed=8.98174ms
+[DBUG] [02-21|12:23:33.642] OnBlock                                  elapsed=8.47706ms
+[DBUG] [02-21|12:23:33.652] OnBlock                                  elapsed=9.7322ms
+[DBUG] [02-21|12:23:33.662] OnBlock                                  elapsed=9.357ms
+[DBUG] [02-21|12:23:33.672] OnBlock                                  elapsed=10.35056ms
+[DBUG] [02-21|12:23:33.684] OnBlock                                  elapsed=9.49143ms
+[DBUG] [02-21|12:23:33.710] OnBlock                                  elapsed=9.85445ms
+[DBUG] [02-21|12:23:33.722] clstage finish                           app=caplin stage=ForwardSync in=3.181925006s next=CatchUpBlocks
+[DBUG] [02-21|12:23:38.040] Received block via gossip                peers=1 slot=4398718
+signal: killed
+[INFO] [02-21|12:23:55.851] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|12:23:55.852] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|12:23:55.852] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|12:23:55.852] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|12:23:55.852] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|12:23:55.853] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|12:23:55.854] torrent verbosity                        level=WRN
+[INFO] [02-21|12:23:55.854] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|12:23:55.855] Set global gas cap                       cap=50000000
+[INFO] [02-21|12:23:55.855] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|12:23:55.857] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+setup_dxb:17833 filesize mismatch (expect 16777216b/2048p, have 436207616b/53248p)
+[INFO] [02-21|12:23:55.935] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:23:55.935] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|12:23:57.652] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|12:24:17.768] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|12:24:17.769] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|12:24:17.769] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[INFO] [02-21|12:24:17.769] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|12:24:17.769] new subscription to logs established 
+[INFO] [02-21|12:24:17.769] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|12:24:17.912] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|12:24:18.022] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:24:18.030] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|12:24:18.030] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|12:24:18.030] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|12:24:18.030] new subscription to newHeaders established 
+[INFO] [02-21|12:24:18.031] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|12:24:18.031] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|12:24:18.036] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:24:18.038] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:24:18.038] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:24:18.039] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:24:18.075] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[INFO] [02-21|12:24:18.076] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|12:24:18.077] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:24:18.077] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:24:18.078] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:24:18.089] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|12:24:18.107] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|12:24:18.107] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:24:18.108] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:24:18.108] Static peers                             len=0
+[INFO] [02-21|12:24:18.108] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QGIlao1IZOUR2TqE-oeSsqUiSx9U9F71n3wf5s7NabEXbhMB9M-GdgZTlhXbio55s-LbLIEXJwO_90D8SuNbtA4Bh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQPcUi9HwFn2ELCPNMdKn0pdyakgGAX-D9exhUCeQQ7jkIhzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|12:24:18.108] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|12:24:18.115] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|12:24:18.116] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398624
+[DBUG] [02-21|12:24:18.140] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:24:18.236] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:24:18.340] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:24:18.605] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:24:18.704] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[INFO] [02-21|12:24:24.644] Backfilling finished 
+[DBUG] [02-21|12:24:24.862] Received block via gossip                peers=4 slot=4398722
+[DBUG] [02-21|12:24:27.549] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:24:27.549] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:24:28.124] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|12:24:28.125] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|12:24:28.127] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=10.011432043s next=ForwardSync
+[INFO] [02-21|12:24:28.127] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398624 to=4398722
+[DBUG] [02-21|12:24:29.945] OnBlock                                  elapsed=10.96347ms
+[DBUG] [02-21|12:24:29.956] OnBlock                                  elapsed=9.40059ms
+[DBUG] [02-21|12:24:29.967] OnBlock                                  elapsed=9.80411ms
+[DBUG] [02-21|12:24:29.977] OnBlock                                  elapsed=9.37286ms
+[DBUG] [02-21|12:24:29.987] OnBlock                                  elapsed=8.85404ms
+[DBUG] [02-21|12:24:29.998] OnBlock                                  elapsed=10.40936ms
+[DBUG] [02-21|12:24:30.009] OnBlock                                  elapsed=9.64194ms
+[DBUG] [02-21|12:24:30.019] OnBlock                                  elapsed=9.83169ms
+[DBUG] [02-21|12:24:30.030] OnBlock                                  elapsed=9.57461ms
+[DBUG] [02-21|12:24:30.040] OnBlock                                  elapsed=9.79156ms
+[DBUG] [02-21|12:24:30.050] OnBlock                                  elapsed=9.87301ms
+[DBUG] [02-21|12:24:30.060] OnBlock                                  elapsed=9.2239ms
+[DBUG] [02-21|12:24:30.070] OnBlock                                  elapsed=9.36213ms
+[DBUG] [02-21|12:24:30.080] OnBlock                                  elapsed=9.494309ms
+[DBUG] [02-21|12:24:30.090] OnBlock                                  elapsed=10.13292ms
+[DBUG] [02-21|12:24:30.100] OnBlock                                  elapsed=9.308929ms
+[DBUG] [02-21|12:24:30.110] OnBlock                                  elapsed=9.90343ms
+[DBUG] [02-21|12:24:30.119] OnBlock                                  elapsed=8.68288ms
+[DBUG] [02-21|12:24:30.129] OnBlock                                  elapsed=9.49861ms
+[DBUG] [02-21|12:24:30.139] OnBlock                                  elapsed=9.51857ms
+[DBUG] [02-21|12:24:30.149] OnBlock                                  elapsed=9.77912ms
+[DBUG] [02-21|12:24:30.159] OnBlock                                  elapsed=9.46748ms
+[DBUG] [02-21|12:24:30.170] OnBlock                                  elapsed=9.63369ms
+[DBUG] [02-21|12:24:30.181] OnBlock                                  elapsed=9.55142ms
+[DBUG] [02-21|12:24:30.191] OnBlock                                  elapsed=9.99418ms
+[DBUG] [02-21|12:24:30.201] OnBlock                                  elapsed=9.30932ms
+[DBUG] [02-21|12:24:30.211] OnBlock                                  elapsed=9.44786ms
+[DBUG] [02-21|12:24:30.221] OnBlock                                  elapsed=9.28886ms
+[DBUG] [02-21|12:24:30.231] OnBlock                                  elapsed=9.85408ms
+[DBUG] [02-21|12:24:30.241] OnBlock                                  elapsed=9.68802ms
+[DBUG] [02-21|12:24:30.251] OnBlock                                  elapsed=9.46791ms
+[DBUG] [02-21|12:24:30.279] OnBlock                                  elapsed=27.689859ms
+[DBUG] [02-21|12:24:30.292] OnBlock                                  elapsed=12.01227ms
+[DBUG] [02-21|12:24:30.303] OnBlock                                  elapsed=10.9316ms
+[DBUG] [02-21|12:24:30.314] OnBlock                                  elapsed=10.28991ms
+[DBUG] [02-21|12:24:30.323] OnBlock                                  elapsed=8.95805ms
+[DBUG] [02-21|12:24:30.333] OnBlock                                  elapsed=9.56886ms
+[DBUG] [02-21|12:24:30.348] OnBlock                                  elapsed=13.72901ms
+[DBUG] [02-21|12:24:30.368] OnBlock                                  elapsed=19.891929ms
+[DBUG] [02-21|12:24:30.387] OnBlock                                  elapsed=18.17286ms
+[DBUG] [02-21|12:24:30.400] OnBlock                                  elapsed=11.75778ms
+[DBUG] [02-21|12:24:30.410] OnBlock                                  elapsed=9.65849ms
+[DBUG] [02-21|12:24:30.421] OnBlock                                  elapsed=10.70829ms
+[DBUG] [02-21|12:24:30.432] OnBlock                                  elapsed=9.97481ms
+[DBUG] [02-21|12:24:30.443] OnBlock                                  elapsed=9.21443ms
+[DBUG] [02-21|12:24:30.453] OnBlock                                  elapsed=9.382759ms
+[DBUG] [02-21|12:24:30.462] OnBlock                                  elapsed=9.426329ms
+[DBUG] [02-21|12:24:30.476] OnBlock                                  elapsed=9.9692ms
+[DBUG] [02-21|12:24:30.485] OnBlock                                  elapsed=9.46381ms
+[DBUG] [02-21|12:24:30.495] OnBlock                                  elapsed=9.37869ms
+[DBUG] [02-21|12:24:30.506] OnBlock                                  elapsed=10.02322ms
+[DBUG] [02-21|12:24:30.516] OnBlock                                  elapsed=9.43381ms
+[DBUG] [02-21|12:24:30.525] OnBlock                                  elapsed=9.12706ms
+[DBUG] [02-21|12:24:30.536] OnBlock                                  elapsed=10.25447ms
+[DBUG] [02-21|12:24:30.546] OnBlock                                  elapsed=9.99925ms
+[DBUG] [02-21|12:24:30.556] OnBlock                                  elapsed=9.677969ms
+[DBUG] [02-21|12:24:31.871] OnBlock                                  elapsed=11.873391ms
+[DBUG] [02-21|12:24:31.882] OnBlock                                  elapsed=9.68036ms
+[DBUG] [02-21|12:24:31.892] OnBlock                                  elapsed=9.70289ms
+[DBUG] [02-21|12:24:31.902] OnBlock                                  elapsed=9.51796ms
+[DBUG] [02-21|12:24:31.913] OnBlock                                  elapsed=9.32916ms
+[DBUG] [02-21|12:24:31.923] OnBlock                                  elapsed=9.5114ms
+[DBUG] [02-21|12:24:31.949] OnBlock                                  elapsed=25.32298ms
+[DBUG] [02-21|12:24:31.960] OnBlock                                  elapsed=10.790669ms
+[DBUG] [02-21|12:24:31.971] OnBlock                                  elapsed=9.794349ms
+[DBUG] [02-21|12:24:31.980] OnBlock                                  elapsed=8.84816ms
+[DBUG] [02-21|12:24:31.990] OnBlock                                  elapsed=9.11363ms
+[DBUG] [02-21|12:24:32.000] OnBlock                                  elapsed=9.53814ms
+[DBUG] [02-21|12:24:32.010] OnBlock                                  elapsed=9.75267ms
+[DBUG] [02-21|12:24:32.019] OnBlock                                  elapsed=9.13708ms
+[DBUG] [02-21|12:24:32.028] OnBlock                                  elapsed=8.43062ms
+[DBUG] [02-21|12:24:32.039] OnBlock                                  elapsed=9.96927ms
+[DBUG] [02-21|12:24:32.049] OnBlock                                  elapsed=9.438319ms
+[DBUG] [02-21|12:24:32.059] OnBlock                                  elapsed=9.867959ms
+[DBUG] [02-21|12:24:32.068] OnBlock                                  elapsed=8.92571ms
+[DBUG] [02-21|12:24:32.080] OnBlock                                  elapsed=11.10055ms
+[DBUG] [02-21|12:24:32.092] OnBlock                                  elapsed=11.21839ms
+[DBUG] [02-21|12:24:32.103] OnBlock                                  elapsed=11.03191ms
+[DBUG] [02-21|12:24:32.114] OnBlock                                  elapsed=10.28072ms
+[DBUG] [02-21|12:24:32.125] OnBlock                                  elapsed=10.82418ms
+[DBUG] [02-21|12:24:32.135] OnBlock                                  elapsed=9.2245ms
+[DBUG] [02-21|12:24:32.147] OnBlock                                  elapsed=10.846429ms
+[DBUG] [02-21|12:24:32.157] OnBlock                                  elapsed=9.49773ms
+[DBUG] [02-21|12:24:32.167] OnBlock                                  elapsed=10.440611ms
+[DBUG] [02-21|12:24:32.178] OnBlock                                  elapsed=9.52507ms
+[DBUG] [02-21|12:24:32.190] OnBlock                                  elapsed=9.42975ms
+[DBUG] [02-21|12:24:32.201] OnBlock                                  elapsed=10.18424ms
+[DBUG] [02-21|12:24:32.210] OnBlock                                  elapsed=9.23957ms
+[DBUG] [02-21|12:24:32.221] OnBlock                                  elapsed=10.59745ms
+[DBUG] [02-21|12:24:32.232] OnBlock                                  elapsed=9.42012ms
+[DBUG] [02-21|12:24:32.244] OnBlock                                  elapsed=9.82146ms
+[DBUG] [02-21|12:24:32.254] OnBlock                                  elapsed=9.506851ms
+[DBUG] [02-21|12:24:32.266] OnBlock                                  elapsed=10.0787ms
+[DBUG] [02-21|12:24:32.293] Pruned old blocks                        pruneSlot=4398592
+[DBUG] [02-21|12:24:32.293] OnBlock                                  elapsed=26.42673ms
+[DBUG] [02-21|12:24:32.303] OnBlock                                  elapsed=9.99852ms
+[DBUG] [02-21|12:24:32.314] OnBlock                                  elapsed=9.99322ms
+[DBUG] [02-21|12:24:32.319] clstage finish                           app=caplin stage=ForwardSync in=4.191689836s next=CatchUpBlocks
+[INFO] [02-21|12:24:48.366] [1/12 Snapshots] Total difficulty index: 4093k/5174k 
+[DBUG] [02-21|12:24:48.579] Received block via gossip                peers=3 slot=4398724
+[DBUG] [02-21|12:24:51.343] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-3961618410
+[DBUG] [02-21|12:24:52.319] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000742837s next=CatchUpBlocks
+[DBUG] [02-21|12:24:55.773] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:24:55.773] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:24:57.419] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-1884201581
+[DBUG] [02-21|12:24:58.029] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:24:58.029] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:25:00.384] Received block via gossip                peers=4 slot=4398725
+[DBUG] [02-21|12:25:01.051] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|12:25:01.051] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:25:12.320] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000138577s next=CatchUpBlocks
+[DBUG] [02-21|12:25:12.858] Received block via gossip                peers=4 slot=4398726
+[DBUG] [02-21|12:25:16.778] [downloader] Collecting...               from=5334107 to=5334107 len=1
+[DBUG] [02-21|12:25:16.778] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:25:18.038] [p2p] Dial scheduler                     protocol=67 peers=4/33 tried=348 static=20 connect: connection refused=8 i/o timeout=34
+[DBUG] [02-21|12:25:18.038] [p2p] Discovery table                    protocol=67 version=v4 len=103 live=9 unsol=500 ips=153 db=0 reval=10 RPC timeout=1 unknown node=2 expired=2 unsolicited reply=84
+[DBUG] [02-21|12:25:18.040] [p2p] Server                             protocol=67 peers=4 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:25:18.077] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=335 static=20 i/o timeout=39 connect: connection refused=10
+[DBUG] [02-21|12:25:18.077] [p2p] Discovery table                    protocol=68 version=v4 len=109 live=10 unsol=500 ips=160 db=0 reval=10 unknown node=5 unsolicited reply=85
+[DBUG] [02-21|12:25:18.079] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:25:18.108] [p2p] Discovery table                    protocol=any version=v5 len=144 live=2 unsol=0 ips=203 db=0 reval=10 RPC timeout=8
+[INFO] [02-21|12:25:18.109] P2P                                      app=caplin peers=4
+[INFO] [02-21|12:25:18.366] [1/12 Snapshots] MaxTxNums index: 4731k/5174k 
+[INFO] [02-21|12:25:21.752] [snapshots:download] Blocks Stat         blocks=5175k indices=5175k alloc=2.1GB sys=3.5GB
+[INFO] [02-21|12:25:22.137] [1/12 Snapshots] DONE                    in=1m4.096899727s block=5174999
+[DBUG] [02-21|12:25:22.137] [2/12 BlockHashes] DONE                  in=51.9µs
+[DBUG] [02-21|12:25:22.137] [3/12 Senders] DONE                      in=95.82µs
+[WARN] [02-21|12:25:22.137] [dbg] exec3                              stack="[stage_execute.go:240 stage_execute.go:384 default_stages.go:321 sync.go:518 sync.go:396 ethereum_execution.go:254 asm_amd64.s:1650]"
+[INFO] [02-21|12:25:22.137] [4/12 Execution] Blocks execution        from=0 to=5174999
+[INFO] [02-21|12:25:22.140] [4/12 Execution] starting                from=5168536 to=5174999 fromTxNum=149999966 offsetFromBlockBeginning=33 initialCycle=true useExternalTx=false
+[INFO] [02-21|12:25:22.140] [snapshots] db has steps amount: accounts:0.0, storage:0.0, code:0.0, commitment:0.0, logaddrs: 0.0, logtopics: 0.0, tracesfrom: 0.0, tracesto: 0.0 
+[DBUG] [02-21|12:25:24.278] Received block via gossip                peers=3 slot=4398727
+[DBUG] [02-21|12:25:29.895] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|12:25:29.895] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:25:32.320] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000200257s next=CatchUpBlocks
+[DBUG] [02-21|12:25:36.711] Received block via gossip                peers=5 slot=4398728
+[INFO] [02-21|12:25:42.156] [4/12 Execution] Transaction replay      blk=5169150 tx/s=2364.0 buffer=18.4MB/256.0MB stepsInDB=0.00 step=96.0 alloc=2.4GB sys=3.5GB
+[DBUG] [02-21|12:25:48.499] Received block via gossip                peers=5 slot=4398729
+[DBUG] [02-21|12:25:52.322] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001703577s next=CatchUpBlocks
+[DBUG] [02-21|12:26:00.271] Received block via gossip                peers=11 slot=4398730
+[INFO] [02-21|12:26:02.149] [4/12 Execution] Transaction replay      blk=5169724 tx/s=2618.5 buffer=34.4MB/256.0MB stepsInDB=0.00 step=96.1 alloc=1.8GB sys=3.6GB
+[DBUG] [02-21|12:26:12.322] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000622127s next=CatchUpBlocks
+[DBUG] [02-21|12:26:12.430] Received block via gossip                peers=6 slot=4398731
+[DBUG] [02-21|12:26:18.039] [p2p] Dial scheduler                     protocol=67 peers=5/33 tried=677 static=20 connect: connection refused=14 i/o timeout=74
+[DBUG] [02-21|12:26:18.039] [p2p] Discovery table                    protocol=67 version=v4 len=108 live=19 unsol=500 ips=156 db=0 reval=22 RPC timeout=1 unsolicited reply=156 unknown node=9 expired=3
+[DBUG] [02-21|12:26:18.040] [p2p] Server                             protocol=67 peers=5 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:26:18.078] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 EOF=1
+[DBUG] [02-21|12:26:18.078] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=661 static=20 connect: connection refused=15 i/o timeout=89
+[DBUG] [02-21|12:26:18.078] [p2p] Discovery table                    protocol=68 version=v4 len=112 live=18 unsol=500 ips=163 db=0 reval=22 unknown node=11 unsolicited reply=130
+[DBUG] [02-21|12:26:18.109] [p2p] Discovery table                    protocol=any version=v5 len=138 live=6 unsol=0 ips=198 db=0 reval=21 RPC timeout=15
+[INFO] [02-21|12:26:18.109] P2P                                      app=caplin peers=7
+[INFO] [02-21|12:26:22.164] [4/12 Execution] Transaction replay      blk=5170305 tx/s=2937.4 buffer=52.1MB/256.0MB stepsInDB=0.00 step=96.1 alloc=2.5GB sys=3.6GB
+[DBUG] [02-21|12:26:25.584] Received block via gossip                peers=8 slot=4398732
+[DBUG] [02-21|12:26:32.323] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000869957s next=CatchUpBlocks
+[DBUG] [02-21|12:26:38.084] Received block via gossip                peers=3 slot=4398733
+[INFO] [02-21|12:26:42.142] [4/12 Execution] Transaction replay      blk=5170868 tx/s=3181.2 buffer=69.6MB/256.0MB stepsInDB=0.00 step=96.1 alloc=3.3GB sys=3.6GB
+[DBUG] [02-21|12:26:48.369] Received block via gossip                peers=10 slot=4398734
+[DBUG] [02-21|12:26:52.328] clstage finish                           app=caplin stage=CatchUpBlocks in=20.004649858s next=CatchUpBlocks
+[DBUG] [02-21|12:26:53.973] [downloader] Collecting...               from=5334115 to=5334115 len=1
+[DBUG] [02-21|12:26:53.973] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:27:00.459] Received block via gossip                peers=9 slot=4398735
+[INFO] [02-21|12:27:02.145] [4/12 Execution] Transaction replay      blk=5171396 tx/s=3939.4 buffer=81.2MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.6GB sys=3.6GB
+[DBUG] [02-21|12:27:12.330] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001878117s next=CatchUpBlocks
+[DBUG] [02-21|12:27:12.551] Received block via gossip                peers=8 slot=4398736
+[INFO] [02-21|12:27:17.769] [p2p] GoodPeers                          eth67=5
+[DBUG] [02-21|12:27:18.038] [p2p] Dial scheduler                     protocol=67 peers=5/33 tried=1047 static=20 connect: connection refused=22 i/o timeout=117
+[DBUG] [02-21|12:27:18.038] [p2p] Discovery table                    protocol=67 version=v4 len=110 live=27 unsol=500 ips=160 db=0 reval=34 RPC timeout=2 unsolicited reply=237 unknown node=12 expired=3
+[DBUG] [02-21|12:27:18.039] [p2p] Server                             protocol=67 peers=5 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:27:18.078] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=986 static=20 connect: connection refused=26 i/o timeout=140
+[DBUG] [02-21|12:27:18.078] [p2p] Discovery table                    protocol=68 version=v4 len=113 live=28 unsol=500 ips=164 db=0 reval=32 unknown node=21 unsolicited reply=170
+[DBUG] [02-21|12:27:18.078] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:27:18.109] [p2p] Discovery table                    protocol=any version=v5 len=136 live=15 unsol=0 ips=197 db=0 reval=33 RPC timeout=17
+[INFO] [02-21|12:27:18.109] P2P                                      app=caplin peers=10
+[INFO] [02-21|12:27:22.175] [4/12 Execution] Transaction replay      blk=5171915 tx/s=3036.9 buffer=95.3MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.9GB sys=3.6GB
+[DBUG] [02-21|12:27:24.518] Received block via gossip                peers=5 slot=4398737
+[DBUG] [02-21|12:27:32.331] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000596116s next=CatchUpBlocks
+[DBUG] [02-21|12:27:36.371] Received block via gossip                peers=6 slot=4398738
+[INFO] [02-21|12:27:42.145] [4/12 Execution] Transaction replay      blk=5172440 tx/s=3066.6 buffer=112.8MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.0GB sys=3.8GB
+[DBUG] [02-21|12:27:48.444] [downloader] Collecting...               from=5334119 to=5334119 len=1
+[DBUG] [02-21|12:27:48.444] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:27:48.642] Received block via gossip                peers=10 slot=4398739
+[DBUG] [02-21|12:27:52.331] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000779388s next=CatchUpBlocks
+[DBUG] [02-21|12:27:53.888] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:27:53.888] [downloader] posAnchor is nil 
+[INFO] [02-21|12:28:02.175] [4/12 Execution] Transaction replay      blk=5172991 tx/s=3121.3 buffer=129.3MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.5GB sys=3.8GB
+[DBUG] [02-21|12:28:12.333] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001481617s next=CatchUpBlocks
+[DBUG] [02-21|12:28:12.775] Received block via gossip                peers=13 slot=4398741
+[DBUG] [02-21|12:28:18.038] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=1368 static=20 connect: connection refused=28 i/o timeout=160 connect: no route to host=2
+[DBUG] [02-21|12:28:18.038] [p2p] Discovery table                    protocol=67 version=v4 len=112 live=35 unsol=500 ips=162 db=0 reval=44 RPC timeout=3 unsolicited reply=261 unknown node=22 expired=4
+[DBUG] [02-21|12:28:18.040] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2
+[DBUG] [02-21|12:28:18.077] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=1300 static=20 connect: connection refused=32 i/o timeout=192
+[DBUG] [02-21|12:28:18.077] [p2p] Discovery table                    protocol=68 version=v4 len=114 live=35 unsol=500 ips=165 db=0 reval=44 unknown node=27 unsolicited reply=188
+[DBUG] [02-21|12:28:18.078] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0
+[DBUG] [02-21|12:28:18.108] [p2p] Discovery table                    protocol=any version=v5 len=133 live=21 unsol=0 ips=194 db=0 reval=45 RPC timeout=20
+[INFO] [02-21|12:28:18.109] P2P                                      app=caplin peers=5
+[INFO] [02-21|12:28:22.147] [4/12 Execution] Transaction replay      blk=5173509 tx/s=2748.9 buffer=144.8MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.7GB sys=3.8GB
+[DBUG] [02-21|12:28:24.564] Received block via gossip                peers=5 slot=4398742
+[DBUG] [02-21|12:28:32.334] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000879087s next=CatchUpBlocks
+[DBUG] [02-21|12:28:36.425] Received block via gossip                peers=5 slot=4398743
+[INFO] [02-21|12:28:42.147] [4/12 Execution] Transaction replay      blk=5174064 tx/s=2712.8 buffer=162.0MB/256.0MB stepsInDB=0.00 step=96.4 alloc=3.1GB sys=3.8GB
+[DBUG] [02-21|12:28:49.552] Received block via gossip                peers=6 slot=4398744
+[DBUG] [02-21|12:28:52.335] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001278627s next=CatchUpBlocks
+[DBUG] [02-21|12:29:00.582] Received block via gossip                peers=6 slot=4398745
+[INFO] [02-21|12:29:02.152] [4/12 Execution] Transaction replay      blk=5174603 tx/s=2803.6 buffer=178.6MB/256.0MB stepsInDB=0.00 step=96.4 alloc=3.3GB sys=3.8GB
+[DBUG] [02-21|12:29:12.336] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001056538s next=CatchUpBlocks
+[DBUG] [02-21|12:29:12.817] Received block via gossip                peers=5 slot=4398746
+[INFO] [02-21|12:29:17.290] Executed                                 blocks=5174999 txs=150694782 repeats=0
+[DBUG] [02-21|12:29:18.038] [p2p] Discovery table                    protocol=67 version=v4 len=116 live=42 unsol=500 ips=166 db=0 reval=56 RPC timeout=3 unsolicited reply=321 unknown node=35 expired=5
+[DBUG] [02-21|12:29:18.038] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=1710 static=20 connect: no route to host=3 connect: connection refused=33 i/o timeout=196
+[DBUG] [02-21|12:29:18.039] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2 EOF=1 i/o timeout=1
+[DBUG] [02-21|12:29:18.078] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=1657 static=20 connect: connection refused=41 i/o timeout=228
+[DBUG] [02-21|12:29:18.078] [p2p] Discovery table                    protocol=68 version=v4 len=114 live=44 unsol=500 ips=165 db=0 reval=53 unsolicited reply=217 unknown node=36
+[DBUG] [02-21|12:29:18.078] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=3
+[DBUG] [02-21|12:29:18.108] [p2p] Discovery table                    protocol=any version=v5 len=130 live=26 unsol=0 ips=189 db=0 reval=56 RPC timeout=26
+[INFO] [02-21|12:29:18.109] P2P                                      app=caplin peers=5
+[DBUG] [02-21|12:29:21.328] [downloader] Collecting...               from=5334126 to=5334126 len=1
+[DBUG] [02-21|12:29:21.328] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:29:25.999] Received block via gossip                peers=7 slot=4398747
+[DBUG] [02-21|12:29:32.337] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000905447s next=CatchUpBlocks
+[DBUG] [02-21|12:29:36.712] Received block via gossip                peers=8 slot=4398748
+[INFO] [02-21|12:29:40.872] [4/12 Execution][agg] computing trie     progress=338k/1441k alloc=2.8GB sys=5.1GB
+[DBUG] [02-21|12:29:48.310] [downloader] Collecting...               from=5334128 to=5334128 len=1
+[DBUG] [02-21|12:29:48.310] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:29:49.152] Received block via gossip                peers=4 slot=4398749
+[DBUG] [02-21|12:29:52.338] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000276817s next=CatchUpBlocks
+[INFO] [02-21|12:30:00.872] [4/12 Execution][agg] computing trie     progress=841k/1441k alloc=3.9GB sys=5.5GB
+[DBUG] [02-21|12:30:01.095] Received block via gossip                peers=8 slot=4398750
+[DBUG] [02-21|12:30:12.338] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000801767s next=CatchUpBlocks
+[DBUG] [02-21|12:30:14.378] Received block via gossip                peers=8 slot=4398751
+[INFO] [02-21|12:30:17.769] [p2p] GoodPeers                          eth68=1 eth67=6
+[DBUG] [02-21|12:30:18.038] [p2p] Dial scheduler                     protocol=67 peers=6/33 tried=2076 static=20 connect: connection refused=41 i/o timeout=236 connect: no route to host=3
+[DBUG] [02-21|12:30:18.039] [p2p] Discovery table                    protocol=67 version=v4 len=117 live=48 unsol=500 ips=167 db=0 reval=67 RPC timeout=3 unsolicited reply=378 unknown node=49 expired=5
+[DBUG] [02-21|12:30:18.040] [p2p] Server                             protocol=67 peers=6 trusted=0 inbound=2 EOF=1
+[DBUG] [02-21|12:30:18.077] [p2p] Dial scheduler                     protocol=68 peers=1/33 tried=2024 static=20 connect: connection refused=48 i/o timeout=284 connect: no route to host=1
+[DBUG] [02-21|12:30:18.077] [p2p] Discovery table                    protocol=68 version=v4 len=128 live=50 unsol=500 ips=189 db=0 reval=65 invalid IP in response record: LAN address from WAN host=1 unknown node=53 unsolicited reply=265
+[DBUG] [02-21|12:30:18.078] [p2p] Server                             protocol=68 peers=1 trusted=0 inbound=0
+[DBUG] [02-21|12:30:18.108] [p2p] Discovery table                    protocol=any version=v5 len=129 live=34 unsol=0 ips=189 db=0 reval=68 RPC timeout=29
+[INFO] [02-21|12:30:18.109] P2P                                      app=caplin peers=12
+[INFO] [02-21|12:30:20.872] [4/12 Execution][agg] computing trie     progress=1196k/1441k alloc=4.4GB sys=5.9GB
+[DBUG] [02-21|12:30:25.583] Received block via gossip                peers=15 slot=4398752
+[DBUG] [02-21|12:30:32.339] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000789978s next=CatchUpBlocks
+[DBUG] [02-21|12:30:37.707] Received block via gossip                peers=13 slot=4398753
+[DBUG] [02-21|12:30:48.843] Received block via gossip                peers=22 slot=4398754
+[DBUG] [02-21|12:30:52.340] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000887167s next=CatchUpBlocks
+[DBUG] [02-21|12:31:00.548] Received block via gossip                peers=11 slot=4398755
+[INFO] [02-21|12:31:09.949] [4/12 Execution] DONE                    in=5m47.811799389s block=0
+[DBUG] [02-21|12:31:09.950] [11/12 TxLookup] DONE                    in=1.22641ms
+[DBUG] [02-21|12:31:09.953] [12/12 Finish] DONE                      in=2.181421ms
+[DBUG] [02-21|12:31:12.342] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001658047s next=CatchUpBlocks
+[DBUG] [02-21|12:31:12.474] Received block via gossip                peers=10 slot=4398756
+[WARN] [02-21|12:31:12.566] failed to insert blocks                  app=caplin stage=CatchUpBlocks err="InsertBlocks: gap 4704828 -> 5333949"
+[DBUG] [02-21|12:31:12.566] waiting for blocks...                    app=caplin stage=CatchUpBlocks seenSlot=4398722 targetSlot=4398756 requestedSlots=34
+[WARN] [02-21|12:31:12.569] [dbg] InsertBlocks                       len=1 from=5334105 to=5334105
+[WARN] [02-21|12:31:12.569] [dbg] InsertBlocks2                      block=5334105
+panic: parent's total difficulty not found with hash 94f51d06274918d41038f8a5205a7dedf8d9ff3e46574dc683b0bee55e58d897 and height 5334104: <nil>
+
+goroutine 417693 [running]:
+github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).InsertBlocks(0xc0110d37a0, {0x3060378, 0xc001611590}, 0xc12fbfc040)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/inserters.go:87 +0xb34
+github.com/ledgerwatch/erigon-lib/direct.(*ExecutionClientDirect).InsertBlocks(0x51bafc0?, {0x3060378?, 0xc001611590?}, 0xc07cdb4660?, {0x2602e00?, 0x2661000?, 0xc038583308?})
+	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/execution_client.go:54 +0x25
+github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlockAndWait({{0x3060378, 0xc001611590}, 0xc000738a00, {0x307c6a8, 0xc0460d8330}, 0x3e8}, 0xc121c058f0)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:324 +0x1a2
+github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).NewPayload(0xc038ef3140, 0xc039e778c0, 0x6325ef50ed33cddd?, {0x19167ab72855df9?, 0xc039e070e0?, 0xc079add0c0?})
+	github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:42 +0x265
+github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnBlock(0xc000c14b40, 0xc0973fbf80, 0x1, 0xfa?)
+	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_block.go:93 +0x504
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func1({0x3091000, 0xc122506ae0}, 0x6325ef50ed33cddd?, 0xf9?, 0x5d?)
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:193 +0x5a
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8({0x3060378, 0xc087971bd0}, {0x30734e0, 0xc1225b05c0}, 0xc0015d28f0, {0xa, 0x218f4, 0x218f4, 0x431ea4, 0x431e82, ...})
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:533 +0x1206
+github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1()
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40 +0xd9
+created by github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage in goroutine 13083
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:34 +0x3c9
+exit status 2
+[INFO] [02-21|12:32:36.278] logging to file system                   log dir=/mnt/erigon/logs file prefix=erigon log level=info json=false
+[INFO] [02-21|12:32:36.279] Enabling metrics export to prometheus    path=http://0.0.0.0:6061/debug/metrics/prometheus
+[INFO] [02-21|12:32:36.279] Starting pprof server                    cpu="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/profile?seconds=20" heap="go tool pprof -lines -http=: http://127.0.0.1:6060/debug/pprof/heap"
+[INFO] [02-21|12:32:36.279] Build info                               git_branch= git_tag= git_commit=
+[INFO] [02-21|12:32:36.279] Starting Erigon on Sepolia testnet... 
+[INFO] [02-21|12:32:36.282] Maximum peer count                       ETH=100 total=100
+[INFO] [02-21|12:32:36.282] torrent verbosity                        level=WRN
+[INFO] [02-21|12:32:36.282] [torrent] Public IP                      ip=35.210.171.201
+[INFO] [02-21|12:32:36.283] Set global gas cap                       cap=50000000
+[INFO] [02-21|12:32:36.284] [Downloader] Running with                ipv6-enabled=true ipv4-enabled=true download.rate=1g upload.rate=512k
+[INFO] [02-21|12:32:36.288] Opening Database                         label=chaindata path=/mnt/erigon/chaindata
+[INFO] [02-21|12:32:36.293] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:32:36.296] Re-Opening DB in exclusive mode to apply migrations 
+[INFO] [02-21|12:32:36.301] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[INFO] [02-21|12:32:36.301] Apply migration                          name=db_schema_version5
+[INFO] [02-21|12:32:36.302] Applied migration                        name=db_schema_version5
+[INFO] [02-21|12:32:36.302] Apply migration                          name=txs_begin_end
+[INFO] [02-21|12:32:36.304] Applied migration                        name=txs_begin_end
+[INFO] [02-21|12:32:36.304] Apply migration                          name=txs_v3
+[INFO] [02-21|12:32:36.305] Applied migration                        name=txs_v3
+[INFO] [02-21|12:32:36.305] Apply migration                          name=prohibit_new_downloads_lock
+[INFO] [02-21|12:32:36.306] Applied migration                        name=prohibit_new_downloads_lock
+[INFO] [02-21|12:32:36.307] Updated DB schema to                     version=6.1.0
+[INFO] [02-21|12:32:36.314] [db] open                                lable=chaindata sizeLimit=1000GB pageSize=8192
+[DBUG] [02-21|12:32:36.321] [db] open                                lable=inMem sizeLimit=2GB pageSize=4096
+[INFO] [02-21|12:32:36.325] Writing custom genesis block             hash=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[INFO] [02-21|12:32:36.328] Initialised chain configuration          config="{ChainID: 11155111, Homestead: 0, DAO: <nil>, Tangerine Whistle: 0, Spurious Dragon: 0, Byzantium: 0, Constantinople: 0, Petersburg: 0, Istanbul: 0, Muir Glacier: 0, Berlin: 0, London: 0, Arrow Glacier: <nil>, Gray Glacier: <nil>, Terminal Total Difficulty: 17000000000000000, Merge Netsplit: 1735371, Shanghai: 1677557088, Cancun: 1706655072, Prague: <nil>, Engine: ethash}" genesis=0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9
+[DBUG] [02-21|12:32:38.080] [db] open                                lable=downloader sizeLimit=16GB pageSize=8192
+[DBUG] [02-21|12:32:58.197] [snapshots] webseed providers            http=7 disk=0
+[INFO] [02-21|12:32:58.197] Initialising Ethereum protocol           network=11155111
+[INFO] [02-21|12:32:58.197] Disk storage enabled for ethash DAGs     dir=/mnt/erigon/ethash-dags count=2
+[INFO] [02-21|12:32:58.197] Starting private RPC server              on=127.0.0.1:9090
+[INFO] [02-21|12:32:58.197] new subscription to logs established 
+[INFO] [02-21|12:32:58.197] [Checkpoint Sync] Requesting beacon state uri=https://sepolia.beaconstate.info/eth/v2/debug/beacon/states/finalized
+[DBUG] [02-21|12:32:58.342] [snapshots.webseed] get from HTTP provider urls=121 host=caplin-snapshots-sepolia.erigon.network url=/
+[DBUG] [02-21|12:32:58.473] [db] open                                lable=inMem sizeLimit=2TB pageSize=4096
+[INFO] [02-21|12:32:58.473] rpc filters: subscribing to Erigon events 
+[DBUG] [02-21|12:32:58.473] Establishing event subscription channel with the RPC daemon ... 
+[INFO] [02-21|12:32:58.473] new subscription to newHeaders established 
+[INFO] [02-21|12:32:58.474] Reading JWT secret                       path=/mnt/erigon/jwt.hex
+[INFO] [02-21|12:32:58.474] HTTP endpoint opened for Engine API      url=127.0.0.1:8551 ws=true ws.compression=true
+[DBUG] [02-21|12:32:58.480] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:32:58.482] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:32:58.483] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:32:58.483] Started P2P networking                   version=67 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30304 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[INFO] [02-21|12:32:58.485] [1/12 Snapshots] Requesting downloads 
+[DBUG] [02-21|12:32:58.486] [db] open                                lable=sentry sizeLimit=8GB pageSize=4096
+[DBUG] [02-21|12:32:58.487] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:32:58.488] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:32:58.490] [snapshots.webseed] get from HTTP provider urls=206 host=erigon-v2-snapshots-sepolia.erigon.network url=
+[INFO] [02-21|12:32:58.512] Started P2P networking                   version=68 self=enode://5eb630c4ad8d6f16037fe31f99f27a7bfe8fc079a07b9edd081b2109c930dcdd1100b7d5f9421060ffaeaa28d6970ca99ff4f686a12a9fe1eb1485c67cc4471b@35.210.171.201:30303 name=erigon/v2.59.0/linux-amd64/go1.21.7
+[DBUG] [02-21|12:32:58.552] [Sentinel] ECDSA private key generated 
+[DBUG] [02-21|12:32:58.570] [db] open                                app=caplin lable=sentry sizeLimit=1GB pageSize=4096
+[DBUG] [02-21|12:32:58.570] QuerySeeds read nodes from the node DB   count=0
+[DBUG] [02-21|12:32:58.571] QuerySeeds read nodes from the node DB   count=0
+[INFO] [02-21|12:32:58.571] [Sentinel] Sentinel started              app=caplin enr=enr:-Ly4QBVgnpvjaaz2K9zWTZx8vgxjKWNnyk7OsSMsOX9bRC3xHpYxXSj2lxuqyPjxRY1K0Ji7NGoPdjeG6ZHGoG7CsekBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpDTH2GRkAAAc___________gmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQN3L6RlcL_NyFed2InYfzfLphhNKF20SBbrFFx8P0GyhYhzeW5jbmV0cwCDdGNwgg-hg3VkcIIPoA
+[INFO] [02-21|12:32:58.571] Started Ethereum 2.0 Gossip Service      app=caplin
+[INFO] [02-21|12:32:58.571] Static peers                             len=0
+[INFO] [02-21|12:32:58.579] [Caplin] starting clstages loop          app=caplin
+[INFO] [02-21|12:32:58.579] Starting downloading History             app=caplin stage=DownloadHistoricalBlocks from=4398688
+[DBUG] [02-21|12:32:58.642] [snapshots.webseed] get from HTTP provider urls=159 host=erigon2-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:32:58.762] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v2-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:32:58.892] [snapshots.webseed] get from HTTP provider urls=206 host=erigon2-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:32:59.334] [snapshots.webseed] get from HTTP provider urls=632 host=erigon3-v1-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:32:59.433] [snapshots.webseed] get from HTTP provider urls=443 host=erigon3-v3-snapshots-sepolia.erigon.network url=
+[DBUG] [02-21|12:33:25.821] Received block via gossip                peers=1 slot=4398767
+[INFO] [02-21|12:33:27.060] Backfilling finished 
+[DBUG] [02-21|12:33:28.590] [db] open                                lable=inMem sizeLimit=512MB pageSize=4096
+[INFO] [02-21|12:33:28.590] Ready to insert history, waiting for sync cycle to finish app=caplin stage=DownloadHistoricalBlocks
+[DBUG] [02-21|12:33:28.592] clstage finish                           app=caplin stage=DownloadHistoricalBlocks in=30.01306259s next=ForwardSync
+[INFO] [02-21|12:33:28.592] [Caplin] Forward Sync                    app=caplin stage=ForwardSync from=4398688 to=4398767
+[INFO] [02-21|12:33:28.809] [1/12 Snapshots] Total difficulty index: 4118k/5174k 
+[DBUG] [02-21|12:33:30.134] OnBlock                                  elapsed=11.59632ms
+[DBUG] [02-21|12:33:30.146] OnBlock                                  elapsed=10.869119ms
+[DBUG] [02-21|12:33:30.157] OnBlock                                  elapsed=9.841731ms
+[DBUG] [02-21|12:33:30.168] OnBlock                                  elapsed=10.05025ms
+[DBUG] [02-21|12:33:30.180] OnBlock                                  elapsed=11.11662ms
+[DBUG] [02-21|12:33:30.191] OnBlock                                  elapsed=10.47776ms
+[DBUG] [02-21|12:33:30.209] OnBlock                                  elapsed=10.1611ms
+[DBUG] [02-21|12:33:30.219] OnBlock                                  elapsed=9.4179ms
+[DBUG] [02-21|12:33:30.230] OnBlock                                  elapsed=10.70937ms
+[DBUG] [02-21|12:33:30.241] OnBlock                                  elapsed=9.7418ms
+[DBUG] [02-21|12:33:30.252] OnBlock                                  elapsed=9.656151ms
+[DBUG] [02-21|12:33:30.262] OnBlock                                  elapsed=9.972431ms
+[DBUG] [02-21|12:33:30.274] OnBlock                                  elapsed=10.762299ms
+[DBUG] [02-21|12:33:30.284] OnBlock                                  elapsed=10.09424ms
+[DBUG] [02-21|12:33:30.295] OnBlock                                  elapsed=9.95224ms
+[DBUG] [02-21|12:33:30.305] OnBlock                                  elapsed=9.83076ms
+[DBUG] [02-21|12:33:30.316] OnBlock                                  elapsed=10.40974ms
+[DBUG] [02-21|12:33:30.326] OnBlock                                  elapsed=9.15992ms
+[DBUG] [02-21|12:33:30.337] OnBlock                                  elapsed=11.19645ms
+[DBUG] [02-21|12:33:30.348] OnBlock                                  elapsed=9.846ms
+[DBUG] [02-21|12:33:30.358] OnBlock                                  elapsed=10.41594ms
+[DBUG] [02-21|12:33:30.369] OnBlock                                  elapsed=9.68671ms
+[DBUG] [02-21|12:33:30.388] OnBlock                                  elapsed=9.47493ms
+[DBUG] [02-21|12:33:30.398] OnBlock                                  elapsed=10.11055ms
+[DBUG] [02-21|12:33:30.409] OnBlock                                  elapsed=9.51578ms
+[DBUG] [02-21|12:33:30.422] OnBlock                                  elapsed=12.68152ms
+[DBUG] [02-21|12:33:30.434] OnBlock                                  elapsed=10.105659ms
+[DBUG] [02-21|12:33:30.444] OnBlock                                  elapsed=10.37134ms
+[DBUG] [02-21|12:33:30.454] OnBlock                                  elapsed=9.16666ms
+[DBUG] [02-21|12:33:30.465] OnBlock                                  elapsed=10.277909ms
+[DBUG] [02-21|12:33:30.495] OnBlock                                  elapsed=29.8008ms
+[DBUG] [02-21|12:33:30.506] OnBlock                                  elapsed=10.42395ms
+[DBUG] [02-21|12:33:30.517] OnBlock                                  elapsed=9.89949ms
+[DBUG] [02-21|12:33:30.529] OnBlock                                  elapsed=12.33543ms
+[DBUG] [02-21|12:33:30.540] OnBlock                                  elapsed=10.1991ms
+[DBUG] [02-21|12:33:30.553] OnBlock                                  elapsed=10.046729ms
+[DBUG] [02-21|12:33:30.563] OnBlock                                  elapsed=9.6579ms
+[DBUG] [02-21|12:33:30.574] OnBlock                                  elapsed=10.41868ms
+[DBUG] [02-21|12:33:30.585] OnBlock                                  elapsed=9.89763ms
+[DBUG] [02-21|12:33:30.596] OnBlock                                  elapsed=9.86355ms
+[DBUG] [02-21|12:33:30.606] OnBlock                                  elapsed=9.86694ms
+[DBUG] [02-21|12:33:30.615] OnBlock                                  elapsed=8.55629ms
+[DBUG] [02-21|12:33:30.626] OnBlock                                  elapsed=9.992639ms
+[DBUG] [02-21|12:33:30.649] OnBlock                                  elapsed=9.834439ms
+[DBUG] [02-21|12:33:30.660] OnBlock                                  elapsed=9.63768ms
+[DBUG] [02-21|12:33:30.670] OnBlock                                  elapsed=9.04081ms
+[DBUG] [02-21|12:33:30.680] OnBlock                                  elapsed=9.43581ms
+[DBUG] [02-21|12:33:30.690] OnBlock                                  elapsed=8.8304ms
+[DBUG] [02-21|12:33:30.701] OnBlock                                  elapsed=10.14033ms
+[DBUG] [02-21|12:33:30.711] OnBlock                                  elapsed=9.98049ms
+[DBUG] [02-21|12:33:30.722] OnBlock                                  elapsed=9.568829ms
+[DBUG] [02-21|12:33:30.733] OnBlock                                  elapsed=9.492071ms
+[DBUG] [02-21|12:33:30.744] OnBlock                                  elapsed=10.54036ms
+[DBUG] [02-21|12:33:30.755] OnBlock                                  elapsed=9.90069ms
+[DBUG] [02-21|12:33:31.426] OnBlock                                  elapsed=11.3841ms
+[DBUG] [02-21|12:33:31.437] OnBlock                                  elapsed=9.86067ms
+[DBUG] [02-21|12:33:31.447] OnBlock                                  elapsed=9.36898ms
+[DBUG] [02-21|12:33:31.457] OnBlock                                  elapsed=9.81635ms
+[DBUG] [02-21|12:33:31.470] OnBlock                                  elapsed=9.48258ms
+[DBUG] [02-21|12:33:31.481] OnBlock                                  elapsed=9.94192ms
+[DBUG] [02-21|12:33:31.512] OnBlock                                  elapsed=28.61112ms
+[DBUG] [02-21|12:33:31.537] OnBlock                                  elapsed=9.88457ms
+[DBUG] [02-21|12:33:31.548] OnBlock                                  elapsed=9.67755ms
+[DBUG] [02-21|12:33:31.559] OnBlock                                  elapsed=10.70617ms
+[DBUG] [02-21|12:33:31.571] OnBlock                                  elapsed=10.98814ms
+[DBUG] [02-21|12:33:31.582] OnBlock                                  elapsed=9.9799ms
+[DBUG] [02-21|12:33:31.592] OnBlock                                  elapsed=9.63455ms
+[DBUG] [02-21|12:33:31.602] OnBlock                                  elapsed=9.938059ms
+[DBUG] [02-21|12:33:31.613] OnBlock                                  elapsed=10.46226ms
+[DBUG] [02-21|12:33:31.624] OnBlock                                  elapsed=10.15996ms
+[DBUG] [02-21|12:33:31.636] OnBlock                                  elapsed=11.50784ms
+[DBUG] [02-21|12:33:31.657] OnBlock                                  elapsed=15.65645ms
+[DBUG] [02-21|12:33:31.691] OnBlock                                  elapsed=32.487849ms
+[DBUG] [02-21|12:33:31.705] OnBlock                                  elapsed=14.07052ms
+[DBUG] [02-21|12:33:31.718] OnBlock                                  elapsed=11.86211ms
+[DBUG] [02-21|12:33:31.735] clstage finish                           app=caplin stage=ForwardSync in=3.142837337s next=CatchUpBlocks
+[DBUG] [02-21|12:33:31.743] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-3013018040
+[DBUG] [02-21|12:33:36.196] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:33:36.196] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:33:36.200] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:33:36.200] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:33:36.456] Received block via gossip                peers=5 slot=4398768
+[DBUG] [02-21|12:33:37.849] [1/12 Snapshots] Flushed buffer file     name=erigon-sortable-buf-3772969241
+[DBUG] [02-21|12:33:48.840] Received block via gossip                peers=1 slot=4398769
+[DBUG] [02-21|12:33:51.737] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001224387s next=CatchUpBlocks
+[DBUG] [02-21|12:33:58.483] [p2p] Dial scheduler                     protocol=67 peers=2/33 tried=332 static=20 connect: connection refused=8 i/o timeout=49
+[DBUG] [02-21|12:33:58.483] [p2p] Discovery table                    protocol=67 version=v4 len=105 live=8 unsol=135 ips=155 db=0 reval=11 RPC timeout=1 unknown node=9 unsolicited reply=27
+[DBUG] [02-21|12:33:58.484] [p2p] Server                             protocol=67 peers=2 trusted=0 inbound=2 EOF=1 too many peers=2
+[DBUG] [02-21|12:33:58.488] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=363 static=20 connect: connection refused=6 i/o timeout=43 connect: no route to host=1
+[DBUG] [02-21|12:33:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=105 live=9 unsol=326 ips=155 db=0 reval=10 RPC timeout=1 unsolicited reply=43 unknown node=4
+[DBUG] [02-21|12:33:58.512] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 i/o timeout=1 EOF=1 closed by remote=1
+[DBUG] [02-21|12:33:58.571] [p2p] Discovery table                    protocol=any version=v5 len=153 live=5 unsol=0 ips=223 db=0 reval=11 RPC timeout=5
+[INFO] [02-21|12:33:58.572] P2P                                      app=caplin peers=4
+[INFO] [02-21|12:33:58.810] [1/12 Snapshots] MaxTxNums index: 4692k/5174k 
+[DBUG] [02-21|12:34:01.887] Received block via gossip                peers=11 slot=4398770
+[INFO] [02-21|12:34:02.496] [snapshots:download] Blocks Stat         blocks=5175k indices=5175k alloc=2.1GB sys=3.7GB
+[INFO] [02-21|12:34:02.900] [1/12 Snapshots] DONE                    in=1m4.416606634s block=5174999
+[DBUG] [02-21|12:34:02.900] [2/12 BlockHashes] DONE                  in=29.37µs
+[DBUG] [02-21|12:34:02.900] [3/12 Senders] DONE                      in=86.62µs
+[WARN] [02-21|12:34:02.900] [dbg] exec3                              stack="[stage_execute.go:240 stage_execute.go:384 default_stages.go:321 sync.go:518 sync.go:396 ethereum_execution.go:254 asm_amd64.s:1650]"
+[INFO] [02-21|12:34:02.900] [4/12 Execution] Blocks execution        from=0 to=5174999
+[INFO] [02-21|12:34:02.903] [4/12 Execution] starting                from=5168536 to=5174999 fromTxNum=149999966 offsetFromBlockBeginning=33 initialCycle=true useExternalTx=false
+[INFO] [02-21|12:34:02.903] [snapshots] db has steps amount: accounts:0.0, storage:0.0, code:0.0, commitment:0.0, logaddrs: 0.0, logtopics: 0.0, tracesfrom: 0.0, tracesto: 0.0 
+[DBUG] [02-21|12:34:11.738] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001004847s next=CatchUpBlocks
+[DBUG] [02-21|12:34:13.705] Received block via gossip                peers=4 slot=4398771
+[DBUG] [02-21|12:34:13.896] [downloader] Collecting...               from=5334150 to=5334150 len=1
+[DBUG] [02-21|12:34:13.896] [downloader] posAnchor is nil 
+[INFO] [02-21|12:34:22.943] [4/12 Execution] Transaction replay      blk=5169152 tx/s=2369.6 buffer=18.5MB/256.0MB stepsInDB=0.00 step=96.0 alloc=2.3GB sys=3.7GB
+[DBUG] [02-21|12:34:24.586] Received block via gossip                peers=6 slot=4398772
+[DBUG] [02-21|12:34:29.535] [downloader] Collecting...               from=5334151 to=5334151 len=1
+[DBUG] [02-21|12:34:29.535] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:34:31.738] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000476827s next=CatchUpBlocks
+[DBUG] [02-21|12:34:36.840] Received block via gossip                peers=6 slot=4398773
+[INFO] [02-21|12:34:42.924] [4/12 Execution] Transaction replay      blk=5169726 tx/s=2619.4 buffer=34.5MB/256.0MB stepsInDB=0.00 step=96.1 alloc=1.8GB sys=3.7GB
+[DBUG] [02-21|12:34:48.400] Received block via gossip                peers=7 slot=4398774
+[DBUG] [02-21|12:34:51.739] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000485008s next=CatchUpBlocks
+[DBUG] [02-21|12:34:52.229] [downloader] Collecting...               from=5334153 to=5334153 len=1
+[DBUG] [02-21|12:34:52.229] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:34:58.483] [p2p] Dial scheduler                     protocol=67 peers=3/33 tried=669 static=20 connect: connection refused=13 i/o timeout=81
+[DBUG] [02-21|12:34:58.483] [p2p] Discovery table                    protocol=67 version=v4 len=111 live=18 unsol=191 ips=161 db=0 reval=22 RPC timeout=1 unsolicited reply=44 unknown node=18
+[DBUG] [02-21|12:34:58.485] [p2p] Server                             protocol=67 peers=3 trusted=0 inbound=2
+[DBUG] [02-21|12:34:58.488] [p2p] Dial scheduler                     protocol=68 peers=1/33 tried=691 static=20 connect: connection refused=11 i/o timeout=70 connect: no route to host=1
+[DBUG] [02-21|12:34:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=107 live=17 unsol=384 ips=157 db=0 reval=21 RPC timeout=1 invalid IP in response record: loopback address from non-loopback host=1 unknown node=20 unsolicited reply=82
+[DBUG] [02-21|12:34:58.512] [p2p] Server                             protocol=68 peers=1 trusted=0 inbound=0 EOF=1
+[DBUG] [02-21|12:34:58.571] [p2p] Discovery table                    protocol=any version=v5 len=149 live=10 unsol=0 ips=218 db=0 reval=22 RPC timeout=11
+[INFO] [02-21|12:34:58.572] P2P                                      app=caplin peers=7
+[INFO] [02-21|12:35:02.921] [4/12 Execution] Transaction replay      blk=5170308 tx/s=2943.8 buffer=52.2MB/256.0MB stepsInDB=0.00 step=96.1 alloc=2.4GB sys=3.7GB
+[DBUG] [02-21|12:35:04.548] Received block via gossip                peers=8 slot=4398775
+[DBUG] [02-21|12:35:11.739] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000447897s next=CatchUpBlocks
+[DBUG] [02-21|12:35:14.264] Received block via gossip                peers=4 slot=4398776
+[INFO] [02-21|12:35:22.959] [4/12 Execution] Transaction replay      blk=5170872 tx/s=3195.5 buffer=69.6MB/256.0MB stepsInDB=0.00 step=96.1 alloc=3.2GB sys=3.7GB
+[DBUG] [02-21|12:35:27.004] Received block via gossip                peers=5 slot=4398777
+[DBUG] [02-21|12:35:31.740] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000648097s next=CatchUpBlocks
+[DBUG] [02-21|12:35:38.225] Received block via gossip                peers=5 slot=4398778
+[INFO] [02-21|12:35:42.923] [4/12 Execution] Transaction replay      blk=5171397 tx/s=3917.5 buffer=81.2MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.6GB sys=3.7GB
+[DBUG] [02-21|12:35:48.432] Received block via gossip                peers=7 slot=4398779
+[DBUG] [02-21|12:35:51.741] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000812746s next=CatchUpBlocks
+[INFO] [02-21|12:35:58.197] [p2p] GoodPeers                          eth67=3
+[DBUG] [02-21|12:35:58.482] [p2p] Discovery table                    protocol=67 version=v4 len=110 live=25 unsol=227 ips=160 db=0 reval=34 RPC timeout=3 unsolicited reply=62 unknown node=36
+[DBUG] [02-21|12:35:58.483] [p2p] Dial scheduler                     protocol=67 peers=3/33 tried=1018 static=20 connect: connection refused=18 i/o timeout=118
+[DBUG] [02-21|12:35:58.484] [p2p] Server                             protocol=67 peers=3 trusted=0 inbound=2
+[DBUG] [02-21|12:35:58.488] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=1032 static=20 i/o timeout=105 connect: no route to host=2 connect: connection refused=17
+[DBUG] [02-21|12:35:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=110 live=26 unsol=422 ips=160 db=0 reval=32 RPC timeout=1 invalid IP in response record: loopback address from non-loopback host=1 unsolicited reply=111 unknown node=26
+[DBUG] [02-21|12:35:58.513] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:35:58.571] [p2p] Discovery table                    protocol=any version=v5 len=147 live=17 unsol=0 ips=215 db=0 reval=34 RPC timeout=16
+[INFO] [02-21|12:35:58.572] P2P                                      app=caplin peers=7
+[DBUG] [02-21|12:35:59.157] [downloader] Collecting...               from=2990914 to=2990914 len=1
+[DBUG] [02-21|12:35:59.157] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:36:00.528] Received block via gossip                peers=7 slot=4398780
+[INFO] [02-21|12:36:02.905] [4/12 Execution] Transaction replay      blk=5171914 tx/s=3031.8 buffer=95.2MB/256.0MB stepsInDB=0.00 step=96.2 alloc=2.9GB sys=3.7GB
+[DBUG] [02-21|12:36:11.742] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001258938s next=CatchUpBlocks
+[DBUG] [02-21|12:36:12.557] Received block via gossip                peers=12 slot=4398781
+[INFO] [02-21|12:36:22.956] [4/12 Execution] Transaction replay      blk=5172441 tx/s=3070.2 buffer=112.9MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.1GB sys=3.8GB
+[DBUG] [02-21|12:36:24.765] Received block via gossip                peers=11 slot=4398782
+[DBUG] [02-21|12:36:31.744] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001554047s next=CatchUpBlocks
+[DBUG] [02-21|12:36:36.905] Received block via gossip                peers=8 slot=4398783
+[DBUG] [02-21|12:36:38.509] [downloader] Collecting...               from=5334162 to=5334162 len=1
+[DBUG] [02-21|12:36:38.510] [downloader] posAnchor is nil 
+[INFO] [02-21|12:36:42.906] [4/12 Execution] Transaction replay      blk=5172993 tx/s=3134.6 buffer=129.3MB/256.0MB stepsInDB=0.00 step=96.3 alloc=2.8GB sys=3.8GB
+[DBUG] [02-21|12:36:49.194] Received block via gossip                peers=8 slot=4398784
+[DBUG] [02-21|12:36:51.745] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001537197s next=CatchUpBlocks
+[DBUG] [02-21|12:36:58.483] [p2p] Dial scheduler                     protocol=67 peers=4/33 tried=1341 static=20 connect: connection refused=25 i/o timeout=157
+[DBUG] [02-21|12:36:58.483] [p2p] Discovery table                    protocol=67 version=v4 len=123 live=34 unsol=230 ips=174 db=0 reval=45 RPC timeout=3 unknown node=46 unsolicited reply=74
+[DBUG] [02-21|12:36:58.484] [p2p] Server                             protocol=67 peers=4 trusted=0 inbound=2
+[DBUG] [02-21|12:36:58.488] [p2p] Dial scheduler                     protocol=68 peers=1/33 tried=1352 static=20 i/o timeout=142 connect: no route to host=2 connect: connection refused=21
+[DBUG] [02-21|12:36:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=113 live=34 unsol=426 ips=164 db=0 reval=43 RPC timeout=1 invalid IP in response record: loopback address from non-loopback host=1 unsolicited reply=117 unknown node=36
+[DBUG] [02-21|12:36:58.512] [p2p] Server                             protocol=68 peers=1 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:36:58.571] [p2p] Discovery table                    protocol=any version=v5 len=143 live=23 unsol=0 ips=213 db=0 reval=46 RPC timeout=21
+[INFO] [02-21|12:36:58.572] P2P                                      app=caplin peers=6
+[DBUG] [02-21|12:37:01.019] Received block via gossip                peers=8 slot=4398785
+[INFO] [02-21|12:37:02.938] [4/12 Execution] Transaction replay      blk=5173517 tx/s=2776.3 buffer=145.1MB/256.0MB stepsInDB=0.00 step=96.3 alloc=3.1GB sys=3.8GB
+[DBUG] [02-21|12:37:11.747] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001871687s next=CatchUpBlocks
+[DBUG] [02-21|12:37:12.993] Received block via gossip                peers=4 slot=4398786
+[INFO] [02-21|12:37:22.905] [4/12 Execution] Transaction replay      blk=5174072 tx/s=2705.2 buffer=162.2MB/256.0MB stepsInDB=0.00 step=96.4 alloc=1.9GB sys=3.9GB
+[DBUG] [02-21|12:37:24.428] Received block via gossip                peers=6 slot=4398787
+[DBUG] [02-21|12:37:31.748] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001038887s next=CatchUpBlocks
+[DBUG] [02-21|12:37:33.400] [downloader] Collecting...               from=0 to=0 len=1
+[DBUG] [02-21|12:37:33.400] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:37:37.107] Received block via gossip                peers=5 slot=4398788
+[INFO] [02-21|12:37:42.940] [4/12 Execution] Transaction replay      blk=5174613 tx/s=2819.3 buffer=178.8MB/256.0MB stepsInDB=0.00 step=96.4 alloc=2.3GB sys=3.9GB
+[DBUG] [02-21|12:37:48.695] Received block via gossip                peers=5 slot=4398789
+[DBUG] [02-21|12:37:51.750] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001340627s next=CatchUpBlocks
+[INFO] [02-21|12:37:57.573] Executed                                 blocks=5174999 txs=150694782 repeats=0
+[DBUG] [02-21|12:37:58.483] [p2p] Dial scheduler                     protocol=67 peers=5/33 tried=1675 static=20 connect: connection refused=30 i/o timeout=194 connect: no route to host=1
+[DBUG] [02-21|12:37:58.483] [p2p] Discovery table                    protocol=67 version=v4 len=126 live=42 unsol=284 ips=177 db=0 reval=57 RPC timeout=3 unknown node=62 unsolicited reply=99
+[DBUG] [02-21|12:37:58.484] [p2p] Server                             protocol=67 peers=5 trusted=0 inbound=2
+[DBUG] [02-21|12:37:58.488] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=1691 static=20 connect: connection refused=26 i/o timeout=184 connect: no route to host=3
+[DBUG] [02-21|12:37:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=114 live=42 unsol=500 ips=165 db=0 reval=54 RPC timeout=2 invalid IP in response record: loopback address from non-loopback host=1 invalid IP in response record: LAN address from WAN host=1 unknown node=42 unsolicited reply=142
+[DBUG] [02-21|12:37:58.512] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1
+[DBUG] [02-21|12:37:58.571] [p2p] Discovery table                    protocol=any version=v5 len=142 live=30 unsol=0 ips=211 db=0 reval=58 RPC timeout=25
+[INFO] [02-21|12:37:58.572] P2P                                      app=caplin peers=10
+[DBUG] [02-21|12:38:01.059] Received block via gossip                peers=4 slot=4398790
+[DBUG] [02-21|12:38:01.204] [downloader] Collecting...               from=5334169 to=5334169 len=1
+[DBUG] [02-21|12:38:01.204] [downloader] posAnchor is nil 
+[DBUG] [02-21|12:38:11.751] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001073957s next=CatchUpBlocks
+[DBUG] [02-21|12:38:12.489] Received block via gossip                peers=5 slot=4398791
+[INFO] [02-21|12:38:21.325] [4/12 Execution][agg] computing trie     progress=345k/1441k alloc=3.9GB sys=4.6GB
+[DBUG] [02-21|12:38:24.381] Received block via gossip                peers=6 slot=4398792
+[DBUG] [02-21|12:38:31.751] clstage finish                           app=caplin stage=CatchUpBlocks in=20.000378828s next=CatchUpBlocks
+[DBUG] [02-21|12:38:36.994] Received block via gossip                peers=6 slot=4398793
+[INFO] [02-21|12:38:41.325] [4/12 Execution][agg] computing trie     progress=849k/1441k alloc=5.0GB sys=5.5GB
+[DBUG] [02-21|12:38:48.702] Received block via gossip                peers=7 slot=4398794
+[DBUG] [02-21|12:38:51.752] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001278617s next=CatchUpBlocks
+[INFO] [02-21|12:38:58.198] [p2p] GoodPeers                          eth67=5
+[DBUG] [02-21|12:38:58.483] [p2p] Discovery table                    protocol=67 version=v4 len=127 live=52 unsol=284 ips=179 db=0 reval=67 RPC timeout=4 unsolicited reply=99 unknown node=67
+[DBUG] [02-21|12:38:58.483] [p2p] Dial scheduler                     protocol=67 peers=5/33 tried=2034 static=20 connect: no route to host=5 connect: connection refused=37 i/o timeout=229
+[DBUG] [02-21|12:38:58.485] [p2p] Server                             protocol=67 peers=5 trusted=0 inbound=2 too many peers=1
+[DBUG] [02-21|12:38:58.488] [p2p] Dial scheduler                     protocol=68 peers=0/33 tried=2049 static=20 i/o timeout=232 connect: no route to host=3 connect: connection refused=34
+[DBUG] [02-21|12:38:58.488] [p2p] Discovery table                    protocol=68 version=v4 len=115 live=51 unsol=500 ips=166 db=0 reval=66 RPC timeout=2 invalid IP in response record: loopback address from non-loopback host=1 invalid IP in response record: LAN address from WAN host=1 unknown node=46 unsolicited reply=165
+[DBUG] [02-21|12:38:58.512] [p2p] Server                             protocol=68 peers=0 trusted=0 inbound=0 too many peers=1 EOF=1
+[DBUG] [02-21|12:38:58.571] [p2p] Discovery table                    protocol=any version=v5 len=140 live=33 unsol=0 ips=207 db=0 reval=70 RPC timeout=31
+[INFO] [02-21|12:38:58.572] P2P                                      app=caplin peers=9
+[DBUG] [02-21|12:39:00.714] Received block via gossip                peers=11 slot=4398795
+[INFO] [02-21|12:39:01.325] [4/12 Execution][agg] computing trie     progress=1213k/1441k alloc=3.5GB sys=5.9GB
+[DBUG] [02-21|12:39:11.754] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001391979s next=CatchUpBlocks
+[DBUG] [02-21|12:39:12.414] Received block via gossip                peers=14 slot=4398796
+[DBUG] [02-21|12:39:25.518] Received block via gossip                peers=10 slot=4398797
+[DBUG] [02-21|12:39:31.755] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001070548s next=CatchUpBlocks
+[DBUG] [02-21|12:39:37.181] Received block via gossip                peers=24 slot=4398798
+[DBUG] [02-21|12:39:48.908] Received block via gossip                peers=16 slot=4398799
+[INFO] [02-21|12:39:49.869] [4/12 Execution] DONE                    in=5m46.968940651s block=0
+[DBUG] [02-21|12:39:49.870] [11/12 TxLookup] DONE                    in=1.019691ms
+[DBUG] [02-21|12:39:49.872] [12/12 Finish] DONE                      in=2.08144ms
+[DBUG] [02-21|12:39:51.756] clstage finish                           app=caplin stage=CatchUpBlocks in=20.001110278s next=CatchUpBlocks
+[WARN] [02-21|12:39:51.975] failed to insert blocks                  app=caplin stage=CatchUpBlocks err="InsertBlocks: gap 4704827 -> 5334009, stack: [inserters.go:50 execution_client.go:54 chain_reader.go:304 execution_client_direct.go:77 clstages.go:428 clstages.go:40 asm_amd64.s:1650]"
+[DBUG] [02-21|12:39:51.975] waiting for blocks...                    app=caplin stage=CatchUpBlocks seenSlot=4398767 targetSlot=4398799 requestedSlots=32
+[WARN] [02-21|12:39:51.977] [dbg] InsertBlocks                       len=1 from=5334147 to=5334147
+[WARN] [02-21|12:39:51.977] [dbg] InsertBlocks2                      block=5334147
+panic: parent's total difficulty not found with hash fd83294cb87700ed0bfddffec3fe6aba53657011780d3eb74963ce93fcaa64d1 and height 5334146: <nil>
+
+goroutine 421474 [running]:
+github.com/ledgerwatch/erigon/turbo/execution/eth1.(*EthereumExecutionModule).InsertBlocks(0xc03e1717a0, {0x3060378, 0xc0017a9040}, 0xc07a865e80)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/inserters.go:88 +0xb85
+github.com/ledgerwatch/erigon-lib/direct.(*ExecutionClientDirect).InsertBlocks(0x51bafc0?, {0x3060378?, 0xc0017a9040?}, 0x491?, {0x2602e00?, 0x2661000?, 0x143?})
+	github.com/ledgerwatch/erigon-lib@v1.0.0/direct/execution_client.go:54 +0x25
+github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader%2ego.ChainReaderWriterEth1.InsertBlockAndWait({{0x3060378, 0xc0017a9040}, 0xc000176f00, {0x307c6a8, 0xc03e16e970}, 0x3e8}, 0xc15372d880)
+	github.com/ledgerwatch/erigon/turbo/execution/eth1/eth1_chain_reader.go/chain_reader.go:324 +0x1a2
+github.com/ledgerwatch/erigon/cl/phase1/execution_client.(*ExecutionClientDirect).NewPayload(0xc03e16c8c0, 0xc0813b2b40, 0xd717882c8f4b3a96?, {0xe6519ceed8911e03?, 0xc05aeefe00?, 0xc099bfe1e0?})
+	github.com/ledgerwatch/erigon/cl/phase1/execution_client/execution_client_direct.go:42 +0x265
+github.com/ledgerwatch/erigon/cl/phase1/forkchoice.(*ForkChoiceStore).OnBlock(0xc040932000, 0xc05bcc65b0, 0x1, 0x31?)
+	github.com/ledgerwatch/erigon/cl/phase1/forkchoice/on_block.go:93 +0x504
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func1({0x3091000, 0xc03b8fde60}, 0xd717882c8f4b3a96?, 0x3?, 0x1e?)
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:193 +0x5a
+github.com/ledgerwatch/erigon/cl/phase1/stages.ConsensusClStages.func8({0x3060378, 0xc0383d4ff0}, {0x30734e0, 0xc06c1fcd00}, 0xc000f146e0, {0x9, 0x218f5, 0x218f5, 0x431ecf, 0x431eaf, ...})
+	github.com/ledgerwatch/erigon/cl/phase1/stages/clstages.go:533 +0x1206
+github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage.func1()
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:40 +0xd9
+created by github.com/ledgerwatch/erigon/cl/clstages.(*StageGraph[...]).StartWithStage in goroutine 13698
+	github.com/ledgerwatch/erigon/cl/clstages/clstages.go:34 +0x3c9
+exit status 2

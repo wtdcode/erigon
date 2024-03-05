@@ -1,0 +1,81 @@
+029806ec8b83d8f15809a5dd22553d84497578d4
+
+
+
+erigon@mainnet3-3:~/erigon$ du /mnt/erigon/snapshots/v1-019100-019200-transactions.idx
+101536	/mnt/erigon/snapshots/v1-019100-019200-transactions.idx
+erigon@mainnet3-3:~/erigon$ du -h /mnt/erigon/snapshots/v1-019100-019200-transactions.idx
+
+Mainnet:
+
+Before:
+100M	/mnt/erigon/snapshots/v1-019100-019200-transactions.idx
+After:
+115M	/mnt/erigon/snapshots/v1-019100-019200-transactions.idx
+
+
+Before:
+du -hsc /mnt/erigon/snapshots/accessor/v1-*.efei
+3.7G
+du -hsc /mnt/erigon/snapshots/accessor/v1-*.efi
+15G
+
+After:
+du -hsc /mnt/erigon/snapshots/accessor/v1-*.efei
+??
+du -hsc /mnt/erigon/snapshots/accessor/v1-*.efi
+21G
+
+
+GOROOT=/usr/local/opt/go/libexec #gosetup
+GOPATH=/Users/alex.sharov/go #gosetup
+/usr/local/opt/go/libexec/bin/go test -c -o /Users/alex.sharov/Library/Caches/JetBrains/GoLand2024.1/tmp/GoLand/___TestDomain_GetAfterAggregation_in_github_com_ledgerwatch_erigon_lib_state.test github.com/ledgerwatch/erigon-lib/state #gosetup
+/usr/local/opt/go/libexec/bin/go tool test2json -t /Users/alex.sharov/Library/Caches/JetBrains/GoLand2024.1/tmp/GoLand/___TestDomain_GetAfterAggregation_in_github_com_ledgerwatch_erigon_lib_state.test -test.v -test.paniconexit0 -test.run ^\QTestDomain_GetAfterAggregation\E$
+[dbg] env WRITE_MAP=true
+=== RUN   TestDomain_GetAfterAggregation
+    domain_test.go:1477: generated data with seed 31, keys 200
+merge: v1-accounts.0-2.kv
+merge: v1-accounts.0-4.kv
+merge: v1-accounts.0-8.kv
+merge: v1-accounts.0-16.kv
+merge: v1-accounts.0-32.kv
+merge: v1-accounts.0-64.kv
+merge: v1-accounts.64-66.kv
+merge: v1-accounts.64-68.kv
+merge: v1-accounts.64-72.kv
+merge: v1-accounts.64-80.kv
+merge: v1-accounts.64-96.kv
+merge: v1-accounts.96-98.kv
+merge: v1-accounts.96-100.kv
+merge: v1-accounts.96-104.kv
+merge: v1-accounts.96-112.kv
+merge: v1-accounts.112-114.kv
+merge: v1-accounts.112-116.kv
+merge: v1-accounts.116-118.kv
+    domain_test.go:1509:
+        	Error Trace:	github.com/ledgerwatch/erigon-lib/state/domain_test.go:1509
+        	Error:      	Not equal:
+        	            	expected: []byte{0xc4, 0x82, 0xac, 0xbb, 0x46, 0x8d, 0x89, 0x27, 0x6, 0xfd}
+        	            	actual  : []byte{0x45, 0x95, 0x20, 0xe8, 0x40, 0x91, 0x71, 0x5c, 0x6f, 0xc4}
+
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,3 +1,3 @@
+        	            	 ([]uint8) (len=10) {
+        	            	- 00000000  c4 82 ac bb 46 8d 89 27  06 fd                    |....F..'..|
+        	            	+ 00000000  45 95 20 e8 40 91 71 5c  6f c4                    |E. .@.q\o.|
+        	            	 }
+        	Test:       	TestDomain_GetAfterAggregation
+        	Messages:   	(15/200) key 7be61c2054e6703b1345fd1be6eb7039df178641, tx 2732
+--- FAIL: TestDomain_GetAfterAggregation (6.88s)
+
+Expected :[]byte{0xc4, 0x82, 0xac, 0xbb, 0x46, 0x8d, 0x89, 0x27, 0x6, 0xfd}
+Actual   :[]byte{0x45, 0x95, 0x20, 0xe8, 0x40, 0x91, 0x71, 0x5c, 0x6f, 0xc4}
+<Click to see difference>
+
+
+FAIL
+
+Process finished with the exit code 1
+

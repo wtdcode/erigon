@@ -1,0 +1,7 @@
+1. seems `v1-046000-046500-borevents.seg` a bit broken. I see 28K blocks gap after block `46099952` - no events in snap. Here are all gaps > 600 blocks:
+```
+blockNumBuf: 46128736-46099952=28784
+blockNumBuf: 46231008-46228704=2304
+```
+
+2. LastFrozenEventId - seems has bug - it reading First value of last file, but need read Last value of last file (or just  `idx.BaseDataID+idx.Count()`). ah, now i see - it does full-scan - ok,
