@@ -998,7 +998,10 @@ func SegmentsCaplin(dir string, minBlock uint64) (res []snaptype.FileInfo, missi
 			}
 			l = append(l, f)
 		}
+		o := noOverlaps(l)
+		log.Warn("[dbg] noOver", "o", o)
 		l, m = noGaps(noOverlaps(l), minBlock)
+		log.Warn("[dbg] noGaps", "l", l, "m", m)
 		if len(m) > 0 {
 			lst := m[len(m)-1]
 			log.Debug("[snapshots] see gap", "type", snaptype.Enums.BeaconBlocks, "from", lst.from, "minBlock", minBlock)
