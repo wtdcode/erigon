@@ -72,6 +72,15 @@ func TestGenesisBlockRoots(t *testing.T) {
 	if block.Hash() != params.ChiadoGenesisHash {
 		t.Errorf("wrong Chiado genesis hash, got %v, want %v", block.Hash(), params.ChiadoGenesisHash)
 	}
+
+	block, _, err = core.GenesisToBlock(core.SelfnetGenesisBlock(), "", log.Root())
+	require.NoError(err)
+	if block.Root() != params.SelfnetGenesisStateRoot {
+		t.Errorf("wrong Selfnet genesis state root, got %v, want %v", block.Root(), params.SelfnetGenesisStateRoot)
+	}
+	if block.Hash() != params.SelfnetGenesisHash {
+		t.Errorf("wrong Selfnet genesis hash, got %v, want %v", block.Hash(), params.SelfnetGenesisHash)
+	}
 }
 
 func TestCommitGenesisIdempotency(t *testing.T) {

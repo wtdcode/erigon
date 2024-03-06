@@ -72,11 +72,13 @@ var (
 	BorDevnetGenesisHash  = libcommon.HexToHash("0x5a06b25b0c6530708ea0b98a3409290e39dce6be7f558493aeb6e4b99a172a87")
 	GnosisGenesisHash     = libcommon.HexToHash("0x4f1dd23188aab3a76b463e4af801b52b1248ef073c648cbdc4c9333d3da79756")
 	ChiadoGenesisHash     = libcommon.HexToHash("0xada44fd8d2ecab8b08f256af07ad3e777f17fb434f8f8e678b312f576212ba9a")
+	SelfnetGenesisHash     = libcommon.HexToHash("0x9e1876d80441ada68f442633fe72bf9ffcc24c7f5b645d8c44ee372cf0b767fb")
 )
 
 var (
 	GnosisGenesisStateRoot = libcommon.HexToHash("0x40cf4430ecaa733787d1a65154a3b9efb560c95d9e324a23b97f0609b539133b")
 	ChiadoGenesisStateRoot = libcommon.HexToHash("0x9ec3eaf4e6188dfbdd6ade76eaa88289b57c63c9a2cde8d35291d5a29e143d31")
+	SelfnetGenesisStateRoot = libcommon.HexToHash("0x9d9905a8fba5666233adaf171b618c299ef58ab61d3a69631104bb9c13145325")
 )
 
 var (
@@ -145,6 +147,8 @@ var (
 	GnosisChainConfig = readChainSpec("chainspecs/gnosis.json")
 
 	ChiadoChainConfig = readChainSpec("chainspecs/chiado.json")
+
+	SelfnetChainConfig = readChainSpec("chainspecs/selfnet.json")
 
 	CliqueSnapshot = NewSnapshotConfig(10, 1024, 16384, true, "")
 
@@ -230,6 +234,8 @@ func ChainConfigByChainName(chain string) *chain.Config {
 		return GnosisChainConfig
 	case networkname.ChiadoChainName:
 		return ChiadoChainConfig
+	case networkname.SelfnetChainName:
+		return SelfnetChainConfig
 	default:
 		return nil
 	}
@@ -257,6 +263,8 @@ func GenesisHashByChainName(chain string) *libcommon.Hash {
 		return &GnosisGenesisHash
 	case networkname.ChiadoChainName:
 		return &ChiadoGenesisHash
+	case networkname.SelfnetChainName:
+		return &SelfnetGenesisHash
 	default:
 		return nil
 	}
@@ -284,6 +292,8 @@ func ChainConfigByGenesisHash(genesisHash libcommon.Hash) *chain.Config {
 		return GnosisChainConfig
 	case genesisHash == ChiadoGenesisHash:
 		return ChiadoChainConfig
+	case genesisHash == SelfnetGenesisHash:
+		return SelfnetChainConfig
 	default:
 		return nil
 	}
@@ -309,6 +319,7 @@ func isChainIDPoS(chainID *big.Int) bool {
 		SepoliaChainConfig.ChainID,
 		GnosisChainConfig.ChainID,
 		ChiadoChainConfig.ChainID,
+		SelfnetChainConfig.ChainID,
 	}
 	for _, id := range ids {
 		if id.Cmp(chainID) == 0 {
