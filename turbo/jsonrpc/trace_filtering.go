@@ -181,11 +181,13 @@ func (api *TraceAPIImpl) Block(ctx context.Context, blockNr rpc.BlockNumber, gas
 	if block == nil {
 		return nil, fmt.Errorf("could not find block %d", uint64(bn))
 	}
-
+	log.Warn("[dbg] block found", "blockNr", block.NumberU64(), "hash", block.Hash())
 	cfg, err := api.chainConfig(tx)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Warn("[dbg] cc", "cc", cfg.String())
 	signer := types.MakeSigner(cfg, blockNum, block.Time())
 	traces, syscall, err := api.callManyTransactions(ctx, tx, block, []string{TraceTypeTrace}, -1 /* all tx indices */, *gasBailOut /* gasBailOut */, signer, cfg)
 	if err != nil {
