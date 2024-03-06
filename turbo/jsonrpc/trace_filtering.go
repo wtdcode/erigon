@@ -925,6 +925,7 @@ func (api *TraceAPIImpl) callManyTransactions(
 		return nil, nil, err
 	}
 	log.Warn("[dbg] history reader", "blockNumber", blockNumber)
+	initialState := state.New(reader)
 	if err != nil {
 		return nil, nil, err
 	}
