@@ -1,3 +1,6 @@
+# curl --data '{"method":"trace_block","params":["0x1181414"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
+# curl --data '{"method":"trace_block","params":["0x2F4D60"],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
+# 3100000
 
 
 # curl --data '{"method":"trace_replayBlockTransactions","params":["0x121eaca",["trace"]],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
