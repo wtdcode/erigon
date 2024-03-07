@@ -543,6 +543,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 				return nil, nil, fmt.Errorf("requested non-canonical hash %x. canonical=%x", hash, canonicalHash)
 			}
 			if canonicalHash != hash {
+				log.Debug("[dbg] blockWithSenders1", "blockNum", blockHeight)
 				return nil, nil, nil
 			}
 		}
@@ -551,10 +552,14 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		if err != nil {
 			return nil, nil, err
 		}
+		if block == nil {
+			log.Debug("[dbg] blockWithSenders2", "blockNum", blockHeight)
+		}
 		return block, senders, nil
 	}
 
 	if r.sn == nil {
+		log.Debug("[dbg] blockWithSenders3", "blockNum", blockHeight)
 		return
 	}
 
@@ -562,6 +567,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 	defer view.Close()
 	seg, ok := view.HeadersSegment(blockHeight)
 	if !ok {
+		log.Debug("[dbg] blockWithSenders4", "blockNum", blockHeight)
 		return
 	}
 
@@ -571,6 +577,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if h == nil {
+		log.Debug("[dbg] blockWithSenders5", "blockNum", blockHeight)
 		return
 	}
 
@@ -579,6 +586,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 	var txsAmount uint32
 	bodySeg, ok := view.BodiesSegment(blockHeight)
 	if !ok {
+		log.Debug("[dbg] blockWithSenders6", "blockNum", blockHeight)
 		return
 	}
 	b, baseTxnId, txsAmount, buf, err = r.bodyFromSnapshot(blockHeight, bodySeg, buf)
@@ -586,6 +594,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if b == nil {
+		log.Debug("[dbg] blockWithSenders7", "blockNum", blockHeight)
 		return
 	}
 	if txsAmount == 0 {
@@ -599,6 +608,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 
 	txnSeg, ok := view.TxsSegment(blockHeight)
 	if !ok {
+		log.Debug("[dbg] blockWithSenders8", "blockNum", blockHeight)
 		return
 	}
 	var txs []types.Transaction
@@ -607,6 +617,7 @@ func (r *BlockReader) blockWithSenders(ctx context.Context, tx kv.Getter, hash c
 		return nil, nil, err
 	}
 	if !ok {
+		log.Debug("[dbg] blockWithSenders9", "blockNum", blockHeight)
 		return
 	}
 	block = types.NewBlockFromStorage(hash, h, txs, b.Uncles, b.Withdrawals)
@@ -621,16 +632,19 @@ func (r *BlockReader) headerFromSnapshot(blockHeight uint64, sn *Segment, buf []
 	index := sn.Index()
 
 	if index == nil {
+		log.Debug("[dbg] headerFromSnapshot1", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 	headerOffset := index.OrdinalLookup(blockHeight - index.BaseDataID())
 	gg := sn.MakeGetter()
 	gg.Reset(headerOffset)
 	if !gg.HasNext() {
+		log.Debug("[dbg] headerFromSnapshot2", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 	buf, _ = gg.Next(buf[:0])
 	if len(buf) == 0 {
+		log.Debug("[dbg] headerFromSnapshot3", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 	h := &types.Header{}
@@ -709,6 +723,7 @@ func (r *BlockReader) bodyForStorageFromSnapshot(blockHeight uint64, sn *Segment
 	index := sn.Index()
 
 	if index == nil {
+		log.Debug("[dbg] bodyForStorageFromSnapshot1", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 
@@ -717,10 +732,12 @@ func (r *BlockReader) bodyForStorageFromSnapshot(blockHeight uint64, sn *Segment
 	gg := sn.MakeGetter()
 	gg.Reset(bodyOffset)
 	if !gg.HasNext() {
+		log.Debug("[dbg] bodyForStorageFromSnapshot2", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 	buf, _ = gg.Next(buf[:0])
 	if len(buf) == 0 {
+		log.Debug("[dbg] bodyForStorageFromSnapshot3", "blockNum", blockHeight)
 		return nil, buf, nil
 	}
 	b := &types.BodyForStorage{}
@@ -742,6 +759,7 @@ func (r *BlockReader) txsFromSnapshot(baseTxnID uint64, txsAmount uint32, txsSeg
 	idxTxnHash := txsSeg.Index(snaptype.Indexes.TxnHash)
 
 	if idxTxnHash == nil {
+		log.Debug("[dbg] txsFromSnapshot1", "baseTxnID", baseTxnID)
 		return nil, nil, nil
 	}
 	if baseTxnID < idxTxnHash.BaseDataID() {
@@ -975,6 +993,7 @@ func (r *BlockReader) BlockByNumber(ctx context.Context, db kv.Tx, number uint64
 		return nil, fmt.Errorf("failed ReadCanonicalHash: %w", err)
 	}
 	if hash == (common.Hash{}) {
+		log.Debug("[dbg] BlockByNumber1", "blockNum", number)
 		return nil, nil
 	}
 	block, _, err := r.BlockWithSenders(ctx, db, hash, number)
