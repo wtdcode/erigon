@@ -44,12 +44,6 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
 	if ok {
-		// don't gen existing files
-		if snapshots.SegmentsMax() > minBlockNum {
-			log.Warn("[dbg] bor 2", "requested", minBlockNum, "m", maxBlockNum, "snapshots.SegmentsMax()", snapshots.SegmentsMax())
-			return false, nil
-		}
-
 		logger.Log(lvl, "[bor snapshots] Retire Bor Blocks", "range", fmt.Sprintf("%dk-%dk", blockFrom/1000, blockTo/1000))
 		if err := DumpBorBlocks(ctx, blockFrom, blockTo, chainConfig, tmpDir, snapshots.Dir(), db, workers, lvl, logger, blockReader); err != nil {
 			return ok, fmt.Errorf("DumpBorBlocks: %w", err)
