@@ -3,6 +3,27 @@
 Service to seed/download historical data (snapshots, immutable .seg files) by
 Bittorrent protocol
 
+## Snapshots (synonym of segments/shards) overview
+
+- What is "snaphots"? - It's way to store "cold" data outside of main database. It's not 'temporary' files - it's "
+  frozen db"  where stored old blocks/history/etc...
+
+- When snapshots are created? - Blocks older than 90K (`FullImmutabilityThreshold`) are moved from DB to files
+  in-background
+
+- Where snapshots are stored? - `datadir/snapshots`
+
+- When snapshots are pulled? - Erigon download snapshots **only-once** when creating node - all other files are
+  self-generated
+
+- How does it benefit the new nodes? - P2P and Becaon networks may have not enough good peers for old data (no
+  incentives).
+
+- How network benefit? - To serve immutable snapshots can use cheaper infrastructure (S3/R2/BitTorrent/etc...) -
+  maintaining fully-synced node for mainnet/bsc/polygon may be very expensive (need lots of good hardware).
+
+- How does it benefit current nodes?
+
 ## Start Erigon with snapshots support
 
 As many other Erigon components (txpool, sentry, rpc daemon) it may be
