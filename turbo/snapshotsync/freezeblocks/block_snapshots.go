@@ -1201,6 +1201,11 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, max
 		return false, ctx.Err()
 	default:
 	}
+	// pre-vent genereting of existing files
+	if br.snapshots().SegmentsMax() > minBlockNum {
+		log.Warn("[dbg] blocks 2", "requested", maxBlockNum, "br.borSnapshots().SegmentsMax()", br.snapshots().SegmentsMax())
+		return false, nil
+	}
 
 	{ // runtime assert: if db has no data to create new files - detect it and early exit
 		var haveGap bool
@@ -1214,9 +1219,7 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, max
 			}
 			haveGap = br.snapshots().SegmentsMax()+1 < firstNonGenesisBlockNumber
 			if haveGap {
-				log.Warn("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
-			} else {
-				log.Warn("[dbg]  alex 2 gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
+				log.Debug("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
 			}
 			return nil
 		}); err != nil {
