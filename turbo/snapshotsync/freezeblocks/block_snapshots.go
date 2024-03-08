@@ -1195,6 +1195,31 @@ func CanDeleteTo(curBlockNum uint64, blocksInSnapshots uint64) (blockTo uint64) 
 	return cmp.Min(hardLimit, blocksInSnapshots+1)
 }
 
+func (br *BlockRetire) dbHasEnoughDataForBlocksRetire(ctx context.Context) (bool, error) {
+	// pre-check if db has enough data
+	var haveGap bool
+	if err := br.db.View(ctx, func(tx kv.Tx) error {
+		firstNonGenesisBlockNumber, ok, err := rawdb.ReadFirstNonGenesisHeaderNumber(tx)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return nil
+		}
+		haveGap = br.snapshots().SegmentsMax()+1 < firstNonGenesisBlockNumber
+		if haveGap {
+			log.Debug("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
+		}
+		return nil
+	}); err != nil {
+		return false, err
+	}
+	if haveGap {
+		return false, nil
+	}
+	return true, nil
+}
+
 func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, maxBlockNum uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDelete func(l []string) error) (bool, error) {
 	select {
 	case <-ctx.Done():
@@ -1202,41 +1227,16 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, max
 	default:
 	}
 
-	// prevent genereting of existing files
-	if br.snapshots().SegmentsMax() > minBlockNum {
-		log.Warn("[dbg] blocks 2", "requested", maxBlockNum, "br.borSnapshots().SegmentsMax()", br.snapshots().SegmentsMax())
-		return false, nil
-	}
-
-	{ // runtime assert: if db has no data to create new files - detect it and early exit
-		var haveGap bool
-		if err := br.db.View(ctx, func(tx kv.Tx) error {
-			firstNonGenesisBlockNumber, ok, err := rawdb.ReadFirstNonGenesisHeaderNumber(tx)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				return nil
-			}
-			haveGap = br.snapshots().SegmentsMax()+1 < firstNonGenesisBlockNumber
-			if haveGap {
-				log.Debug("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
-			}
-			return nil
-		}); err != nil {
-			return false, err
-		}
-		if haveGap {
-			return false, nil
-		}
-	}
-
 	notifier, logger, blockReader, tmpDir, db, workers := br.notifier, br.logger, br.blockReader, br.tmpDir, br.db, br.workers
 	snapshots := br.snapshots()
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
-
 	if ok {
+		if has, err := br.dbHasEnoughDataForBlocksRetire(ctx); err != nil {
+			return false, err
+		} else if !has {
+			return false, nil
+		}
 		logger.Log(lvl, "[snapshots] Retire Blocks", "range", fmt.Sprintf("%dk-%dk", blockFrom/1000, blockTo/1000))
 		// in future we will do it in background
 		if err := DumpBlocks(ctx, blockFrom, blockTo, br.chainConfig, tmpDir, snapshots.Dir(), db, workers, lvl, logger, blockReader); err != nil {
