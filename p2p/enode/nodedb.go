@@ -117,6 +117,8 @@ func newMemoryDB(ctx context.Context, logger log.Logger, tmpDir string) (*DB, er
 // newPersistentNodeDB creates/opens a persistent node database,
 // also flushing its contents in case of a version mismatch.
 func newPersistentDB(ctx context.Context, logger log.Logger, path string) (*DB, error) {
+	fmt.Printf("[dbg] Open\n")
+
 	db, err := mdbx.NewMDBX(logger).
 		Path(path).
 		Label(kv.SentryDB).
@@ -261,7 +263,7 @@ func (db *DB) storeInt64(key []byte, n int64) error {
 	blob := make([]byte, binary.MaxVarintLen64)
 	blob = blob[:binary.PutVarint(blob, n)]
 	return db.kv.Update(db.ctx, func(tx kv.RwTx) error {
-		fmt.Printf("[dbg] storeInt64 %x, %x\n", key, n)
+		fmt.Printf("[dbg] storeInt64 %d, %d\n", len(key), len(blob))
 		return tx.Put(kv.Inodes, key, blob)
 	})
 }
@@ -615,6 +617,7 @@ func (db *DB) QuerySeeds(n int, maxAge time.Duration) []*Node {
 
 // close flushes and closes the database files.
 func (db *DB) Close() {
+	fmt.Printf("[dbg] Close\n")
 	db.ctxCancel()
 	db.kv.Close()
 }
