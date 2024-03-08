@@ -17,8 +17,8 @@
 - How network benefit? - To serve immutable snapshots can use cheaper infrastructure (S3/R2/BitTorrent/etc...) -
   maintaining fully-synced node for mainnet/bsc/polygon may be expensive (doesens of Tb of nvme).
 
-- How does it benefit current nodes? - Erigon's db is 1-file - which is not friendly for maintainance. Can't mount `hot`
-  data to 1 type of disk and `cold` to another.
+- How does it benefit current nodes? - Erigon's db is 1-file (doesens of Tb of nvme) - which is not friendly for
+  maintainance. Can't mount `hot` data to 1 type of disk and `cold` to another.
 
 # Downloader
 
