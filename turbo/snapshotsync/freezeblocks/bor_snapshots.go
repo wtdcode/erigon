@@ -31,6 +31,35 @@ import (
 	"github.com/ledgerwatch/log/v3"
 )
 
+func (br *BlockRetire) dbHasEnoughDataForBorBlocksRetire(ctx context.Context) (bool, error) {
+	/*
+		// pre-check if db has enough data
+		var haveGap bool
+		if err := br.db.View(ctx, func(tx kv.Tx) error {
+			firstInDB, ok, err := rawdb.ReadFirstNonGenesisBorEventBlockNum(tx)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return nil
+			}
+			lastInFiles := br.borSnapshots().SegmentsMax() + 1
+			haveGap = lastInFiles < firstInDB
+			if haveGap {
+				log.Debug("[snapshots] not enough data in db to gen files", "lastInFiles", lastInFiles, "firstInDB", firstInDB)
+			}
+			return nil
+		}); err != nil {
+			return false, err
+		}
+		if haveGap {
+			return false, nil
+		}
+			return true, nil
+	*/
+	return true, nil
+}
+
 func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, maxBlockNum uint64, lvl log.Lvl, seedNewSnapshots func(downloadRequest []services.DownloadRequest) error, onDelete func(l []string) error) (bool, error) {
 	select {
 	case <-ctx.Done():
@@ -44,6 +73,7 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
 	if ok {
+
 		logger.Log(lvl, "[bor snapshots] Retire Bor Blocks", "range", fmt.Sprintf("%dk-%dk", blockFrom/1000, blockTo/1000))
 		if err := DumpBorBlocks(ctx, blockFrom, blockTo, chainConfig, tmpDir, snapshots.Dir(), db, workers, lvl, logger, blockReader); err != nil {
 			return ok, fmt.Errorf("DumpBorBlocks: %w", err)
