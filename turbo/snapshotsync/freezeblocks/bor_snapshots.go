@@ -31,7 +31,7 @@ import (
 	"github.com/ledgerwatch/log/v3"
 )
 
-func (br *BlockRetire) dbHasEnoughDataForBorBlocksRetire(ctx context.Context) (bool, error) {
+func (br *BlockRetire) dbHasEnoughDataForBorRetire(ctx context.Context) (bool, error) {
 	/*
 		// pre-check if db has enough data
 		var haveGap bool
@@ -73,6 +73,11 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
 	if ok {
+		if has, err := br.dbHasEnoughDataForBorRetire(ctx); err != nil {
+			return false, err
+		} else if !has {
+			return false, nil
+		}
 
 		logger.Log(lvl, "[bor snapshots] Retire Bor Blocks", "range", fmt.Sprintf("%dk-%dk", blockFrom/1000, blockTo/1000))
 		if err := DumpBorBlocks(ctx, blockFrom, blockTo, chainConfig, tmpDir, snapshots.Dir(), db, workers, lvl, logger, blockReader); err != nil {
