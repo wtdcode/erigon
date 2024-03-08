@@ -39,7 +39,7 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 	}
 	snapshots := br.borSnapshots()
 
-	// prevent genereting of existing files
+	// don't gen existing files
 	if snapshots.SegmentsMax() > minBlockNum {
 		log.Warn("[dbg] bor 2", "requested", minBlockNum, "snapshots.SegmentsMax()", snapshots.SegmentsMax())
 		return false, nil
