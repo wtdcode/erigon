@@ -32,7 +32,6 @@ import (
 	mdbx1 "github.com/erigontech/mdbx-go/mdbx"
 	"github.com/ledgerwatch/log/v3"
 
-	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/kv/mdbx"
 	"github.com/ledgerwatch/erigon/rlp"
@@ -262,7 +261,8 @@ func (db *DB) storeInt64(key []byte, n int64) error {
 	blob := make([]byte, binary.MaxVarintLen64)
 	blob = blob[:binary.PutVarint(blob, n)]
 	return db.kv.Update(db.ctx, func(tx kv.RwTx) error {
-		return tx.Put(kv.Inodes, libcommon.CopyBytes(key), blob)
+		fmt.Printf("[dbg] storeInt64 %x, %x\n", key, n)
+		return tx.Put(kv.Inodes, key, blob)
 	})
 }
 
@@ -289,7 +289,7 @@ func (db *DB) storeUint64(key []byte, n uint64) error {
 	blob := make([]byte, binary.MaxVarintLen64)
 	blob = blob[:binary.PutUvarint(blob, n)]
 	return db.kv.Update(db.ctx, func(tx kv.RwTx) error {
-		return tx.Put(kv.Inodes, libcommon.CopyBytes(key), blob)
+		return tx.Put(kv.Inodes, key, blob)
 	})
 }
 
