@@ -43,7 +43,6 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 	notifier, logger, blockReader, tmpDir, db, workers := br.notifier, br.logger, br.blockReader, br.tmpDir, br.db, br.workers
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
-	log.Warn("[dbg] CanRet bor", "blockFrom", blockFrom, "blockTo", blockTo, "ok", ok)
 	if ok {
 		// don't gen existing files
 		if snapshots.SegmentsMax() > minBlockNum {
@@ -66,7 +65,9 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 
 	merger := NewMerger(tmpDir, workers, lvl, db, chainConfig, logger)
 	rangesToMerge := merger.FindMergeRanges(snapshots.Ranges(), snapshots.BlocksAvailable())
-	logger.Log(lvl, "[bor snapshots] Retire Bor Blocks", "rangesToMerge", Ranges(rangesToMerge))
+	if len(rangesToMerge) > 0 {
+		logger.Log(lvl, "[bor snapshots] Retire Bor Blocks", "rangesToMerge", Ranges(rangesToMerge))
+	}
 	if len(rangesToMerge) == 0 {
 		return ok, nil
 	}
