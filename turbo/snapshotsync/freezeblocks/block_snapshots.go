@@ -1209,14 +1209,14 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, max
 			if err != nil {
 				return err
 			}
-			if ok {
+			if !ok {
 				return nil
 			}
 			haveGap = br.snapshots().SegmentsMax()+1 < firstNonGenesisBlockNumber
 			if haveGap {
-				log.Debug("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
+				log.Warn("[snapshots] gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
 			} else {
-				log.Debug("[dbg]  alex 2 gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
+				log.Warn("[dbg]  alex 2 gap between files and db detected, can't create new files", "lastBlockInFiles", br.snapshots().SegmentsMax(), " firstBlockInDB", firstNonGenesisBlockNumber)
 			}
 			return nil
 		}); err != nil {
