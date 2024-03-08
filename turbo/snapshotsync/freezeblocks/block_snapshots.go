@@ -1889,12 +1889,11 @@ func txsAmountBasedOnBodiesSnapshots(bodiesSegment *seg.Decompressor, len uint64
 		}
 	}
 
-	lastNumID := int(lastBody.BaseTxId + uint64(lastBody.TxAmount))
-	if lastNumID < int(firstBody.BaseTxId) {
-		return 0, 0, fmt.Errorf("negative txs count %s: lastBody.BaseTxId=%d + lastBody.TxAmount=%d < firstBody.BaseTxId=%d", bodiesSegment.FileName(), lastBody.BaseTxId, lastBody.TxAmount, firstBody.BaseTxId)
+	if lastBody.BaseTxId < firstBody.BaseTxId {
+		return 0, 0, fmt.Errorf("negative txs count %s: lastBody.BaseTxId=%d < firstBody.BaseTxId=%d", bodiesSegment.FileName(), lastBody.BaseTxId, firstBody.BaseTxId)
 	}
 
-	expectedCount = lastNumID - int(firstBody.BaseTxId)
+	expectedCount = int(lastBody.BaseTxId+uint64(lastBody.TxAmount)) - int(firstBody.BaseTxId)
 	return
 }
 
