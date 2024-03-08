@@ -11,18 +11,18 @@ Bittorrent protocol
 - When snapshots are created? - Blocks older than 90K (`FullImmutabilityThreshold`) are moved from DB to files
   in-background
 
-- Where snapshots are stored? - `datadir/snapshots`
+- Where snapshots are stored? - `datadir/snapshots` - you can symlink/mount it to cheaper disk.
 
 - When snapshots are pulled? - Erigon download snapshots **only-once** when creating node - all other files are
   self-generated
 
 - How does it benefit the new nodes? - P2P and Becaon networks may have not enough good peers for old data (no
-  incentives).
+  incentives). StageSenders results are included into blocks snaps - means new node can skip it.
 
 - How network benefit? - To serve immutable snapshots can use cheaper infrastructure (S3/R2/BitTorrent/etc...) -
-  maintaining fully-synced node for mainnet/bsc/polygon may be very expensive (need lots of good hardware).
+  maintaining fully-synced node for mainnet/bsc/polygon may be expensive (doesens of Tb of nvme).
 
-- How does it benefit current nodes?
+- How does it benefit current nodes? - Erigon's db is 1-file - which is not friendly for maintainance. can't mount
 
 ## Start Erigon with snapshots support
 
