@@ -226,6 +226,7 @@ func PathDbMap() map[string]kv.RoDB {
 var ErrDBDoesNotExists = fmt.Errorf("can't create database - because opening in `Accede` mode. probably another (main) process can create it")
 
 func (opts MdbxOpts) Open(ctx context.Context) (kv.RwDB, error) {
+	fmt.Printf("[dbg] Open: %s, %s\n", opts.label, opts.path)
 	if dbg.WriteMap() {
 		opts = opts.WriteMap() //nolint
 	}
@@ -557,6 +558,7 @@ func (db *MdbxKV) waitTxsAllDoneOnClose() {
 // Close closes db
 // All transactions must be closed before closing the database.
 func (db *MdbxKV) Close() {
+	fmt.Printf("[dbg] Close: %s, %s\n", db.opts.label, db.path)
 	if ok := db.closed.CompareAndSwap(false, true); !ok {
 		return
 	}
