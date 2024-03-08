@@ -217,12 +217,8 @@ func (f FileInfo) CompareTo(o FileInfo) int {
 	if res := cmp.Compare(f.To, o.To); res != 0 {
 		return res
 	}
-	if f.Type == nil {
-		fmt.Printf("[dbg] a: %s\n", f.Name())
-	}
-	if o.Type == nil {
-		fmt.Printf("[dbg] a: %s\n", o.Name())
-	}
+
+	fmt.Printf("[dbg] a: %s, %s\n", f.Name(), o.Name())
 	return strings.Compare(f.Type.String(), o.Type.String())
 }
 
