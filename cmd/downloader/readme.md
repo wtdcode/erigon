@@ -1,8 +1,3 @@
-# Downloader
-
-Service to seed/download historical data (snapshots, immutable .seg files) by
-Bittorrent protocol
-
 ## Snapshots (synonym of segments/shards) overview
 
 - What is "snaphots"? - It's way to store "cold" data outside of main database. It's not 'temporary' files -
@@ -23,6 +18,10 @@ Bittorrent protocol
   maintaining fully-synced node for mainnet/bsc/polygon may be expensive (doesens of Tb of nvme).
 
 - How does it benefit current nodes? - Erigon's db is 1-file - which is not friendly for maintainance. can't mount
+
+# Downloader
+
+Service to seed/download historical data (snapshots, immutable .seg files) by Bittorrent protocol
 
 ## Start Erigon with snapshots support
 
