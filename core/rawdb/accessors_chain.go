@@ -1211,8 +1211,10 @@ func ReadFirstNonGenesisHeaderNumber(tx kv.Tx) (uint64, bool, error) {
 		return 0, false, err
 	}
 	if len(v) == 0 {
+		panic(1)
 		return 0, false, nil
 	}
+	log.Warn("[dbg] a", "a", binary.BigEndian.Uint64(v))
 	return binary.BigEndian.Uint64(v), true, nil
 }
 
