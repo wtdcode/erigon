@@ -5,8 +5,8 @@ Bittorrent protocol
 
 ## Snapshots (synonym of segments/shards) overview
 
-- What is "snaphots"? - It's way to store "cold" data outside of main database. It's not 'temporary' files - it's "
-  frozen db"  where stored old blocks/history/etc...
+- What is "snaphots"? - It's way to store "cold" data outside of main database. It's not 'temporary' files -
+  it's `frozen db` where stored old blocks/history/etc...
 
 - When snapshots are created? - Blocks older than 90K (`FullImmutabilityThreshold`) are moved from DB to files
   in-background
