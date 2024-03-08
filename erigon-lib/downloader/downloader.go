@@ -1497,6 +1497,7 @@ func availableTorrents(ctx context.Context, pending []*torrent.Torrent, slots in
 	}
 
 	slices.SortFunc(pending, func(i, j *torrent.Torrent) int {
+		fmt.Printf("[dbg] %s %s\n", i.Name(), j.Name())
 		in, _, _ := snaptype.ParseFileName("", i.Name())
 		jn, _, _ := snaptype.ParseFileName("", j.Name())
 		return in.CompareTo(jn)

@@ -218,7 +218,6 @@ func (f FileInfo) CompareTo(o FileInfo) int {
 		return res
 	}
 
-	fmt.Printf("[dbg] a: %s, %s\n", f.Name(), o.Name())
 	return strings.Compare(f.Type.String(), o.Type.String())
 }
 
