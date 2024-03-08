@@ -18,7 +18,9 @@
   maintaining fully-synced node for mainnet/bsc/polygon may be expensive (doesens of Tb of nvme).
 
 - How does it benefit current nodes? - Erigon's db is 1-file (doesens of Tb of nvme) - which is not friendly for
-  maintainance. Can't mount `hot` data to 1 type of disk and `cold` to another.
+  maintainance. Can't mount `hot` data to 1 type of disk and `cold` to another. Erigon2 moving only Blocks to snaps
+  but Erigon3 also moving there `cold latest state` and `state history` - means new node doesn't need re-exec all blocks
+  from genesis.
 
 # Downloader
 
