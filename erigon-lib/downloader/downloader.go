@@ -1496,7 +1496,7 @@ func availableTorrents(ctx context.Context, pending []*torrent.Torrent, slots in
 		}
 	}
 
-	for _, t := range pending {
+	for i, t := range pending {
 		log.Warn("[dbg] torrent download", "i", i, "name", t.Name())
 	}
 	slices.SortFunc(pending, func(i, j *torrent.Torrent) int {
