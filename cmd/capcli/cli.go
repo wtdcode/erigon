@@ -317,10 +317,11 @@ func (c *ChainEndpoint) Run(ctx *Context) error {
 		defer tx.Rollback()
 
 		stringifiedRoot := common.Bytes2Hex(currentRoot[:])
+		endpoint := fmt.Sprintf("%s/0x%s", baseUri, stringifiedRoot)
 		// Let's fetch the head first
-		currentBlock, err := core.RetrieveBlock(ctx, beaconConfig, genesisConfig, fmt.Sprintf("%s/0x%s", baseUri, stringifiedRoot), (*libcommon.Hash)(&currentRoot))
+		currentBlock, err := core.RetrieveBlock(ctx, beaconConfig, genesisConfig, endpoint, (*libcommon.Hash)(&currentRoot))
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("failed to retrieve block %s: %w", endpoint, err)
 		}
 		currentRoot, err = currentBlock.Block.HashSSZ()
 		if err != nil {
