@@ -1201,7 +1201,8 @@ func (br *BlockRetire) retireBlocks(ctx context.Context, minBlockNum uint64, max
 		return false, ctx.Err()
 	default:
 	}
-	// pre-vent genereting of existing files
+
+	// prevent genereting of existing files
 	if br.snapshots().SegmentsMax() > minBlockNum {
 		log.Warn("[dbg] blocks 2", "requested", maxBlockNum, "br.borSnapshots().SegmentsMax()", br.snapshots().SegmentsMax())
 		return false, nil

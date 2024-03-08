@@ -37,10 +37,16 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 		return false, ctx.Err()
 	default:
 	}
+	snapshots := br.borSnapshots()
+
+	// prevent genereting of existing files
+	if snapshots.SegmentsMax() > minBlockNum {
+		log.Warn("[dbg] bor 2", "requested", minBlockNum, "snapshots.SegmentsMax()", snapshots.SegmentsMax())
+		return false, nil
+	}
 
 	chainConfig := fromdb.ChainConfig(br.db)
 	notifier, logger, blockReader, tmpDir, db, workers := br.notifier, br.logger, br.blockReader, br.tmpDir, br.db, br.workers
-	snapshots := br.borSnapshots()
 
 	blockFrom, blockTo, ok := CanRetire(maxBlockNum, minBlockNum, br.chainConfig)
 	if ok {
