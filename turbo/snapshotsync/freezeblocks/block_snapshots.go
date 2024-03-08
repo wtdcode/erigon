@@ -1372,9 +1372,7 @@ func (br *BlockRetire) RetireBlocks(ctx context.Context, minBlockNum uint64, max
 
 	var blockHaveMore, borHaveMore bool
 	for {
-		if frozen := br.blockReader.FrozenBlocks(); frozen > minBlockNum {
-			minBlockNum = frozen
-		}
+		minBlockNum = cmp.Max(br.blockReader.FrozenBlocks(), minBlockNum)
 
 		blockHaveMore, err = br.retireBlocks(ctx, minBlockNum, maxBlockNum, lvl, seedNewSnapshots, onDeleteSnapshots)
 		if err != nil {
@@ -1382,7 +1380,8 @@ func (br *BlockRetire) RetireBlocks(ctx context.Context, minBlockNum uint64, max
 		}
 
 		if includeBor {
-			borHaveMore, err = br.retireBorBlocks(ctx, minBlockNum, maxBlockNum, lvl, seedNewSnapshots, onDeleteSnapshots)
+			minBorBlockNum := cmp.Max(br.blockReader.FrozenBorBlocks(), minBlockNum)
+			borHaveMore, err = br.retireBorBlocks(ctx, minBorBlockNum, maxBlockNum, lvl, seedNewSnapshots, onDeleteSnapshots)
 			if err != nil {
 				return err
 			}
