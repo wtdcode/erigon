@@ -1882,7 +1882,7 @@ func TransactionsIdx(ctx context.Context, chainConfig *chain.Config, sn snaptype
 	}()
 	firstBlockNum := sn.From
 
-	bodiesSegment, err := seg.NewDecompressor(sn.As(snaptype.Bodies).Path)
+	bodiesSegment, err := seg.NewDecompressor(sn.Path)
 	if err != nil {
 		return fmt.Errorf("can't open %s for indexing: %w", sn.Name(), err)
 	}
