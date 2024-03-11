@@ -4,9 +4,11 @@ on:
     branches:
       - devel
       - alpha
+      - devel_1.2.0
       - 'release/**'
   pull_request:
     branches:
+      - devel_1.2.0
       - devel
       - alpha
       - 'release/**'
