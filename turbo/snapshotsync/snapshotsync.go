@@ -113,12 +113,10 @@ func WaitForDownloader(ctx context.Context, logPrefix string, histV3, blobs bool
 		if !blobs && strings.Contains(p.Name, "blobsidecars") {
 			continue
 		}
-
 		downloadRequest = append(downloadRequest, services.NewDownloadRequest(p.Name, p.Hash))
 	}
 
 	log.Info(fmt.Sprintf("[%s] Requesting downloads", logPrefix))
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -131,6 +129,7 @@ func WaitForDownloader(ctx context.Context, logPrefix string, histV3, blobs bool
 			continue
 		}
 		break
+
 	}
 
 	downloadStartTime := time.Now()
