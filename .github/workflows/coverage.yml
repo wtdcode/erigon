@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - devel
+      - devel_1.2.0
 
 jobs:
   coverage:
