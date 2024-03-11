@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"sync"
 
 	"github.com/RoaringBitmap/roaring/roaring64"
@@ -326,6 +327,10 @@ func (rw *ReconWorker) runTxTask(txTask *exec22.TxTask) error {
 		}
 
 		rw.engine.Initialize(rw.chainConfig, rw.chain, txTask.Header, ibs, syscall, logger)
+		if !rw.chainConfig.IsFeynman(txTask.Header.Number.Uint64(), txTask.Header.Time) {
+			parent := rw.chain.GetHeaderByHash(txTask.Header.ParentHash)
+			systemcontracts.UpgradeBuildInSystemContract(rw.chainConfig, txTask.Header.Number, parent.Time, txTask.Header.Time, ibs, logger)
+		}
 		if err = ibs.FinalizeTx(rules, noop); err != nil {
 			if _, readError := rw.stateReader.ReadError(); !readError {
 				return err

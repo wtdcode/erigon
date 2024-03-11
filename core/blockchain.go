@@ -20,9 +20,7 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/holiman/uint256"
-	"github.com/ledgerwatch/erigon-lib/common/hexutil"
-	"math/big"
+	"github.com/ledgerwatch/erigon/core/systemcontracts"
 	"time"
 
 	"github.com/ledgerwatch/log/v3"
@@ -103,7 +101,8 @@ func ExecuteBlockEphemerallyForBSC(
 		receipts    types.Receipts
 	)
 
-	if err := InitializeBlockExecution(engine, chainReader, block.Header(), chainConfig, ibs, logger); err != nil {
+	parent := chainReader.GetHeader(header.ParentHash, header.Number.Uint64()-1)
+	if err := InitializeBlockExecution(engine, chainReader, block.Header(), parent, chainConfig, ibs, logger); err != nil {
 		return nil, err
 	}
 
@@ -182,15 +181,6 @@ func ExecuteBlockEphemerallyForBSC(
 		newBlock = block
 		receiptSha = types.DeriveSha(receipts)
 	}
-	if block.Number().Uint64() == 31103034 {
-		result := make([]map[string]interface{}, 0, len(receipts))
-		for _, receipt := range receipts {
-			txn := block.Transactions()[receipt.TransactionIndex]
-			result = append(result, marshalReceipt(receipt, txn, chainConfig, block.HeaderNoCopy(), txn.Hash(), true))
-		}
-		log.Info("block 31103034", "receipts", result)
-		time.Sleep(10000000000)
-	}
 
 	if chainConfig.IsByzantium(header.Number.Uint64()) && !vmConfig.NoReceipts {
 		if !vmConfig.StatelessExec && receiptSha != block.ReceiptHash() {
@@ -249,7 +239,8 @@ func ExecuteBlockEphemerally(
 	gp := new(GasPool)
 	gp.AddGas(block.GasLimit()).AddBlobGas(chainConfig.GetMaxBlobGasPerBlock())
 
-	if err := InitializeBlockExecution(engine, chainReader, block.Header(), chainConfig, ibs, logger); err != nil {
+	parent := chainReader.GetHeader(header.ParentHash, header.Number.Uint64()-1)
+	if err := InitializeBlockExecution(engine, chainReader, block.Header(), parent, chainConfig, ibs, logger); err != nil {
 		return nil, err
 	}
 
@@ -493,66 +484,17 @@ func FinalizeBlockExecution(
 	return newBlock, newTxs, newReceipt, nil
 }
 
-func InitializeBlockExecution(engine consensus.Engine, chain consensus.ChainHeaderReader, header *types.Header,
+func InitializeBlockExecution(engine consensus.Engine, chain consensus.ChainHeaderReader, header, parent *types.Header,
 	cc *chain.Config, ibs *state.IntraBlockState, logger log.Logger,
 ) error {
 	engine.Initialize(cc, chain, header, ibs, func(contract libcommon.Address, data []byte, ibState *state.IntraBlockState, header *types.Header, constCall bool) ([]byte, error) {
 		return SysCallContract(contract, data, cc, ibState, header, engine, constCall)
 	}, logger)
+	if !cc.IsFeynman(header.Number.Uint64(), header.Time) {
+		systemcontracts.UpgradeBuildInSystemContract(cc, header.Number, parent.Time, header.Time, ibs, logger)
+	}
+
 	noop := state.NewNoopWriter()
 	ibs.FinalizeTx(cc.Rules(header.Number.Uint64(), header.Time), noop)
 	return nil
-}
-
-func marshalReceipt(receipt *types.Receipt, txn types.Transaction, chainConfig *chain.Config, header *types.Header, txnHash libcommon.Hash, signed bool) map[string]interface{} {
-	var chainId *big.Int
-	switch t := txn.(type) {
-	case *types.LegacyTx:
-		if t.Protected() {
-			chainId = types.DeriveChainId(&t.V).ToBig()
-		}
-	case *types.AccessListTx:
-		chainId = t.ChainID.ToBig()
-	case *types.DynamicFeeTransaction:
-		chainId = t.ChainID.ToBig()
-	}
-
-	var from libcommon.Address
-	if signed {
-		signer := types.LatestSignerForChainID(chainId)
-		from, _ = txn.Sender(*signer)
-	}
-
-	fields := map[string]interface{}{
-		"blockHash":         receipt.BlockHash,
-		"blockNumber":       hexutil.Uint64(receipt.BlockNumber.Uint64()),
-		"transactionHash":   txnHash,
-		"transactionIndex":  hexutil.Uint64(receipt.TransactionIndex),
-		"from":              from,
-		"to":                txn.GetTo(),
-		"type":              hexutil.Uint(txn.Type()),
-		"gasUsed":           hexutil.Uint64(receipt.GasUsed),
-		"cumulativeGasUsed": hexutil.Uint64(receipt.CumulativeGasUsed),
-		"contractAddress":   nil,
-		"logs":              receipt.Logs,
-		"logsBloom":         types.CreateBloom(types.Receipts{receipt}),
-	}
-
-	if !chainConfig.IsLondon(header.Number.Uint64()) {
-		fields["effectiveGasPrice"] = hexutil.Uint64(txn.GetPrice().Uint64())
-	} else {
-		baseFee, _ := uint256.FromBig(header.BaseFee)
-		gasPrice := new(big.Int).Add(header.BaseFee, txn.GetEffectiveGasTip(baseFee).ToBig())
-		fields["effectiveGasPrice"] = hexutil.Uint64(gasPrice.Uint64())
-	}
-	// Assign receipt status.
-	fields["status"] = hexutil.Uint64(receipt.Status)
-	if receipt.Logs == nil {
-		fields["logs"] = [][]*types.Log{}
-	}
-	// If the ContractAddress is 20 0x0 bytes, assume it is not a contract creation
-	if receipt.ContractAddress != (libcommon.Address{}) {
-		fields["contractAddress"] = receipt.ContractAddress
-	}
-	return fields
 }
