@@ -77,6 +77,8 @@ type AggregatorV3 struct {
 	collateAndBuildWorkers int // minimize amount of background workers by default
 	mergeWorkers           int // usually 1
 
+	commitmentValuesTransform bool
+
 	// To keep DB small - need move data to small files ASAP.
 	// It means goroutine which creating small files - can't be locked by merge or indexing.
 	buildingFiles           atomic.Bool
@@ -126,12 +128,15 @@ func NewAggregatorV3(ctx context.Context, dirs datadir.Dirs, aggregationStep uin
 		logger:                 logger,
 		collateAndBuildWorkers: 1,
 		mergeWorkers:           1,
+
+		commitmentValuesTransform: true,
 	}
 	cfg := domainCfg{
 		hist: histCfg{
 			iiCfg:             iiCfg{salt: salt, dirs: dirs},
 			withLocalityIndex: false, withExistenceIndex: false, compression: CompressNone, historyLargeValues: false,
 		},
+		restrictSubsetFileDeletions: a.commitmentValuesTransform,
 	}
 	if a.d[kv.AccountsDomain], err = NewDomain(cfg, aggregationStep, "accounts", kv.TblAccountKeys, kv.TblAccountVals, kv.TblAccountHistoryKeys, kv.TblAccountHistoryVals, kv.TblAccountIdx, logger); err != nil {
 		return nil, err
@@ -141,6 +146,7 @@ func NewAggregatorV3(ctx context.Context, dirs datadir.Dirs, aggregationStep uin
 			iiCfg:             iiCfg{salt: salt, dirs: dirs},
 			withLocalityIndex: false, withExistenceIndex: false, compression: CompressNone, historyLargeValues: false,
 		},
+		restrictSubsetFileDeletions: a.commitmentValuesTransform,
 	}
 	if a.d[kv.StorageDomain], err = NewDomain(cfg, aggregationStep, "storage", kv.TblStorageKeys, kv.TblStorageVals, kv.TblStorageHistoryKeys, kv.TblStorageHistoryVals, kv.TblStorageIdx, logger); err != nil {
 		return nil, err
@@ -158,9 +164,11 @@ func NewAggregatorV3(ctx context.Context, dirs datadir.Dirs, aggregationStep uin
 		hist: histCfg{
 			iiCfg:             iiCfg{salt: salt, dirs: dirs},
 			withLocalityIndex: false, withExistenceIndex: false, compression: CompressNone, historyLargeValues: false,
-			dontProduceFiles: true,
+			dontProduceHistoryFiles: true,
 		},
-		compress: CompressNone,
+		replaceKeysInValues:         a.commitmentValuesTransform,
+		restrictSubsetFileDeletions: a.commitmentValuesTransform,
+		compress:                    CompressNone,
 	}
 	if a.d[kv.CommitmentDomain], err = NewDomain(cfg, aggregationStep, "commitment", kv.TblCommitmentKeys, kv.TblCommitmentVals, kv.TblCommitmentHistoryKeys, kv.TblCommitmentHistoryVals, kv.TblCommitmentIdx, logger); err != nil {
 		return nil, err
@@ -1224,11 +1232,45 @@ func (ac *AggregatorV3Context) mergeFiles(ctx context.Context, files SelectedSta
 	}()
 
 	ac.a.logger.Info(fmt.Sprintf("[snapshots] merge state %s", r.String()))
+
+	var valReplaceWg *sync.WaitGroup
+	if ac.a.commitmentValuesTransform {
+		valReplaceWg = new(sync.WaitGroup)
+	}
+
 	for id := range ac.d {
 		id := id
 		if r.d[id].any() {
+			kid := kv.Domain(id)
+			if kid == kv.AccountsDomain || kid == kv.StorageDomain {
+				valReplaceWg.Add(1)
+			}
+
 			g.Go(func() (err error) {
-				mf.d[id], mf.dIdx[id], mf.dHist[id], err = ac.d[id].mergeFiles(ctx, files.d[id], files.dIdx[id], files.dHist[id], r.d[id], ac.a.ps)
+				var vt valueTransformer
+				if ac.a.commitmentValuesTransform && kid == kv.CommitmentDomain {
+					ac.a.d[kv.AccountsDomain].restrictSubsetFileDeletions = true
+					ac.a.d[kv.StorageDomain].restrictSubsetFileDeletions = true
+					ac.a.d[kv.CommitmentDomain].restrictSubsetFileDeletions = true
+
+					valReplaceWg.Wait()
+
+					vt = ac.d[kv.CommitmentDomain].commitmentValTransform(
+						files.d[kv.AccountsDomain], mf.d[kv.AccountsDomain], ac.d[kv.AccountsDomain].d.indexList,
+						files.d[kv.StorageDomain], mf.d[kv.StorageDomain], ac.d[kv.StorageDomain].d.indexList,
+						r.d[kv.AccountsDomain].valuesStartTxNum, r.d[kv.AccountsDomain].valuesEndTxNum,
+					)
+				}
+
+				mf.d[id], mf.dIdx[id], mf.dHist[id], err = ac.d[id].mergeFiles(ctx, files.d[id], files.dIdx[id], files.dHist[id], r.d[id], vt, ac.a.ps)
+				if ac.a.commitmentValuesTransform && (kid == kv.AccountsDomain || kid == kv.StorageDomain) {
+					valReplaceWg.Done()
+				}
+				if ac.a.commitmentValuesTransform && err == nil {
+					ac.a.d[kv.AccountsDomain].restrictSubsetFileDeletions = false
+					ac.a.d[kv.StorageDomain].restrictSubsetFileDeletions = false
+					ac.a.d[kv.CommitmentDomain].restrictSubsetFileDeletions = false
+				}
 				return err
 			})
 		}
@@ -1265,8 +1307,10 @@ func (ac *AggregatorV3Context) mergeFiles(ctx context.Context, files SelectedSta
 	err := g.Wait()
 	if err == nil {
 		closeFiles = false
+		ac.a.logger.Info(fmt.Sprintf("[snapshots] state merge done %s", r.String()))
+	} else {
+		ac.a.logger.Warn(fmt.Sprintf("[snapshots] state merge failed err=%v %s", err, r.String()))
 	}
-	ac.a.logger.Info(fmt.Sprintf("[snapshots] state merge done %s", r.String()))
 	return mf, err
 }
 
@@ -1276,9 +1320,19 @@ func (ac *AggregatorV3Context) integrateMergedFiles(outs SelectedStaticFilesV3, 
 	defer ac.a.needSaveFilesListInDB.Store(true)
 	defer ac.a.recalcMaxTxNum()
 
-	for id, d := range ac.a.d {
-		d.integrateMergedFiles(outs.d[id], outs.dIdx[id], outs.dHist[id], in.d[id], in.dIdx[id], in.dHist[id])
+	if ac.a.commitmentValuesTransform && outs.d[kv.CommitmentDomain] != nil && in.d[kv.CommitmentDomain] == nil {
+		// todo: we already merged everything else, would be a waste to do it again so integrate what we can
+		code := ac.a.d[kv.CodeDomain]
+		if code != nil {
+			id := kv.CodeDomain
+			code.integrateMergedFiles(outs.d[id], outs.dIdx[id], outs.dHist[id], in.d[id], in.dIdx[id], in.dHist[id])
+		}
+	} else {
+		for id, d := range ac.a.d {
+			d.integrateMergedFiles(outs.d[id], outs.dIdx[id], outs.dHist[id], in.d[id], in.dIdx[id], in.dHist[id])
+		}
 	}
+
 	ac.a.logAddrs.integrateMergedFiles(outs.logAddrs, in.logAddrs)
 	ac.a.logTopics.integrateMergedFiles(outs.logTopics, in.logTopics)
 	ac.a.tracesFrom.integrateMergedFiles(outs.tracesFrom, in.tracesFrom)

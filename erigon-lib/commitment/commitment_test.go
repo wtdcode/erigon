@@ -2,6 +2,7 @@ package commitment
 
 import (
 	"encoding/hex"
+	"github.com/ledgerwatch/erigon-lib/common"
 	"math/rand"
 	"testing"
 
@@ -135,35 +136,6 @@ func unfoldBranchDataFromString(t *testing.T, encs string) (row []*Cell, am uint
 	return origins[:], am
 }
 
-func TestBranchData_ExtractPlainKeys(t *testing.T) {
-	row, bm := generateCellRow(t, 16)
-
-	cg := func(nibble int, skip bool) (*Cell, error) {
-		return row[nibble], nil
-	}
-
-	be := NewBranchEncoder(1024, t.TempDir())
-	enc, _, err := be.EncodeBranch(bm, bm, bm, cg)
-	require.NoError(t, err)
-
-	extAPK, extSPK, err := enc.ExtractPlainKeys()
-	require.NoError(t, err)
-
-	for i, c := range row {
-		if c == nil {
-			continue
-		}
-		switch {
-		case c.apl != 0:
-			require.Containsf(t, extAPK, c.apk[:], "at pos %d expected %x..", i, c.apk[:8])
-		case c.spl != 0:
-			require.Containsf(t, extSPK, c.spk[:], "at pos %d expected %x..", i, c.spk[:8])
-		default:
-			continue
-		}
-	}
-}
-
 func TestBranchData_ReplacePlainKeys(t *testing.T) {
 	row, bm := generateCellRow(t, 16)
 
@@ -175,40 +147,85 @@ func TestBranchData_ReplacePlainKeys(t *testing.T) {
 	enc, _, err := be.EncodeBranch(bm, bm, bm, cg)
 	require.NoError(t, err)
 
-	extAPK, extSPK, err := enc.ExtractPlainKeys()
-	require.NoError(t, err)
-
-	shortApk, shortSpk := make([][]byte, 0), make([][]byte, 0)
-	for i, c := range row {
-		if c == nil {
-			continue
-		}
-		switch {
-		case c.apl != 0:
-			shortApk = append(shortApk, c.apk[:8])
-			require.Containsf(t, extAPK, c.apk[:], "at pos %d expected %x..", i, c.apk[:8])
-		case c.spl != 0:
-			shortSpk = append(shortSpk, c.spk[:8])
-			require.Containsf(t, extSPK, c.spk[:], "at pos %d expected %x..", i, c.spk[:8])
-		default:
-			continue
-		}
-	}
+	original := common.Copy(enc)
 
 	target := make([]byte, 0, len(enc))
-	replaced, err := enc.ReplacePlainKeys(shortApk, shortSpk, target)
+	oldKeys := make([][]byte, 0)
+	replaced, err := enc.ReplacePlainKeys(target, func(key []byte, isStorage bool) ([]byte, error) {
+		oldKeys = append(oldKeys, key)
+		if isStorage {
+			return key[:8], nil
+		}
+		return key[:4], nil
+	})
 	require.NoError(t, err)
 	require.Truef(t, len(replaced) < len(enc), "replaced expected to be shorter than original enc")
 
-	rextA, rextS, err := replaced.ExtractPlainKeys()
+	keyI := 0
+	replacedBack, err := replaced.ReplacePlainKeys(nil, func(key []byte, isStorage bool) ([]byte, error) {
+		require.EqualValues(t, oldKeys[keyI][:4], key[:4])
+		defer func() { keyI++ }()
+		return oldKeys[keyI], nil
+	})
+	require.NoError(t, err)
+	require.EqualValues(t, original, replacedBack)
+
+	t.Run("merge replaced and original back", func(t *testing.T) {
+		orig := common.Copy(original)
+
+		merged, err := replaced.MergeHexBranches(original, nil)
+		require.NoError(t, err)
+		require.EqualValues(t, orig, merged)
+
+		merged, err = merged.MergeHexBranches(replacedBack, nil)
+		require.NoError(t, err)
+		require.EqualValues(t, orig, merged)
+	})
+}
+
+func TestBranchData_ReplacePlainKeys_WithEmpty(t *testing.T) {
+	row, bm := generateCellRow(t, 16)
+
+	cg := func(nibble int, skip bool) (*Cell, error) {
+		return row[nibble], nil
+	}
+
+	be := NewBranchEncoder(1024, t.TempDir())
+	enc, _, err := be.EncodeBranch(bm, bm, bm, cg)
 	require.NoError(t, err)
 
-	for _, apk := range shortApk {
-		require.Containsf(t, rextA, apk, "expected %x to be in replaced account keys", apk)
-	}
-	for _, spk := range shortSpk {
-		require.Containsf(t, rextS, spk, "expected %x to be in replaced storage keys", spk)
-	}
-	require.True(t, len(shortApk) == len(rextA))
-	require.True(t, len(shortSpk) == len(rextS))
+	original := common.Copy(enc)
+
+	target := make([]byte, 0, len(enc))
+	oldKeys := make([][]byte, 0)
+	replaced, err := enc.ReplacePlainKeys(target, func(key []byte, isStorage bool) ([]byte, error) {
+		oldKeys = append(oldKeys, key)
+		if isStorage {
+			return nil, nil
+		}
+		return nil, nil
+	})
+	require.NoError(t, err)
+	require.EqualValuesf(t, len(enc), len(replaced), "replaced expected to be equal to origin (since no replacements were made)")
+
+	keyI := 0
+	replacedBack, err := replaced.ReplacePlainKeys(nil, func(key []byte, isStorage bool) ([]byte, error) {
+		require.EqualValues(t, oldKeys[keyI][:4], key[:4])
+		defer func() { keyI++ }()
+		return oldKeys[keyI], nil
+	})
+	require.NoError(t, err)
+	require.EqualValues(t, original, replacedBack)
+
+	t.Run("merge replaced and original back", func(t *testing.T) {
+		orig := common.Copy(original)
+
+		merged, err := replaced.MergeHexBranches(original, nil)
+		require.NoError(t, err)
+		require.EqualValues(t, orig, merged)
+
+		merged, err = merged.MergeHexBranches(replacedBack, nil)
+		require.NoError(t, err)
+		require.EqualValues(t, orig, merged)
+	})
 }

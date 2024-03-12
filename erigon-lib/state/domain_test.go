@@ -634,7 +634,7 @@ func collateAndMerge(t *testing.T, db kv.RwDB, tx kv.RwTx, d *Domain, txs uint64
 				return true
 			}
 			valuesOuts, indexOuts, historyOuts, _ := dc.staticFilesInRange(r)
-			valuesIn, indexIn, historyIn, err := dc.mergeFiles(ctx, valuesOuts, indexOuts, historyOuts, r, background.NewProgressSet())
+			valuesIn, indexIn, historyIn, err := dc.mergeFiles(ctx, valuesOuts, indexOuts, historyOuts, r, nil, background.NewProgressSet())
 			require.NoError(t, err)
 			if valuesIn != nil && valuesIn.decompressor != nil {
 				fmt.Printf("merge: %s\n", valuesIn.decompressor.FileName())
@@ -681,7 +681,7 @@ func collateAndMergeOnce(t *testing.T, d *Domain, tx kv.RwTx, step uint64) {
 			break
 		}
 		valuesOuts, indexOuts, historyOuts, _ := dc.staticFilesInRange(r)
-		valuesIn, indexIn, historyIn, err := dc.mergeFiles(ctx, valuesOuts, indexOuts, historyOuts, r, background.NewProgressSet())
+		valuesIn, indexIn, historyIn, err := dc.mergeFiles(ctx, valuesOuts, indexOuts, historyOuts, r, nil, background.NewProgressSet())
 		require.NoError(t, err)
 
 		d.integrateMergedFiles(valuesOuts, indexOuts, historyOuts, valuesIn, indexIn, historyIn)
@@ -1284,7 +1284,7 @@ func TestDomainContext_getFromFiles(t *testing.T) {
 		ranges := dc.findMergeRange(txFrom, txTo)
 		vl, il, hl, _ := dc.staticFilesInRange(ranges)
 
-		dv, di, dh, err := dc.mergeFiles(ctx, vl, il, hl, ranges, ps)
+		dv, di, dh, err := dc.mergeFiles(ctx, vl, il, hl, ranges, nil, ps)
 		require.NoError(t, err)
 
 		d.integrateMergedFiles(vl, il, hl, dv, di, dh)
@@ -1528,7 +1528,6 @@ func TestDomain_PruneAfterAggregation(t *testing.T) {
 	d.historyLargeValues = false
 	d.History.compression = CompressKeys | CompressVals
 	d.compression = CompressKeys | CompressVals
-	d.withExistenceIndex = true
 
 	dc := d.MakeContext()
 	defer dc.Close()
@@ -2248,4 +2247,71 @@ func TestDomain_PruneSimple(t *testing.T) {
 
 		checkKeyPruned(t, dc, db, stepSize, pruneFrom, pruneTo)
 	})
+}
+
+func TestShortenedKeyEncodeDecode(t *testing.T) {
+	tests := []struct {
+		name     string
+		stepFrom uint64
+		stepTo   uint64
+		offset   uint64
+	}{
+		{"Basic case", 0, 2, 1234567890},
+		{"Min step and offset", 1 << 20, 1 << 30, 0},
+		{"Max step", 1 << 10, math.MaxUint64, 1234567890},
+		{"Max offset", 1, 1 << 40, math.MaxUint64},
+		{"Max everything", math.MaxUint64 - 2, math.MaxUint64, math.MaxUint64},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := make([]byte, 2) // Adjust size based on how encodeU64 works
+
+			encoded := encodeShortenedKey(buf, tt.stepFrom, tt.stepTo, tt.offset)
+
+			decodedStepFrom, decodedStepTo, decodedOffset := decodeShortenedKey(encoded)
+
+			require.EqualValues(t, tt.stepFrom, decodedStepFrom)
+			require.EqualValues(t, tt.stepTo, decodedStepTo)
+			require.EqualValues(t, tt.offset, decodedOffset)
+			t.Logf("encoded size %d (s0=%d s1=%d of=%d)", len(encoded), decodedStepFrom, decodedStepTo, decodedOffset)
+		})
+	}
+
+	t.Run("ShortenedKeyInvalidInput", func(t *testing.T) {
+		// Expecting this to not panic
+		_, _, _ = decodeShortenedKey([]byte{})
+	})
+
+	t.Run("EncodeShortenedKeyInvalidInput", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("with nil input")
+			}
+		}()
+		step := uint64(1)
+		stepTo := uint64(20489)
+		offset := uint64(100)
+
+		shortened := encodeShortenedKey(nil, step, stepTo, offset) // This should not panic
+		rstep, _, rofft := decodeShortenedKey(shortened)
+		require.EqualValues(t, step, rstep)
+		require.EqualValues(t, offset, rofft)
+	})
+}
+
+func TestDomainContext_findShortenedKey(t *testing.T) {
+
+	db, d := testDbAndDomain(t, log.New())
+
+	tx, err := db.BeginRw(context.Background())
+	require.NoError(t, err)
+	defer tx.Rollback()
+
+	d.historyLargeValues = true
+	dc := d.MakeContext()
+	defer dc.Close()
+	writer := dc.NewWriter()
+	defer writer.close()
+
 }
