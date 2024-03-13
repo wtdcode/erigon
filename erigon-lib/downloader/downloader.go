@@ -2188,6 +2188,7 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	defer logEvery.Stop()
 
 	eg, ctx := errgroup.WithContext(d.ctx)
+	eg.SetLimit(10)
 
 	files, err := AllTorrentSpecs(d.cfg.Dirs, d.torrentFiles)
 	if err != nil {
