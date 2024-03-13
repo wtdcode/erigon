@@ -372,9 +372,6 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 		trackers := ts.Trackers
 		ts.Trackers, ts.Webseeds = nil, nil
 		ts.DisallowDataUpload = true
-
-		ts.Trackers = nil
-		ts.DisallowDataUpload = true
 		t, _, err = torrentClient.AddTorrentSpec(ts)
 		if err != nil {
 			return t, true, fmt.Errorf("add torrent file %s: %w", ts.DisplayName, err)
