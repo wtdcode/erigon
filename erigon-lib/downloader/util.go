@@ -341,7 +341,7 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 	if !IsSnapNameAllowed(ts.DisplayName) {
 		return nil, false, nil
 	}
-	webseedsList, _ := webseeds.ByFileName(ts.DisplayName)
+	ts.Webseeds, _ := webseeds.ByFileName(ts.DisplayName)
 	var have bool
 	t, have = torrentClient.Torrent(ts.InfoHash)
 	if !have {
