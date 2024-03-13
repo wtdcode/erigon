@@ -2224,7 +2224,7 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 			return nil
 		})
 	}
-	return nil
+	return eg.Wait()
 }
 func (d *Downloader) BuildTorrentFilesIfNeed(ctx context.Context, chain string, ignore snapcfg.Preverified) error {
 	return BuildTorrentFilesIfNeed(ctx, d.cfg.Dirs, d.torrentFiles, chain, ignore)
