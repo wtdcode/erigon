@@ -2255,6 +2255,8 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 			}
 		}
 
+		ts := ts
+		i := i
 		eg.Go(func() error {
 			_, _, err := addTorrentFile(ctx, ts, d.torrentClient, d.db, d.webseeds)
 			if err != nil {
@@ -2325,7 +2327,7 @@ func openClient(ctx context.Context, dbDir, snapDir string, cfg *torrent.ClientC
 		PageSize(uint64(4 * datasize.KB)).
 		WriteMap().
 		LifoReclaim().
-		RoTxsLimiter(semaphore.NewWeighted(9000)).
+		RoTxsLimiter(semaphore.NewWeighted(9_000)).
 		Path(dbDir).
 		Open(ctx)
 	if err != nil {
