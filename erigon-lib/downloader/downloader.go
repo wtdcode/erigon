@@ -2187,6 +2187,8 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	logEvery := time.NewTicker(20 * time.Second)
 	defer logEvery.Stop()
 
+	eg, ctx := errgroup.WithContext(d.ctx)
+
 	files, err := AllTorrentSpecs(d.cfg.Dirs, d.torrentFiles)
 	if err != nil {
 		return err
@@ -2207,18 +2209,20 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 		//	}
 		//}
 
-		_, _, err := addTorrentFile(d.ctx, ts, d.torrentClient, d.db, d.webseeds)
-
-		if err != nil {
-			return err
-		}
-		select {
-		case <-logEvery.C:
-			if !quiet {
-				log.Info("[snapshots] Adding .torrent files", "progress", fmt.Sprintf("%d/%d", i, len(files)))
+		eg.Go(func() error {
+			_, _, err := addTorrentFile(ctx, ts, d.torrentClient, d.db, d.webseeds)
+			if err != nil {
+				return err
 			}
-		default:
-		}
+			select {
+			case <-logEvery.C:
+				if !quiet {
+					log.Info("[snapshots] Adding .torrent files", "progress", fmt.Sprintf("%d/%d", i, len(files)))
+				}
+			default:
+			}
+			return nil
+		})
 	}
 	return nil
 }
