@@ -341,15 +341,20 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 	if !IsSnapNameAllowed(ts.DisplayName) {
 		return nil, false, nil
 	}
-	ts.Webseeds, _ = webseeds.ByFileName(ts.DisplayName)
+	webseedsList, _ := webseeds.ByFileName(ts.DisplayName)
 	var have bool
 	t, have = torrentClient.Torrent(ts.InfoHash)
-
 	if !have {
+		trackers := ts.Trackers
+		ts.Trackers, ts.Webseeds = nil, nil
+		ts.DisallowDataUpload = true
 		t, _, err := torrentClient.AddTorrentSpec(ts)
 		if err != nil {
 			return nil, false, fmt.Errorf("addTorrentFile %s: %w", ts.DisplayName, err)
 		}
+		t.AddTrackers(trackers)
+		t.AddWebSeeds(webseedsList)
+		t.AllowDataUpload()
 
 		if err := db.Update(ctx, torrentInfoUpdater(ts.DisplayName, ts.InfoHash.Bytes(), 0, nil)); err != nil {
 			return nil, false, fmt.Errorf("addTorrentFile %s: %w", ts.DisplayName, err)
@@ -364,10 +369,19 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 			return nil, false, fmt.Errorf("update torrent info %s: %w", ts.DisplayName, err)
 		}
 	} else {
+		trackers := ts.Trackers
+		ts.Trackers, ts.Webseeds = nil, nil
+		ts.DisallowDataUpload = true
+
+		ts.Trackers = nil
+		ts.DisallowDataUpload = true
 		t, _, err = torrentClient.AddTorrentSpec(ts)
 		if err != nil {
 			return t, true, fmt.Errorf("add torrent file %s: %w", ts.DisplayName, err)
 		}
+		t.AddTrackers(trackers)
+		t.AddWebSeeds(webseedsList)
+		t.AllowDataUpload()
 
 		if err := db.Update(ctx, torrentInfoUpdater(ts.DisplayName, ts.InfoHash.Bytes(), 0, nil)); err != nil {
 			return nil, false, fmt.Errorf("addTorrentFile %s: %w", ts.DisplayName, err)
