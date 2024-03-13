@@ -18,7 +18,7 @@ import (
 )
 
 type Service interface {
-	GetSync() *Sync
+	Run(ctx context.Context) error
 }
 
 type service struct {
@@ -40,15 +40,17 @@ func NewService(
 ) Service {
 	execution := NewExecutionClient(engine)
 	storage := NewStorage(execution, maxPeers)
-	verify := VerifyAccumulatedHeaders
+	headersVerifier := VerifyAccumulatedHeaders
+	blocksVerifier := VerifyBlocks
 	p2pService := p2p.NewService(maxPeers, logger, sentryClient)
 	heimdallClient := heimdall.NewHeimdallClient(heimdallURL, logger)
 	heimdallService := heimdall.NewHeimdallNoStore(heimdallClient, logger)
-	downloader := NewHeaderDownloader(
+	blockDownloader := NewBlockDownloader(
 		logger,
 		p2pService,
 		heimdallService,
-		verify,
+		headersVerifier,
+		blocksVerifier,
 		storage,
 	)
 	spansCache := NewSpansCache()
@@ -76,9 +78,10 @@ func NewService(
 	sync := NewSync(
 		storage,
 		execution,
-		verify,
+		headersVerifier,
+		blocksVerifier,
 		p2pService,
-		downloader,
+		blockDownloader,
 		ccBuilderFactory,
 		spansCache,
 		heimdallService.FetchLatestSpan,
@@ -93,18 +96,15 @@ func NewService(
 	}
 }
 
-func (s *service) GetSync() *Sync {
-	return s.sync
-}
-
 func (s *service) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	var serviceErr error
 
-	s.p2pService.Start(ctx)
-	defer s.p2pService.Stop()
+	go func() {
+		s.p2pService.Run(ctx)
+	}()
 
 	go func() {
 		err := s.storage.Run(ctx)
@@ -122,10 +122,19 @@ func (s *service) Run(ctx context.Context) error {
 		}
 	}()
 
+	go func() {
+		err := s.sync.Run(ctx)
+		if (err != nil) && (ctx.Err() == nil) {
+			serviceErr = err
+			cancel()
+		}
+	}()
+
 	<-ctx.Done()
 
 	if serviceErr != nil {
 		return serviceErr
 	}
+
 	return ctx.Err()
 }
