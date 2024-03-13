@@ -204,7 +204,7 @@ func Downloader(ctx context.Context, logger log.Logger) error {
 		return err
 	}
 
-	cfg.ClientConfig.PieceHashersPerTorrent = (2000 / downloader.ParallelVerifyFiles)
+	cfg.ClientConfig.PieceHashersPerTorrent = (1000 / downloader.ParallelVerifyFiles)
 	cfg.ClientConfig.DisableIPv6 = disableIPV6
 	cfg.ClientConfig.DisableIPv4 = disableIPV4
 
