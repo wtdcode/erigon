@@ -2195,6 +2195,7 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 		return err
 	}
 
+	// a bit reduce mutex contention inside torrentClient
 	for _, ts := range files {
 		ts.Trackers = nil
 		ts.DisallowDataDownload = true
@@ -2291,6 +2292,7 @@ func openClient(ctx context.Context, dbDir, snapDir string, cfg *torrent.ClientC
 		GrowthStep(16 * datasize.MB).
 		MapSize(16 * datasize.GB).
 		PageSize(uint64(8 * datasize.KB)).
+		WriteMap().
 		Path(dbDir).
 		Open(ctx)
 	if err != nil {
