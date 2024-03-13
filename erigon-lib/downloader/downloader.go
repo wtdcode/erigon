@@ -2291,14 +2291,14 @@ func openClient(ctx context.Context, dbDir, snapDir string, cfg *torrent.ClientC
 		WithTableCfg(func(defaultBuckets kv.TableCfg) kv.TableCfg { return kv.DownloaderTablesCfg }).
 		GrowthStep(16 * datasize.MB).
 		MapSize(16 * datasize.GB).
-		PageSize(uint64(8 * datasize.KB)).
+		PageSize(uint64(4 * datasize.KB)).
 		WriteMap().
 		Path(dbDir).
 		Open(ctx)
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("torrentcfg.openClient: %w", err)
 	}
-	c, err = NewMdbxPieceCompletion(db)
+	c, err = NewMdbxPieceCompletion(db, ctx)
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("torrentcfg.NewMdbxPieceCompletion: %w", err)
 	}

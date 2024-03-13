@@ -32,18 +32,19 @@ const (
 )
 
 type mdbxPieceCompletion struct {
-	db kv.RwDB
+	db  kv.RwDB
+	ctx context.Context
 }
 
 var _ storage.PieceCompletion = (*mdbxPieceCompletion)(nil)
 
-func NewMdbxPieceCompletion(db kv.RwDB) (ret storage.PieceCompletion, err error) {
-	ret = &mdbxPieceCompletion{db: db}
+func NewMdbxPieceCompletion(db kv.RwDB, ctx context.Context) (ret storage.PieceCompletion, err error) {
+	ret = &mdbxPieceCompletion{db: db, ctx: ctx}
 	return
 }
 
 func (m mdbxPieceCompletion) Get(pk metainfo.PieceKey) (cn storage.Completion, err error) {
-	err = m.db.View(context.Background(), func(tx kv.Tx) error {
+	err = m.db.View(m.ctx, func(tx kv.Tx) error {
 		var key [infohash.Size + 4]byte
 		copy(key[:], pk.InfoHash[:])
 		binary.BigEndian.PutUint32(key[infohash.Size:], uint32(pk.Index))
@@ -83,12 +84,12 @@ func (m mdbxPieceCompletion) Set(pk metainfo.PieceKey, b bool) error {
 	//  1K fsyncs/2minutes it's quite expensive, but even on cloud (high latency) drive it allow download 100mb/s
 	//  and Erigon doesn't do anything when downloading snapshots
 	if b {
-		tx, err = m.db.BeginRwNosync(context.Background())
+		tx, err = m.db.BeginRwNosync(m.ctx)
 		if err != nil {
 			return err
 		}
 	} else {
-		tx, err = m.db.BeginRw(context.Background())
+		tx, err = m.db.BeginRw(m.ctx)
 		if err != nil {
 			return err
 		}
