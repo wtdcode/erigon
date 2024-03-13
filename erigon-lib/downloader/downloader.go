@@ -380,7 +380,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 	var downloadsMutex sync.Mutex
 
 	g, ctx := errgroup.WithContext(ctx)
-	g.SetLimit(runtime.GOMAXPROCS(-1) * 4)
+	g.SetLimit(ParallelVerifyFiles)
 	var i atomic.Int32
 
 	logEvery := time.NewTicker(20 * time.Second)
@@ -668,7 +668,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 		// will impact start times depending on the amount of non complete files - should
 		// be low unless the download db is deleted - in which case all files may be checked
 		checkGroup, _ := errgroup.WithContext(d.ctx)
-		checkGroup.SetLimit(runtime.GOMAXPROCS(-1) * 4)
+		checkGroup.SetLimit(ParallelVerifyFiles)
 
 		for {
 			torrents := d.torrentClient.Torrents()
@@ -2183,12 +2183,14 @@ func seedableFiles(dirs datadir.Dirs, chainName string) ([]string, error) {
 	return files, nil
 }
 
+const ParallelVerifyFiles = 4 // keep it small, to allow big `PieceHashersPerTorrent`
+
 func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	logEvery := time.NewTicker(20 * time.Second)
 	defer logEvery.Stop()
 
 	eg, ctx := errgroup.WithContext(d.ctx)
-	eg.SetLimit(10)
+	eg.SetLimit(ParallelVerifyFiles)
 
 	files, err := AllTorrentSpecs(d.cfg.Dirs, d.torrentFiles)
 	if err != nil {
