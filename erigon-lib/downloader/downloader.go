@@ -962,16 +962,16 @@ func (d *Downloader) mainLoop(silent bool) error {
 							d.logger.Debug("[snapshots] Can't update torrent info", "file", t.Name(), "hash", t.InfoHash(), "err", err)
 						}
 
-						if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-							d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-							continue
-						}
+						//if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
+						//	d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
+						//	continue
+						//}
 					}
 				} else {
-					if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-						d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-						continue
-					}
+					//if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
+					//	d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
+					//	continue
+					//}
 				}
 
 				switch {
@@ -1158,7 +1158,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 }
 
 func localHashCompletionCheck(ctx context.Context, t *torrent.Torrent, fileInfo snaptype.FileInfo, statusChan chan downloadStatus) ([]byte, bool) {
-	defer func(t time.Time) { fmt.Printf("downloader.go:1148: %s, %s\n", time.Since(t), fileInfo.Name()) }(time.Now())
 	localHash, err := fileHashBytes(ctx, fileInfo)
 
 	if err == nil {
