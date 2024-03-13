@@ -2187,7 +2187,7 @@ func seedableFiles(dirs datadir.Dirs, chainName string) ([]string, error) {
 	return files, nil
 }
 
-const ParallelVerifyFiles = 4 // keep it small, to allow big `PieceHashersPerTorrent`. More `PieceHashersPerTorrent` - faster handling of big files.
+const ParallelVerifyFiles = 2 // keep it small, to allow big `PieceHashersPerTorrent`. More `PieceHashersPerTorrent` - faster handling of big files.
 
 func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	logEvery := time.NewTicker(20 * time.Second)
