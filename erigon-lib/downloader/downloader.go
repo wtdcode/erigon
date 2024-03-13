@@ -2194,6 +2194,19 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	if err != nil {
 		return err
 	}
+
+	for _, ts := range files {
+		ts.Trackers = nil
+		ts.DisallowDataDownload = true
+	}
+	defer func() {
+		tl := d.torrentClient.Torrents()
+		for _, t := range tl {
+			t.AllowDataUpload()
+			t.AddTrackers(Trackers)
+		}
+	}()
+
 	for i, ts := range files {
 		//TODO: why we depend on Stat? Did you mean `dir.FileExist()` ? How it can be false here?
 		//TODO: What this code doing? Why delete something from db?
