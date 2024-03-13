@@ -930,50 +930,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 
 			for _, t := range available {
 
-				torrentInfo, _ := d.torrentInfo(t.Name())
-				fileInfo, _, ok := snaptype.ParseFileName(d.SnapDir(), t.Name())
-				if !ok {
-					continue
-				}
-
-				if torrentInfo != nil && torrentInfo.Completed != nil {
-					if bytes.Equal(t.InfoHash().Bytes(), torrentInfo.Hash) {
-						if dir.FileExist(filepath.Join(d.SnapDir(), t.Name())) {
-							/* TODO: this method is too heavy for Main loop: "re-read file again and again" will impact sync performance
-							localHash, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete)
-
-							if complete {
-								d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-								continue
-							}
-
-							failed[t.Name()] = struct{}{}
-							d.logger.Debug("[snapshots] NonCanonical hash", "file", t.Name(), "got", hex.EncodeToString(localHash), "expected", t.InfoHash(), "downloaded", *torrentInfo.Completed)
-							*/
-							continue
-
-						} else {
-							if err := d.db.Update(d.ctx, torrentInfoReset(t.Name(), t.InfoHash().Bytes(), 0)); err != nil {
-								d.logger.Debug("[snapshots] Can't reset torrent info", "file", t.Name(), "hash", t.InfoHash(), "err", err)
-							}
-						}
-					} else {
-						if err := d.db.Update(d.ctx, torrentInfoReset(t.Name(), t.InfoHash().Bytes(), 0)); err != nil {
-							d.logger.Debug("[snapshots] Can't update torrent info", "file", t.Name(), "hash", t.InfoHash(), "err", err)
-						}
-
-						//if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-						//	d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-						//	continue
-						//}
-					}
-				} else {
-					//if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-					//	d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-					//	continue
-					//}
-				}
-
 				switch {
 				case len(t.PeerConns()) > 0:
 					d.logger.Debug("[snapshots] Downloading from torrent", "file", t.Name(), "peers", len(t.PeerConns()))
