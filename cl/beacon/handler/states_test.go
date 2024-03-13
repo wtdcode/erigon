@@ -21,7 +21,7 @@ import (
 func TestGetStateFork(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.Phase0Version, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.Phase0Version, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -79,7 +79,7 @@ func TestGetStateFork(t *testing.T) {
 func TestGetStateRoot(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.Phase0Version, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.Phase0Version, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestGetStateRoot(t *testing.T) {
 func TestGetStateFullHistorical(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.Phase0Version, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.Phase0Version, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -204,7 +204,7 @@ func TestGetStateFullHistorical(t *testing.T) {
 func TestGetStateFullForkchoice(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.Phase0Version, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.Phase0Version, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -273,7 +273,7 @@ func TestGetStateFullForkchoice(t *testing.T) {
 func TestGetStateSyncCommittees(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -338,7 +338,7 @@ func TestGetStateSyncCommittees(t *testing.T) {
 func TestGetStateSyncCommitteesHistorical(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -395,7 +395,7 @@ func TestGetStateSyncCommitteesHistorical(t *testing.T) {
 func TestGetStateFinalityCheckpoints(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
@@ -452,7 +452,7 @@ func TestGetStateFinalityCheckpoints(t *testing.T) {
 func TestGetRandao(t *testing.T) {
 
 	// setupTestingHandler(t, clparams.Phase0Version)
-	_, blocks, _, _, postState, handler, _, _, fcu := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
+	_, blocks, _, _, postState, handler, _, _, fcu, _ := setupTestingHandler(t, clparams.BellatrixVersion, log.Root())
 
 	postRoot, err := postState.HashSSZ()
 	require.NoError(t, err)
