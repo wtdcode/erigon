@@ -706,28 +706,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 				pending = append(pending, t)
 			}
 
-			select {
-			case <-d.ctx.Done():
-				return
-			case status := <-downloadComplete:
-				d.lock.Lock()
-				delete(d.downloading, status.name)
-				d.lock.Unlock()
-
-				delete(checking, status.name)
-
-				if status.spec != nil {
-					_, _, err := d.torrentClient.AddTorrentSpec(status.spec)
-
-					if err != nil {
-						d.logger.Warn("Can't re-add spec after download", "file", status.name, "err", err)
-					}
-
-				}
-
-			default:
-			}
-
 			d.lock.RLock()
 			webDownloadInfoLen := len(d.webDownloadInfo)
 			d.lock.RUnlock()
@@ -749,7 +727,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 			available := availableTorrents(d.ctx, pending, d.cfg.DownloadSlots-downloadingLen)
 
 			for _, t := range available {
-				d.torrentDownload(t, downloadComplete, sem)
+				d.torrentDownload(t, sem)
 			}
 		}
 	}()
@@ -964,7 +942,7 @@ func getWebpeerTorrentInfo(ctx context.Context, downloadUrl *url.URL) (*metainfo
 	return metainfo.Load(torrentResponse.Body)
 }
 
-func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloadStatus, sem *semaphore.Weighted) {
+func (d *Downloader) torrentDownload(t *torrent.Torrent, sem *semaphore.Weighted) {
 
 	d.lock.Lock()
 	d.downloading[t.Name()] = struct{}{}
