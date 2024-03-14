@@ -2285,7 +2285,7 @@ func openClient(ctx context.Context, dbDir, snapDir string, cfg *torrent.ClientC
 		MapSize(16 * datasize.GB).
 		PageSize(uint64(4 * datasize.KB)).
 		WriteMap().
-		LifoReclaim().
+		//LifoReclaim().
 		RoTxsLimiter(semaphore.NewWeighted(9_000)).
 		Path(dbDir).
 		Open(ctx)
