@@ -659,46 +659,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 				_, downloading := d.downloading[t.Name()]
 				d.lock.RUnlock()
 
-				if downloading && t.Complete.Bool() {
-					select {
-					case <-d.ctx.Done():
-						return
-					case <-t.GotInfo():
-					}
-
-					var completionTime *time.Time
-					fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), t.Name())
-
-					info, err := d.torrentInfo(t.Name())
-
-					if err == nil {
-						completionTime = info.Completed
-					}
-
-					if completionTime == nil {
-						now := time.Now()
-						completionTime = &now
-					}
-
-					if statInfo, _ := os.Stat(fileInfo.Path); statInfo != nil {
-						if !statInfo.ModTime().Equal(*completionTime) {
-							os.Chtimes(fileInfo.Path, time.Time{}, *completionTime)
-						}
-
-						if statInfo, _ := os.Stat(fileInfo.Path); statInfo != nil {
-							// round completion time to os granularity
-							modTime := statInfo.ModTime()
-							completionTime = &modTime
-						}
-					}
-
-					d.lock.Lock()
-					delete(d.downloading, t.Name())
-					d.lock.Unlock()
-					complete[t.Name()] = struct{}{}
-					continue
-				}
-
 				if downloading {
 					continue
 				}
