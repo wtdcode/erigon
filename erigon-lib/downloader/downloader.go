@@ -803,42 +803,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 
 			available := availableTorrents(d.ctx, pending, d.cfg.DownloadSlots-downloadingLen)
 
-			d.lock.RLock()
-			for _, webDownload := range d.webDownloadInfo {
-				_, downloading := d.downloading[webDownload.torrent.Name()]
-
-				if downloading {
-					continue
-				}
-
-				addDownload := true
-
-				for _, t := range available {
-					if t.Name() == webDownload.torrent.Name() {
-						addDownload = false
-						break
-					}
-				}
-
-				if addDownload {
-					if len(available) < d.cfg.DownloadSlots-downloadingLen {
-						available = append(available, webDownload.torrent)
-					}
-				} else {
-					wi, _, _ := snaptype.ParseFileName(d.SnapDir(), webDownload.torrent.Name())
-
-					for i, t := range available {
-						ai, _, _ := snaptype.ParseFileName(d.SnapDir(), t.Name())
-
-						if ai.CompareTo(wi) > 0 {
-							available[i] = webDownload.torrent
-							break
-						}
-					}
-				}
-			}
-			d.lock.RUnlock()
-
 			for _, t := range available {
 				d.torrentDownload(t, downloadComplete, sem)
 			}
