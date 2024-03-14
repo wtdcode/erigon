@@ -603,6 +603,7 @@ func fileHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, stats *AggSt
 		stats.LocalFileHashes++
 		stats.LocalFileHashTime += time.Since(t)
 	}(time.Now())
+	fmt.Printf("start fileHashBytes: %s, %s\n", fileInfo.Name(), dbg.Stack())
 	defer func(t time.Time) {
 		fmt.Printf("downloader.go:606: %s, %s, %s\n", time.Since(t), fileInfo.Name(), dbg.Stack())
 	}(time.Now())
