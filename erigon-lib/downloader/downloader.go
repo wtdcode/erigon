@@ -41,7 +41,6 @@ import (
 	"github.com/anacrolix/torrent/storage"
 	"github.com/anacrolix/torrent/types/infohash"
 	"github.com/c2h5oh/datasize"
-	dir2 "github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/tidwall/btree"
 	"golang.org/x/exp/slices"
@@ -114,6 +113,8 @@ type AggStats struct {
 
 	BytesDownload, BytesUpload uint64
 	UploadRate, DownloadRate   uint64
+	LocalFileHashes            int
+	LocalFileHashTime          time.Duration
 }
 
 func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger log.Logger, verbosity log.Lvl, discover bool) (*Downloader, error) {
@@ -133,7 +134,10 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 		}
 	}
 
-	lock, err := getSnapshotLock(ctx, cfg, db, logger)
+	mutex := &sync.RWMutex{}
+	var stats AggStats
+
+	lock, err := getSnapshotLock(ctx, cfg, db, &stats, mutex, logger)
 
 	if err != nil {
 		return nil, fmt.Errorf("can't initialize snapshot lock: %w", err)
@@ -145,7 +149,8 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 		pieceCompletionDB:   c,
 		folder:              m,
 		torrentClient:       torrentClient,
-		lock:                &sync.RWMutex{},
+		lock:                mutex,
+		stats:               stats,
 		webseeds:            &WebSeeds{logger: logger, verbosity: verbosity, downloadTorrentFile: cfg.DownloadTorrentFilesFromWebseed, torrentsWhitelist: lock.Downloads},
 		logger:              logger,
 		verbosity:           verbosity,
@@ -194,10 +199,10 @@ type snapshotLock struct {
 	Downloads snapcfg.Preverified `json:"downloads"`
 }
 
-func getSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, logger log.Logger) (*snapshotLock, error) {
+func getSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, stats *AggStats, statsLock *sync.RWMutex, logger log.Logger) (*snapshotLock, error) {
 	//TODO: snapshots-lock.json must be created after 1-st download done
 	//TODO: snapshots-lock.json is not compatible with E3 .kv files - because they are not immutable (merging to infinity)
-	return initSnapshotLock(ctx, cfg, db, logger)
+	return initSnapshotLock(ctx, cfg, db, stats, statsLock, logger)
 	/*
 		if !cfg.SnapshotLock {
 			return initSnapshotLock(ctx, cfg, db, logger)
@@ -291,7 +296,7 @@ func getSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, lo
 	*/
 }
 
-func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, logger log.Logger) (*snapshotLock, error) {
+func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, stats *AggStats, statsLock *sync.RWMutex, logger log.Logger) (*snapshotLock, error) {
 	lock := &snapshotLock{
 		Chain: cfg.ChainName,
 	}
@@ -370,7 +375,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 			}
 
 			if preverified, ok := snapCfg.Preverified.Get(fileInfo.Name()); ok {
-				hashBytes, err := localHashBytes(ctx, fileInfo, db)
+				hashBytes, err := localHashBytes(ctx, fileInfo, db, stats, statsLock)
 
 				if err != nil {
 					return fmt.Errorf("localHashBytes: %w", err)
@@ -401,7 +406,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 					return versioned
 				}()
 
-				hashBytes, err := localHashBytes(ctx, fileInfo, db)
+				hashBytes, err := localHashBytes(ctx, fileInfo, db, stats, statsLock)
 
 				if err != nil {
 					return fmt.Errorf("localHashBytes: %w", err)
@@ -433,7 +438,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 						return versioned
 					}()
 
-					hashBytes, err := localHashBytes(ctx, fileInfo, db)
+					hashBytes, err := localHashBytes(ctx, fileInfo, db, stats, statsLock)
 
 					if err != nil {
 						return err
@@ -498,7 +503,7 @@ func initSnapshotLock(ctx context.Context, cfg *downloadercfg.Cfg, db kv.RoDB, l
 	return lock, nil
 }
 
-func localHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, db kv.RoDB) ([]byte, error) {
+func localHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, db kv.RoDB, stats *AggStats, statsLock *sync.RWMutex) ([]byte, error) {
 	var hashBytes []byte
 
 	if db != nil {
@@ -540,11 +545,23 @@ func localHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, db kv.RoDB)
 		}
 	}
 
-	return fileHashBytes(ctx, fileInfo)
+	return fileHashBytes(ctx, fileInfo, stats, statsLock)
 }
 
-func fileHashBytes(ctx context.Context, fileInfo snaptype.FileInfo) ([]byte, error) {
+func fileHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, stats *AggStats, statsLock *sync.RWMutex) ([]byte, error) {
+
+	if !dir.FileExist(fileInfo.Path) {
+		return nil, os.ErrNotExist
+	}
+
+	defer func(t time.Time) {
+		statsLock.Lock()
+		defer statsLock.Unlock()
+		stats.LocalFileHashes++
+		stats.LocalFileHashTime += time.Since(t)
+	}(time.Now())
 	panic(1)
+
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fileInfo.Name()}
 
 	if err := info.BuildFromFilePath(fileInfo.Path); err != nil {
@@ -620,8 +637,8 @@ func (d *Downloader) mainLoop(silent bool) error {
 		complete := map[string]struct{}{}
 		checking := map[string]struct{}{}
 		failed := map[string]struct{}{}
+
 		downloadComplete := make(chan downloadStatus, 100)
-		seedHashMismatches := map[infohash.T][]*seedHash{}
 
 		// set limit here to make load predictable, not to control Disk/CPU consumption
 		// will impact start times depending on the amount of non complete files - should
@@ -658,7 +675,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 
 								go func(fileInfo snaptype.FileInfo, infoHash infohash.T, length int64, completionTime time.Time) {
 									checkGroup.Go(func() error {
-										fileHashBytes, _ := fileHashBytes(d.ctx, fileInfo)
+										fileHashBytes, _ := fileHashBytes(d.ctx, fileInfo, &d.stats, d.lock)
 
 										if bytes.Equal(infoHash.Bytes(), fileHashBytes) {
 											downloadComplete <- downloadStatus{
@@ -823,146 +840,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 			d.lock.RUnlock()
 
 			for _, t := range available {
-
-				torrentInfo, _ := d.torrentInfo(t.Name())
-				fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), t.Name())
-
-				if torrentInfo != nil && torrentInfo.Completed != nil {
-					if bytes.Equal(t.InfoHash().Bytes(), torrentInfo.Hash) {
-						if _, err := os.Stat(filepath.Join(d.SnapDir(), t.Name())); err == nil {
-							localHash, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete)
-
-							if complete {
-								d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-								continue
-							}
-
-							failed[t.Name()] = struct{}{}
-							d.logger.Debug("[snapshots] NonCanonical hash", "file", t.Name(), "got", hex.EncodeToString(localHash), "expected", t.InfoHash(), "downloaded", *torrentInfo.Completed)
-							continue
-
-						}
-					}
-				}
-
-				switch {
-				case len(t.PeerConns()) > 0:
-					d.logger.Debug("[snapshots] Downloading from torrent", "file", t.Name(), "peers", len(t.PeerConns()))
-					d.torrentDownload(t, downloadComplete, sem)
-				case len(t.WebseedPeerConns()) > 0:
-					if d.webDownloadClient != nil {
-						var peerUrls []*url.URL
-
-						for _, peer := range t.WebseedPeerConns() {
-							if peerUrl, err := webPeerUrl(peer); err == nil {
-								peerUrls = append(peerUrls, peerUrl)
-							}
-						}
-
-						d.logger.Debug("[snapshots] Downloading from webseed", "file", t.Name(), "webpeers", len(t.WebseedPeerConns()))
-						session, err := d.webDownload(peerUrls, t, nil, downloadComplete, sem)
-
-						if err != nil {
-							d.logger.Warn("Can't complete web download", "file", t.Info().Name, "err", err)
-
-							if session == nil {
-								d.torrentDownload(t, downloadComplete, sem)
-							}
-
-							continue
-						}
-
-					} else {
-						d.logger.Debug("[snapshots] Downloading from torrent", "file", t.Name(), "peers", len(t.PeerConns()), "webpeers", len(t.WebseedPeerConns()))
-						d.torrentDownload(t, downloadComplete, sem)
-					}
-				default:
-					if d.webDownloadClient != nil {
-						d.lock.RLock()
-						webDownload, ok := d.webDownloadInfo[t.Name()]
-						d.lock.RUnlock()
-
-						if !ok {
-							var mismatches []*seedHash
-							var err error
-
-							webDownload, mismatches, err = d.getWebDownloadInfo(t)
-
-							if err != nil {
-								if len(mismatches) > 0 {
-									seedHashMismatches[t.InfoHash()] = append(seedHashMismatches[t.InfoHash()], mismatches...)
-									logSeedHashMismatches(t.InfoHash(), t.Name(), seedHashMismatches, d.logger)
-								}
-
-								d.logger.Warn("Can't complete web download", "file", t.Info().Name, "err", err)
-								continue
-							}
-						}
-
-						root, _ := path.Split(webDownload.url.String())
-						peerUrl, err := url.Parse(root)
-
-						if err != nil {
-							d.logger.Warn("Can't complete web download", "file", t.Info().Name, "err", err)
-							continue
-						}
-
-						d.lock.Lock()
-						delete(d.webDownloadInfo, t.Name())
-						d.lock.Unlock()
-
-						d.logger.Debug("[snapshots] Downloading from web", "file", t.Name(), "webpeers", len(t.WebseedPeerConns()))
-						d.webDownload([]*url.URL{peerUrl}, t, &webDownload, downloadComplete, sem)
-						continue
-					}
-
-				}
-			}
-
-			d.lock.Lock()
-			lastMetadatUpdate := d.stats.LastMetadataUpdate
-			d.lock.Unlock()
-
-			if lastMetadatUpdate != nil &&
-				((len(available) == 0 && time.Since(*lastMetadatUpdate) > 30*time.Second) ||
-					time.Since(*lastMetadatUpdate) > 5*time.Minute) {
-
-				for _, t := range d.torrentClient.Torrents() {
-					if t.Info() == nil {
-						if isComplete, _, _ := d.checkComplete(t.Name()); isComplete {
-							continue
-						}
-
-						d.lock.RLock()
-						_, ok := d.webDownloadInfo[t.Name()]
-						d.lock.RUnlock()
-
-						if !ok {
-							if _, ok := seedHashMismatches[t.InfoHash()]; ok {
-								continue
-							}
-
-							info, mismatches, err := d.getWebDownloadInfo(t)
-
-							seedHashMismatches[t.InfoHash()] = append(seedHashMismatches[t.InfoHash()], mismatches...)
-
-							if err != nil {
-								if len(mismatches) > 0 {
-									logSeedHashMismatches(t.InfoHash(), t.Name(), seedHashMismatches, d.logger)
-								}
-								continue
-							}
-
-							d.lock.Lock()
-							d.webDownloadInfo[t.Name()] = info
-							d.lock.Unlock()
-						}
-					} else {
-						d.lock.Lock()
-						delete(d.webDownloadInfo, t.Name())
-						d.lock.Unlock()
-					}
-				}
+				d.torrentDownload(t, downloadComplete, sem)
 			}
 		}
 	}()
@@ -1029,8 +907,8 @@ func (d *Downloader) mainLoop(silent bool) error {
 	}
 }
 
-func localHashCompletionCheck(ctx context.Context, t *torrent.Torrent, fileInfo snaptype.FileInfo, statusChan chan downloadStatus) ([]byte, bool) {
-	localHash, err := fileHashBytes(ctx, fileInfo)
+func localHashCompletionCheck(ctx context.Context, t *torrent.Torrent, fileInfo snaptype.FileInfo, statusChan chan downloadStatus, stats *AggStats, statsLock *sync.RWMutex) ([]byte, bool) {
+	localHash, err := fileHashBytes(ctx, fileInfo, stats, statsLock)
 
 	if err == nil {
 		if bytes.Equal(t.InfoHash().Bytes(), localHash) {
@@ -1332,7 +1210,7 @@ func (d *Downloader) webDownload(peerUrls []*url.URL, t *torrent.Torrent, i *web
 			d.logger.Error("Web download failed", "file", name, "err", err)
 		}
 
-		localHash, err := fileHashBytes(d.ctx, info)
+		localHash, err := fileHashBytes(d.ctx, info, &d.stats, d.lock)
 
 		if err == nil {
 			if !bytes.Equal(infoHash.Bytes(), localHash) {
@@ -1577,6 +1455,8 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 			bytesCompleted = bytesRead.Int64()
 		}
 		progress := float32(float64(100) * (float64(bytesCompleted) / float64(tLen)))
+		stats.BytesCompleted += uint64(bytesCompleted)
+		stats.BytesTotal += uint64(tLen)
 
 		for _, peer := range peersOfThisFile {
 			stats.ConnectionsTotal++
@@ -1712,7 +1592,7 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 	}
 
 	if !stats.Completed {
-		d.logger.Debug("[snapshots] info", "len", len(torrents), "webTransfers", webTransfers, "torrent", torrentInfo, "db", dbInfo, "t-complete", tComplete, "db-complete", dbComplete)
+		d.logger.Debug("[snapshots] info", "len", len(torrents), "webTransfers", webTransfers, "torrent", torrentInfo, "db", dbInfo, "t-complete", tComplete, "db-complete", dbComplete, "localHashes", stats.LocalFileHashes, "localHashTime", stats.LocalFileHashTime)
 	}
 
 	if lastMetadataReady != stats.MetadataReady {
