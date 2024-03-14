@@ -597,7 +597,9 @@ func fileHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, stats *AggSt
 		stats.LocalFileHashes++
 		stats.LocalFileHashTime += time.Since(t)
 	}(time.Now())
-
+	defer func(t time.Time) {
+		fmt.Printf("downloader.go:600: %s, %s, %s\n", time.Since(t), fileInfo.Name(), dbg.Stack())
+	}(time.Now())
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fileInfo.Name()}
 
 	if err := info.BuildFromFilePath(fileInfo.Path); err != nil {
