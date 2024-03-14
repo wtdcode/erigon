@@ -1620,6 +1620,7 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 				noMetadata = append(noMetadata, torrentName)
 			}
 
+			progress := float32(float64(100) * (float64(bytesCompleted) / float64(tLen)))
 			if progress == 0 {
 				zeroProgress = append(zeroProgress, torrentName)
 			}
