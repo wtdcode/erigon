@@ -951,6 +951,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 			}
 			d.lock.RUnlock()
 
+			fmt.Printf("[dbg] waiting %s\n", waiting)
 			for _, t := range available {
 
 				torrentInfo, _ := d.torrentInfo(t.Name())
