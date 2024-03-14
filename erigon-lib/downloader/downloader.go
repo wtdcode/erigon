@@ -544,6 +544,7 @@ func localHashBytes(ctx context.Context, fileInfo snaptype.FileInfo, db kv.RoDB)
 }
 
 func fileHashBytes(ctx context.Context, fileInfo snaptype.FileInfo) ([]byte, error) {
+	panic(1)
 	info := &metainfo.Info{PieceLength: downloadercfg.DefaultPieceSize, Name: fileInfo.Name()}
 
 	if err := info.BuildFromFilePath(fileInfo.Path); err != nil {
