@@ -166,42 +166,6 @@ func New(ctx context.Context, cfg *downloadercfg.Cfg, dirs datadir.Dirs, logger 
 	d.ctx, d.stopMainLoop = context.WithCancel(ctx)
 
 	if cfg.AddTorrentsFromDisk {
-		var downloadMismatches []string
-
-		for _, download := range lock.Downloads {
-			if info, err := d.torrentInfo(download.Name); err == nil {
-				if info.Completed != nil {
-					if hash := hex.EncodeToString(info.Hash); download.Hash != hash {
-						fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), download.Name)
-
-						// this is lazy as it can be expensive for large files
-						fileHashBytes, err := fileHashBytes(d.ctx, fileInfo)
-
-						if errors.Is(err, os.ErrNotExist) {
-							hashBytes, _ := hex.DecodeString(download.Hash)
-							if err := d.db.Update(d.ctx, torrentInfoReset(download.Name, hashBytes, 0)); err != nil {
-								d.logger.Debug("[snapshots] Can't update torrent info", "file", download.Name, "hash", download.Hash, "err", err)
-							}
-							continue
-						}
-
-						fileHash := hex.EncodeToString(fileHashBytes)
-
-						if fileHash != download.Hash && fileHash != hash {
-							d.logger.Error("[snapshots] download db mismatch", "file", download.Name, "lock", download.Hash, "db", hash, "disk", fileHash, "downloaded", *info.Completed)
-							downloadMismatches = append(downloadMismatches, download.Name)
-						} else {
-							d.logger.Warn("[snapshots] lock hash does not match completed download", "file", download.Name, "lock", hash, "download", download.Hash, "downloaded", *info.Completed)
-						}
-					}
-				}
-			}
-		}
-
-		if len(downloadMismatches) > 0 {
-			return nil, fmt.Errorf("downloaded files have mismatched hashes: %s", strings.Join(downloadMismatches, ","))
-		}
-
 		//TODO: why do we need it if we have `addTorrentFilesFromDisk`? what if they are conflict?
 		//TODO: why it's before `BuildTorrentFilesIfNeed`? what if they are conflict?
 		//TODO: even if hash is saved in "snapshots-lock.json" - it still must preserve `prohibit_new_downloads.lock` and don't download new files ("user restart" must be fast, "erigon3 has .kv files which never-ending merge and delete small files")
@@ -765,11 +729,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 						}
 					}
 
-					if err := d.db.Update(d.ctx,
-						torrentInfoUpdater(t.Info().Name, nil, t.Info().Length, completionTime)); err != nil {
-						d.logger.Warn("Failed to update file info", "file", t.Info().Name, "err", err)
-					}
-
 					d.lock.Lock()
 					delete(d.downloading, t.Name())
 					d.lock.Unlock()
@@ -801,42 +760,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 						d.logger.Warn("Can't re-add spec after download", "file", status.name, "err", err)
 					}
 
-				}
-
-				if status.err == nil {
-					var completionTime *time.Time
-					fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), status.name)
-
-					if info, err := d.torrentInfo(status.name); err == nil {
-						completionTime = info.Completed
-					}
-
-					if completionTime == nil {
-						now := time.Now()
-						completionTime = &now
-					}
-
-					if statInfo, _ := os.Stat(fileInfo.Path); statInfo != nil {
-						if !statInfo.ModTime().Equal(*completionTime) {
-							os.Chtimes(fileInfo.Path, time.Time{}, *completionTime)
-						}
-
-						if statInfo, _ := os.Stat(fileInfo.Path); statInfo != nil {
-							// round completion time to os granularity
-							modTime := statInfo.ModTime()
-							completionTime = &modTime
-						}
-					}
-
-					if err := d.db.Update(d.ctx,
-						torrentInfoUpdater(status.name, status.infoHash.Bytes(), status.length, completionTime)); err != nil {
-						d.logger.Warn("Failed to update file info", "file", status.name, "err", err)
-					}
-
-					complete[status.name] = struct{}{}
-					continue
-				} else {
-					delete(complete, status.name)
 				}
 
 			default:
@@ -917,25 +840,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 							d.logger.Debug("[snapshots] NonCanonical hash", "file", t.Name(), "got", hex.EncodeToString(localHash), "expected", t.InfoHash(), "downloaded", *torrentInfo.Completed)
 							continue
 
-						} else {
-							if err := d.db.Update(d.ctx, torrentInfoReset(t.Name(), t.InfoHash().Bytes(), 0)); err != nil {
-								d.logger.Debug("[snapshots] Can't reset torrent info", "file", t.Name(), "hash", t.InfoHash(), "err", err)
-							}
 						}
-					} else {
-						if err := d.db.Update(d.ctx, torrentInfoReset(t.Name(), t.InfoHash().Bytes(), 0)); err != nil {
-							d.logger.Debug("[snapshots] Can't update torrent info", "file", t.Name(), "hash", t.InfoHash(), "err", err)
-						}
-
-						if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-							d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-							continue
-						}
-					}
-				} else {
-					if _, complete := localHashCompletionCheck(d.ctx, t, fileInfo, downloadComplete); complete {
-						d.logger.Debug("[snapshots] Download already complete", "file", t.Name(), "hash", t.InfoHash())
-						continue
 					}
 				}
 
@@ -1089,7 +994,7 @@ func (d *Downloader) mainLoop(silent bool) error {
 				if justCompleted {
 					justCompleted = false
 					// force fsync of db. to not loose results of downloading on power-off
-					_ = d.db.Update(d.ctx, func(tx kv.RwTx) error { return nil })
+					_ = d.db.Update(d.ctx, func(tx kv.RwTx) error { return tx.Put(kv.BittorrentInfo, []byte("done"), []byte{1}) })
 				}
 
 				d.logger.Info("[snapshots] Seeding",
@@ -1986,11 +1891,8 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 			}
 
 			err := ScheduleVerifyFile(ctx, t, completedPieces)
-
-			if err != nil || !t.Complete.Bool() {
-				if err := d.db.Update(ctx, torrentInfoReset(t.Name(), t.InfoHash().Bytes(), 0)); err != nil {
-					return fmt.Errorf("verify data: %s: reset failed: %w", t.Name(), err)
-				}
+			if err != nil {
+				return err
 			}
 
 			return err
@@ -2000,8 +1902,9 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 	if err := g.Wait(); err != nil {
 		return err
 	}
+
 	// force fsync of db. to not loose results of validation on power-off
-	return d.db.Update(context.Background(), func(tx kv.RwTx) error { return nil })
+	return d.db.Update(context.Background(), func(tx kv.RwTx) error { return tx.Put(kv.BittorrentInfo, []byte("done"), []byte{2}) })
 }
 
 // AddNewSeedableFile decides what we do depending on wether we have the .seg file or the .torrent file
@@ -2151,33 +2054,6 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 	}()
 
 	for i, ts := range files {
-		d.lock.RLock()
-		_, downloading := d.downloading[ts.DisplayName]
-		d.lock.RUnlock()
-
-		if downloading {
-			continue
-		}
-
-		// this check is performed here becuase t.MergeSpec in addTorrentFile will do a file
-		// update in place when it opens its MemMap.  This is non destructive for the data
-		// but casues an update to the file which changes its size to the torrent length which
-		// invalidated the file length check
-		if info, err := d.torrentInfo(ts.DisplayName); err == nil {
-			if info.Completed != nil {
-				fi, serr := os.Stat(filepath.Join(d.SnapDir(), info.Name))
-				if serr != nil || fi.Size() != *info.Length || !fi.ModTime().Equal(*info.Completed) {
-					if err := d.db.Update(d.ctx, torrentInfoReset(info.Name, info.Hash, *info.Length)); err != nil {
-						if serr != nil {
-							log.Error("[snapshots] Failed to reset db entry after stat error", "file", info.Name, "err", err, "stat-err", serr)
-						} else {
-							log.Error("[snapshots] Failed to reset db entry after stat mismatch", "file", info.Name, "err", err)
-						}
-					}
-				}
-			}
-		}
-
 		if whitelisted, ok := d.webseeds.torrentsWhitelist.Get(ts.DisplayName); ok {
 			if ts.InfoHash.HexString() != whitelisted.Hash {
 				continue
