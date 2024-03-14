@@ -954,7 +954,10 @@ func (d *Downloader) mainLoop(silent bool) error {
 			for _, t := range available {
 
 				torrentInfo, _ := d.torrentInfo(t.Name())
-				fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), t.Name())
+				fileInfo, _, ok := snaptype.ParseFileName(d.SnapDir(), t.Name())
+				if !ok {
+					continue
+				}
 
 				if torrentInfo != nil {
 					if torrentInfo.Completed != nil {
