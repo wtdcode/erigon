@@ -636,7 +636,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 
 		complete := map[string]struct{}{}
 		checking := map[string]struct{}{}
-		failed := map[string]struct{}{}
 
 		downloadComplete := make(chan downloadStatus, 100)
 
@@ -653,60 +652,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 
 			for _, t := range torrents {
 				if _, ok := complete[t.Name()]; ok {
-					continue
-				}
-
-				if isComplete, length, completionTime := d.checkComplete(t.Name()); isComplete && completionTime != nil {
-					if _, ok := checking[t.Name()]; !ok {
-						fileInfo, _, _ := snaptype.ParseFileName(d.SnapDir(), t.Name())
-
-						stat, err := os.Stat(fileInfo.Path)
-
-						if err != nil {
-							downloadComplete <- downloadStatus{
-								name: fileInfo.Name(),
-								err:  err,
-							}
-						}
-
-						if completionTime != nil {
-							if !stat.ModTime().Equal(*completionTime) {
-								checking[t.Name()] = struct{}{}
-
-								go func(fileInfo snaptype.FileInfo, infoHash infohash.T, length int64, completionTime time.Time) {
-									checkGroup.Go(func() error {
-										fileHashBytes, _ := fileHashBytes(d.ctx, fileInfo, &d.stats, d.lock)
-
-										if bytes.Equal(infoHash.Bytes(), fileHashBytes) {
-											downloadComplete <- downloadStatus{
-												name:     fileInfo.Name(),
-												length:   length,
-												infoHash: infoHash,
-											}
-										} else {
-											downloadComplete <- downloadStatus{
-												name: fileInfo.Name(),
-												err:  fmt.Errorf("hash check failed"),
-											}
-
-											d.logger.Warn("[snapshots] Torrent hash does not match file", "file", fileInfo.Name(), "torrent-hash", infoHash, "file-hash", hex.EncodeToString(fileHashBytes))
-										}
-
-										return nil
-									})
-								}(fileInfo, t.InfoHash(), length, *completionTime)
-
-							} else {
-								complete[t.Name()] = struct{}{}
-								continue
-							}
-						}
-					}
-				} else {
-					delete(failed, t.Name())
-				}
-
-				if _, ok := failed[t.Name()]; ok {
 					continue
 				}
 
