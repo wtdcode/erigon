@@ -1716,7 +1716,7 @@ func (d *Downloader) VerifyData(ctx context.Context, whiteList []string, failFas
 			continue
 		}
 
-		if !dir2.FileExist(filepath.Join(d.SnapDir(), t.Name())) {
+		if !dir.FileExist(filepath.Join(d.SnapDir(), t.Name())) {
 			continue
 		}
 
