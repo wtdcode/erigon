@@ -543,7 +543,7 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 	if _, err := f.Seek(info.Piece(0).Offset(), io.SeekStart); err != nil {
 		return nil
 	}
-	bf := bufio.NewReaderSize(f, int(16*datasize.MB))
+	bf := bufio.NewReaderSize(f, int(32*datasize.MB))
 	hasher := sha1.New()
 	buf := make([]byte, 0, 32)
 	for i := 0; i < info.NumPieces(); i++ {
