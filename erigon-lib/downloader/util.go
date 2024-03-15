@@ -545,6 +545,7 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 	}
 	bf := bufio.NewReaderSize(f, int(16*datasize.MB))
 	hasher := sha1.New()
+	buf := make([]byte, 0, 32)
 	for i := 0; i < info.NumPieces(); i++ {
 		p := info.Piece(i)
 		hasher.Reset()
@@ -552,7 +553,7 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 		if err != nil {
 			return err
 		}
-		good := bytes.Equal(hasher.Sum(nil), p.Hash().Bytes())
+		good := bytes.Equal(hasher.Sum(buf[:0]), p.Hash().Bytes())
 		if !good {
 			return fmt.Errorf("hash mismatch at piece %d, file: %s", i, t.Name())
 		}
