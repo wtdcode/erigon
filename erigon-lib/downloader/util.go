@@ -34,6 +34,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
+	"github.com/c2h5oh/datasize"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -542,7 +543,7 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 	if _, err := f.Seek(info.Piece(0).Offset(), io.SeekStart); err != nil {
 		return nil
 	}
-	bf := bufio.NewReader(f)
+	bf := bufio.NewReaderSize(f, int(16*datasize.MB))
 	hasher := sha1.New()
 	for i := 0; i < info.NumPieces(); i++ {
 		p := info.Piece(i)
