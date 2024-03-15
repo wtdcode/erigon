@@ -537,6 +537,8 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 		}
 	}()
 
+	defer func(tt time.Time) { fmt.Printf("util.go:540: %s, %s\n", time.Since(tt), t.Name()) }(time.Now())
+
 	if _, err := f.Seek(info.Piece(0).Offset(), io.SeekStart); err != nil {
 		return nil
 	}
