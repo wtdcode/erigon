@@ -17,6 +17,7 @@
 package downloader
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/sha1"
@@ -536,11 +537,15 @@ func VerifyFileFailFast(ctx context.Context, t *torrent.Torrent, root string, co
 		}
 	}()
 
+	if _, err := f.Seek(info.Piece(0).Offset(), io.SeekStart); err != nil {
+		return nil
+	}
+	bf := bufio.NewReader(f)
 	hasher := sha1.New()
 	for i := 0; i < info.NumPieces(); i++ {
 		p := info.Piece(i)
 		hasher.Reset()
-		_, err := io.Copy(hasher, io.NewSectionReader(f, p.Offset(), p.Length()))
+		_, err := io.CopyN(hasher, bf, p.Length())
 		if err != nil {
 			return err
 		}
