@@ -30,7 +30,6 @@ linters:
     - gocheckcompilerdirectives
     - protogetter
   enable:
-    - atomic
     - unconvert
     #    - predeclared #TODO: enable me
     #    - thelper #TODO: enable me
@@ -99,6 +98,7 @@ linters-settings:
         skipRecvDeref: true
 
   govet:
+    enable-all: true
     disable:
       - deepequalerrors
       - fieldalignment
