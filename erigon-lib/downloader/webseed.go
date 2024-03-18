@@ -140,6 +140,7 @@ func (d *WebSeeds) ByFileName(name string) (metainfo.UrlList, bool) {
 }
 func (d *WebSeeds) retrieveManifest(ctx context.Context, webSeedProviderUrl *url.URL) (snaptype.WebSeedsFromProvider, error) {
 	baseUrl := webSeedProviderUrl.String()
+	log.Warn("[dbg] baseUrl", "baseUrl", baseUrl)
 	ref, err := url.Parse("manifest.txt")
 	if err != nil {
 		return nil, err
