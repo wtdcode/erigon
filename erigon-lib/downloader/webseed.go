@@ -43,6 +43,7 @@ type WebSeeds struct {
 func (d *WebSeeds) Discover(ctx context.Context, urls []*url.URL, files []string, rootDir string) {
 	listsOfFiles := d.constructListsOfFiles(ctx, urls, files)
 	torrentMap := d.makeTorrentUrls(listsOfFiles)
+	log.Warn("[dbg] torrentMap", "torrentMap", torrentMap)
 	webSeedMap := d.downloadTorrentFilesFromProviders(ctx, rootDir, torrentMap)
 	d.makeWebSeedUrls(listsOfFiles, webSeedMap)
 }
