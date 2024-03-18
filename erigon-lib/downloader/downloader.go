@@ -1829,9 +1829,9 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 
 			bytesRead := t.Stats().BytesReadData
 			br := datasize.ByteSize(uint64(bytesRead.Int64()))
-			bc := datasize.ByteSize(t.BytesCompleted())
-			pc := datasize.ByteSize(t.Stats().PiecesComplete * downloadercfg.DefaultPieceSize)
-			total := datasize.ByteSize(t.Length())
+			bc := datasize.ByteSize(uint64(t.BytesCompleted()))
+			pc := datasize.ByteSize(uint64(t.Stats().PiecesComplete * downloadercfg.DefaultPieceSize))
+			total := datasize.ByteSize(uint64(t.Length()))
 			log.Warn("[dbg] zero", "t.Stats().BytesReadData", br, "bc", bc, "pc", pc, "total", total)
 			if progress == 0 {
 				zeroProgress = append(zeroProgress, torrentName)
