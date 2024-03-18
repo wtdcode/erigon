@@ -216,6 +216,10 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 			strings.HasSuffix(name, ".ef.torrent")
 		if !whiteListed {
 			_, fName := filepath.Split(name)
+
+			if strings.Contains(fName, "v1-logaddrs.1216-1280.ef") {
+				d.logger.Warn("[dbg] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
+			}
 			d.logger.Log(d.verbosity, "[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
 			continue
 		}
@@ -225,6 +229,9 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		e3blackListed := strings.Contains(name, "commitment") && (strings.HasSuffix(name, ".v.torrent") || strings.HasSuffix(name, ".ef.torrent"))
 		if e3blackListed {
 			_, fName := filepath.Split(name)
+			if strings.Contains(fName, "v1-logaddrs.1216-1280.ef") {
+				d.logger.Warn("[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
+			}
 			d.logger.Log(d.verbosity, "[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
 			continue
 		}
@@ -234,12 +241,22 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 			for _, url := range tUrls {
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
 				if err != nil {
+					if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+						d.logger.Warn("[snapshots] got from webseed", "name", name, "err", err, "url", url)
+					}
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err, "url", url)
 					continue
 				}
 				if err := d.torrentFiles.Create(tPath, res); err != nil {
+					if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+						d.logger.Warn("[snapshots] got from webseed", "name", name, "err", err, "url", url)
+					}
 					d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
 					continue
+				}
+
+				if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+					d.logger.Warn("[dbg] webSeedMap set", "name", name, "url", url)
 				}
 				webSeeMapLock.Lock()
 				webSeedMap[torrentMap[*url]] = struct{}{}
