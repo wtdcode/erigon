@@ -1849,7 +1849,7 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 		}
 
 		// more detailed statistic: download rate of each peer (for each file)
-		if !torrentComplete && progress != 0 {
+		if !torrentComplete {
 			d.logger.Log(d.verbosity, "[snapshots] progress", "file", torrentName, "progress", fmt.Sprintf("%.2f%%", progress), "peers", len(peersOfThisFile), "webseeds", len(weebseedPeersOfThisFile))
 			d.logger.Log(d.verbosity, "[snapshots] webseed peers", webseedRates...)
 			d.logger.Log(d.verbosity, "[snapshots] bittorrent peers", rates...)
