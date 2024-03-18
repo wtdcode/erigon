@@ -30,6 +30,7 @@ linters:
     - gocheckcompilerdirectives
     - protogetter
   enable:
+    - atomic
     - unconvert
     #    - predeclared #TODO: enable me
     #    - thelper #TODO: enable me
