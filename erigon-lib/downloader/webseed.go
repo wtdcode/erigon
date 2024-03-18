@@ -75,7 +75,6 @@ func (d *WebSeeds) constructListsOfFiles(ctx context.Context, httpProviders []*u
 		}
 		listsOfFiles = append(listsOfFiles, response)
 	}
-	log.Warn("[dbg] ws listsOfFiles", "listsOfFiles", listsOfFiles)
 	return listsOfFiles
 }
 
