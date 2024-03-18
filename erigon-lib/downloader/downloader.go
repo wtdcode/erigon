@@ -819,6 +819,10 @@ func (d *Downloader) mainLoop(silent bool) error {
 				pending = append(pending, t)
 			}
 
+			d.logger.Debug("[dbg] maps1", "waiting", waiting)
+			d.logger.Debug("[dbg] maps2", "failed", failed)
+			d.logger.Debug("[dbg] maps3", "checking", checking)
+
 			select {
 			case <-d.ctx.Done():
 				return
