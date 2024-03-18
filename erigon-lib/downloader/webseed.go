@@ -140,12 +140,12 @@ func (d *WebSeeds) ByFileName(name string) (metainfo.UrlList, bool) {
 }
 func (d *WebSeeds) retrieveManifest(ctx context.Context, webSeedProviderUrl *url.URL) (snaptype.WebSeedsFromProvider, error) {
 	baseUrl := webSeedProviderUrl.String()
-	log.Warn("[dbg] baseUrl", "baseUrl", baseUrl)
 	ref, err := url.Parse("manifest.txt")
 	if err != nil {
 		return nil, err
 	}
 	u := webSeedProviderUrl.ResolveReference(ref)
+	log.Warn("[dbg] baseUrl", "url", u.String(), webSeedProviderUrl.EscapedPath())
 	request, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func (d *WebSeeds) retrieveManifest(ctx context.Context, webSeedProviderUrl *url
 			return nil, err
 		}
 	}
-	d.logger.Debug("[snapshots.webseed] get from HTTP provider", "urls", len(response), "host", webSeedProviderUrl.Hostname(), "url", webSeedProviderUrl.EscapedPath())
+	d.logger.Debug("[snapshots.webseed] get from HTTP provider", "urls", len(response), "host", webSeedProviderUrl.Hostname(), "url", u.EscapedPath())
 	return response, nil
 }
 func (d *WebSeeds) readWebSeedsFile(webSeedProviderPath string) (snaptype.WebSeedsFromProvider, error) {
