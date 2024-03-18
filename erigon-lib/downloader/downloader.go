@@ -2279,6 +2279,10 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 		for _, t := range tl {
 			t.AllowDataUpload()
 			t.AddTrackers(Trackers)
+			if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
+				log.Warn("[addFromDisk] here name", "ts.Webseeds", t)
+			}
+
 		}
 	}()
 
