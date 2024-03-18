@@ -822,6 +822,8 @@ func (d *Downloader) mainLoop(silent bool) error {
 			d.logger.Debug("[dbg] maps1", "waiting", waiting)
 			d.logger.Debug("[dbg] maps2", "failed", failed)
 			d.logger.Debug("[dbg] maps3", "checking", checking)
+			d.logger.Debug("[dbg] maps4", "downloading", d.downloading)
+			d.logger.Debug("[dbg] maps5", "len(complete)", len(complete))
 
 			select {
 			case <-d.ctx.Done():
