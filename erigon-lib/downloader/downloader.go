@@ -42,23 +42,24 @@ import (
 	"github.com/anacrolix/torrent/storage"
 	"github.com/anacrolix/torrent/types/infohash"
 	"github.com/c2h5oh/datasize"
-	dir2 "github.com/ledgerwatch/erigon-lib/common/dir"
-	"github.com/ledgerwatch/log/v3"
-	"github.com/tidwall/btree"
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/sync/semaphore"
-	"golang.org/x/time/rate"
-
 	"github.com/ledgerwatch/erigon-lib/chain/snapcfg"
 	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/erigon-lib/common/dir"
+	dir2 "github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/erigon-lib/diagnostics"
 	"github.com/ledgerwatch/erigon-lib/downloader/downloadercfg"
 	"github.com/ledgerwatch/erigon-lib/downloader/snaptype"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon-lib/kv/mdbx"
+	"github.com/ledgerwatch/log/v3"
+	pp "github.com/shirou/gopsutil/v3/process"
+	"github.com/tidwall/btree"
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/semaphore"
+	"golang.org/x/time/rate"
 )
 
 // Downloader - component which downloading historical files. Can use BitTorrent, or other protocols
@@ -1172,6 +1173,16 @@ func (d *Downloader) mainLoop(silent bool) error {
 				continue
 			}
 
+			pid := os.Getpid()
+			proc, err := pp.NewProcess(int32(pid))
+			if err != nil {
+				return err
+			}
+			thr, err := proc.NumThreads()
+			if err != nil {
+				return err
+			}
+
 			d.logger.Info("[snapshots] Downloading",
 				"progress", fmt.Sprintf("%.2f%% %s/%s", stats.Progress, common.ByteCount(stats.BytesCompleted), common.ByteCount(stats.BytesTotal)),
 				"downloading", stats.Downloading,
@@ -1179,7 +1190,8 @@ func (d *Downloader) mainLoop(silent bool) error {
 				"upload", common.ByteCount(stats.UploadRate)+"/s",
 				"peers", stats.PeersUnique,
 				"conns", stats.ConnectionsTotal,
-				"files", stats.FilesTotal,
+
+				"files", stats.FilesTotal, "grt", runtime.NumGoroutine(), "thr", thr,
 				"alloc", common.ByteCount(m.Alloc), "sys", common.ByteCount(m.Sys),
 			)
 
@@ -1769,6 +1781,9 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 			delete(downloading, torrentName)
 		} else {
 			bytesRead := t.Stats().BytesReadData
+			br := t.Stats().BytesReadData
+			t.BytesCompleted()
+			fmt.Printf("[dbg] a: %s, BytesReadData=%s, PieceCompleted=%s\n", t.Name(), datasize.ByteSize((&br).Int64()).String(), datasize.ByteSize(t.Stats().PiecesComplete*downloadercfg.DefaultPieceSize).String())
 			bytesCompleted = bytesRead.Int64()
 		}
 		progress := float32(float64(100) * (float64(bytesCompleted) / float64(tLen)))
