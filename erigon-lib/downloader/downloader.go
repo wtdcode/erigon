@@ -1353,7 +1353,7 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 	d.lock.Unlock()
 
 	if err := sem.Acquire(d.ctx, 1); err != nil {
-		d.logger.Warn("Failed to acquire download semaphore", "err", err)
+		d.logger.Warn("[snapshots] Failed to acquire download semaphore", "err", err)
 		return
 	}
 
@@ -1371,6 +1371,9 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 		case <-t.GotInfo():
 		}
 
+		if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
+			log.Warn("[dbg] t.DownloadAll", "t", t.Name())
+		}
 		t.DownloadAll()
 
 		idleCount := 0
@@ -1379,8 +1382,14 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 		for {
 			select {
 			case <-d.ctx.Done():
+				if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
+					log.Warn("[dbg] exit1", "t", t.Name())
+				}
 				return
 			case <-t.Complete.On():
+				if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
+					log.Warn("[dbg] exit2", "t", t.Name())
+				}
 				return
 			case <-time.After(10 * time.Second):
 				bytesRead := t.Stats().BytesReadData
@@ -1394,6 +1403,7 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 
 				//fallback to webDownloadClient, but only if it's enabled
 				if d.webDownloadClient != nil && idleCount > 6 {
+					log.Warn("[dbg] exit3", "t", t.Name())
 					t.DisallowDataDownload()
 					return
 				}
