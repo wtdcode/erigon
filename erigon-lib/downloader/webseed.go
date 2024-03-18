@@ -111,11 +111,12 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 			if strings.HasSuffix(name, ".torrent") {
 				continue
 			}
-			if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
 
-				log.Warn("[dbg] here name", "name", name)
-			}
-			webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+				if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+					log.Warn("[dbg] here name", "name", name)
+				}
+				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+
 		}
 	}
 

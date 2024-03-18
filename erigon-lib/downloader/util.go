@@ -337,6 +337,10 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 		return nil, false, nil
 	}
 	ts.Webseeds, _ = webseeds.ByFileName(ts.DisplayName)
+	if strings.Contains(ts.DisplayName, "v1-logaddrs.1216-1280.ef") {
+		log.Warn("[_addTorrentFile] here name", "ts.Webseeds", ts.Webseeds)
+	}
+
 	var have bool
 	t, have = torrentClient.Torrent(ts.InfoHash)
 
