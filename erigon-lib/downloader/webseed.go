@@ -14,6 +14,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/ledgerwatch/erigon-lib/chain/snapcfg"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/anacrolix/torrent/bencode"
@@ -119,6 +120,7 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 
 		}
 	}
+	log.Warn("[dbg] makeTorrentUrls", "l", len(webSeedUrls), "stack", dbg.Stack())
 
 	d.lock.Lock()
 	defer d.lock.Unlock()
