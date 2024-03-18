@@ -150,7 +150,6 @@ func (d *WebSeeds) retrieveManifest(ctx context.Context, webSeedProviderUrl *url
 		return nil, err
 	}
 	u := webSeedProviderUrl.ResolveReference(ref)
-	log.Warn("[dbg] baseUrl", "url", u.String(), webSeedProviderUrl.EscapedPath())
 	request, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return nil, err
