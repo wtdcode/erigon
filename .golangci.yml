@@ -113,7 +113,6 @@ linters-settings:
       - defers
       - directive
       - errorsas
-      - fieldalignment
       - findcall
       - framepointer
       - httpresponse
