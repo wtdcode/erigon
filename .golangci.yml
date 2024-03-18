@@ -109,7 +109,6 @@ linters-settings:
       - cgocall
       - composites
       - copylocks
-      - deepequalerrors
       - defers
       - directive
       - errorsas
@@ -122,7 +121,6 @@ linters-settings:
       - nilfunc
       - printf
       - reflectvaluecompare
-      - shadow
       - shift
       - sigchanyzer
       - slog
@@ -134,7 +132,6 @@ linters-settings:
       - tests
       - unmarshal
       - unreachable
-      - unsafeptr
       - unusedresult
     disable:
       - deepequalerrors
