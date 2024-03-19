@@ -84,13 +84,13 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 	for _, urls := range listsOfFiles {
 		for name, wUrl := range urls {
 			if !strings.HasSuffix(name, ".torrent") {
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] skip3", "t", name)
 				}
 				continue
 			}
 			if !nameWhitelisted(name, d.torrentsWhitelist) {
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] skip2", "t", name)
 				}
 				continue
@@ -100,7 +100,7 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 				d.logger.Debug("[snapshots] url is invalid", "url", wUrl, "err", err)
 				continue
 			}
-			if strings.Contains(name, "v1-004900-005000-transactions") {
+			if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 				log.Warn("[dbg] see1", "t", name)
 			}
 			torrentUrls[name] = append(torrentUrls[name], uri)
@@ -130,12 +130,12 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 			}
 
 			if _, ok := webSeedMap[name]; ok {
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] found in map", "t", name)
 				}
 				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
 			} else {
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] NOT found in map", "t", name)
 				}
 			}
@@ -261,7 +261,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		tUrls := tUrls
 		e.Go(func() error {
 			for _, url := range tUrls {
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] call", "t", name)
 				}
 				_, err := d.callTorrentHttpProvider(ctx, url, name)
@@ -276,7 +276,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 					//}
 				}
 
-				if strings.Contains(name, "v1-004900-005000-transactions") {
+				if strings.Contains(name, "v1-004900-005000-transactions") || strings.Contains(name, "v1-accounts.0-64") {
 					log.Warn("[dbg] add to map", "t", name)
 				}
 				webSeeMapLock.Lock()
