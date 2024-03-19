@@ -819,12 +819,6 @@ func (d *Downloader) mainLoop(silent bool) error {
 				pending = append(pending, t)
 			}
 
-			d.logger.Debug("[dbg] maps1", "waiting", waiting)
-			d.logger.Debug("[dbg] maps2", "failed", failed)
-			d.logger.Debug("[dbg] maps3", "checking", checking)
-			d.logger.Debug("[dbg] maps4", "downloading", d.downloading)
-			d.logger.Debug("[dbg] maps5", "len(complete)", len(complete))
-
 			select {
 			case <-d.ctx.Done():
 				return
@@ -1371,9 +1365,6 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 		case <-t.GotInfo():
 		}
 
-		if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
-			log.Warn("[dbg] t.DownloadAll", "t", t.Name())
-		}
 		t.DownloadAll()
 
 		idleCount := 0
@@ -1382,14 +1373,8 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 		for {
 			select {
 			case <-d.ctx.Done():
-				if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
-					log.Warn("[dbg] exit1", "t", t.Name())
-				}
 				return
 			case <-t.Complete.On():
-				if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
-					log.Warn("[dbg] exit2", "t", t.Name())
-				}
 				return
 			case <-time.After(10 * time.Second):
 				bytesRead := t.Stats().BytesReadData
@@ -1403,7 +1388,6 @@ func (d *Downloader) torrentDownload(t *torrent.Torrent, statusChan chan downloa
 
 				//fallback to webDownloadClient, but only if it's enabled
 				if d.webDownloadClient != nil && idleCount > 6 {
-					log.Warn("[dbg] exit3", "t", t.Name())
 					t.DisallowDataDownload()
 					return
 				}
@@ -1838,18 +1822,12 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 			}
 
 			if progress == 0 {
-				bytesRead := t.Stats().BytesReadData
-				br := uint64(bytesRead.Int64()) / 1024 / 1024
-				bc := uint64(t.BytesCompleted()) / 1024 / 1024
-				pc := uint64(t.Stats().PiecesComplete*downloadercfg.DefaultPieceSize) / 1024 / 1024
-				total := uint64(t.Length()) / 1024 / 1024
-				log.Warn("[dbg] zero", "t.Stats().BytesReadData", br, "bc", bc, "pc", pc, "total", total, "t", t.Name())
 				zeroProgress = append(zeroProgress, torrentName)
 			}
 		}
 
 		// more detailed statistic: download rate of each peer (for each file)
-		if !torrentComplete {
+		if !torrentComplete && progress != 0 {
 			d.logger.Log(d.verbosity, "[snapshots] progress", "file", torrentName, "progress", fmt.Sprintf("%.2f%%", progress), "peers", len(peersOfThisFile), "webseeds", len(weebseedPeersOfThisFile))
 			d.logger.Log(d.verbosity, "[snapshots] webseed peers", webseedRates...)
 			d.logger.Log(d.verbosity, "[snapshots] bittorrent peers", rates...)
@@ -2279,10 +2257,6 @@ func (d *Downloader) addTorrentFilesFromDisk(quiet bool) error {
 		for _, t := range tl {
 			t.AllowDataUpload()
 			t.AddTrackers(Trackers)
-			if strings.Contains(t.Name(), "v1-logaddrs.1216-1280.ef") {
-				log.Warn("[addFromDisk] here name", "ts.Webseeds", t)
-			}
-
 		}
 	}()
 
