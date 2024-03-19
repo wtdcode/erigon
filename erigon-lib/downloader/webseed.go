@@ -209,6 +209,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	if !d.downloadTorrentFile {
 		return webSeedMap
 	}
+	log.Warn("[dbg] inner", "urlsByName", d.TorrentUrls())
 	if len(d.TorrentUrls()) == 0 {
 		return webSeedMap
 	}
