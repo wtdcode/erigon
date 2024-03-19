@@ -120,17 +120,12 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 				continue
 			}
 
-			if strings.Contains(name, "v1-accounts.0-64") {
-				log.Warn("[dbg] here name", "name", name)
-			}
 			if _, ok := webSeedMap[name]; ok {
-				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
-			} else {
 				if strings.Contains(name, "v1-accounts.0-64") {
-					log.Warn("[dbg] skipped!! by webSeedMap", "name", name)
+					log.Warn("[dbg] added", "name", name)
 				}
+				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
 			}
-
 		}
 	}
 	log.Warn("[dbg] makeTorrentUrls", "l", len(webSeedUrls), "stack", dbg.Stack())
