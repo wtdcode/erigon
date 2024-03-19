@@ -124,10 +124,14 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 			}
 
 			if _, ok := webSeedMap[name]; ok {
-				if strings.Contains(name, "v1-accounts.0-64") {
-					log.Warn("[dbg] added", "name", name)
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] found in map", "t", name)
 				}
 				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+			} else {
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] NOT found in map", "t", name)
+				}
 			}
 		}
 	}
@@ -251,6 +255,9 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		tUrls := tUrls
 		e.Go(func() error {
 			for _, url := range tUrls {
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] call", "t", name)
+				}
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
 				if err != nil {
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err, "url", url)
@@ -261,6 +268,10 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 						d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
 						continue
 					}
+				}
+
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] add to map", "t", name)
 				}
 				webSeeMapLock.Lock()
 				webSeedMap[torrentMap[*url]] = struct{}{}
