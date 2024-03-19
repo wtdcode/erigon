@@ -264,16 +264,16 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 				if strings.Contains(name, "v1-004900-005000-transactions") {
 					log.Warn("[dbg] call", "t", name)
 				}
-				res, err := d.callTorrentHttpProvider(ctx, url, name)
+				_, err := d.callTorrentHttpProvider(ctx, url, name)
 				if err != nil {
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err, "url", url)
 					continue
 				}
 				if !dir.FileExist(tPath) {
-					if err := d.torrentFiles.Create(tPath, res); err != nil {
-						d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
-						continue
-					}
+					//if err := d.torrentFiles.Create(tPath, res); err != nil {
+					//	d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
+					//	continue
+					//}
 				}
 
 				if strings.Contains(name, "v1-004900-005000-transactions") {
