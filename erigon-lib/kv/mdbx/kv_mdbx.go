@@ -1871,7 +1871,7 @@ func (s *cursor2iter) init(table string, tx kv.Tx) (*cursor2iter, error) {
 func (s *cursor2iter) Close() {
 	if s.c != nil {
 		s.c.Close()
-		//delete(s.tx.streams, s.id)
+		delete(s.tx.streams, s.id)
 		s.c = nil
 	}
 }
