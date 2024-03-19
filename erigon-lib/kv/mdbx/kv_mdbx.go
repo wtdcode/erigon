@@ -1577,7 +1577,9 @@ func (c *MdbxCursor) Append(k []byte, v []byte) error {
 }
 
 func (c *MdbxCursor) Close() {
+	log.Warn("[dbg] MdbxCursor Close1", "t", c.bucketName)
 	if c.c != nil {
+		log.Warn("[dbg] MdbxCursor Close2", "t", c.bucketName)
 		c.c.Close()
 		delete(c.tx.cursors, c.id)
 		c.c = nil
@@ -1822,6 +1824,7 @@ func (s *cursor2iter) init(table string, tx kv.Tx) (*cursor2iter, error) {
 	if !s.orderAscend && s.fromPrefix != nil && s.toPrefix != nil && bytes.Compare(s.fromPrefix, s.toPrefix) <= 0 {
 		return s, fmt.Errorf("tx.Dual: %x must be lexicographicaly before %x", s.toPrefix, s.fromPrefix)
 	}
+	log.Warn("[dbg] create cursor", "t", table)
 	c, err := tx.Cursor(table)
 	if err != nil {
 		return s, err
@@ -1858,7 +1861,9 @@ func (s *cursor2iter) init(table string, tx kv.Tx) (*cursor2iter, error) {
 }
 
 func (s *cursor2iter) Close() {
+	log.Warn("[dbg] cursor2iter Close")
 	if s.c != nil {
+		log.Warn("[dbg] cursor2iter Close2")
 		s.c.Close()
 	}
 }
