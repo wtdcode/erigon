@@ -201,10 +201,7 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 			//blockLogs = append(blockLogs, filtered...)
 		}
 		if casted, ok := it.(kv.Closer); ok {
-			log.Warn("[dbg] can close", "bn", blockNumber)
 			casted.Close()
-		} else {
-			log.Warn("[dbg] can't close", "bn", blockNumber)
 		}
 		if len(blockLogs) == 0 {
 			continue
