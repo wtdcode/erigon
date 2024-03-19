@@ -106,6 +106,10 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 }
 
 func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider, webSeedMap map[string]struct{}) {
+	for k := range webSeedMap {
+		log.Warn("[dbg]  webSeedMap", "k", k)
+	}
+
 	webSeedUrls := snaptype.WebSeedUrls{}
 	for _, urls := range listsOfFiles {
 		for name, wUrl := range urls {
@@ -113,10 +117,10 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 				continue
 			}
 
-				if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
-					log.Warn("[dbg] here name", "name", name)
-				}
-				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+			if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+				log.Warn("[dbg] here name", "name", name)
+			}
+			webSeedUrls[name] = append(webSeedUrls[name], wUrl)
 
 		}
 	}
