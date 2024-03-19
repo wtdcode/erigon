@@ -103,6 +103,9 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 				d.logger.Debug("[snapshots] url is invalid", "url", wUrl, "err", err)
 				continue
 			}
+			if strings.Contains(name, "v1-004900-005000-transactions") {
+				log.Warn("[dbg] see1", "t", name)
+			}
 			torrentUrls[name] = append(torrentUrls[name], uri)
 			torrentMap[*uri] = strings.TrimSuffix(name, ".torrent")
 		}
