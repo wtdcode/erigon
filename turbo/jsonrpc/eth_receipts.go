@@ -1,9 +1,7 @@
 package jsonrpc
 
 import (
-	"bytes"
 	"context"
-	"encoding/binary"
 	"fmt"
 
 	"github.com/RoaringBitmap/roaring"
@@ -27,7 +25,6 @@ import (
 	"github.com/ledgerwatch/erigon/core/vm"
 	"github.com/ledgerwatch/erigon/core/vm/evmtypes"
 	"github.com/ledgerwatch/erigon/eth/filters"
-	"github.com/ledgerwatch/erigon/ethdb/cbor"
 	"github.com/ledgerwatch/erigon/rpc"
 	"github.com/ledgerwatch/erigon/turbo/rpchelper"
 	"github.com/ledgerwatch/erigon/turbo/services"
@@ -184,23 +181,24 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 				return logs, err
 			}
 
-			var logs types.Logs
-			if err := cbor.Unmarshal(&logs, bytes.NewReader(v)); err != nil {
-				return logs, fmt.Errorf("receipt unmarshal failed:  %w", err)
-			}
-			for _, log := range logs {
-				log.Index = logIndex
-				logIndex++
-			}
-			filtered := logs.Filter(addrMap, crit.Topics)
-			if len(filtered) == 0 {
-				continue
-			}
-			txIndex = uint(binary.BigEndian.Uint32(k[8:]))
-			for _, log := range filtered {
-				log.TxIndex = txIndex
-			}
-			blockLogs = append(blockLogs, filtered...)
+			_, _ = k, v
+			//var logs types.Logs
+			//if err := cbor.Unmarshal(&logs, bytes.NewReader(v)); err != nil {
+			//	return logs, fmt.Errorf("receipt unmarshal failed:  %w", err)
+			//}
+			//for _, log := range logs {
+			//	log.Index = logIndex
+			//	logIndex++
+			//}
+			//filtered := logs.Filter(addrMap, crit.Topics)
+			//if len(filtered) == 0 {
+			//	continue
+			//}
+			//txIndex = uint(binary.BigEndian.Uint32(k[8:]))
+			//for _, log := range filtered {
+			//	log.TxIndex = txIndex
+			//}
+			//blockLogs = append(blockLogs, filtered...)
 		}
 		if casted, ok := it.(kv.Closer); ok {
 			log.Warn("[dbg] can close", "bn", blockNumber)
