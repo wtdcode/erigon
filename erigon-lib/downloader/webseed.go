@@ -223,6 +223,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 		if dir.FileExist(tPath) {
 			continue
 		}
+		fmt.Printf("[dbg] tPath=%s\n", tPath)
 		addedNew++
 		whiteListed := strings.HasSuffix(name, ".seg.torrent") ||
 			strings.HasSuffix(name, ".kv.torrent") ||
