@@ -106,6 +106,9 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 }
 
 func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider, webSeedMap map[string]struct{}) {
+	if len(webSeedMap) == 0 {
+		log.Warn("[dbg]  webSeedMap empty!")
+	}
 	for k := range webSeedMap {
 		log.Warn("[dbg]  webSeedMap", "k", k)
 	}
