@@ -167,8 +167,8 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 		}
 
 		blockNumber := uint64(iter.Next())
-		var logIndex uint
-		var txIndex uint
+		//var logIndex uint
+		//var txIndex uint
 		var blockLogs []*types.Log
 
 		it, err := tx.Prefix(kv.Log, hexutility.EncodeTs(blockNumber))
