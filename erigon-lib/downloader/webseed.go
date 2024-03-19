@@ -15,6 +15,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/ledgerwatch/erigon-lib/chain/snapcfg"
 	"github.com/ledgerwatch/erigon-lib/common/dbg"
+	"github.com/ledgerwatch/erigon-lib/common/dir"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/anacrolix/torrent/bencode"
@@ -255,9 +256,11 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err, "url", url)
 					continue
 				}
-				if err := d.torrentFiles.Create(tPath, res); err != nil {
-					d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
-					continue
+				if !dir.FileExist(tPath) {
+					if err := d.torrentFiles.Create(tPath, res); err != nil {
+						d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
+						continue
+					}
 				}
 				webSeeMapLock.Lock()
 				webSeedMap[torrentMap[*url]] = struct{}{}
