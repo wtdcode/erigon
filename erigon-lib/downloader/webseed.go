@@ -19,7 +19,6 @@ import (
 
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/ledgerwatch/erigon-lib/common/dir"
 	"github.com/ledgerwatch/erigon-lib/downloader/snaptype"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/pelletier/go-toml/v2"
@@ -42,6 +41,9 @@ type WebSeeds struct {
 }
 
 func (d *WebSeeds) Discover(ctx context.Context, urls []*url.URL, files []string, rootDir string) {
+	if d.torrentFiles.newDownloadsAreProhibited() {
+		return
+	}
 	listsOfFiles := d.constructListsOfFiles(ctx, urls, files)
 	torrentMap := d.makeTorrentUrls(listsOfFiles)
 	webSeedMap := d.downloadTorrentFilesFromProviders(ctx, rootDir, torrentMap)
@@ -213,6 +215,7 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	if len(d.TorrentUrls()) == 0 {
 		return webSeedMap
 	}
+
 	var addedNew int
 	e, ctx := errgroup.WithContext(ctx)
 	e.SetLimit(1024)
@@ -221,10 +224,6 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 	for fileName, tUrls := range urlsByName {
 		name := fileName
 		tPath := filepath.Join(rootDir, name)
-		if dir.FileExist(tPath) {
-			continue
-		}
-		fmt.Printf("[dbg] tPath=%s\n", tPath)
 		addedNew++
 		whiteListed := strings.HasSuffix(name, ".seg.torrent") ||
 			strings.HasSuffix(name, ".kv.torrent") ||
@@ -232,10 +231,6 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 			strings.HasSuffix(name, ".ef.torrent")
 		if !whiteListed {
 			_, fName := filepath.Split(name)
-
-			if strings.Contains(fName, "v1-logaddrs.1216-1280.ef") {
-				d.logger.Warn("[dbg] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
-			}
 			d.logger.Log(d.verbosity, "[snapshots] webseed has .torrent, but we skip it because this file-type not supported yet", "name", fName)
 			continue
 		}
@@ -257,22 +252,12 @@ func (d *WebSeeds) downloadTorrentFilesFromProviders(ctx context.Context, rootDi
 			for _, url := range tUrls {
 				res, err := d.callTorrentHttpProvider(ctx, url, name)
 				if err != nil {
-					if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
-						d.logger.Warn("[snapshots] got from webseed", "name", name, "err", err, "url", url)
-					}
 					d.logger.Log(d.verbosity, "[snapshots] got from webseed", "name", name, "err", err, "url", url)
 					continue
 				}
 				if err := d.torrentFiles.Create(tPath, res); err != nil {
-					if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
-						d.logger.Warn("[snapshots] got from webseed", "name", name, "err", err, "url", url)
-					}
 					d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err, "url", url)
 					continue
-				}
-
-				if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
-					d.logger.Warn("[dbg] webSeedMap set", "name", name, "url", url)
 				}
 				webSeeMapLock.Lock()
 				webSeedMap[torrentMap[*url]] = struct{}{}
