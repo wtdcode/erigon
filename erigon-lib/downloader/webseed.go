@@ -87,9 +87,15 @@ func (d *WebSeeds) makeTorrentUrls(listsOfFiles []snaptype.WebSeedsFromProvider)
 	for _, urls := range listsOfFiles {
 		for name, wUrl := range urls {
 			if !strings.HasSuffix(name, ".torrent") {
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] skip3", "t", name)
+				}
 				continue
 			}
 			if !nameWhitelisted(name, d.torrentsWhitelist) {
+				if strings.Contains(name, "v1-004900-005000-transactions") {
+					log.Warn("[dbg] skip2", "t", name)
+				}
 				continue
 			}
 			uri, err := url.ParseRequestURI(wUrl)
