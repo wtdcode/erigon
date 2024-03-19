@@ -788,6 +788,11 @@ func ReadRawReceipts(db kv.Tx, blockNum uint64) types.Receipts {
 		log.Error("logs fetching failed", "err", err)
 		return nil
 	}
+	defer func() {
+		if casted, ok := it.(kv.Closer); ok {
+			casted.Close()
+		}
+	}()
 	for it.HasNext() {
 		k, v, err := it.Next()
 		if err != nil {
@@ -807,9 +812,6 @@ func ReadRawReceipts(db kv.Tx, blockNum uint64) types.Receipts {
 		if txIndex < len(receipts) {
 			receipts[txIndex].Logs = logs
 		}
-	}
-	if casted, ok := it.(kv.Closer); ok {
-		casted.Close()
 	}
 
 	return receipts
