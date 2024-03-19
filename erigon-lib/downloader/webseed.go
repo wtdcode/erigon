@@ -120,10 +120,16 @@ func (d *WebSeeds) makeWebSeedUrls(listsOfFiles []snaptype.WebSeedsFromProvider,
 				continue
 			}
 
-			if strings.Contains(name, "v1-logaddrs.1216-1280.ef") {
+			if strings.Contains(name, "v1-accounts.0-64") {
 				log.Warn("[dbg] here name", "name", name)
 			}
-			webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+			if _, ok := webSeedMap[name]; ok {
+				webSeedUrls[name] = append(webSeedUrls[name], wUrl)
+			} else {
+				if strings.Contains(name, "v1-accounts.0-64") {
+					log.Warn("[dbg] skipped!! by webSeedMap", "name", name)
+				}
+			}
 
 		}
 	}
