@@ -31,6 +31,15 @@ type BlobKzgs []KZGCommitment
 type KZGProofs []KZGProof
 type Blobs []Blob
 
+type BlobTxSidecars []*BlobTxSidecar
+
+// BlobTxSidecar contains the blobs of a blob transaction.
+type BlobTxSidecar struct {
+	Blobs       Blobs     // Blobs needed by the blob pool
+	Commitments BlobKzgs  // Commitments needed by the blob pool
+	Proofs      KZGProofs // Proofs needed by the blob pool
+}
+
 type BlobTxWrapper struct {
 	Tx          BlobTx
 	Commitments BlobKzgs
@@ -251,6 +260,36 @@ func toProofs(_proofs KZGProofs) []gokzg4844.KZGProof {
 
 func (c KZGCommitment) ComputeVersionedHash() libcommon.Hash {
 	return libcommon.Hash(libkzg.KZGToVersionedHash(gokzg4844.KZGCommitment(c)))
+}
+
+func (sc *BlobTxSidecar) ValidateBlobTxSidecar(blobVersionedHashes []libcommon.Hash) error {
+	l1 := len(blobVersionedHashes)
+	if l1 == 0 {
+		return fmt.Errorf("a blob tx must contain at least one blob")
+	}
+	l2 := len(sc.Commitments)
+	l3 := len(sc.Blobs)
+	l4 := len(sc.Proofs)
+	if l1 != l2 || l1 != l3 || l1 != l4 {
+		return fmt.Errorf("lengths don't match %v %v %v %v", l1, l2, l3, l4)
+	}
+	// the following check isn't strictly necessary as it would be caught by blob gas processing
+	// (and hence it is not explicitly in the spec for this function), but it doesn't hurt to fail
+	// early in case we are getting spammed with too many blobs or there is a bug somewhere:
+	if uint64(l1) > fixedgas.DefaultMaxBlobsPerBlock {
+		return fmt.Errorf("number of blobs exceeds max: %v", l1)
+	}
+	kzgCtx := libkzg.Ctx()
+	err := kzgCtx.VerifyBlobKZGProofBatch(toBlobs(sc.Blobs), toComms(sc.Commitments), toProofs(sc.Proofs))
+	if err != nil {
+		return fmt.Errorf("error during proof verification: %v", err)
+	}
+	for i, h := range blobVersionedHashes {
+		if computed := sc.Commitments[i].ComputeVersionedHash(); computed != h {
+			return fmt.Errorf("versioned hash %d supposedly %s but does not match computed %s", i, h, computed)
+		}
+	}
+	return nil
 }
 
 /* BlobTxWrapper methods */

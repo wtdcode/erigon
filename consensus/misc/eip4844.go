@@ -17,7 +17,9 @@
 package misc
 
 import (
+	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon-lib/common"
 
 	"github.com/holiman/uint256"
 
@@ -82,6 +84,9 @@ func VerifyPresenceOfCancunHeaderFields(header *types.Header) error {
 	if header.ParentBeaconBlockRoot == nil {
 		return fmt.Errorf("header is missing parentBeaconBlockRoot")
 	}
+	if (header.WithdrawalsHash == nil || *header.WithdrawalsHash != common.Hash{}) {
+		return errors.New("header has wrong WithdrawalsHash")
+	}
 	return nil
 }
 
@@ -95,6 +100,9 @@ func VerifyAbsenceOfCancunHeaderFields(header *types.Header) error {
 	}
 	if header.ParentBeaconBlockRoot != nil {
 		return fmt.Errorf("invalid parentBeaconBlockRoot before fork: have %v, expected 'nil'", header.ParentBeaconBlockRoot)
+	}
+	if header.WithdrawalsHash != nil {
+		return fmt.Errorf("invalid WithdrawalsHash, have %#x, expected nil", header.WithdrawalsHash)
 	}
 	return nil
 }

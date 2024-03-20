@@ -37,6 +37,8 @@ var emptyCodeHash = crypto.Keccak256Hash(nil)
 func (evm *EVM) precompile(addr libcommon.Address) (PrecompiledContract, bool) {
 	var precompiles map[libcommon.Address]PrecompiledContract
 	switch {
+	case evm.chainRules.IsCancun:
+		precompiles = PrecompiledContractsCancun
 	case evm.chainRules.IsFeynman:
 		precompiles = PrecompiledContractsFeynman
 	case evm.chainRules.IsHertz:
@@ -51,8 +53,6 @@ func (evm *EVM) precompile(addr libcommon.Address) (PrecompiledContract, bool) {
 		precompiles = PrecompiledContractsIsMoran
 	case evm.chainRules.IsNano:
 		precompiles = PrecompiledContractsNano
-	case evm.chainRules.IsCancun:
-		precompiles = PrecompiledContractsCancun
 	case evm.chainRules.IsBerlin:
 		precompiles = PrecompiledContractsBerlin
 	case evm.chainRules.IsIstanbul:

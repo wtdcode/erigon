@@ -58,6 +58,9 @@ type BlockGen struct {
 	config *chain.Config
 	engine consensus.Engine
 
+	// extra data of block
+	sidecars types.BlobTxSidecars
+
 	beforeAddTx func()
 }
 
@@ -148,6 +151,11 @@ func (b *BlockGen) AddFailedTxWithChain(getHeader func(hash libcommon.Hash, numb
 // chain processing. This is best used in conjunction with raw block insertion.
 func (b *BlockGen) AddUncheckedTx(tx types.Transaction) {
 	b.txs = append(b.txs, tx)
+}
+
+// AddBlobSidecar add block's blob sidecar for DA checking.
+func (b *BlockGen) AddBlobSidecar(sidecar *types.BlobTxSidecar) {
+	b.sidecars = append(b.sidecars, sidecar)
 }
 
 // Number returns the block number of the block being generated.
@@ -390,6 +398,9 @@ func GenerateChain(config *chain.Config, parent *types.Block, engine consensus.E
 			}
 			// Recreating block to make sure Root makes it into the header
 			block := types.NewBlock(b.header, b.txs, b.uncles, b.receipts, nil /* withdrawals */)
+			if config.IsCancun(block.Number().Uint64(), block.Time()) {
+				block = block.WithSidecars(b.sidecars)
+			}
 			return block, b.receipts, nil
 		}
 		return nil, nil, fmt.Errorf("no engine to generate blocks")
@@ -602,6 +613,12 @@ func MakeEmptyHeader(parent *types.Header, chainConfig *chain.Config, timestamp 
 		excessBlobGas := misc.CalcExcessBlobGas(chainConfig, parent)
 		header.ExcessBlobGas = &excessBlobGas
 		header.BlobGasUsed = new(uint64)
+		if chainConfig.Parlia != nil {
+			header.WithdrawalsHash = new(libcommon.Hash)
+		}
+		if chainConfig.Parlia == nil {
+			header.ParentBeaconBlockRoot = new(libcommon.Hash)
+		}
 	}
 
 	return header

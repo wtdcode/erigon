@@ -117,7 +117,7 @@ func (c *Config) String() string {
 	engine := c.getEngine()
 
 	if c.Consensus == ParliaConsensus {
-		return fmt.Sprintf("{ChainID: %v Ramanujan: %v, Niels: %v, MirrorSync: %v, Bruno: %v, Euler: %v, Gibbs: %v, Nano: %v, Moran: %v, Planck: %v, Luban: %v, Plato: %v, Hertz: %v, Hertzfix: %v, ShanghaiTime: %v, KeplerTime %v, FeynmanTime %v, FeynmanFixTime %v, Engine: %v}",
+		return fmt.Sprintf("{ChainID: %v Ramanujan: %v, Niels: %v, MirrorSync: %v, Bruno: %v, Euler: %v, Gibbs: %v, Nano: %v, Moran: %v, Planck: %v, Luban: %v, Plato: %v, Hertz: %v, Hertzfix: %v, ShanghaiTime: %v, KeplerTime %v, FeynmanTime %v, FeynmanFixTime %v, CancunTime %v, Engine: %v}",
 			c.ChainID,
 			c.RamanujanBlock,
 			c.NielsBlock,
@@ -136,6 +136,7 @@ func (c *Config) String() string {
 			c.KeplerTime,
 			c.FeynmanTime,
 			c.FeynmanFixTime,
+			c.CancunTime,
 			engine,
 		)
 	}
@@ -778,8 +779,6 @@ func (c *Config) Rules(num uint64, time uint64) *Rules {
 		IsIstanbul:         c.IsIstanbul(num),
 		IsBerlin:           c.IsBerlin(num),
 		IsLondon:           c.IsLondon(num),
-		IsShanghai:         c.IsShanghai(num, time),
-		IsCancun:           c.IsCancun(num, time),
 		IsNapoli:           c.IsNapoli(num),
 		IsPrague:           c.IsPrague(time),
 		IsNano:             c.IsNano(num),
@@ -790,8 +789,10 @@ func (c *Config) Rules(num uint64, time uint64) *Rules {
 		IsHertz:            c.IsHertz(num),
 		IsHertzfix:         c.IsHertzfix(num),
 		IsKepler:           c.IsKepler(num, time),
+		IsShanghai:         c.IsShanghai(num, time),
 		IsFeynman:          c.IsFeynman(num, time),
 		IsFeynmanFix:       c.IsFeynmanFix(num, time),
+		IsCancun:           c.IsCancun(num, time),
 		IsAura:             c.Aura != nil,
 		IsParlia:           true,
 	}

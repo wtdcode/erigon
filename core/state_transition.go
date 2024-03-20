@@ -18,13 +18,12 @@ package core
 
 import (
 	"fmt"
-	"github.com/ledgerwatch/erigon/consensus"
-	"github.com/ledgerwatch/erigon/core/types"
-
 	"github.com/holiman/uint256"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/txpool/txpoolcfg"
 	types2 "github.com/ledgerwatch/erigon-lib/types"
+	"github.com/ledgerwatch/erigon/consensus"
+	"github.com/ledgerwatch/erigon/core/types"
 
 	cmath "github.com/ledgerwatch/erigon/common/math"
 	"github.com/ledgerwatch/erigon/common/u256"
@@ -461,6 +460,18 @@ func (st *StateTransition) TransitionDb(refunds bool, gasBailout bool) (*Executi
 	amount.Mul(amount, effectiveTip) // gasUsed * effectiveTip = how much goes to the block producer (miner, validator)
 	if st.isParlia {
 		st.state.AddBalance(consensus.SystemAddress, amount)
+		// add extra blob fee reward
+		if rules.IsCancun {
+			blobGasPrice, err := misc.GetBlobGasPrice(st.evm.ChainConfig(), *st.evm.Context.ExcessBlobGas)
+			if err != nil {
+				return nil, err
+			}
+			blobGasVal, overflow := new(uint256.Int).MulOverflow(blobGasPrice, new(uint256.Int).SetUint64(st.msg.BlobGas()))
+			if overflow {
+				return nil, fmt.Errorf("%w: overflow converting blob gas: %v", ErrInsufficientFunds, blobGasVal)
+			}
+			st.state.AddBalance(consensus.SystemAddress, blobGasVal)
+		}
 	} else {
 		st.state.AddBalance(coinbase, amount)
 	}
