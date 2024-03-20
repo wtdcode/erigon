@@ -160,6 +160,13 @@ var PrecompiledContractsCancun = map[libcommon.Address]PrecompiledContract{
 	libcommon.BytesToAddress([]byte{0x08}): &bn256PairingIstanbul{},
 	libcommon.BytesToAddress([]byte{0x09}): &blake2F{},
 	libcommon.BytesToAddress([]byte{0x0a}): &pointEvaluation{},
+
+	libcommon.BytesToAddress([]byte{100}): &tmHeaderValidate{},
+	libcommon.BytesToAddress([]byte{101}): &iavlMerkleProofValidatePlato{},
+	libcommon.BytesToAddress([]byte{102}): &blsSignatureVerify{},
+	libcommon.BytesToAddress([]byte{103}): &cometBFTLightBlockValidateHertz{},
+	libcommon.BytesToAddress([]byte{104}): &verifyDoubleSignEvidence{},
+	libcommon.BytesToAddress([]byte{105}): &secp256k1SignatureRecover{},
 }
 
 // PrecompiledContractsBLS contains the set of pre-compiled Ethereum
@@ -332,6 +339,8 @@ func init() {
 // ActivePrecompiles returns the precompiles enabled with the current configuration.
 func ActivePrecompiles(rules *chain.Rules) []libcommon.Address {
 	switch {
+	case rules.IsCancun:
+		return PrecompiledAddressesCancun
 	case rules.IsFeynman:
 		return PrecompiledAddressesFeynman
 	case rules.IsHertz:
@@ -346,8 +355,6 @@ func ActivePrecompiles(rules *chain.Rules) []libcommon.Address {
 		return PrecompiledAddressesMoran
 	case rules.IsNano:
 		return PrecompiledAddressesNano
-	case rules.IsCancun:
-		return PrecompiledAddressesCancun
 	case rules.IsBerlin:
 		return PrecompiledAddressesBerlin
 	case rules.IsIstanbul:

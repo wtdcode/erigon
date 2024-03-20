@@ -644,6 +644,9 @@ type Block struct {
 	// caches
 	hash atomic.Value
 	size atomic.Value
+
+	// sidecars provides DA check
+	sidecars BlobTxSidecars
 }
 
 // Copy transaction senders from body into the transactions
@@ -1455,6 +1458,14 @@ func (b *Block) SanityCheck() error {
 	return b.header.SanityCheck()
 }
 
+func (b *Block) Sidecars() BlobTxSidecars {
+	return b.sidecars
+}
+
+func (b *Block) CleanSidecars() {
+	b.sidecars = nil
+}
+
 // HashCheck checks that transactions, receipts, uncles and withdrawals hashes are correct.
 func (b *Block) HashCheck() error {
 	if hash := DeriveSha(b.Transactions()); hash != b.TxHash() {
@@ -1573,7 +1584,23 @@ func (b *Block) WithSeal(header *Header) *Block {
 		transactions: b.transactions,
 		uncles:       b.uncles,
 		withdrawals:  b.withdrawals,
+		sidecars:     b.sidecars,
 	}
+}
+
+// WithSidecars returns a block containing the given blobs.
+func (b *Block) WithSidecars(sidecars BlobTxSidecars) *Block {
+	block := &Block{
+		header:       b.header,
+		transactions: b.transactions,
+		uncles:       b.uncles,
+		withdrawals:  b.withdrawals,
+		sidecars:     sidecars,
+	}
+	if b.withdrawals != nil {
+		block.withdrawals = b.withdrawals
+	}
+	return block
 }
 
 // Hash returns the keccak256 hash of b's header.
