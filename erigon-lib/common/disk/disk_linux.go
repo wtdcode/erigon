@@ -9,6 +9,7 @@ import (
 	"github.com/shirou/gopsutil/v3/process"
 
 	"github.com/ledgerwatch/erigon-lib/metrics"
+	"github.com/ledgerwatch/log/v3"
 )
 
 var (
