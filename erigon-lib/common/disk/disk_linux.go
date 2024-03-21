@@ -39,6 +39,7 @@ func UpdatePrometheusDiskStats() error {
 	if err != nil {
 		return err
 	}
+	log.Debug("[dbg] see", "faults.MajorFaults", faults.MajorFaults, "faults.MinorFaults", faults.MinorFaults)
 
 	diskMajorFaults.SetUint64(faults.MajorFaults)
 	diskMinorFaults.SetUint64(faults.MinorFaults)

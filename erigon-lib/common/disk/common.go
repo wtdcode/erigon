@@ -14,9 +14,11 @@ func UpdateDiskStats(ctx context.Context, logger log.Logger) {
 	for {
 		select {
 		case <-ctx.Done():
+			log.Debug("[dbg] exit1")
 			return
 		case <-logEvery.C:
 
+			log.Debug("[dbg] no exit1")
 			if err := UpdatePrometheusDiskStats(); err != nil {
 				logger.Warn("[disk] error disk fault stats", "err", err)
 			}
