@@ -594,6 +594,8 @@ func ReadBody(db kv.Getter, hash common.Hash, number uint64) (*types.Body, uint6
 	body := new(types.Body)
 	body.Uncles = bodyForStorage.Uncles
 	body.Withdrawals = bodyForStorage.Withdrawals
+	//TODO(matus) get sidecars here from storage
+	// body.Sidecars = bodyForStorage.Sidecars
 
 	if bodyForStorage.TxAmount < 2 {
 		panic(fmt.Sprintf("block body hash too few txs amount: %d, %d", number, bodyForStorage.TxAmount))
@@ -646,6 +648,7 @@ func WriteRawBody(db kv.RwTx, hash common.Hash, number uint64, body *types.RawBo
 	if err = WriteRawTransactions(db, body.Transactions, firstNonSystemTxnID); err != nil {
 		return false, fmt.Errorf("WriteRawTransactions: %w", err)
 	}
+	//TODO(matus): write sidecars
 	return true, nil
 }
 

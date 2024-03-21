@@ -692,6 +692,8 @@ func (r *BlockReader) bodyFromSnapshot(blockHeight uint64, sn *Segment, buf []by
 	body := new(types.Body)
 	body.Uncles = b.Uncles
 	body.Withdrawals = b.Withdrawals
+	// TODO (matus)
+	// body.Sidecars = b.Sidecars
 	var txsAmount uint32
 	if b.TxAmount >= 2 {
 		txsAmount = b.TxAmount - 2

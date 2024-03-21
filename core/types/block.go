@@ -22,11 +22,12 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/sha3"
 	"io"
 	"math/big"
 	"reflect"
 	"sync/atomic"
+
+	"golang.org/x/crypto/sha3"
 
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
 
@@ -593,6 +594,7 @@ type Body struct {
 	Transactions []Transaction
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
+	Sidecars     []*BlobTxSidecar
 }
 
 // RawBody is semi-parsed variant of Body, where transactions are still unparsed RLP strings
@@ -602,6 +604,7 @@ type RawBody struct {
 	Transactions [][]byte
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
+	Sidecars     []*BlobTxSidecar
 }
 
 type BodyForStorage struct {
@@ -671,11 +674,11 @@ func (b *Body) SendersFromTxs() []libcommon.Address {
 }
 
 func (rb RawBody) EncodingSize() int {
-	payloadSize, _, _, _ := rb.payloadSize()
+	payloadSize, _, _, _, _ := rb.payloadSize()
 	return payloadSize
 }
 
-func (rb RawBody) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen int) {
+func (rb RawBody) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen int) {
 	// size of Transactions
 	for _, tx := range rb.Transactions {
 		txsLen += len(tx)
@@ -698,11 +701,20 @@ func (rb RawBody) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen 
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
-	return payloadSize, txsLen, unclesLen, withdrawalsLen
+	//size of Sidecars
+	if rb.Sidecars != nil {
+		for _, sidecar := range rb.Sidecars {
+			sidecarLen := sidecar.EncodingSize()
+			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
+		}
+		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
+	}
+
+	return payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen
 }
 
 func (rb RawBody) EncodeRLP(w io.Writer) error {
-	payloadSize, txsLen, unclesLen, withdrawalsLen := rb.payloadSize()
+	payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen := rb.payloadSize()
 	var b [33]byte
 	// prefix
 	if err := EncodeStructSizePrefix(payloadSize, w, b[:]); err != nil {
@@ -733,6 +745,18 @@ func (rb RawBody) EncodeRLP(w io.Writer) error {
 		}
 		for _, withdrawal := range rb.Withdrawals {
 			if err := withdrawal.EncodeRLP(w); err != nil {
+				return err
+			}
+		}
+	}
+
+	// encode Sidecars
+	if rb.Sidecars != nil {
+		if err := EncodeStructSizePrefix(sidecarsLen, w, b[:]); err != nil {
+			return err
+		}
+		for _, sidecar := range rb.Sidecars {
+			if err := sidecar.EncodeRLP(w); err != nil {
 				return err
 			}
 		}
@@ -804,6 +828,30 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 		return err
 	}
 	// end of Withdrawals
+	if err = s.ListEnd(); err != nil {
+		return err
+	}
+
+	//decode Sidecars
+	if _, err = s.List(); err != nil {
+		if errors.Is(err, rlp.EOL) {
+			rb.Sidecars = nil
+			return s.ListEnd()
+		}
+		return fmt.Errorf("read Sidecars: %w", err)
+	}
+	rb.Sidecars = []*BlobTxSidecar{}
+	for err == nil {
+		var sidecar BlobTxSidecar
+		if err = sidecar.DecodeRLP(s); err != nil {
+			break
+		}
+		rb.Sidecars = append(rb.Sidecars, &sidecar)
+	}
+	if !errors.Is(err, rlp.EOL) {
+		return err
+	}
+	// end of Sidecars
 	if err = s.ListEnd(); err != nil {
 		return err
 	}
@@ -1400,7 +1448,7 @@ func (b *Block) HeaderNoCopy() *Header { return b.header }
 
 // Body returns the non-header content of the block.
 func (b *Block) Body() *Body {
-	bd := &Body{Transactions: b.transactions, Uncles: b.uncles, Withdrawals: b.withdrawals}
+	bd := &Body{Transactions: b.transactions, Uncles: b.uncles, Withdrawals: b.withdrawals, Sidecars: b.sidecars}
 	bd.SendersFromTxs()
 	return bd
 }
@@ -1416,7 +1464,7 @@ func (b *Block) SendersToTxs(senders []libcommon.Address) {
 // RawBody creates a RawBody based on the block. It is not very efficient, so
 // will probably be removed in favour of RawBlock. Also it panics
 func (b *Block) RawBody() *RawBody {
-	br := &RawBody{Transactions: make([][]byte, len(b.transactions)), Uncles: b.uncles, Withdrawals: b.withdrawals}
+	br := &RawBody{Transactions: make([][]byte, len(b.transactions)), Uncles: b.uncles, Withdrawals: b.withdrawals, Sidecars: b.sidecars}
 	for i, tx := range b.transactions {
 		var err error
 		br.Transactions[i], err = rlp.EncodeToBytes(tx)

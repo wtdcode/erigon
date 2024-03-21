@@ -262,6 +262,71 @@ func (c KZGCommitment) ComputeVersionedHash() libcommon.Hash {
 	return libcommon.Hash(libkzg.KZGToVersionedHash(gokzg4844.KZGCommitment(c)))
 }
 
+// BlobTxSidecar encoderlp
+func (sc BlobTxSidecar) EncodeRLP(w io.Writer) error {
+	// prefix
+	payloadSize := sc.payloadSize()
+	b := make([]byte, 9)
+	if err := EncodeStructSizePrefix(payloadSize, w, b); err != nil {
+		return err
+	}
+
+	// blobs
+	if err := sc.Blobs.encodePayload(w, b, sc.Blobs.payloadSize()); err != nil {
+		return err
+	}
+
+	// commitments
+	if err := sc.Commitments.encodePayload(w, b, sc.Commitments.payloadSize()); err != nil {
+		return err
+	}
+
+	// proofs
+	if err := sc.Proofs.encodePayload(w, b, sc.Proofs.payloadSize()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// BlobTxSidecar decoderlp
+func (sc *BlobTxSidecar) DecodeRLP(s *rlp.Stream) error {
+	_, err := s.List()
+	if err != nil {
+		return fmt.Errorf("open BlobTxSidecar: %w", err)
+	}
+
+	if err := sc.Blobs.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Blobs: %w", err)
+	}
+
+	if err := sc.Commitments.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Commitments: %w", err)
+	}
+
+	if err := sc.Proofs.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Proofs: %w", err)
+	}
+
+	if err = s.ListEnd(); err != nil {
+		return fmt.Errorf("close BlobTxSidecar: %w", err)
+	}
+
+	return nil
+}
+
+/* BlobTxSidecar methods */
+
+func (sc BlobTxSidecar) payloadSize() int {
+	return sc.Blobs.payloadSize() + sc.Commitments.payloadSize() + sc.Proofs.payloadSize()
+}
+
+// encoding size for blob tx sidecar
+func (sc BlobTxSidecar) EncodingSize() int {
+	return sc.Blobs.payloadSize() + sc.Commitments.payloadSize() + sc.Proofs.payloadSize() + 9
+}
+
+// ValidateBlobTxSidecar implements validate_blob_tx_sidecar from EIP-4844
 func (sc *BlobTxSidecar) ValidateBlobTxSidecar(blobVersionedHashes []libcommon.Hash) error {
 	l1 := len(blobVersionedHashes)
 	if l1 == 0 {
@@ -290,6 +355,61 @@ func (sc *BlobTxSidecar) ValidateBlobTxSidecar(blobVersionedHashes []libcommon.H
 		}
 	}
 	return nil
+}
+
+// BlobTxSidecars encode and decode rlp methods
+func (scs BlobTxSidecars) EncodeRLP(w io.Writer) error {
+	// prefix
+	payloadSize := scs.payloadSize()
+	b := make([]byte, 9)
+	if err := EncodeStructSizePrefix(payloadSize, w, b); err != nil {
+		return err
+	}
+
+	// sidecars
+	for _, sc := range scs {
+		if err := sc.EncodeRLP(w); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (scs *BlobTxSidecars) DecodeRLP(s *rlp.Stream) error {
+	_, err := s.List()
+	if err != nil {
+		return fmt.Errorf("open BlobTxSidecars: %w", err)
+	}
+
+	var sc BlobTxSidecar
+	for {
+		err := sc.DecodeRLP(s)
+		if err != nil {
+			return fmt.Errorf("decode BlobTxSidecars: %w", err)
+		}
+		*scs = append(*scs, &sc)
+		if err = s.ListEnd(); err != nil {
+			return nil
+		}
+	}
+}
+
+func (scs BlobTxSidecars) payloadSize() int {
+	size := 1                                                   // 0xc7..0xcf
+	size += libcommon.BitLenToByteLen(bits.Len(uint(len(scs)))) // length encoding size
+	for _, sc := range scs {
+		size += sc.payloadSize()
+	}
+	return size
+}
+
+func (scs BlobTxSidecars) EncodingSize() int {
+	size := 9
+	for _, sc := range scs {
+		size += sc.EncodingSize()
+	}
+	return size
 }
 
 /* BlobTxWrapper methods */
