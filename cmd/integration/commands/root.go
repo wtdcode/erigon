@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ledgerwatch/erigon-lib/common/disk"
+	"github.com/ledgerwatch/erigon-lib/common/mem"
 	"github.com/ledgerwatch/log/v3"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/semaphore"
@@ -41,6 +43,9 @@ var rootCmd = &cobra.Command{
 	Use:   "integration",
 	Short: "long and heavy integration tests for Erigon",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		go mem.LogMemStats(context.Background(), log.New())
+		go disk.UpdateDiskStats(context.Background(), log.New())
+
 		datadirCli = expandHomeDir(datadirCli)
 		if chaindata == "" {
 			chaindata = filepath.Join(datadirCli, "chaindata")
