@@ -722,10 +722,10 @@ func (ac *AggregatorV3Context) CanPrune(tx kv.Tx, untilTx uint64) bool {
 			return true
 		}
 	}
-	return ac.logAddrs.CanPruneUntil(tx, untilTx) ||
-		ac.logTopics.CanPruneUntil(tx, untilTx) ||
-		ac.tracesFrom.CanPruneUntil(tx, untilTx) ||
-		ac.tracesTo.CanPruneUntil(tx, untilTx)
+	return ac.logAddrs.CanPrune(tx) ||
+		ac.logTopics.CanPrune(tx) ||
+		ac.tracesFrom.CanPrune(tx) ||
+		ac.tracesTo.CanPrune(tx)
 }
 
 func (ac *AggregatorV3Context) CanUnwindDomainsToBlockNum(tx kv.Tx) (uint64, error) {
@@ -765,9 +765,10 @@ func (ac *AggregatorV3Context) CanUnwindBeforeBlockNum(blockNum uint64, tx kv.Tx
 // PruneSmallBatches is not cancellable, it's over when it's over or failed.
 // It fills whole timeout with pruning by small batches (of 100 keys) and making some progress
 func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout time.Duration, tx kv.RwTx) (haveMore bool, err error) {
-	started := time.Now()
-	localTimeout := time.NewTicker(timeout)
-	defer localTimeout.Stop()
+	// On tip-of-chain timeout is about `3sec`
+	//  On tip of chain:     must be real-time - prune by small batches and prioritize exact-`timeout`
+	//  Not on tip of chain: must be aggressive (prune as much as possible) by bigger batches
+	aggressivePrune := timeout >= 1*time.Minute
 
 	var pruneLimit uint64 = 1_000
 	var withWarmup bool = false
@@ -777,6 +778,10 @@ func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout ti
 		pruneLimit = 100_000
 		withWarmup = true
 	}
+
+	started := time.Now()
+	localTimeout := time.NewTicker(timeout)
+	defer localTimeout.Stop()
 
 	logPeriod := 30 * time.Second
 	logEvery := time.NewTicker(logPeriod)
@@ -806,12 +811,14 @@ func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout ti
 
 		withWarmup = false // warmup once is enough
 
-		took := time.Since(iterationStarted)
-		if took < time.Second {
-			pruneLimit *= 10
-		}
-		if took > logPeriod {
-			pruneLimit /= 10
+		if aggressivePrune {
+			took := time.Since(iterationStarted)
+			if took < 2*time.Second {
+				pruneLimit *= 10
+			}
+			if took > logPeriod {
+				pruneLimit /= 10
+			}
 		}
 
 		select {
@@ -902,6 +909,7 @@ func (as *AggregatorPruneStat) Accumulate(other *AggregatorPruneStat) {
 }
 
 func (ac *AggregatorV3Context) Prune(ctx context.Context, tx kv.RwTx, limit uint64, withWarmup bool, logEvery *time.Ticker) (*AggregatorPruneStat, error) {
+	defer func(t time.Time) { fmt.Printf(" Prune took aggregator_v3.go:879: %s, %d\n", time.Since(t), limit) }(time.Now())
 	defer mxPruneTookAgg.ObserveDuration(time.Now())
 
 	if limit == 0 {
