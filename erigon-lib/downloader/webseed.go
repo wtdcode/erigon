@@ -283,10 +283,7 @@ func (d *WebSeeds) DownloadAndSaveTorrentFile(ctx context.Context, name string) 
 			continue // it's ok if some HTTP provider failed - try next one
 		}
 		ts, _, _, err := d.torrentFiles.CreateIfNotProhibited(name, res)
-		if err != nil {
-			return nil, false, err
-		}
-		return ts, ts != nil, nil
+		return ts, ts != nil, err
 	}
 
 	return nil, false, nil
