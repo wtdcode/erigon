@@ -27,9 +27,8 @@ import (
 	"reflect"
 	"sync/atomic"
 
-	"golang.org/x/crypto/sha3"
-
 	"github.com/gballet/go-verkle"
+	"golang.org/x/crypto/sha3"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
@@ -593,7 +592,7 @@ type Body struct {
 	Transactions []Transaction
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
-	Sidecars     BlobSidecars
+	Sidecars     []*BlobSidecar
 }
 
 // RawBody is semi-parsed variant of Body, where transactions are still unparsed RLP strings
@@ -603,7 +602,7 @@ type RawBody struct {
 	Transactions [][]byte
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
-	Sidecars     BlobSidecars
+	Sidecars     []*BlobSidecar
 }
 
 func (r *RawBody) CleanSidecars() {
@@ -689,27 +688,18 @@ func (rb RawBody) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen,
 	payloadSize += rlp2.ListPrefixLen(txsLen) + txsLen
 
 	// size of Uncles
-	for _, uncle := range rb.Uncles {
-		uncleLen := uncle.EncodingSize()
-		unclesLen += rlp2.ListPrefixLen(uncleLen) + uncleLen
-	}
+	unclesLen += encodingSizeGeneric(rb.Uncles)
 	payloadSize += rlp2.ListPrefixLen(unclesLen) + unclesLen
 
 	// size of Withdrawals
 	if rb.Withdrawals != nil {
-		for _, withdrawal := range rb.Withdrawals {
-			withdrawalLen := withdrawal.EncodingSize()
-			withdrawalsLen += rlp2.ListPrefixLen(withdrawalLen) + withdrawalLen
-		}
+		withdrawalsLen += encodingSizeGeneric(rb.Withdrawals)
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
-	//size of Sidecars
+	// size of Sidecars
 	if rb.Sidecars != nil {
-		for _, sidecar := range rb.Sidecars {
-			sidecarLen := sidecar.payloadSize()
-			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
-		}
+		sidecarsLen += encodingSizeGeneric(rb.Sidecars)
 		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
 	}
 
@@ -733,35 +723,20 @@ func (rb RawBody) EncodeRLP(w io.Writer) error {
 		}
 	}
 	// encode Uncles
-	if err := EncodeStructSizePrefix(unclesLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(rb.Uncles, unclesLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, uncle := range rb.Uncles {
-		if err := uncle.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Withdrawals
 	if rb.Withdrawals != nil {
-		if err := EncodeStructSizePrefix(withdrawalsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(rb.Withdrawals, withdrawalsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, withdrawal := range rb.Withdrawals {
-			if err := withdrawal.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 
 	// encode Sidecars
 	if rb.Sidecars != nil {
-		if err := EncodeStructSizePrefix(sidecarsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(rb.Sidecars, sidecarsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, sidecar := range rb.Sidecars {
-			if err := sidecar.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
@@ -772,7 +747,6 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 	if err != nil {
 		return err
 	}
-
 	// decode Transactions
 	if _, err = s.List(); err != nil {
 		return err
@@ -780,7 +754,7 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 	var tx []byte
 	for tx, err = s.Raw(); err == nil; tx, err = s.Raw() {
 		if tx == nil {
-			return errors.New("RawBody.DecodeRLP tx nil\n")
+			return errors.New("RawBody.DecodeRLP tx nil")
 		}
 		rb.Transactions = append(rb.Transactions, tx)
 	}
@@ -791,71 +765,19 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 	if err = s.ListEnd(); err != nil {
 		return err
 	}
-
 	// decode Uncles
-	if _, err = s.List(); err != nil {
+	if err := decodeUncles(&rb.Uncles, s); err != nil {
 		return err
 	}
-	for err == nil {
-		var uncle Header
-		if err = uncle.DecodeRLP(s); err != nil {
-			break
-		}
-		rb.Uncles = append(rb.Uncles, &uncle)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Uncles
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Withdrawals
-	if _, err = s.List(); err != nil {
-		if errors.Is(err, rlp.EOL) {
-			rb.Withdrawals = nil
-			return s.ListEnd()
-		}
-		return fmt.Errorf("read Withdrawals: %w", err)
-	}
 	rb.Withdrawals = []*Withdrawal{}
-	for err == nil {
-		var withdrawal Withdrawal
-		if err = withdrawal.DecodeRLP(s); err != nil {
-			break
-		}
-		rb.Withdrawals = append(rb.Withdrawals, &withdrawal)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Withdrawals
-	if err = s.ListEnd(); err != nil {
+	if err := decodeWithdrawals(&rb.Withdrawals, s); err != nil {
 		return err
 	}
 
 	//decode Sidecars
-	if _, err = s.List(); err != nil {
-		if errors.Is(err, rlp.EOL) {
-			rb.Sidecars = nil
-			return s.ListEnd()
-		}
-		return fmt.Errorf("read Sidecars: %w", err)
-	}
-	rb.Sidecars = BlobSidecars{}
-	for err == nil {
-		var sidecar BlobSidecar
-		if err = sidecar.DecodeRLP(s); err != nil {
-			break
-		}
-		rb.Sidecars = append(rb.Sidecars, &sidecar)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Sidecars
-	if err = s.ListEnd(); err != nil {
+	rb.Sidecars = []*BlobSidecar{}
+	if err := decodeSidecars(&rb.Sidecars, s); err != nil {
 		return err
 	}
 
@@ -870,18 +792,12 @@ func (bfs BodyForStorage) payloadSize() (payloadSize, unclesLen, withdrawalsLen 
 	payloadSize += txAmountLen
 
 	// size of Uncles
-	for _, uncle := range bfs.Uncles {
-		uncleLen := uncle.EncodingSize()
-		unclesLen += rlp2.ListPrefixLen(uncleLen) + uncleLen
-	}
+	unclesLen += encodingSizeGeneric(bfs.Uncles)
 	payloadSize += rlp2.ListPrefixLen(unclesLen) + unclesLen
 
 	// size of Withdrawals
 	if bfs.Withdrawals != nil {
-		for _, withdrawal := range bfs.Withdrawals {
-			withdrawalLen := withdrawal.EncodingSize()
-			withdrawalsLen += rlp2.ListPrefixLen(withdrawalLen) + withdrawalLen
-		}
+		withdrawalsLen += encodingSizeGeneric(bfs.Withdrawals)
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
@@ -908,24 +824,14 @@ func (bfs BodyForStorage) EncodeRLP(w io.Writer) error {
 	}
 
 	// encode Uncles
-	if err := EncodeStructSizePrefix(unclesLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(bfs.Uncles, unclesLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, uncle := range bfs.Uncles {
-		if err := uncle.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Withdrawals
 	// nil if pre-shanghai, empty slice if shanghai and no withdrawals in block, otherwise non-empty
 	if bfs.Withdrawals != nil {
-		if err := EncodeStructSizePrefix(withdrawalsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(bfs.Withdrawals, withdrawalsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, withdrawal := range bfs.Withdrawals {
-			if err := withdrawal.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
@@ -941,56 +847,17 @@ func (bfs *BodyForStorage) DecodeRLP(s *rlp.Stream) error {
 	if err = s.Decode(&bfs.BaseTxId); err != nil {
 		return err
 	}
-
 	// decode TxAmount
 	if err = s.Decode(&bfs.TxAmount); err != nil {
 		return err
 	}
-
 	// decode Uncles
-	if _, err = s.List(); err != nil {
+	if err := decodeUncles(&bfs.Uncles, s); err != nil {
 		return err
 	}
-	for err == nil {
-		var uncle Header
-		if err = uncle.DecodeRLP(s); err != nil {
-			break
-		}
-		bfs.Uncles = append(bfs.Uncles, &uncle)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Uncles
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Withdrawals
-	if _, err = s.List(); err != nil {
-		if errors.Is(err, rlp.EOL) {
-			// pre-shanghai block
-			bfs.Withdrawals = nil
-			return s.ListEnd()
-		}
-		return fmt.Errorf("read Withdrawals: %w", err)
-	}
-	for err == nil {
-		var withdrawal Withdrawal
-		if err = withdrawal.DecodeRLP(s); err != nil {
-			// shanghai block with no withdrawals
-			if len(bfs.Withdrawals) == 0 {
-				bfs.Withdrawals = []*Withdrawal{}
-			}
-			break
-		}
-		bfs.Withdrawals = append(bfs.Withdrawals, &withdrawal)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Withdrawals
-	if err = s.ListEnd(); err != nil {
+	bfs.Withdrawals = []*Withdrawal{}
+	if err := decodeWithdrawals(&bfs.Withdrawals, s); err != nil {
 		return err
 	}
 
@@ -1004,34 +871,22 @@ func (bb Body) EncodingSize() int {
 
 func (bb Body) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen int) {
 	// size of Transactions
-	for _, tx := range bb.Transactions {
-		txLen := tx.EncodingSize()
-		txsLen += rlp2.ListPrefixLen(txLen) + txLen
-	}
+	txsLen += encodingSizeGeneric(bb.Transactions)
 	payloadSize += rlp2.ListPrefixLen(txsLen) + txsLen
 
 	// size of Uncles
-	for _, uncle := range bb.Uncles {
-		uncleLen := uncle.EncodingSize()
-		unclesLen += rlp2.ListPrefixLen(uncleLen) + uncleLen
-	}
+	unclesLen += encodingSizeGeneric(bb.Uncles)
 	payloadSize += rlp2.ListPrefixLen(unclesLen) + unclesLen
 
 	// size of Withdrawals
 	if bb.Withdrawals != nil {
-		for _, withdrawal := range bb.Withdrawals {
-			withdrawalLen := withdrawal.EncodingSize()
-			withdrawalsLen += rlp2.ListPrefixLen(withdrawalLen) + withdrawalLen
-		}
+		withdrawalsLen += encodingSizeGeneric(bb.Withdrawals)
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
-	//size of Sidecars
+	// size of Sidecars
 	if bb.Sidecars != nil {
-		for _, sidecar := range bb.Sidecars {
-			sidecarLen := sidecar.payloadSize()
-			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
-		}
+		sidecarsLen += encodingSizeGeneric(bb.Sidecars)
 		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
 	}
 
@@ -1046,43 +901,23 @@ func (bb Body) EncodeRLP(w io.Writer) error {
 		return err
 	}
 	// encode Transactions
-	if err := EncodeStructSizePrefix(txsLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(bb.Transactions, txsLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, tx := range bb.Transactions {
-		if err := tx.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Uncles
-	if err := EncodeStructSizePrefix(unclesLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(bb.Uncles, unclesLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, uncle := range bb.Uncles {
-		if err := uncle.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Withdrawals
 	if bb.Withdrawals != nil {
-		if err := EncodeStructSizePrefix(withdrawalsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(bb.Withdrawals, withdrawalsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, withdrawal := range bb.Withdrawals {
-			if err := withdrawal.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 	// encode Sidecars
 	if bb.Sidecars != nil {
-		if err := EncodeStructSizePrefix(sidecarsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(bb.Sidecars, sidecarsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, sidecar := range bb.Sidecars {
-			if err := sidecar.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
@@ -1093,64 +928,17 @@ func (bb *Body) DecodeRLP(s *rlp.Stream) error {
 	if err != nil {
 		return err
 	}
-
 	// decode Transactions
-	if _, err = s.List(); err != nil {
+	if err := decodeTxns(&bb.Transactions, s); err != nil {
 		return err
 	}
-	var tx Transaction
-	blobTxnsAreWrappedWithBlobs := false
-	for tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs); err == nil; tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs) {
-		bb.Transactions = append(bb.Transactions, tx)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Transactions
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Uncles
-	if _, err = s.List(); err != nil {
+	if err := decodeUncles(&bb.Uncles, s); err != nil {
 		return err
 	}
-	for err == nil {
-		var uncle Header
-		if err = uncle.DecodeRLP(s); err != nil {
-			break
-		}
-		bb.Uncles = append(bb.Uncles, &uncle)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Uncles
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Withdrawals
-	if _, err = s.List(); err != nil {
-		if errors.Is(err, rlp.EOL) {
-			bb.Withdrawals = nil
-			return s.ListEnd()
-		}
-		return fmt.Errorf("read Withdrawals: %w", err)
-	}
 	bb.Withdrawals = []*Withdrawal{}
-	for err == nil {
-		var withdrawal Withdrawal
-		if err = withdrawal.DecodeRLP(s); err != nil {
-			break
-		}
-		bb.Withdrawals = append(bb.Withdrawals, &withdrawal)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Withdrawals
-	if err = s.ListEnd(); err != nil {
+	if err := decodeWithdrawals(&bb.Withdrawals, s); err != nil {
 		return err
 	}
 
@@ -1296,62 +1084,16 @@ func (bb *Block) DecodeRLP(s *rlp.Stream) error {
 	bb.header = &h
 
 	// decode Transactions
-	if _, err = s.List(); err != nil {
+	if err := decodeTxns((*[]Transaction)(&bb.transactions), s); err != nil {
 		return err
 	}
-	var tx Transaction
-	blobTxnsAreWrappedWithBlobs := false
-	for tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs); err == nil; tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs) {
-		bb.transactions = append(bb.transactions, tx)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Transactions
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Uncles
-	if _, err = s.List(); err != nil {
+	if err := decodeUncles(&bb.uncles, s); err != nil {
 		return err
 	}
-	for err == nil {
-		var uncle Header
-		if err = uncle.DecodeRLP(s); err != nil {
-			break
-		}
-		bb.uncles = append(bb.uncles, &uncle)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Uncles
-	if err = s.ListEnd(); err != nil {
-		return err
-	}
-
 	// decode Withdrawals
-	if _, err = s.List(); err != nil {
-		if errors.Is(err, rlp.EOL) {
-			bb.withdrawals = nil
-			return s.ListEnd()
-		}
-		return fmt.Errorf("read Withdrawals: %w", err)
-	}
 	bb.withdrawals = []*Withdrawal{}
-	for err == nil {
-		var withdrawal Withdrawal
-		if err = withdrawal.DecodeRLP(s); err != nil {
-			break
-		}
-		bb.withdrawals = append(bb.withdrawals, &withdrawal)
-	}
-	if !errors.Is(err, rlp.EOL) {
-		return err
-	}
-	// end of Withdrawals
-	if err = s.ListEnd(); err != nil {
+	if err := decodeWithdrawals(&bb.withdrawals, s); err != nil {
 		return err
 	}
 
@@ -1364,25 +1106,16 @@ func (bb Block) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLe
 	payloadSize += rlp2.ListPrefixLen(headerLen) + headerLen
 
 	// size of Transactions
-	for _, tx := range bb.transactions {
-		txLen := tx.EncodingSize()
-		txsLen += rlp2.ListPrefixLen(txLen) + txLen
-	}
+	txsLen += encodingSizeGeneric(bb.transactions)
 	payloadSize += rlp2.ListPrefixLen(txsLen) + txsLen
 
 	// size of Uncles
-	for _, uncle := range bb.uncles {
-		uncleLen := uncle.EncodingSize()
-		unclesLen += rlp2.ListPrefixLen(uncleLen) + uncleLen
-	}
+	unclesLen += encodingSizeGeneric(bb.uncles)
 	payloadSize += rlp2.ListPrefixLen(unclesLen) + unclesLen
 
 	// size of Withdrawals
 	if bb.withdrawals != nil {
-		for _, withdrawal := range bb.withdrawals {
-			withdrawalLen := withdrawal.EncodingSize()
-			withdrawalsLen += rlp2.ListPrefixLen(withdrawalLen) + withdrawalLen
-		}
+		withdrawalsLen += encodingSizeGeneric(bb.withdrawals)
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
@@ -1407,32 +1140,17 @@ func (bb Block) EncodeRLP(w io.Writer) error {
 		return err
 	}
 	// encode Transactions
-	if err := EncodeStructSizePrefix(txsLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(bb.transactions, txsLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, tx := range bb.transactions {
-		if err := tx.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Uncles
-	if err := EncodeStructSizePrefix(unclesLen, w, b[:]); err != nil {
+	if err := encodeRLPGeneric(bb.uncles, unclesLen, w, b[:]); err != nil {
 		return err
-	}
-	for _, uncle := range bb.uncles {
-		if err := uncle.EncodeRLP(w); err != nil {
-			return err
-		}
 	}
 	// encode Withdrawals
 	if bb.withdrawals != nil {
-		if err := EncodeStructSizePrefix(withdrawalsLen, w, b[:]); err != nil {
+		if err := encodeRLPGeneric(bb.withdrawals, withdrawalsLen, w, b[:]); err != nil {
 			return err
-		}
-		for _, withdrawal := range bb.withdrawals {
-			if err := withdrawal.EncodeRLP(w); err != nil {
-				return err
-			}
 		}
 	}
 	return nil
@@ -1719,6 +1437,107 @@ func DecodeOnlyTxMetadataFromBody(payload []byte) (baseTxId uint64, txAmount uin
 type BlockWithReceipts struct {
 	Block    *Block
 	Receipts Receipts
+}
+
+type rlpEncodable interface {
+	EncodeRLP(w io.Writer) error
+	EncodingSize() int
+}
+
+func encodingSizeGeneric[T rlpEncodable](arr []T) (_len int) {
+	for _, item := range arr {
+		size := item.EncodingSize()
+		_len += rlp2.ListPrefixLen(size) + size
+	}
+	return
+}
+
+func encodeRLPGeneric[T rlpEncodable](arr []T, _len int, w io.Writer, b []byte) error {
+	if err := EncodeStructSizePrefix(_len, w, b); err != nil {
+		return err
+	}
+	for _, item := range arr {
+		if err := item.EncodeRLP(w); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func decodeTxns(appendList *[]Transaction, s *rlp.Stream) error {
+	var err error
+	if _, err = s.List(); err != nil {
+		return err
+	}
+	var tx Transaction
+	blobTxnsAreWrappedWithBlobs := false
+	for tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs); err == nil; tx, err = DecodeRLPTransaction(s, blobTxnsAreWrappedWithBlobs) {
+		*appendList = append(*appendList, tx)
+	}
+	return checkErrListEnd(s, err)
+}
+
+func decodeUncles(appendList *[]*Header, s *rlp.Stream) error {
+	var err error
+	if _, err = s.List(); err != nil {
+		return err
+	}
+	for err == nil {
+		var u Header
+		if err = u.DecodeRLP(s); err != nil {
+			break
+		}
+		*appendList = append(*appendList, &u)
+	}
+	return checkErrListEnd(s, err)
+}
+
+func decodeWithdrawals(appendList *[]*Withdrawal, s *rlp.Stream) error {
+	var err error
+	if _, err = s.List(); err != nil {
+		if errors.Is(err, rlp.EOL) {
+			*appendList = nil
+			return nil // EOL, check for ListEnd is in calling function
+		}
+		return fmt.Errorf("read Withdrawals: %w", err)
+	}
+	for err == nil {
+		var w Withdrawal
+		if err = w.DecodeRLP(s); err != nil {
+			break
+		}
+		*appendList = append(*appendList, &w)
+	}
+	return checkErrListEnd(s, err)
+}
+
+func decodeSidecars(appendList *[]*BlobSidecar, s *rlp.Stream) error {
+	var err error
+	if _, err = s.List(); err != nil {
+		if errors.Is(err, rlp.EOL) {
+			*appendList = nil
+			return nil // EOL, check for ListEnd is in calling function
+		}
+		return fmt.Errorf("read BlobSidecar: %w", err)
+	}
+	for err == nil {
+		var sc BlobSidecar
+		if err = sc.DecodeRLP(s); err != nil {
+			break
+		}
+		*appendList = append(*appendList, &sc)
+	}
+	return checkErrListEnd(s, err)
+}
+
+func checkErrListEnd(s *rlp.Stream, err error) error {
+	if !errors.Is(err, rlp.EOL) {
+		return err
+	}
+	if err = s.ListEnd(); err != nil {
+		return err
+	}
+	return nil
 }
 
 type DiffAccountsInTx struct {
