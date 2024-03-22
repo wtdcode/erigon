@@ -778,7 +778,8 @@ func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout ti
 		withWarmup = true
 	}
 
-	logEvery := time.NewTicker(20 * time.Second)
+	logPeriod := 30 * time.Second
+	logEvery := time.NewTicker(logPeriod)
 	defer logEvery.Stop()
 	aggLogEvery := time.NewTicker(600 * time.Second) // to hide specific domain/idx logging
 	defer aggLogEvery.Stop()
@@ -809,7 +810,7 @@ func (ac *AggregatorV3Context) PruneSmallBatches(ctx context.Context, timeout ti
 		if took < time.Second {
 			pruneLimit *= 10
 		}
-		if took > 30*time.Second {
+		if took > logPeriod {
 			pruneLimit /= 10
 		}
 
