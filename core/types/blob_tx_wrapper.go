@@ -14,6 +14,7 @@ import (
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/fixedgas"
 	libkzg "github.com/ledgerwatch/erigon-lib/crypto/kzg"
+	rlp2 "github.com/ledgerwatch/erigon-lib/rlp"
 	types2 "github.com/ledgerwatch/erigon-lib/types"
 
 	"github.com/ledgerwatch/erigon/rlp"
@@ -262,28 +263,25 @@ func (c KZGCommitment) ComputeVersionedHash() libcommon.Hash {
 
 // BlobTxSidecar encoderlp
 func (sc BlobTxSidecar) EncodeRLP(w io.Writer) error {
-	// prefix
-	payloadSize := sc.payloadSize()
-	b := make([]byte, 9)
-	if err := EncodeStructSizePrefix(payloadSize, w, b); err != nil {
+	var b [33]byte
+	if err := EncodeStructSizePrefix(sc.payloadSize(), w, b[:]); err != nil {
 		return err
 	}
 
 	// blobs
-	if err := sc.Blobs.encodePayload(w, b, sc.Blobs.payloadSize()); err != nil {
+	if err := sc.Blobs.encodePayload(w, b[:], sc.Blobs.payloadSize()); err != nil {
 		return err
 	}
 
 	// commitments
-	if err := sc.Commitments.encodePayload(w, b, sc.Commitments.payloadSize()); err != nil {
+	if err := sc.Commitments.encodePayload(w, b[:], sc.Commitments.payloadSize()); err != nil {
 		return err
 	}
 
 	// proofs
-	if err := sc.Proofs.encodePayload(w, b, sc.Proofs.payloadSize()); err != nil {
+	if err := sc.Proofs.encodePayload(w, b[:], sc.Proofs.payloadSize()); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -316,12 +314,13 @@ func (sc *BlobTxSidecar) DecodeRLP(s *rlp.Stream) error {
 /* BlobTxSidecar methods */
 
 func (sc BlobTxSidecar) payloadSize() int {
-	return sc.Blobs.payloadSize() + sc.Commitments.payloadSize() + sc.Proofs.payloadSize()
-}
-
-// encoding size for blob tx sidecar
-func (sc BlobTxSidecar) EncodingSize() int {
-	return sc.Blobs.payloadSize() + sc.Commitments.payloadSize() + sc.Proofs.payloadSize() + 9
+	blobSize := sc.Blobs.payloadSize()
+	payloadSize := rlp2.ListPrefixLen(blobSize) + blobSize
+	commitmentSize := sc.Commitments.payloadSize()
+	payloadSize += rlp2.ListPrefixLen(commitmentSize) + commitmentSize
+	proofSize := sc.Proofs.payloadSize()
+	payloadSize += rlp2.ListPrefixLen(proofSize) + proofSize
+	return payloadSize
 }
 
 // ValidateBlobTxSidecar implements validate_blob_tx_sidecar from EIP-4844

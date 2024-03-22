@@ -843,10 +843,11 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 	}
 	rb.Sidecars = BlobSidecars{}
 	for err == nil {
-		var sidecars BlobSidecars
-		if err = sidecars.DecodeRLP(s); err != nil {
+		var sidecar BlobSidecar
+		if err = sidecar.DecodeRLP(s); err != nil {
 			break
 		}
+		rb.Sidecars = append(rb.Sidecars, &sidecar)
 	}
 	if !errors.Is(err, rlp.EOL) {
 		return err

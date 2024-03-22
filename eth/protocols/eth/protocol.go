@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -338,7 +339,18 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 	// decode sidecars
 	if err = s.ListEnd(); err != nil {
 		nbp.Sidecars = types.BlobSidecars{}
-		if err := nbp.Sidecars.DecodeRLP(s); err != nil {
+		for err == nil {
+			var sidecar types.BlobSidecar
+			if err = sidecar.DecodeRLP(s); err != nil {
+				break
+			}
+			nbp.Sidecars = append(nbp.Sidecars, &sidecar)
+		}
+		if !errors.Is(err, rlp.EOL) {
+			return err
+		}
+		// end of Sidecars
+		if err = s.ListEnd(); err != nil {
 			return err
 		}
 	}

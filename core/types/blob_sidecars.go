@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	"math/bits"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon/rlp"
@@ -59,7 +58,11 @@ func (s *BlobSidecar) SanityCheck(blockNumber *big.Int, blockHash libcommon.Hash
 
 // generate encode and decode rlp for BlobSidecar
 func (s *BlobSidecar) EncodeRLP(w io.Writer) error {
-	if err := rlp.Encode(w, s.BlobTxSidecar); err != nil {
+	var b [33]byte
+	if err := EncodeStructSizePrefix(s.payloadSize(), w, b[:]); err != nil {
+		return err
+	}
+	if err := s.BlobTxSidecar.EncodeRLP(w); err != nil {
 		return err
 	}
 	if err := rlp.Encode(w, s.BlockNumber); err != nil {
@@ -104,13 +107,16 @@ func (sc *BlobSidecar) DecodeRLP(s *rlp.Stream) error {
 		return err
 	}
 	sc.TxHash = libcommon.BytesToHash(b)
-	return s.ListEnd()
+
+	if err = s.ListEnd(); err != nil {
+		return fmt.Errorf("close BlobSidecar: %w", err)
+	}
+	return nil
 }
 
 func (s *BlobSidecar) payloadSize() int {
-	size := 0
-	size += s.BlobTxSidecar.payloadSize()
-	size += 1 + rlp.BigIntLenExcludingHead(s.BlockNumber)
+	size := s.BlobTxSidecar.payloadSize()
+	size += rlp.BigIntLenExcludingHead(s.BlockNumber)
 	size += 32
 	size += 8
 	size += 32
@@ -119,59 +125,4 @@ func (s *BlobSidecar) payloadSize() int {
 
 func (s *BlobSidecar) EncodingSize() int {
 	return 1 + s.payloadSize()
-}
-
-// BlobTxSidecars encode and decode rlp methods
-func (scs BlobSidecars) EncodeRLP(w io.Writer) error {
-	// prefix
-	payloadSize := scs.payloadSize()
-	b := make([]byte, 9)
-	if err := EncodeStructSizePrefix(payloadSize, w, b); err != nil {
-		return err
-	}
-
-	// sidecars
-	for _, sc := range scs {
-		if err := sc.EncodeRLP(w); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (scs *BlobSidecars) DecodeRLP(s *rlp.Stream) error {
-	_, err := s.List()
-	if err != nil {
-		return fmt.Errorf("open BlobSidecar: %w", err)
-	}
-
-	var sc BlobSidecar
-	for {
-		err := sc.DecodeRLP(s)
-		if err != nil {
-			return fmt.Errorf("decode BlobSidecar: %w", err)
-		}
-		*scs = append(*scs, &sc)
-		if err = s.ListEnd(); err != nil {
-			return nil
-		}
-	}
-}
-
-func (scs BlobSidecars) payloadSize() int {
-	size := 1                                                   // 0xc7..0xcf
-	size += libcommon.BitLenToByteLen(bits.Len(uint(len(scs)))) // length encoding size
-	for _, sc := range scs {
-		size += sc.payloadSize()
-	}
-	return size
-}
-
-func (scs BlobSidecars) EncodingSize() int {
-	size := 9
-	for _, sc := range scs {
-		size += sc.EncodingSize()
-	}
-	return size
 }
