@@ -594,7 +594,7 @@ type Body struct {
 	Transactions []Transaction
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
-	Sidecars     []*BlobTxSidecar
+	Sidecars     BlobSidecars
 }
 
 // RawBody is semi-parsed variant of Body, where transactions are still unparsed RLP strings
@@ -604,7 +604,7 @@ type RawBody struct {
 	Transactions [][]byte
 	Uncles       []*Header
 	Withdrawals  []*Withdrawal
-	Sidecars     []*BlobTxSidecar
+	Sidecars     BlobSidecars
 }
 
 type BodyForStorage struct {
@@ -612,6 +612,7 @@ type BodyForStorage struct {
 	TxAmount    uint32
 	Uncles      []*Header
 	Withdrawals []*Withdrawal
+	//TODO(matus) how we will store sidecars?
 }
 
 // Alternative representation of the Block.
@@ -649,7 +650,7 @@ type Block struct {
 	size atomic.Value
 
 	// sidecars provides DA check
-	sidecars BlobTxSidecars
+	sidecars BlobSidecars
 }
 
 // Copy transaction senders from body into the transactions
@@ -840,13 +841,12 @@ func (rb *RawBody) DecodeRLP(s *rlp.Stream) error {
 		}
 		return fmt.Errorf("read Sidecars: %w", err)
 	}
-	rb.Sidecars = []*BlobTxSidecar{}
+	rb.Sidecars = BlobSidecars{}
 	for err == nil {
-		var sidecar BlobTxSidecar
-		if err = sidecar.DecodeRLP(s); err != nil {
+		var sidecars BlobSidecars
+		if err = sidecars.DecodeRLP(s); err != nil {
 			break
 		}
-		rb.Sidecars = append(rb.Sidecars, &sidecar)
 	}
 	if !errors.Is(err, rlp.EOL) {
 		return err
@@ -1506,7 +1506,7 @@ func (b *Block) SanityCheck() error {
 	return b.header.SanityCheck()
 }
 
-func (b *Block) Sidecars() BlobTxSidecars {
+func (b *Block) Sidecars() BlobSidecars {
 	return b.sidecars
 }
 
@@ -1637,7 +1637,7 @@ func (b *Block) WithSeal(header *Header) *Block {
 }
 
 // WithSidecars returns a block containing the given blobs.
-func (b *Block) WithSidecars(sidecars BlobTxSidecars) *Block {
+func (b *Block) WithSidecars(sidecars BlobSidecars) *Block {
 	block := &Block{
 		header:       b.header,
 		transactions: b.transactions,

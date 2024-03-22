@@ -265,7 +265,7 @@ type BlockHeadersPacket66 struct {
 type NewBlockPacket struct {
 	Block    *types.Block
 	TD       *big.Int
-	Sidecars types.BlobTxSidecars
+	Sidecars types.BlobSidecars
 }
 
 func (nbp NewBlockPacket) EncodeRLP(w io.Writer) error {
@@ -337,7 +337,7 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 
 	// decode sidecars
 	if err = s.ListEnd(); err != nil {
-		nbp.Sidecars = types.BlobTxSidecars{}
+		nbp.Sidecars = types.BlobSidecars{}
 		if err := nbp.Sidecars.DecodeRLP(s); err != nil {
 			return err
 		}

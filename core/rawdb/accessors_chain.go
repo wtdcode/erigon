@@ -671,6 +671,7 @@ func WriteBody(db kv.RwTx, hash common.Hash, number uint64, body *types.Body) (e
 	if err = WriteTransactions(db, body.Transactions, baseTxId+1); err != nil {
 		return fmt.Errorf("failed to WriteTransactions: %w", err)
 	}
+	//TODO(matus): write sidecars
 	return nil
 }
 

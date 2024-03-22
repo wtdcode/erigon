@@ -31,8 +31,6 @@ type BlobKzgs []KZGCommitment
 type KZGProofs []KZGProof
 type Blobs []Blob
 
-type BlobTxSidecars []*BlobTxSidecar
-
 // BlobTxSidecar contains the blobs of a blob transaction.
 type BlobTxSidecar struct {
 	Blobs       Blobs     // Blobs needed by the blob pool
@@ -357,61 +355,6 @@ func (sc *BlobTxSidecar) ValidateBlobTxSidecar(blobVersionedHashes []libcommon.H
 	return nil
 }
 
-// BlobTxSidecars encode and decode rlp methods
-func (scs BlobTxSidecars) EncodeRLP(w io.Writer) error {
-	// prefix
-	payloadSize := scs.payloadSize()
-	b := make([]byte, 9)
-	if err := EncodeStructSizePrefix(payloadSize, w, b); err != nil {
-		return err
-	}
-
-	// sidecars
-	for _, sc := range scs {
-		if err := sc.EncodeRLP(w); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (scs *BlobTxSidecars) DecodeRLP(s *rlp.Stream) error {
-	_, err := s.List()
-	if err != nil {
-		return fmt.Errorf("open BlobTxSidecars: %w", err)
-	}
-
-	var sc BlobTxSidecar
-	for {
-		err := sc.DecodeRLP(s)
-		if err != nil {
-			return fmt.Errorf("decode BlobTxSidecars: %w", err)
-		}
-		*scs = append(*scs, &sc)
-		if err = s.ListEnd(); err != nil {
-			return nil
-		}
-	}
-}
-
-func (scs BlobTxSidecars) payloadSize() int {
-	size := 1                                                   // 0xc7..0xcf
-	size += libcommon.BitLenToByteLen(bits.Len(uint(len(scs)))) // length encoding size
-	for _, sc := range scs {
-		size += sc.payloadSize()
-	}
-	return size
-}
-
-func (scs BlobTxSidecars) EncodingSize() int {
-	size := 9
-	for _, sc := range scs {
-		size += sc.EncodingSize()
-	}
-	return size
-}
-
 /* BlobTxWrapper methods */
 
 // validateBlobTransactionWrapper implements validate_blob_transaction_wrapper from EIP-4844
@@ -539,4 +482,12 @@ func (txw *BlobTxWrapper) MarshalBinary(w io.Writer) error {
 }
 func (txw BlobTxWrapper) EncodeRLP(w io.Writer) error {
 	return txw.Tx.EncodeRLP(w)
+}
+
+func (txw *BlobTxWrapper) BlobTxSidecar() *BlobTxSidecar {
+	return &BlobTxSidecar{
+		Blobs:       txw.Blobs.copy(),
+		Commitments: txw.Commitments.copy(),
+		Proofs:      txw.Proofs.copy(),
+	}
 }
