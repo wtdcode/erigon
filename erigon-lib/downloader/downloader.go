@@ -2202,7 +2202,6 @@ func (d *Downloader) AddMagnetLink(ctx context.Context, infoHash metainfo.Hash, 
 			// TOOD: maybe run it in goroutine and return channel - to select with p2p
 
 			ok, err := d.webseeds.DownloadAndSaveTorrentFile(ctx, name)
-			log.Warn("[dbg] got from R2", "ok", ok, "err", err)
 			if ok && err == nil {
 				ts, err := d.torrentFiles.LoadByPath(filepath.Join(d.SnapDir(), name+".torrent"))
 				if err != nil {
