@@ -62,8 +62,9 @@ func (cs *MultiClient) BroadcastNewBlock(ctx context.Context, header *types.Head
 	}
 
 	data, err := rlp.EncodeToBytes(&eth.NewBlockPacket{
-		Block: block,
-		TD:    td,
+		Block:    block,
+		TD:       td,
+		Sidecars: body.Sidecars,
 	})
 
 	if err != nil {

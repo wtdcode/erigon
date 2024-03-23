@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon/consensus"
 	"github.com/ledgerwatch/erigon/core/types"
-	"github.com/ledgerwatch/erigon/erigon-lib/common"
 	"github.com/ledgerwatch/erigon/params"
 )
 

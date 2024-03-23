@@ -504,6 +504,10 @@ func (cs *MultiClient) newBlock66(ctx context.Context, inreq *proto_sentry.Inbou
 		return fmt.Errorf("newBlock66: %w", err)
 	}
 
+	if request.Sidecars != nil {
+		request.Block.WithSidecars(request.Sidecars)
+	}
+
 	if segments, penalty, err := cs.Hd.SingleHeaderAsSegment(headerRaw, request.Block.Header(), true /* penalizePoSBlocks */); err == nil {
 		if penalty == headerdownload.NoPenalty {
 			propagate := !cs.ChainConfig.TerminalTotalDifficultyPassed

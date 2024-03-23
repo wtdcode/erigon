@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -263,8 +264,9 @@ type BlockHeadersPacket66 struct {
 
 // NewBlockPacket is the network packet for the block propagation message.
 type NewBlockPacket struct {
-	Block *types.Block
-	TD    *big.Int
+	Block    *types.Block
+	TD       *big.Int
+	Sidecars types.BlobSidecars
 }
 
 func (nbp NewBlockPacket) EncodeRLP(w io.Writer) error {
@@ -308,6 +310,12 @@ func (nbp NewBlockPacket) EncodeRLP(w io.Writer) error {
 			return err
 		}
 	}
+	// encode sidecars
+	if len(nbp.Sidecars) > 0 {
+		if err := rlp.Encode(w, nbp.Sidecars); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -327,15 +335,46 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 		return fmt.Errorf("read TD: %w", err)
 	}
 	nbp.TD = new(big.Int).SetBytes(b)
+
+	// decode sidecars
 	if err = s.ListEnd(); err != nil {
-		return err
+		nbp.Sidecars = types.BlobSidecars{}
+		for err == nil {
+			var sidecar types.BlobSidecar
+			if err = sidecar.DecodeRLP(s); err != nil {
+				break
+			}
+			nbp.Sidecars = append(nbp.Sidecars, &sidecar)
+		}
+		if !errors.Is(err, rlp.EOL) {
+			return err
+		}
+		// end of Sidecars
+		if err = s.ListEnd(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // SanityCheck verifies that the values are reasonable, as a DoS protection
 func (request *NewBlockPacket) SanityCheck() error {
-	return request.Block.SanityCheck()
+	if err := request.Block.SanityCheck(); err != nil {
+		return err
+	}
+
+	if len(request.Sidecars) > 0 {
+		// todo 4844 do full sanity check for blob
+		for _, sidecar := range request.Sidecars {
+			lProofs := len(sidecar.Proofs)
+			lBlobs := len(sidecar.Blobs)
+			lCommitments := len(sidecar.Commitments)
+			if lProofs != lBlobs || lProofs != lCommitments || lCommitments != lBlobs {
+				return fmt.Errorf("mismatch of lengths of sidecar proofs %d, blobs %d, commitments %d", lProofs, lBlobs, lCommitments)
+			}
+		}
+	}
+	return nil
 }
 
 // GetBlockBodiesPacket represents a block body query.

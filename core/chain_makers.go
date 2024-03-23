@@ -59,7 +59,7 @@ type BlockGen struct {
 	engine consensus.Engine
 
 	// extra data of block
-	sidecars types.BlobTxSidecars
+	sidecars types.BlobSidecars
 
 	beforeAddTx func()
 }
@@ -154,7 +154,7 @@ func (b *BlockGen) AddUncheckedTx(tx types.Transaction) {
 }
 
 // AddBlobSidecar add block's blob sidecar for DA checking.
-func (b *BlockGen) AddBlobSidecar(sidecar *types.BlobTxSidecar) {
+func (b *BlockGen) AddBlobSidecar(sidecar *types.BlobSidecar) {
 	b.sidecars = append(b.sidecars, sidecar)
 }
 
