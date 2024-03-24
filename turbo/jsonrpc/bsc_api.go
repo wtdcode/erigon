@@ -5,8 +5,10 @@ import (
 	"fmt"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/hexutil"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/rpc"
+	"github.com/ledgerwatch/erigon/turbo/rpchelper"
 )
 
 // BscAPI is a collection of functions that are exposed in the
@@ -26,16 +28,20 @@ type BscAPI interface {
 	GetTransactionsByBlockNumber(ctx context.Context, blockNr rpc.BlockNumber) ([]*RPCTransaction, error)
 	GetVerifyResult(ctx context.Context, blockNr rpc.BlockNumber, blockHash libcommon.Hash, diffHash libcommon.Hash) ([]map[string]interface{}, error)
 	PendingTransactions() ([]*RPCTransaction, error)
+	GetBlobSidecars(ctx context.Context, numberOrHash rpc.BlockNumberOrHash) ([]map[string]interface{}, error)
+	GetBlobSidecarByTxHash(ctx context.Context, hash libcommon.Hash) (map[string]interface{}, error)
 }
 
 type BscAPIImpl struct {
 	ethApi *APIImpl
+	blobDb blob_storage.BlobStorage
 }
 
 // NewBscAPI returns BscAPIImpl instance.
-func NewBscAPI(eth *APIImpl) *BscAPIImpl {
+func NewBscAPI(eth *APIImpl, blobDb blob_storage.BlobStorage) *BscAPIImpl {
 	return &BscAPIImpl{
 		ethApi: eth,
+		blobDb: blobDb,
 	}
 }
 
@@ -172,4 +178,54 @@ func (api *BscAPIImpl) GetVerifyResult(ctx context.Context, blockNr rpc.BlockNum
 // and have a from address that is one of the accounts this node manages.
 func (s *BscAPIImpl) PendingTransactions() ([]*RPCTransaction, error) {
 	return nil, fmt.Errorf(NotImplemented, "eth_pendingTransactions")
+}
+
+func (api *BscAPIImpl) GetBlobSidecars(ctx context.Context, numberOrHash rpc.BlockNumberOrHash) ([]map[string]interface{}, error) {
+	tx, err := api.ethApi.db.BeginRo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	blockNumber, blockHash, _, err := rpchelper.GetBlockNumber(numberOrHash, tx, api.ethApi.filters)
+	if err != nil {
+		return nil, err
+	}
+	blobSidecars, found, err := api.blobDb.ReadBlobSidecars(ctx, blockNumber, blockHash)
+	if err != nil || !found {
+		return nil, err
+	}
+	result := make([]map[string]interface{}, 0, len(blobSidecars))
+	for i, sidecar := range blobSidecars {
+		result[i] = marshalBlobSidecar(sidecar)
+	}
+	return result, nil
+}
+
+func (api *BscAPIImpl) GetBlobSidecarByTxHash(ctx context.Context, hash libcommon.Hash) (map[string]interface{}, error) {
+	tx, err := api.ethApi.GetTransactionByHash(ctx, hash)
+	if err != nil {
+		return nil, err
+	}
+	blobSidecars, found, err := api.blobDb.ReadBlobSidecars(ctx, tx.BlockNumber.Uint64(), *tx.BlockHash)
+	if err != nil || !found {
+		return nil, err
+	}
+	for _, sidecar := range blobSidecars {
+		if sidecar.TxIndex == uint64(*tx.TransactionIndex) {
+			return marshalBlobSidecar(sidecar), nil
+		}
+	}
+	return nil, nil
+}
+
+func marshalBlobSidecar(sidecar *types.BlobSidecar) map[string]interface{} {
+	fields := map[string]interface{}{
+		"blockHash":   sidecar.BlockHash,
+		"blockNumber": hexutil.EncodeUint64(sidecar.BlockNumber.Uint64()),
+		"txHash":      sidecar.TxHash,
+		"txIndex":     hexutil.EncodeUint64(sidecar.TxIndex),
+		"blobSidecar": sidecar.BlobTxSidecar,
+	}
+	return fields
 }

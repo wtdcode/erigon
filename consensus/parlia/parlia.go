@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ledgerwatch/erigon-lib/common/cmp"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"github.com/ledgerwatch/erigon/crypto/cryptopool"
 	"github.com/ledgerwatch/erigon/turbo/services"
 	"math/big"
@@ -204,9 +203,8 @@ type Parlia struct {
 	chainConfig *chain.Config       // Chain config
 	config      *chain.ParliaConfig // Consensus engine configuration parameters for parlia consensus
 	genesisHash libcommon.Hash
-	db          kv.RwDB // Database to store and retrieve snapshot checkpoints and blobTxCount
+	db          kv.RwDB // Database to store and retrieve snapshot checkpoints
 	chainDb     kv.RwDB
-	blobDb      blob_storage.BlobStorage // Database to store blob data
 
 	recentSnaps *lru.ARCCache[libcommon.Hash, *Snapshot]         // Snapshots for recent block to speed up
 	signatures  *lru.ARCCache[libcommon.Hash, libcommon.Address] // Signatures of recent blocks to speed up mining
@@ -236,7 +234,6 @@ func New(
 	db kv.RwDB,
 	blockReader services.FullBlockReader,
 	chainDb kv.RwDB,
-	blobDb blob_storage.BlobStorage,
 	logger log.Logger,
 ) *Parlia {
 	// get parlia config
@@ -277,7 +274,6 @@ func New(
 		config:                     parliaConfig,
 		db:                         db,
 		chainDb:                    chainDb,
-		blobDb:                     blobDb,
 		recentSnaps:                recentSnaps,
 		signatures:                 signatures,
 		validatorSetABIBeforeLuban: vABIBeforeLuban,

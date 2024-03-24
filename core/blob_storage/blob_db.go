@@ -78,9 +78,9 @@ func (bs *BlobStore) WriteBlobSidecars(ctx context.Context, blockHash libcommon.
 			return err
 		}
 	}
-	tx, err := bs.db.BeginRw(ctx)
 	val := make([]byte, 4)
 	binary.LittleEndian.PutUint32(val, uint32(len(blobSidecars)))
+	tx, err := bs.db.BeginRw(ctx)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (bs *BlobStore) WriteBlobSidecars(ctx context.Context, blockHash libcommon.
 	if err := tx.Put(kv.BlobTxCount, blockHash[:], val); err != nil {
 		return err
 	}
-	return nil
+	return tx.Commit()
 }
 
 // ReadBlobSidecars reads the sidecars from the database. it assumes that all blobSidecars are for the same blockRoot and we have all of them.
