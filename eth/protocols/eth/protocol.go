@@ -337,7 +337,7 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 	nbp.TD = new(big.Int).SetBytes(b)
 
 	// decode sidecars
-	if err = s.ListEnd(); err != nil {
+	if _, err = s.List(); err == nil {
 		nbp.Sidecars = types.BlobSidecars{}
 		for err == nil {
 			var sidecar types.BlobSidecar
@@ -353,6 +353,10 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 		if err = s.ListEnd(); err != nil {
 			return err
 		}
+
+	} else if errors.Is(err, rlp.EOL) {
+		nbp.Sidecars = nil
+		return s.ListEnd()
 	}
 	return nil
 }

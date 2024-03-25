@@ -612,7 +612,6 @@ type BodyForStorage struct {
 	TxAmount    uint32
 	Uncles      []*Header
 	Withdrawals []*Withdrawal
-	//TODO(matus) how we will store sidecars?
 }
 
 // Alternative representation of the Block.
