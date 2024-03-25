@@ -141,7 +141,7 @@ func (s *Sync) UnwindTo(unwindPoint uint64, reason UnwindReason, tx kv.Tx) error
 				return err
 			}
 			if !ok {
-				return fmt.Errorf("too far unwind. requested=%d, minAllowed=%d", unwindPoint, unwindPointWithCommitment)
+				return fmt.Errorf("too far unwind. requested=%d, minAllowed=%d, %s", unwindPoint, unwindPointWithCommitment, dbg.Stack())
 			}
 			unwindPoint = unwindPointWithCommitment
 		}
