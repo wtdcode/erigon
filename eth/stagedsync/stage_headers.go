@@ -338,7 +338,7 @@ Loop:
 				return err
 			}
 			if !ok {
-				return fmt.Errorf("too far unwind. requested=%d, minAllowed=%d", unwindTo, allowedUnwindTo)
+				return fmt.Errorf("too far unwind. requested=%d, minAllowed=%d, %s", unwindTo, allowedUnwindTo, dbg.Stack())
 			}
 			if err := u.UnwindTo(allowedUnwindTo, StagedUnwind, tx); err != nil {
 				return err
