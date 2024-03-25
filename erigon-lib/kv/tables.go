@@ -326,7 +326,7 @@ const (
 	// }
 	ParliaSnapshot = "ParliaSnapshot"
 
-	BlobTxCount = "BlobTxCount" // block_num_u64 + hash -> BlobTx in block (RLP)
+	BlobTxCount = "BlobTxCount" // hash -> BlobTx in block (RLP)
 
 	// Proof-of-stake
 	// Beacon chain head that is been executed at the current time
@@ -565,6 +565,7 @@ var ChaindataTables = []string{
 	CliqueLastSnapshot,
 	CliqueSnapshot,
 	ParliaSnapshot,
+	BlobTxCount,
 	SyncStageProgress,
 	PlainState,
 	PlainContractCode,
