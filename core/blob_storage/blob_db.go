@@ -168,7 +168,7 @@ func (bs *BlobStore) WriteStream(w io.Writer, number uint64, hash libcommon.Hash
 }
 
 func (bs *BlobStore) BlobTxCount(ctx context.Context, hash libcommon.Hash) (uint32, error) {
-	tx, err := bs.db.BeginRo(context.Background())
+	tx, err := bs.db.BeginRo(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -183,7 +183,7 @@ func (bs *BlobStore) BlobTxCount(ctx context.Context, hash libcommon.Hash) (uint
 	return binary.LittleEndian.Uint32(val), nil
 }
 
-func (bs *BlobStore) RemoveBlobSidecars(ctx context.Context, slot uint64, hash libcommon.Hash) error {
+func (bs *BlobStore) RemoveBlobSidecars(ctx context.Context, number uint64, hash libcommon.Hash) error {
 	tx, err := bs.db.BeginRw(ctx)
 	if err != nil {
 		return err
@@ -198,7 +198,7 @@ func (bs *BlobStore) RemoveBlobSidecars(ctx context.Context, slot uint64, hash l
 	}
 	blobTxCount := binary.LittleEndian.Uint32(val)
 	for i := uint32(0); i < blobTxCount; i++ {
-		_, filePath := blobSidecarFilePath(slot, uint64(i), hash)
+		_, filePath := blobSidecarFilePath(number, uint64(i), hash)
 		if err := bs.fs.Remove(filePath); err != nil {
 			return err
 		}
