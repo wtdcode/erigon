@@ -344,7 +344,11 @@ func _addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient
 	var have bool
 	t, have = torrentClient.Torrent(ts.InfoHash)
 	if strings.Contains(ts.DisplayName, "002500-003000-transactions") {
-		fmt.Printf("addTorrentFile2: %s, have=%t, completed=%t, gotInfo=%t, webseeds=%d\n", ts.DisplayName, have, t.Complete.Bool(), t.Info() != nil, len(ts.Webseeds))
+		if have {
+			fmt.Printf("addTorrentFile2: %s, have=%t, completed=%t, gotInfo=%t, webseeds=%d\n", ts.DisplayName, have, t.Complete.Bool(), t.Info() != nil, len(ts.Webseeds))
+		} else {
+			fmt.Printf("addTorrentFile2: %s, have=%t, completed=%t, gotInfo=%t, webseeds=%d\n", ts.DisplayName, have, false, false, len(ts.Webseeds))
+		}
 	}
 
 	if !have {
