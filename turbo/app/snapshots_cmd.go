@@ -806,7 +806,7 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	}
 
 	logger.Info("Work on state history snapshots")
-	indexWorkers := estimate.IndexSnapshot.Workers()
+	indexWorkers := estimate.IndexSnapshot.WorkersHalf()
 	if err = agg.BuildOptionalMissedIndices(ctx, indexWorkers); err != nil {
 		return err
 	}
