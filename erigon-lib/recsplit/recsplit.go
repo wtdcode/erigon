@@ -174,6 +174,7 @@ func NewRecSplit(args RecSplitArgs, logger log.Logger) (*RecSplit, error) {
 		//   - `rescplit` building is cpu-intencive and bottleneck is not in etl loading
 		rs.etlBufLimit = etl.BufferOptimalSize / 4
 	}
+	fmt.Printf("[dbg] sz %d\n", rs.etlBufLimit)
 	rs.bucketCollector = etl.NewCollector(RecSplitLogPrefix+" "+fname, rs.tmpDir, etl.NewSortableBuffer(rs.etlBufLimit), logger)
 	rs.bucketCollector.LogLvl(log.LvlDebug)
 	rs.enums = args.Enums
