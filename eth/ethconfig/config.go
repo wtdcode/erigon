@@ -74,7 +74,7 @@ var LightClientGPO = gaspricecfg.Config{
 var Defaults = Config{
 	Sync: Sync{
 		UseSnapshots:               false,
-		ExecWorkerCount:            estimate.ReconstituteState.WorkersHalf(), //only half of CPU, other half will spend for snapshots build/merge/prune
+		ExecWorkerCount:            estimate.ReconstituteState.Workers(), //only half of CPU, other half will spend for snapshots build/merge/prune
 		ReconWorkerCount:           estimate.ReconstituteState.Workers(),
 		BodyCacheLimit:             256 * 1024 * 1024,
 		BodyDownloadTimeoutSeconds: 2,
