@@ -95,7 +95,7 @@ func (c *Collector) extractNextFunc(originalK, k []byte, v []byte) error {
 	if !c.buf.CheckFlushSize() {
 		return nil
 	}
-	log.Warn("[dbg] flush", "t", fmt.Sprintf("%T", c.buf), "sz", c.buf.Len(), "limit", c.buf.SizeLimit())
+	log.Warn("[dbg] flush", "t", fmt.Sprintf("%T", c.buf), "sz", c.buf.Len()/1024/1024, "limit", c.buf.SizeLimit()/1024/1024)
 	return c.flushBuffer(false)
 }
 
