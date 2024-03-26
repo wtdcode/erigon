@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/ledgerwatch/erigon-lib/common/dbg"
 	"github.com/ledgerwatch/log/v3"
 
 	"github.com/ledgerwatch/erigon-lib/common"
@@ -95,7 +96,7 @@ func (c *Collector) extractNextFunc(originalK, k []byte, v []byte) error {
 	if !c.buf.CheckFlushSize() {
 		return nil
 	}
-	log.Warn("[dbg] flush", "t", fmt.Sprintf("%T", c.buf), "sz", c.buf.Len(), "limit", c.buf.SizeLimit())
+	log.Warn("[dbg] flush", "t", fmt.Sprintf("%T", c.buf), "sz", c.buf.Len(), "limit", c.buf.SizeLimit(), "stack", dbg.Stack())
 	return c.flushBuffer(false)
 }
 
