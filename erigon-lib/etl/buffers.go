@@ -47,7 +47,8 @@ var BufferOptimalSize = 256 * datasize.MB /*  var because we want to sometimes c
 type Buffer interface {
 	Put(k, v []byte)
 	Get(i int, keyBuf, valBuf []byte) ([]byte, []byte)
-	Len() int
+	Len() int  // amount of elements
+	Size() int // RAM used
 	Reset()
 	SizeLimit() int
 	Prealloc(predictKeysAmount, predictDataAmount int)

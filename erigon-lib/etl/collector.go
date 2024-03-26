@@ -95,7 +95,6 @@ func (c *Collector) extractNextFunc(originalK, k []byte, v []byte) error {
 	if !c.buf.CheckFlushSize() {
 		return nil
 	}
-	log.Warn("[dbg] flush", "t", fmt.Sprintf("%T", c.buf), "sz", c.buf.Len()/1024/1024, "limit", c.buf.SizeLimit()/1024/1024)
 	return c.flushBuffer(false)
 }
 
@@ -117,6 +116,7 @@ func (c *Collector) flushBuffer(canStoreInRam bool) error {
 		c.allFlushed = true
 	} else {
 		fullBuf := c.buf
+		log.Warn("[dbg] flush", "len", c.buf.Len()/1024, "sz", c.buf.Size()/1024/1024, "sz_lim", c.buf.SizeLimit()/1024/1024)
 		prevLen, prevSize := fullBuf.Len(), fullBuf.SizeLimit()
 		c.buf = getBufferByType(c.bufType, datasize.ByteSize(c.buf.SizeLimit()), c.buf)
 
