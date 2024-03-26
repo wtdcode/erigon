@@ -555,7 +555,7 @@ func doIndicesCommand(cliCtx *cli.Context) error {
 	if err := br.BuildMissedIndicesIfNeed(ctx, "Indexing", nil, chainConfig); err != nil {
 		return err
 	}
-	err = agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.Workers())
+	err = agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.WorkersHalf())
 	if err != nil {
 		return err
 	}
