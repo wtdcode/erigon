@@ -155,6 +155,7 @@ const (
 	ConsensusDB  Label = 3
 	DownloaderDB Label = 4
 	InMem        Label = 5
+	BlobDb       Label = 6
 )
 
 func (l Label) String() string {
@@ -171,6 +172,8 @@ func (l Label) String() string {
 		return "downloader"
 	case InMem:
 		return "inMem"
+	case BlobDb:
+		return "blob"
 	default:
 		return "unknown"
 	}
@@ -189,6 +192,8 @@ func UnmarshalLabel(s string) Label {
 		return DownloaderDB
 	case "inMem":
 		return InMem
+	case "blob":
+		return BlobDb
 	default:
 		panic(fmt.Sprintf("unexpected label: %s", s))
 	}

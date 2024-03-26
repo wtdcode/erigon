@@ -21,7 +21,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
+	"github.com/spf13/afero"
 	"io/fs"
+	"math"
 	"math/big"
 	"net"
 	"os"
@@ -204,6 +207,8 @@ type Ethereum struct {
 	silkworm                 *silkworm.Silkworm
 	silkwormRPCDaemonService *silkworm.RpcDaemonService
 	silkwormSentryService    *silkworm.SentryService
+
+	blobDb blob_storage.BlobStorage
 }
 
 func splitAddrIntoHostAndPort(addr string) (host string, port int, err error) {
@@ -342,7 +347,6 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		}
 		chainKv = backend.chainDB //nolint
 	}
-
 	if err := backend.setUpSnapDownloader(ctx, config.Downloader); err != nil {
 		return nil, err
 	}
@@ -530,6 +534,15 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 	}
 
 	backend.engine = ethconsensusconfig.CreateConsensusEngine(ctx, stack.Config(), chainConfig, consensusConfig, config.Miner.Notify, config.Miner.Noverify, heimdallClient, config.WithoutHeimdall, blockReader, false /* readonly */, logger, backend.chainDB)
+
+	if _, ok := backend.engine.(consensus.PoSA); ok {
+		blobDbPath := filepath.Join(stack.Config().Dirs.DataDir, "blob")
+		blob, err := node.OpenDatabase(ctx, stack.Config(), kv.BlobDb, "", false, logger)
+		if err != nil {
+			return nil, err
+		}
+		backend.blobDb = blob_storage.NewBlobStore(blob, afero.NewBasePathFs(afero.NewOsFs(), blobDbPath), math.MaxUint64, chainConfig, blockReader)
+	}
 
 	inMemoryExecution := func(txc wrap.TxContainer, header *types.Header, body *types.RawBody, unwindPoint uint64, headersChain []*types.Header, bodiesChain []*types.RawBody,
 		notifications *shards.Notifications) error {
@@ -900,7 +913,7 @@ func (s *Ethereum) Init(stack *node.Node, config *ethconfig.Config, chainConfig 
 		}
 	}
 
-	s.apiList = jsonrpc.APIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, s.agg, &httpRpcCfg, s.engine, s.logger)
+	s.apiList = jsonrpc.APIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, s.agg, &httpRpcCfg, s.engine, s.blobDb, s.logger)
 
 	if config.SilkwormRpcDaemon && httpRpcCfg.Enabled {
 		silkwormRPCDaemonService := silkworm.NewRpcDaemonService(s.silkworm, chainKv)

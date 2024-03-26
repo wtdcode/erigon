@@ -112,6 +112,7 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			if err != nil {
 				panic(err)
 			}
+
 			eng = parlia.New(chainConfig, db, blockReader, chainDb[0], logger)
 		}
 	case *borcfg.BorConfig:

@@ -8,6 +8,7 @@ import (
 	"github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli/httpcfg"
 	"github.com/ledgerwatch/erigon/consensus"
 	"github.com/ledgerwatch/erigon/consensus/clique"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"github.com/ledgerwatch/erigon/polygon/bor"
 	"github.com/ledgerwatch/erigon/rpc"
 	"github.com/ledgerwatch/erigon/turbo/rpchelper"
@@ -19,7 +20,7 @@ import (
 func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, mining txpool.MiningClient,
 	filters *rpchelper.Filters, stateCache kvcache.Cache,
 	blockReader services.FullBlockReader, agg *libstate.AggregatorV3, cfg *httpcfg.HttpCfg, engine consensus.EngineReader,
-	logger log.Logger,
+	blobDb blob_storage.BlobStorage, logger log.Logger,
 ) (list []rpc.API) {
 	base := NewBaseApi(filters, stateCache, blockReader, agg, cfg.WithDatadir, cfg.EvmCallTimeout, engine, cfg.Dirs)
 	ethImpl := NewEthAPI(base, db, eth, txPool, mining, cfg.Gascap, cfg.ReturnDataLimit, cfg.AllowUnprotectedTxs, cfg.MaxGetProofRewindBlockCount, logger)
@@ -32,7 +33,7 @@ func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, m
 	dbImpl := NewDBAPIImpl() /* deprecated */
 	adminImpl := NewAdminAPI(eth)
 	parityImpl := NewParityAPIImpl(base, db)
-	bscImpl := NewBscAPI(ethImpl)
+	bscImpl := NewBscAPI(ethImpl, blobDb)
 
 	var borImpl *BorImpl
 
