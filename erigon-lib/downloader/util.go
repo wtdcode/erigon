@@ -33,6 +33,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/anacrolix/torrent/metainfo"
+	pp "github.com/anacrolix/torrent/peer_protocol"
 	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 
@@ -310,7 +311,7 @@ func addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient 
 		fmt.Printf("addTorrentFile1: %s, %s\n", ts.DisplayName, dbg.Stack())
 	}
 
-	ts.ChunkSize = downloadercfg.DefaultNetworkChunkSize
+	ts.ChunkSize = pp.Integer(downloadercfg.DefaultNetworkChunkSize)
 	ts.DisallowDataDownload = true
 	ts.DisableInitialPieceCheck = true
 	//re-try on panic, with 0 ChunkSize (lib doesn't allow change this field for existing torrents)
