@@ -1812,7 +1812,9 @@ func (d *Downloader) ReCalcStats(interval time.Duration) {
 
 		stats.Completed = stats.Completed && torrentComplete
 	}
-
+	if stats.Completed {
+		log.Warn("[dbg] ReCalc", "stats.Completed", stats.Completed, "downloading", len(downloading), "torrentInfo", torrentInfo, "len(d.snapshotLock.Downloads)", len(d.snapshotLock.Downloads))
+	}
 	var webTransfers int32
 
 	if d.webDownloadClient != nil {
