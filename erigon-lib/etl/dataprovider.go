@@ -22,9 +22,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
-	"github.com/ledgerwatch/log/v3"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -39,48 +37,6 @@ type fileDataProvider struct {
 	reader     io.Reader
 	byteReader io.ByteReader // Different interface to the same object as reader
 	wg         *errgroup.Group
-}
-
-// FlushToDisk - `doFsync` is true only for 'critical' collectors (which should not loose).
-func FlushToDisk(logPrefix string, b Buffer, tmpdir string, doFsync bool, lvl log.Lvl) (dataProvider, error) {
-	if b.Len() == 0 {
-		return nil, nil
-	}
-
-	provider := &fileDataProvider{reader: nil, wg: &errgroup.Group{}}
-	provider.wg.Go(func() error {
-		b.Sort()
-
-		// if we are going to create files in the system temp dir, we don't need any
-		// subfolders.
-		if tmpdir != "" {
-			if err := os.MkdirAll(tmpdir, 0755); err != nil {
-				return err
-			}
-		}
-
-		bufferFile, err := os.CreateTemp(tmpdir, "erigon-sortable-buf-")
-		if err != nil {
-			return err
-		}
-		provider.file = bufferFile
-
-		if doFsync {
-			defer bufferFile.Sync() //nolint:errcheck
-		}
-
-		w := bufio.NewWriterSize(bufferFile, BufIOSize)
-		defer w.Flush() //nolint:errcheck
-
-		_, fName := filepath.Split(bufferFile.Name())
-		if err = b.Write(w); err != nil {
-			return fmt.Errorf("error writing entries to disk: %w", err)
-		}
-		log.Log(lvl, fmt.Sprintf("[%s] Flushed buffer file", logPrefix), "name", fName)
-		return nil
-	})
-
-	return provider, nil
 }
 
 func (p *fileDataProvider) Next(keyBuf, valBuf []byte) ([]byte, []byte, error) {

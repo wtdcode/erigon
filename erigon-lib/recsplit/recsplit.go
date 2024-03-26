@@ -174,13 +174,14 @@ func NewRecSplit(args RecSplitArgs, logger log.Logger) (*RecSplit, error) {
 		//   - `rescplit` building is cpu-intencive and bottleneck is not in etl loading
 		rs.etlBufLimit = etl.BufferOptimalSize / 4
 	}
-	log.Warn(fmt.Sprintf("[dbg] sz %d\n", rs.etlBufLimit))
 	rs.bucketCollector = etl.NewCollector(RecSplitLogPrefix+" "+fname, rs.tmpDir, etl.NewSortableBuffer(rs.etlBufLimit), logger)
 	rs.bucketCollector.LogLvl(log.LvlDebug)
+	rs.bucketCollector.DisableAsyncSortAndFlush(true)
 	rs.enums = args.Enums
 	if args.Enums {
 		rs.offsetCollector = etl.NewCollector(RecSplitLogPrefix+" "+fname, rs.tmpDir, etl.NewSortableBuffer(rs.etlBufLimit), logger)
 		rs.offsetCollector.LogLvl(log.LvlDebug)
+		rs.offsetCollector.DisableAsyncSortAndFlush(true)
 	}
 	rs.lessFalsePositives = args.LessFalsePositives
 	if rs.enums && args.KeyCount > 0 && rs.lessFalsePositives {
