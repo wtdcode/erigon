@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ledgerwatch/erigon-lib/common/cmp"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"github.com/ledgerwatch/erigon/crypto/cryptopool"
 	"github.com/ledgerwatch/erigon/turbo/services"
 	"math/big"
@@ -204,6 +205,7 @@ type Parlia struct {
 	config      *chain.ParliaConfig // Consensus engine configuration parameters for parlia consensus
 	genesisHash libcommon.Hash
 	db          kv.RwDB // Database to store and retrieve snapshot checkpoints
+	BlobStore   blob_storage.BlobStorage
 	chainDb     kv.RwDB
 
 	recentSnaps *lru.ARCCache[libcommon.Hash, *Snapshot]         // Snapshots for recent block to speed up
@@ -232,6 +234,7 @@ type Parlia struct {
 func New(
 	chainConfig *chain.Config,
 	db kv.RwDB,
+	blobStore blob_storage.BlobStorage,
 	blockReader services.FullBlockReader,
 	chainDb kv.RwDB,
 	logger log.Logger,
@@ -273,6 +276,7 @@ func New(
 		chainConfig:                chainConfig,
 		config:                     parliaConfig,
 		db:                         db,
+		BlobStore:                  blobStore,
 		chainDb:                    chainDb,
 		recentSnaps:                recentSnaps,
 		signatures:                 signatures,

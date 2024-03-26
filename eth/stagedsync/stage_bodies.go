@@ -3,6 +3,7 @@ package stagedsync
 import (
 	"context"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"runtime"
 	"time"
 
@@ -26,6 +27,7 @@ const requestLoopCutOff int = 1
 
 type BodiesCfg struct {
 	db              kv.RwDB
+	blobStore       blob_storage.BlobStorage
 	bd              *bodydownload.BodyDownload
 	bodyReqSend     func(context.Context, *bodydownload.BodyRequest) ([64]byte, bool)
 	penalise        func(context.Context, []headerdownload.PenaltyItem)
@@ -38,7 +40,7 @@ type BodiesCfg struct {
 	loopBreakCheck  func(int) bool
 }
 
-func StageBodiesCfg(db kv.RwDB, bd *bodydownload.BodyDownload,
+func StageBodiesCfg(db kv.RwDB, blobStore blob_storage.BlobStorage, bd *bodydownload.BodyDownload,
 	bodyReqSend func(context.Context, *bodydownload.BodyRequest) ([64]byte, bool), penalise func(context.Context, []headerdownload.PenaltyItem),
 	blockPropagator adapter.BlockPropagator, timeout int,
 	chanConfig chain.Config,
@@ -47,7 +49,7 @@ func StageBodiesCfg(db kv.RwDB, bd *bodydownload.BodyDownload,
 	blockWriter *blockio.BlockWriter,
 	loopBreakCheck func(int) bool) BodiesCfg {
 	return BodiesCfg{
-		db: db, bd: bd, bodyReqSend: bodyReqSend, penalise: penalise, blockPropagator: blockPropagator,
+		db: db, bd: bd, blobStore: blobStore, bodyReqSend: bodyReqSend, penalise: penalise, blockPropagator: blockPropagator,
 		timeout: timeout, chanConfig: chanConfig, blockReader: blockReader,
 		historyV3: historyV3, blockWriter: blockWriter, loopBreakCheck: loopBreakCheck}
 }
@@ -236,9 +238,16 @@ func BodiesForward(
 				if err != nil {
 					return false, fmt.Errorf("WriteRawBodyIfNotExists: %w", err)
 				}
+
 				if cfg.historyV3 && ok {
 					if err := rawdb.AppendCanonicalTxNums(tx, blockHeight); err != nil {
 						return false, err
+					}
+				}
+				if ok && cfg.chanConfig.IsCancun(headerNumber, header.Time) {
+					err = cfg.blobStore.WriteBlobSidecars(ctx, header.Hash(), rawBody.Sidecars)
+					if err != nil {
+						return false, fmt.Errorf("WriteBlobSidecars: %w", err)
 					}
 				}
 				if ok {
@@ -374,6 +383,16 @@ func UnwindBodiesStage(u *UnwindState, tx kv.RwTx, cfg BodiesCfg, ctx context.Co
 
 	logEvery := time.NewTicker(logInterval)
 	defer logEvery.Stop()
+
+	for i := u.CurrentBlockNumber; i > u.UnwindPoint; i-- {
+		blockHash, err := rawdb.ReadCanonicalHash(tx, i)
+		if err != nil {
+			return err
+		}
+		if err = cfg.blobStore.RemoveBlobSidecars(ctx, i, blockHash); err != nil {
+			return err
+		}
+	}
 
 	if err := cfg.blockWriter.MakeBodiesNonCanonical(tx, u.UnwindPoint+1); err != nil {
 		return err

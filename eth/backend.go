@@ -22,9 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ledgerwatch/erigon/core/blob_storage"
-	"github.com/spf13/afero"
 	"io/fs"
-	"math"
 	"math/big"
 	"net"
 	"os"
@@ -207,8 +205,6 @@ type Ethereum struct {
 	silkworm                 *silkworm.Silkworm
 	silkwormRPCDaemonService *silkworm.RpcDaemonService
 	silkwormSentryService    *silkworm.SentryService
-
-	blobDb blob_storage.BlobStorage
 }
 
 func splitAddrIntoHostAndPort(addr string) (host string, port int, err error) {
@@ -535,21 +531,12 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 	backend.engine = ethconsensusconfig.CreateConsensusEngine(ctx, stack.Config(), chainConfig, consensusConfig, config.Miner.Notify, config.Miner.Noverify, heimdallClient, config.WithoutHeimdall, blockReader, false /* readonly */, logger, backend.chainDB)
 
-	if _, ok := backend.engine.(consensus.PoSA); ok {
-		blobDbPath := filepath.Join(stack.Config().Dirs.DataDir, "blob")
-		blob, err := node.OpenDatabase(ctx, stack.Config(), kv.BlobDb, "", false, logger)
-		if err != nil {
-			return nil, err
-		}
-		backend.blobDb = blob_storage.NewBlobStore(blob, afero.NewBasePathFs(afero.NewOsFs(), blobDbPath), math.MaxUint64, chainConfig, blockReader)
-	}
-
 	inMemoryExecution := func(txc wrap.TxContainer, header *types.Header, body *types.RawBody, unwindPoint uint64, headersChain []*types.Header, bodiesChain []*types.RawBody,
 		notifications *shards.Notifications) error {
 		terseLogger := log.New()
 		terseLogger.SetHandler(log.LvlFilterHandler(log.LvlWarn, log.StderrHandler))
 		// Needs its own notifications to not update RPC daemon and txpool about pending blocks
-		stateSync := stages2.NewInMemoryExecution(backend.sentryCtx, backend.chainDB, config, backend.sentriesClient,
+		stateSync := stages2.NewInMemoryExecution(backend.sentryCtx, backend.chainDB, nil, config, backend.sentriesClient,
 			dirs, notifications, blockReader, blockWriter, backend.agg, backend.silkworm, terseLogger)
 		chainReader := stagedsync.NewChainReaderImpl(chainConfig, txc.Tx, blockReader, logger)
 		// We start the mining step
@@ -640,12 +627,17 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		snapDb     kv.RwDB
 		recents    *lru.ARCCache[libcommon.Hash, *bor.Snapshot]
 		signatures *lru.ARCCache[libcommon.Hash, libcommon.Address]
+		blobStore  blob_storage.BlobStorage
 	)
 	if bor, ok := backend.engine.(*bor.Bor); ok {
 		snapDb = bor.DB
 		recents = bor.Recents
 		signatures = bor.Signatures
 	}
+	if parlia, ok := backend.engine.(*parlia.Parlia); ok {
+		blobStore = parlia.BlobStore
+	}
+
 	// proof-of-work mining
 	mining := stagedsync.New(
 		config.Sync,
@@ -787,7 +779,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 	backend.ethBackendRPC, backend.miningRPC, backend.stateChangesClient = ethBackendRPC, miningRPC, stateDiffClient
 
-	backend.syncStages = stages2.NewDefaultStages(backend.sentryCtx, backend.chainDB, snapDb, stack.Config().P2P, config, backend.sentriesClient, backend.notifications, backend.downloaderClient,
+	backend.syncStages = stages2.NewDefaultStages(backend.sentryCtx, backend.chainDB, snapDb, blobStore, stack.Config().P2P, config, backend.sentriesClient, backend.notifications, backend.downloaderClient,
 		blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, heimdallClient, recents, signatures, logger)
 	backend.syncUnwindOrder = stagedsync.DefaultUnwindOrder
 	backend.syncPruneOrder = stagedsync.DefaultPruneOrder
@@ -796,7 +788,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 	hook := stages2.NewHook(backend.sentryCtx, backend.chainDB, backend.notifications, backend.stagedSync, backend.blockReader, backend.chainConfig, backend.logger, backend.sentriesClient.UpdateHead)
 
 	checkStateRoot := true
-	pipelineStages := stages2.NewPipelineStages(ctx, chainKv, config, stack.Config().P2P, backend.sentriesClient, backend.notifications, backend.downloaderClient, blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, logger, checkStateRoot)
+	pipelineStages := stages2.NewPipelineStages(ctx, chainKv, blobStore, config, stack.Config().P2P, backend.sentriesClient, backend.notifications, backend.downloaderClient, blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, logger, checkStateRoot)
 	backend.pipelineStagedSync = stagedsync.New(config.Sync, pipelineStages, stagedsync.PipelineUnwindOrder, stagedsync.PipelinePruneOrder, logger)
 	backend.eth1ExecutionServer = eth1.NewEthereumExecutionModule(blockReader, chainKv, backend.pipelineStagedSync, backend.forkValidator, chainConfig, assembleBlockPOS, hook, backend.notifications.Accumulator, backend.notifications.StateChangesConsumer, logger, backend.engine, config.HistoryV3, config.Sync)
 	executionRpc := direct.NewExecutionClientDirect(backend.eth1ExecutionServer)
@@ -913,7 +905,7 @@ func (s *Ethereum) Init(stack *node.Node, config *ethconfig.Config, chainConfig 
 		}
 	}
 
-	s.apiList = jsonrpc.APIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, s.agg, &httpRpcCfg, s.engine, s.blobDb, s.logger)
+	s.apiList = jsonrpc.APIList(chainKv, ethRpcClient, txPoolRpcClient, miningRpcClient, ff, stateCache, blockReader, s.agg, &httpRpcCfg, s.engine, s.logger)
 
 	if config.SilkwormRpcDaemon && httpRpcCfg.Enabled {
 		silkwormRPCDaemonService := silkworm.NewRpcDaemonService(s.silkworm, chainKv)
