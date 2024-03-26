@@ -576,7 +576,7 @@ func (d *WebSeeds) DownloadAndSaveTorrentFile(ctx context.Context, name string) 
 		}
 		ts, prohibited, created, err := d.torrentFiles.CreateIfNotProhibited(name, res)
 		if strings.Contains(ts.DisplayName, "002500-003000-transactions") {
-			fmt.Printf("addTorrentFile1: %s, prohibited=%t, created=%t\n", ts.DisplayName, prohibited, created)
+			log.Warn("[dbg] " + fmt.Sprintf("DownloadAndSaveTorrentFile: %s, prohibited=%t, created=%t\n", ts.DisplayName, prohibited, created))
 		}
 		return ts, ts != nil, err
 	}
