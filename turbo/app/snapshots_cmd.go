@@ -555,7 +555,7 @@ func doIndicesCommand(cliCtx *cli.Context) error {
 	if err := br.BuildMissedIndicesIfNeed(ctx, "Indexing", nil, chainConfig); err != nil {
 		return err
 	}
-	err = agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.WorkersHalf())
+	err = agg.BuildMissedIndices(ctx, estimate.IndexSnapshot.Workers())
 	if err != nil {
 		return err
 	}
@@ -806,7 +806,7 @@ func doRetireCommand(cliCtx *cli.Context) error {
 	}
 
 	logger.Info("Work on state history snapshots")
-	indexWorkers := estimate.IndexSnapshot.WorkersHalf()
+	indexWorkers := estimate.IndexSnapshot.Workers()
 	if err = agg.BuildOptionalMissedIndices(ctx, indexWorkers); err != nil {
 		return err
 	}
