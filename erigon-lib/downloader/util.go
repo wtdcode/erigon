@@ -307,7 +307,7 @@ func IsSnapNameAllowed(name string) bool {
 // Don't need call torrent.VerifyData manually
 func addTorrentFile(ctx context.Context, ts *torrent.TorrentSpec, torrentClient *torrent.Client, db kv.RwDB, webseeds *WebSeeds) (t *torrent.Torrent, ok bool, err error) {
 	if strings.Contains(ts.DisplayName, "002500-003000-transactions") {
-		fmt.Printf("addTorrentFile1: %s\n", ts.DisplayName)
+		fmt.Printf("addTorrentFile1: %s, %s\n", ts.DisplayName, dbg.Stack())
 	}
 
 	ts.ChunkSize = downloadercfg.DefaultNetworkChunkSize
