@@ -188,7 +188,7 @@ func NewRecSplit(args RecSplitArgs, logger log.Logger) (*RecSplit, error) {
 			return nil, err
 		}
 		rs.existenceF = bufferFile
-		rs.existenceW = bufio.NewWriter(rs.existenceF)
+		rs.existenceW = bufio.NewWriterSize(rs.existenceF, etl.BufIOSize)
 	}
 	rs.currentBucket = make([]uint64, 0, args.BucketSize)
 	rs.currentBucketOffs = make([]uint64, 0, args.BucketSize)
