@@ -1477,7 +1477,7 @@ func (b *Block) RawBody() *RawBody {
 
 // RawBody creates a RawBody based on the body.
 func (b *Body) RawBody() *RawBody {
-	br := &RawBody{Transactions: make([][]byte, len(b.Transactions)), Uncles: b.Uncles, Withdrawals: b.Withdrawals}
+	br := &RawBody{Transactions: make([][]byte, len(b.Transactions)), Uncles: b.Uncles, Withdrawals: b.Withdrawals, Sidecars: b.Sidecars}
 	for i, tx := range b.Transactions {
 		var err error
 		br.Transactions[i], err = rlp.EncodeToBytes(tx)
@@ -1643,10 +1643,13 @@ func (b *Block) WithSidecars(sidecars BlobSidecars) *Block {
 		transactions: b.transactions,
 		uncles:       b.uncles,
 		withdrawals:  b.withdrawals,
-		sidecars:     sidecars,
 	}
 	if b.withdrawals != nil {
 		block.withdrawals = b.withdrawals
+	}
+	if sidecars != nil {
+		block.sidecars = make(BlobSidecars, len(sidecars))
+		copy(block.sidecars, sidecars)
 	}
 	return block
 }

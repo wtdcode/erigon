@@ -22,6 +22,7 @@ type Delivery struct {
 	txs             [][][]byte
 	uncles          [][]*types.Header
 	withdrawals     []types.Withdrawals
+	sidecars        []types.BlobSidecars
 	lenOfP2PMessage uint64
 }
 
