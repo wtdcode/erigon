@@ -574,7 +574,10 @@ func (d *WebSeeds) DownloadAndSaveTorrentFile(ctx context.Context, name string) 
 			d.logger.Log(d.verbosity, "[snapshots] .torrent from webseed rejected", "name", name, "err", err)
 			continue // it's ok if some HTTP provider failed - try next one
 		}
-		ts, _, _, err = d.torrentFiles.CreateIfNotProhibited(name, res)
+		ts, prohibited, created, err := d.torrentFiles.CreateIfNotProhibited(name, res)
+		if strings.Contains(ts.DisplayName, "002500-003000-transactions") {
+			fmt.Printf("addTorrentFile1: %s, prohibited=%t, created=%t\n", ts.DisplayName, prohibited, created)
+		}
 		return ts, ts != nil, err
 	}
 
