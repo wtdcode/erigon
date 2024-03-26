@@ -3,6 +3,7 @@ package stagedsync
 import (
 	"context"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core"
 	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"runtime"
 	"time"
@@ -233,6 +234,13 @@ func BodiesForward(
 					return true, nil
 				}
 
+				if cfg.chanConfig.Parlia != nil && cfg.chanConfig.IsCancun(headerNumber, header.Time) {
+					if err = core.IsDataAvailable(cr, header, rawBody); err != nil {
+						u.UnwindTo(blockHeight-1, BadBlock(header.Hash(), fmt.Errorf("CheckDataAvaliabe failed: %w", err)))
+						return true, err
+					}
+				}
+
 				// Check existence before write - because WriteRawBody isn't idempotent (it allocates new sequence range for transactions on every call)
 				ok, err := rawdb.WriteRawBodyIfNotExists(tx, header.Hash(), blockHeight, rawBody)
 				if err != nil {
@@ -244,7 +252,7 @@ func BodiesForward(
 						return false, err
 					}
 				}
-				if ok && cfg.chanConfig.IsCancun(headerNumber, header.Time) {
+				if ok && cfg.chanConfig.Parlia != nil && cfg.chanConfig.IsCancun(headerNumber, header.Time) {
 					err = cfg.blobStore.WriteBlobSidecars(ctx, header.Hash(), rawBody.Sidecars)
 					if err != nil {
 						return false, fmt.Errorf("WriteBlobSidecars: %w", err)
