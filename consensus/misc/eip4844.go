@@ -19,6 +19,7 @@ package misc
 import (
 	"errors"
 	"fmt"
+
 	"github.com/ledgerwatch/erigon-lib/common"
 
 	"github.com/holiman/uint256"
@@ -81,8 +82,8 @@ func VerifyPresenceOfCancunHeaderFields(header *types.Header) error {
 	if header.ExcessBlobGas == nil {
 		return fmt.Errorf("header is missing excessBlobGas")
 	}
-	if header.ParentBeaconBlockRoot == nil {
-		return fmt.Errorf("header is missing parentBeaconBlockRoot")
+	if header.ParentBeaconBlockRoot != nil {
+		return fmt.Errorf("header has no nill ParentBeaconBlockRoot")
 	}
 	if (header.WithdrawalsHash == nil || *header.WithdrawalsHash != common.Hash{}) {
 		return errors.New("header has wrong WithdrawalsHash")

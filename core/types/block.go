@@ -612,7 +612,6 @@ type BodyForStorage struct {
 	TxAmount    uint32
 	Uncles      []*Header
 	Withdrawals []*Withdrawal
-	//TODO(matus) how we will store sidecars?
 }
 
 // Alternative representation of the Block.
@@ -1533,7 +1532,7 @@ func (b *Block) HashCheck() error {
 		return fmt.Errorf("block has invalid uncle hash: have %x, exp: %x", hash, b.UncleHash())
 	}
 
-	if b.WithdrawalsHash() == nil {
+	if b.WithdrawalsHash() == nil || *b.WithdrawalsHash() == (libcommon.Hash{}) {
 		if b.Withdrawals() != nil {
 			return errors.New("header missing WithdrawalsHash")
 		}
