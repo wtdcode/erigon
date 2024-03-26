@@ -83,7 +83,7 @@ func VerifyPresenceOfCancunHeaderFields(header *types.Header) error {
 		return fmt.Errorf("header is missing excessBlobGas")
 	}
 	if header.ParentBeaconBlockRoot != nil {
-		return fmt.Errorf("header has no nill ParentBeaconBlockRoot")
+		return fmt.Errorf("header has no nil ParentBeaconBlockRoot")
 	}
 	if (header.WithdrawalsHash == nil || *header.WithdrawalsHash != common.Hash{}) {
 		return errors.New("header has wrong WithdrawalsHash")
