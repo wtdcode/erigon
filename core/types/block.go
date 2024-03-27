@@ -607,6 +607,10 @@ type RawBody struct {
 	Sidecars     BlobSidecars
 }
 
+func (r RawBody) CleanSidecars() {
+	r.Sidecars = nil
+}
+
 type BodyForStorage struct {
 	BaseTxId    uint64
 	TxAmount    uint32
@@ -1644,8 +1648,9 @@ func (b *Block) WithSidecars(sidecars BlobSidecars) *Block {
 		uncles:       b.uncles,
 		withdrawals:  b.withdrawals,
 	}
-	if b.withdrawals != nil {
-		block.withdrawals = b.withdrawals
+	if sidecars != nil {
+		block.sidecars = make(BlobSidecars, len(sidecars))
+		copy(block.sidecars, sidecars)
 	}
 	if sidecars != nil {
 		block.sidecars = make(BlobSidecars, len(sidecars))
