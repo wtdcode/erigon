@@ -299,12 +299,7 @@ Loop:
 		for i := range txs {
 			uncleHash := types.CalcUncleHash(uncles[i])
 			txHash := types.DeriveSha(RawTransactions(txs[i]))
-			var withdrawalsHash libcommon.Hash
-			if len(withdrawals[i]) == 0 {
-				withdrawalsHash = types.EmptyRootHash
-			} else {
-				withdrawalsHash = types.DeriveSha(withdrawals[i])
-			}
+			withdrawalsHash := types.DeriveSha(withdrawals[i])
 
 			var tripleHash TripleHash
 			copy(tripleHash[:], uncleHash.Bytes())
