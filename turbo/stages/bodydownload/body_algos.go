@@ -165,7 +165,7 @@ func (bd *BodyDownload) RequestMoreBodies(tx kv.RwTx, blockReader services.FullB
 			var tripleHash TripleHash
 			copy(tripleHash[:], header.UncleHash.Bytes())
 			copy(tripleHash[length.Hash:], header.TxHash.Bytes())
-			if header.WithdrawalsHash != nil {
+			if header.WithdrawalsHash != nil && *header.WithdrawalsHash != (libcommon.Hash{}) {
 				copy(tripleHash[2*length.Hash:], header.WithdrawalsHash.Bytes())
 			} else {
 				copy(tripleHash[2*length.Hash:], types.EmptyRootHash.Bytes())
@@ -299,7 +299,13 @@ Loop:
 		for i := range txs {
 			uncleHash := types.CalcUncleHash(uncles[i])
 			txHash := types.DeriveSha(RawTransactions(txs[i]))
-			withdrawalsHash := types.DeriveSha(withdrawals[i])
+			var withdrawalsHash libcommon.Hash
+			if len(withdrawals[i]) == 0 {
+				withdrawalsHash = types.EmptyRootHash
+			} else {
+				withdrawalsHash = types.DeriveSha(withdrawals[i])
+			}
+
 			var tripleHash TripleHash
 			copy(tripleHash[:], uncleHash.Bytes())
 			copy(tripleHash[length.Hash:], txHash.Bytes())
