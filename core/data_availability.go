@@ -1,10 +1,8 @@
 package core
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon/consensus"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/params"
@@ -19,7 +17,7 @@ func IsDataAvailable(chain consensus.ChainHeaderReader, header *types.Header, bo
 		if body.Sidecars == nil {
 			return nil
 		} else {
-			return errors.New("sidecars present in block body before cancun")
+			return fmt.Errorf("sidecars present in block body before cancun")
 		}
 	}
 
@@ -32,25 +30,22 @@ func IsDataAvailable(chain consensus.ChainHeaderReader, header *types.Header, bo
 
 	// alloc block's versionedHashes
 	sidecars := body.Sidecars
-	versionedHashes := make([][]common.Hash, 0, len(body.Transactions))
-	if len(versionedHashes) != len(sidecars) {
-		return fmt.Errorf("blob info mismatch: sidecars %d, versionedHashes:%d", len(sidecars), len(versionedHashes))
-	}
 	blobIndex := 0
 	txs, err := types.DecodeTransactions(body.Transactions)
 	if err != nil {
 		return err
 	}
 	for _, tx := range txs {
-		hashes := tx.GetBlobHashes()
-		if hashes == nil {
+		if tx.Type() != types.BlobTxType {
 			continue
 		}
-		if err := sidecars[blobIndex].ValidateBlobTxSidecar(hashes); err != nil {
+		if err := sidecars[blobIndex].ValidateBlobTxSidecar(tx.GetBlobHashes()); err != nil {
 			return err
 		}
 		blobIndex++
 	}
-
+	if blobIndex != len(sidecars) {
+		return fmt.Errorf("blob sidecars count mismatch with blob txs count %d  sidecars: %d", blobIndex, len(sidecars))
+	}
 	return nil
 }
