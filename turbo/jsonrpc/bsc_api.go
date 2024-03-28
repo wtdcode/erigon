@@ -231,6 +231,9 @@ func (api *BscImpl) GetBlobSidecarByTxHash(ctx context.Context, hash libcommon.H
 	if err != nil {
 		return nil, err
 	}
+	if tx.BlockNumber == nil || tx.BlockHash == nil || tx.TransactionIndex == nil {
+		return nil, nil
+	}
 	bsc, err := api.parlia()
 	if err != nil {
 		return nil, err
