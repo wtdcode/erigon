@@ -5,9 +5,11 @@ import (
 	"io"
 	"math/big"
 	"math/bits"
+	"reflect"
 	"time"
 
 	gokzg4844 "github.com/crate-crypto/go-kzg-4844"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/holiman/uint256"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
@@ -32,11 +34,47 @@ type BlobKzgs []KZGCommitment
 type KZGProofs []KZGProof
 type Blobs []Blob
 
+var (
+	blobT       = reflect.TypeOf(Blob{})
+	commitmentT = reflect.TypeOf(KZGCommitment{})
+	proofT      = reflect.TypeOf(KZGProof{})
+)
+
+// UnmarshalJSON parses a blob in hex syntax.
+func (b *Blob) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(blobT, input, b[:])
+}
+
+// MarshalText returns the hex representation of b.
+func (b Blob) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(b[:]).MarshalText()
+}
+
+// UnmarshalJSON parses a commitment in hex syntax.
+func (c *KZGCommitment) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(commitmentT, input, c[:])
+}
+
+// MarshalText returns the hex representation of c.
+func (c KZGCommitment) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(c[:]).MarshalText()
+}
+
+// UnmarshalJSON parses a proof in hex syntax.
+func (p *KZGProof) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(proofT, input, p[:])
+}
+
+// MarshalText returns the hex representation of p.
+func (p KZGProof) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(p[:]).MarshalText()
+}
+
 // BlobTxSidecar contains the blobs of a blob transaction.
 type BlobTxSidecar struct {
-	Blobs       Blobs     // Blobs needed by the blob pool
-	Commitments BlobKzgs  // Commitments needed by the blob pool
-	Proofs      KZGProofs // Proofs needed by the blob pool
+	Blobs       Blobs     `json:"blobs"`       // Blobs needed by the blob pool
+	Commitments BlobKzgs  `json:"commitments"` // Commitments needed by the blob pool
+	Proofs      KZGProofs `json:"proofs"`      // Proofs needed by the blob pool
 }
 
 type BlobTxWrapper struct {

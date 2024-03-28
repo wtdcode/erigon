@@ -55,7 +55,7 @@ var (
 
 	FeynmanFixUpgrade = make(map[string]*Upgrade)
 
-	LatestUpgrade = FeynmanFixUpgrade
+	LatestUpgrade = FeynmanUpgrade
 
 	CalcuttaUpgrade = make(map[string]*Upgrade)
 
