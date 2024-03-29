@@ -746,7 +746,7 @@ func (dc *DomainContext) newWriter(tmpdir string, discard bool) *domainBufferedW
 		keys:      etl.NewCollector(dc.d.keysTable, tmpdir, etl.NewSortableBuffer(WALCollectorRAM), dc.d.logger),
 		values:    etl.NewCollector(dc.d.valsTable, tmpdir, etl.NewSortableBuffer(WALCollectorRAM), dc.d.logger),
 
-		h: dc.hc.newWriter(tmpdir, discard),
+		h: dc.hc.newWriter(tmpdir, dc.d.filenameBase == "commitment"),
 	}
 	w.keys.LogLvl(log.LvlTrace)
 	w.values.LogLvl(log.LvlTrace)
