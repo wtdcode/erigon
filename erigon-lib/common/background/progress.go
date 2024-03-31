@@ -46,7 +46,7 @@ type ProgressSet struct {
 }
 
 func NewProgressSet() *ProgressSet {
-	return &ProgressSet{list: btree2.NewMap[int, *Progress](128)}
+	return &ProgressSet{list: btree2.NewMap[int, *Progress](32)}
 }
 func (s *ProgressSet) AddNew(fName string, total uint64) *Progress {
 	p := &Progress{}

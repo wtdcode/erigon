@@ -107,7 +107,7 @@ func NewSharedDomains(tx kv.Tx, logger log.Logger) (*SharedDomains, error) {
 		account:    map[string][]byte{},
 		commitment: map[string][]byte{},
 		code:       map[string][]byte{},
-		storage:    btree2.NewMap[string, []byte](128),
+		storage:    btree2.NewMap[string, []byte](32),
 	}
 	for id, d := range ac.d {
 		sd.dWriter[id] = d.NewWriter()
@@ -259,7 +259,10 @@ func (sd *SharedDomains) ClearRam(resetCommitment bool) {
 		sd.sdCtx.Reset()
 	}
 
-	sd.storage = btree2.NewMap[string, []byte](128)
+	if sd.storage != nil && sd.storage.Len() > 0 {
+		log.Warn("[dbg] ClearRam", "sd.storage.Len()", sd.storage.Len())
+	}
+	sd.storage = btree2.NewMap[string, []byte](32)
 	sd.estSize = 0
 }
 
