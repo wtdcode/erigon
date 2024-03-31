@@ -793,8 +793,13 @@ func (sd *SharedDomains) Flush(ctx context.Context, tx kv.RwTx) error {
 		sd.noFlush--
 	}
 
+	if sd.storage != nil && sd.storage.Len() > 0 {
+		log.Warn("[dbg] Flush", "sd.storage.Len()", sd.storage.Len())
+	}
+
 	if sd.noFlush == 0 {
 		defer mxFlushTook.ObserveDuration(time.Now())
+
 		fh, err := sd.ComputeCommitment(ctx, true, sd.BlockNum(), "flush-commitment")
 		if err != nil {
 			return err
