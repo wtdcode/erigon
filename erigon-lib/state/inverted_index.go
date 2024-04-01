@@ -1041,6 +1041,7 @@ func (ic *InvertedIndexContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom,
 			if txNum > stat.MaxTxNum {
 				return nil //  go to next key
 			}
+			// This DeleteCurrent needs to the last in the loop iteration, because it invalidates k and v
 			if err = idxC.DeleteCurrent(); err != nil {
 				return err
 			}
