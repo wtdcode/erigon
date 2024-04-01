@@ -1021,11 +1021,6 @@ func (ic *InvertedIndexContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom,
 		return stat, nil
 	}
 
-	idxCForDeletes, err := rwTx.RwCursorDupSort(ii.indexTable)
-	if err != nil {
-		return nil, err
-	}
-	defer idxCForDeletes.Close()
 	idxC, err := rwTx.RwCursorDupSort(ii.indexTable)
 	if err != nil {
 		return nil, err
@@ -1046,10 +1041,7 @@ func (ic *InvertedIndexContext) Prune(ctx context.Context, rwTx kv.RwTx, txFrom,
 			if txNum > stat.MaxTxNum {
 				return nil //  go to next key
 			}
-			if _, _, err = idxCForDeletes.SeekBothExact(key, txnm); err != nil {
-				return err
-			}
-			if err = idxCForDeletes.DeleteCurrent(); err != nil {
+			if err = idxC.DeleteCurrent(); err != nil {
 				return err
 			}
 			mxPruneSizeIndex.Inc()

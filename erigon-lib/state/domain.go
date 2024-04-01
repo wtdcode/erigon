@@ -2166,11 +2166,6 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		defer cleanup()
 	}
 
-	keysCursorForDeletes, err := rwTx.RwCursorDupSort(dc.d.keysTable)
-	if err != nil {
-		return stat, fmt.Errorf("create %s domain cursor: %w", dc.d.filenameBase, err)
-	}
-	defer keysCursorForDeletes.Close()
 	keysCursor, err := rwTx.RwCursorDupSort(dc.d.keysTable)
 	if err != nil {
 		return stat, fmt.Errorf("create %s domain cursor: %w", dc.d.filenameBase, err)
@@ -2231,10 +2226,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		}
 
 		// This DeleteCurrent needs to the last in the loop iteration, because it invalidates k and v
-		if _, _, err = keysCursorForDeletes.SeekBothExact(k, v); err != nil {
-			return stat, err
-		}
-		if err = keysCursorForDeletes.DeleteCurrent(); err != nil {
+		if err = keysCursor.DeleteCurrent(); err != nil {
 			return stat, err
 		}
 		stat.Values++
