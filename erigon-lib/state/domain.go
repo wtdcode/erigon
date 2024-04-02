@@ -2192,7 +2192,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 	}
 
 	seek := make([]byte, 0, 256)
-	k = common.Copy(k)
+	k, v = common.Copy(k), common.Copy(v)
 	for k != nil {
 		if err != nil {
 			return stat, fmt.Errorf("iterate over %s domain keys: %w", dc.d.filenameBase, err)
@@ -2201,13 +2201,13 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		is := ^binary.BigEndian.Uint64(v)
 		if is > step {
 			k, v, err = keysCursor.PrevNoDup()
-			k = common.Copy(k)
+			k, v = common.Copy(k), common.Copy(v)
 			continue
 		}
 		if limit == 0 {
-			if err := SaveExecV3PruneProgress(rwTx, dc.d.keysTable, k); err != nil {
-				return stat, fmt.Errorf("save domain pruning progress: %s, %w", dc.d.filenameBase, err)
-			}
+			//if err := SaveExecV3PruneProgress(rwTx, dc.d.keysTable, k); err != nil {
+			//	return stat, fmt.Errorf("save domain pruning progress: %s, %w", dc.d.filenameBase, err)
+			//}
 			return stat, nil
 		}
 		limit--
@@ -2232,7 +2232,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		mxPruneSizeDomain.Inc()
 
 		k, v, err = keysCursor.Prev()
-		k = common.Copy(k)
+		k, v = common.Copy(k), common.Copy(v)
 
 		select {
 		case <-ctx.Done():
