@@ -2213,7 +2213,7 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		limit--
 
 		seek = append(append(seek[:0], k...), v...)
-		err = rwTx.Delete(dc.d.valsTable, seek)
+		//err = rwTx.Delete(dc.d.valsTable, seek)
 		if err != nil {
 			return stat, fmt.Errorf("prune domain value: %w", err)
 		}
@@ -2223,9 +2223,9 @@ func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, 
 		if _, _, err = keysCursorForDeletes.SeekBothExact(k, v); err != nil {
 			return stat, err
 		}
-		if err = keysCursorForDeletes.DeleteCurrent(); err != nil {
-			return stat, err
-		}
+		//if err = keysCursorForDeletes.DeleteCurrent(); err != nil {
+		//	return stat, err
+		//}
 		stat.Values++
 		stat.MaxStep = max(stat.MaxStep, is)
 		stat.MinStep = min(stat.MinStep, is)
