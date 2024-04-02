@@ -112,7 +112,10 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			}
 
 			db, err = node.OpenDatabase(ctx, nodeConfig, kv.ConsensusDB, "parlia", readonly, logger)
-
+			if err != nil {
+				panic(err)
+			}
+			nodeConfig.Dirs.DataDir = filepath.Join(nodeConfig.Dirs.DataDir, "blobs")
 			blobDb, err := node.OpenDatabase(ctx, nodeConfig, kv.BlobDb, "", false, logger)
 			if err != nil {
 				panic(err)

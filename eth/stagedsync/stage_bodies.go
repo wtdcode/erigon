@@ -257,6 +257,7 @@ func BodiesForward(
 					if err != nil {
 						return false, fmt.Errorf("WriteBlobSidecars: %w", err)
 					}
+					logger.Debug("WriteBlobSidecars", "block number", header.Number, "len(sidecars)", len(rawBody.Sidecars))
 				}
 				if ok {
 					dataflow.BlockBodyDownloadStates.AddChange(blockHeight, dataflow.BlockBodyCleared)

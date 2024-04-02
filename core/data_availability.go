@@ -32,22 +32,50 @@ func IsDataAvailable(chain consensus.ChainHeaderReader, header *types.Header, bo
 
 	// alloc block's versionedHashes
 	sidecars := body.Sidecars
-	blobIndex := 0
+	for _, s := range sidecars {
+		if err := s.SanityCheck(header.Number, header.Hash()); err != nil {
+			return err
+		}
+	}
+
+	blobTxs := make([]types.Transaction, 0, len(sidecars))
+	blobTxIndexes := make([]uint64, 0, len(sidecars))
 	txs, err := types.DecodeTransactions(body.Transactions)
 	if err != nil {
 		return err
 	}
-	for _, tx := range txs {
+	for i, tx := range txs {
 		if tx.Type() != types.BlobTxType {
 			continue
 		}
-		if err := sidecars[blobIndex].ValidateBlobTxSidecar(tx.GetBlobHashes()); err != nil {
+		blobTxs = append(blobTxs, tx)
+		blobTxIndexes = append(blobTxIndexes, uint64(i))
+	}
+
+	if len(blobTxs) != len(sidecars) {
+		return fmt.Errorf("blob info mismatch: sidecars %d, versionedHashes:%d", len(sidecars), len(blobTxs))
+	}
+
+	// check blob amount
+	blobCnt := 0
+	for _, s := range sidecars {
+		blobCnt += len(s.Blobs)
+	}
+	if blobCnt > params.MaxBlobGasPerBlock/params.BlobTxBlobGasPerBlob {
+		return fmt.Errorf("too many blobs in block: have %d, permitted %d", blobCnt, params.MaxBlobGasPerBlock/params.BlobTxBlobGasPerBlob)
+	}
+
+	for i, tx := range blobTxs {
+		// check sidecar tx related
+		if sidecars[i].TxHash != tx.Hash() {
+			return fmt.Errorf("sidecar's TxHash mismatch with expected transaction, want: %v, have: %v", sidecars[i].TxHash, tx.Hash())
+		}
+		if sidecars[i].TxIndex != blobTxIndexes[i] {
+			return fmt.Errorf("sidecar's TxIndex mismatch with expected transaction, want: %v, have: %v", sidecars[i].TxIndex, blobTxIndexes[i])
+		}
+		if err := sidecars[i].ValidateBlobTxSidecar(tx.GetBlobHashes()); err != nil {
 			return err
 		}
-		blobIndex++
-	}
-	if blobIndex != len(sidecars) {
-		return fmt.Errorf("blob sidecars count mismatch with blob txs count %d  sidecars: %d", blobIndex, len(sidecars))
 	}
 	return nil
 }

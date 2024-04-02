@@ -219,7 +219,7 @@ func (api *BscImpl) GetBlobSidecars(ctx context.Context, numberOrHash rpc.BlockN
 	if err != nil || !found {
 		return nil, err
 	}
-	result := make([]map[string]interface{}, 0, len(blobSidecars))
+	result := make([]map[string]interface{}, len(blobSidecars))
 	for i, sidecar := range blobSidecars {
 		result[i] = marshalBlobSidecar(sidecar)
 	}
