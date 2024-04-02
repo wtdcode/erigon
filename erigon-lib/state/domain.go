@@ -2127,6 +2127,7 @@ func (dc *DomainContext) Warmup(ctx context.Context) (cleanup func()) {
 }
 
 func (dc *DomainContext) Prune(ctx context.Context, rwTx kv.RwTx, step, txFrom, txTo, limit uint64, withWarmup bool, logEvery *time.Ticker) (stat *DomainPruneStat, err error) {
+	return stat, nil
 	if limit == 0 {
 		limit = math.MaxUint64
 	}
