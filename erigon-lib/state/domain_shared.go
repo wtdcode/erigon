@@ -739,18 +739,18 @@ func (sd *SharedDomains) Flush(ctx context.Context, tx kv.RwTx) error {
 				}
 			}
 		}
-		if err := sd.logAddrsWriter.Flush(ctx, tx); err != nil {
-			return err
-		}
-		if err := sd.logTopicsWriter.Flush(ctx, tx); err != nil {
-			return err
-		}
-		if err := sd.tracesFromWriter.Flush(ctx, tx); err != nil {
-			return err
-		}
-		if err := sd.tracesToWriter.Flush(ctx, tx); err != nil {
-			return err
-		}
+		//if err := sd.logAddrsWriter.Flush(ctx, tx); err != nil {
+		//	return err
+		//}
+		//if err := sd.logTopicsWriter.Flush(ctx, tx); err != nil {
+		//	return err
+		//}
+		//if err := sd.tracesFromWriter.Flush(ctx, tx); err != nil {
+		//	return err
+		//}
+		//if err := sd.tracesToWriter.Flush(ctx, tx); err != nil {
+		//	return err
+		//}
 		if dbg.PruneOnFlushTimeout != 0 {
 			_, err = sd.aggCtx.PruneSmallBatches(ctx, dbg.PruneOnFlushTimeout, tx)
 			if err != nil {
