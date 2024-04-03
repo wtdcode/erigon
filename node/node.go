@@ -305,6 +305,8 @@ func OpenDatabase(ctx context.Context, config *nodecfg.Config, label kv.Label, n
 		if len(name) == 0 {
 			return nil, fmt.Errorf("expected a consensus name")
 		}
+	case kv.BlobDb:
+		name = "blob"
 	default:
 		name = "test"
 	}

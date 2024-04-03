@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"io/fs"
 	"math/big"
 	"net"
@@ -342,7 +343,6 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		}
 		chainKv = backend.chainDB //nolint
 	}
-
 	if err := backend.setUpSnapDownloader(ctx, config.Downloader); err != nil {
 		return nil, err
 	}
@@ -536,7 +536,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		terseLogger := log.New()
 		terseLogger.SetHandler(log.LvlFilterHandler(log.LvlWarn, log.StderrHandler))
 		// Needs its own notifications to not update RPC daemon and txpool about pending blocks
-		stateSync := stages2.NewInMemoryExecution(backend.sentryCtx, backend.chainDB, config, backend.sentriesClient,
+		stateSync := stages2.NewInMemoryExecution(backend.sentryCtx, backend.chainDB, nil, config, backend.sentriesClient,
 			dirs, notifications, blockReader, blockWriter, backend.agg, backend.silkworm, terseLogger)
 		chainReader := stagedsync.NewChainReaderImpl(chainConfig, txc.Tx, blockReader, logger)
 		// We start the mining step
@@ -627,12 +627,17 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		snapDb     kv.RwDB
 		recents    *lru.ARCCache[libcommon.Hash, *bor.Snapshot]
 		signatures *lru.ARCCache[libcommon.Hash, libcommon.Address]
+		blobStore  blob_storage.BlobStorage
 	)
 	if bor, ok := backend.engine.(*bor.Bor); ok {
 		snapDb = bor.DB
 		recents = bor.Recents
 		signatures = bor.Signatures
 	}
+	if parlia, ok := backend.engine.(*parlia.Parlia); ok {
+		blobStore = parlia.BlobStore
+	}
+
 	// proof-of-work mining
 	mining := stagedsync.New(
 		config.Sync,
@@ -774,7 +779,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 
 	backend.ethBackendRPC, backend.miningRPC, backend.stateChangesClient = ethBackendRPC, miningRPC, stateDiffClient
 
-	backend.syncStages = stages2.NewDefaultStages(backend.sentryCtx, backend.chainDB, snapDb, stack.Config().P2P, config, backend.sentriesClient, backend.notifications, backend.downloaderClient,
+	backend.syncStages = stages2.NewDefaultStages(backend.sentryCtx, backend.chainDB, snapDb, blobStore, stack.Config().P2P, config, backend.sentriesClient, backend.notifications, backend.downloaderClient,
 		blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, heimdallClient, recents, signatures, logger)
 	backend.syncUnwindOrder = stagedsync.DefaultUnwindOrder
 	backend.syncPruneOrder = stagedsync.DefaultPruneOrder
@@ -783,7 +788,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 	hook := stages2.NewHook(backend.sentryCtx, backend.chainDB, backend.notifications, backend.stagedSync, backend.blockReader, backend.chainConfig, backend.logger, backend.sentriesClient.UpdateHead)
 
 	checkStateRoot := true
-	pipelineStages := stages2.NewPipelineStages(ctx, chainKv, config, stack.Config().P2P, backend.sentriesClient, backend.notifications, backend.downloaderClient, blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, logger, checkStateRoot)
+	pipelineStages := stages2.NewPipelineStages(ctx, chainKv, blobStore, config, stack.Config().P2P, backend.sentriesClient, backend.notifications, backend.downloaderClient, blockReader, blockRetire, backend.agg, backend.silkworm, backend.forkValidator, logger, checkStateRoot)
 	backend.pipelineStagedSync = stagedsync.New(config.Sync, pipelineStages, stagedsync.PipelineUnwindOrder, stagedsync.PipelinePruneOrder, logger)
 	backend.eth1ExecutionServer = eth1.NewEthereumExecutionModule(blockReader, chainKv, backend.pipelineStagedSync, backend.forkValidator, chainConfig, assembleBlockPOS, hook, backend.notifications.Accumulator, backend.notifications.StateChangesConsumer, logger, backend.engine, config.HistoryV3, config.Sync)
 	executionRpc := direct.NewExecutionClientDirect(backend.eth1ExecutionServer)

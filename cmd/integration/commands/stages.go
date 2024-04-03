@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ledgerwatch/erigon/consensus/parlia"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -839,7 +841,7 @@ func stageBodies(db kv.RwDB, ctx context.Context, logger log.Logger) error {
 			}
 
 			u := sync.NewUnwindState(stages.Bodies, s.BlockNumber-unwind, s.BlockNumber)
-			cfg := stagedsync.StageBodiesCfg(db, nil, nil, nil, nil, 0, *chainConfig, br, historyV3, bw, nil)
+			cfg := stagedsync.StageBodiesCfg(db, nil, nil, nil, nil, nil, 0, *chainConfig, br, historyV3, bw, nil)
 			if err := stagedsync.UnwindBodiesStage(u, tx, cfg, ctx); err != nil {
 				return err
 			}
@@ -1650,13 +1652,19 @@ func newSync(ctx context.Context, db kv.RwDB, miningConfig *params.MiningConfig,
 		snapDb     kv.RwDB
 		recents    *lru.ARCCache[libcommon.Hash, *bor.Snapshot]
 		signatures *lru.ARCCache[libcommon.Hash, libcommon.Address]
+		blobStore  blob_storage.BlobStorage
 	)
 	if bor, ok := engine.(*bor.Bor); ok {
 		snapDb = bor.DB
 		recents = bor.Recents
 		signatures = bor.Signatures
 	}
-	stages := stages2.NewDefaultStages(context.Background(), db, snapDb, p2p.Config{}, &cfg, sentryControlServer, notifications, nil, blockReader, blockRetire, agg, nil, nil,
+
+	if parlia, ok := engine.(*parlia.Parlia); ok {
+		blobStore = parlia.BlobStore
+	}
+
+	stages := stages2.NewDefaultStages(context.Background(), db, snapDb, blobStore, p2p.Config{}, &cfg, sentryControlServer, notifications, nil, blockReader, blockRetire, agg, nil, nil,
 		heimdallClient, recents, signatures, logger)
 	sync := stagedsync.New(cfg.Sync, stages, stagedsync.DefaultUnwindOrder, stagedsync.DefaultPruneOrder, logger)
 

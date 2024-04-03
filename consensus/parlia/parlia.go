@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ledgerwatch/erigon-lib/common/cmp"
+	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"github.com/ledgerwatch/erigon/crypto/cryptopool"
 	"github.com/ledgerwatch/erigon/turbo/services"
 	"math/big"
@@ -204,6 +205,7 @@ type Parlia struct {
 	config      *chain.ParliaConfig // Consensus engine configuration parameters for parlia consensus
 	genesisHash libcommon.Hash
 	db          kv.RwDB // Database to store and retrieve snapshot checkpoints
+	BlobStore   blob_storage.BlobStorage
 	chainDb     kv.RwDB
 
 	recentSnaps *lru.ARCCache[libcommon.Hash, *Snapshot]         // Snapshots for recent block to speed up
@@ -232,6 +234,7 @@ type Parlia struct {
 func New(
 	chainConfig *chain.Config,
 	db kv.RwDB,
+	blobStore blob_storage.BlobStorage,
 	blockReader services.FullBlockReader,
 	chainDb kv.RwDB,
 	logger log.Logger,
@@ -273,6 +276,7 @@ func New(
 		chainConfig:                chainConfig,
 		config:                     parliaConfig,
 		db:                         db,
+		BlobStore:                  blobStore,
 		chainDb:                    chainDb,
 		recentSnaps:                recentSnaps,
 		signatures:                 signatures,
@@ -537,10 +541,6 @@ func (p *Parlia) verifyHeader(chain consensus.ChainHeaderReader, header *types.H
 		}
 	}
 
-	if header.WithdrawalsHash != nil {
-		return consensus.ErrUnexpectedWithdrawals
-	}
-
 	parent, err := p.getParent(chain, header, parents)
 	if err != nil {
 		return err
@@ -749,7 +749,8 @@ func (p *Parlia) snapshot(chain consensus.ChainHeaderReader, number uint64, hash
 				}
 			}
 		}
-		if number == 0 || (number%p.config.Epoch == 0 && (len(headers) > params.FullImmutabilityThreshold/10)) {
+		// If we're at the genesis, snapshot the initial state.
+		if number == 0 {
 			// Headers included into the snapshots have to be trusted as checkpoints
 			checkpoint := chain.GetHeader(hash, number)
 			if checkpoint != nil {
@@ -760,12 +761,10 @@ func (p *Parlia) snapshot(chain consensus.ChainHeaderReader, number uint64, hash
 				}
 				// new snapshot
 				snap = newSnapshot(p.config, p.signatures, number, hash, validators, voteAddrs)
-				if snap.Number%CheckpointInterval == 0 { // snapshot will only be loaded when snap.Number%checkpointInterval == 0
-					if err := snap.store(p.db); err != nil {
-						return nil, err
-					}
-					p.logger.Info("Stored checkpoint snapshot to disk", "number", number, "hash", hash)
+				if err := snap.store(p.db); err != nil {
+					return nil, err
 				}
+				p.logger.Info("Stored checkpoint snapshot to disk", "number", number, "hash", hash)
 				break
 			}
 		}
@@ -1635,7 +1634,12 @@ func (p *Parlia) systemCall(from, contract libcommon.Address, data []byte, ibs *
 	vmConfig := vm.Config{NoReceipts: true}
 	// Create a new context to be used in the EVM environment
 	blockContext := core.NewEVMBlockContext(header, core.GetHashFn(header, nil), p, &from)
+	if chainConfig.IsCancun(header.Number.Uint64(), header.Time) {
+		rules := chainConfig.Rules(header.Number.Uint64(), header.Time)
+		ibs.Prepare(rules, msg.From(), blockContext.Coinbase, msg.To(), vm.ActivePrecompiles(rules), msg.AccessList())
+	}
 	evm := vm.NewEVM(blockContext, core.NewEVMTxContext(msg), ibs, chainConfig, vmConfig)
+
 	ret, leftOverGas, err := evm.Call(
 		vm.AccountRef(msg.From()),
 		*msg.To(),

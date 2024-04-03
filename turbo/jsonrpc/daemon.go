@@ -8,6 +8,7 @@ import (
 	"github.com/ledgerwatch/erigon/cmd/rpcdaemon/cli/httpcfg"
 	"github.com/ledgerwatch/erigon/consensus"
 	"github.com/ledgerwatch/erigon/consensus/clique"
+	"github.com/ledgerwatch/erigon/consensus/parlia"
 	"github.com/ledgerwatch/erigon/polygon/bor"
 	"github.com/ledgerwatch/erigon/rpc"
 	"github.com/ledgerwatch/erigon/turbo/rpchelper"
@@ -32,8 +33,8 @@ func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, m
 	dbImpl := NewDBAPIImpl() /* deprecated */
 	adminImpl := NewAdminAPI(eth)
 	parityImpl := NewParityAPIImpl(base, db)
-	bscImpl := NewBscAPI(ethImpl)
 
+	var bscImpl *BscImpl
 	var borImpl *BorImpl
 
 	type lazy interface {
@@ -42,9 +43,14 @@ func APIList(db kv.RoDB, eth rpchelper.ApiBackend, txPool txpool.TxpoolClient, m
 	}
 
 	switch engine := engine.(type) {
+	case *parlia.Parlia:
+		bscImpl = NewBscAPI(ethImpl)
 	case *bor.Bor:
 		borImpl = NewBorAPI(base, db)
 	case lazy:
+		if _, ok := engine.Engine().(*parlia.Parlia); !engine.HasEngine() || ok {
+			bscImpl = NewBscAPI(ethImpl)
+		}
 		if _, ok := engine.Engine().(*bor.Bor); !engine.HasEngine() || ok {
 			borImpl = NewBorAPI(base, db)
 		}

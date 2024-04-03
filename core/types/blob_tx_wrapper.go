@@ -5,15 +5,18 @@ import (
 	"io"
 	"math/big"
 	"math/bits"
+	"reflect"
 	"time"
 
 	gokzg4844 "github.com/crate-crypto/go-kzg-4844"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/holiman/uint256"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/common/fixedgas"
 	libkzg "github.com/ledgerwatch/erigon-lib/crypto/kzg"
+	rlp2 "github.com/ledgerwatch/erigon-lib/rlp"
 	types2 "github.com/ledgerwatch/erigon-lib/types"
 
 	"github.com/ledgerwatch/erigon/rlp"
@@ -30,6 +33,49 @@ type Blob [fixedgas.BlobSize]byte
 type BlobKzgs []KZGCommitment
 type KZGProofs []KZGProof
 type Blobs []Blob
+
+var (
+	blobT       = reflect.TypeOf(Blob{})
+	commitmentT = reflect.TypeOf(KZGCommitment{})
+	proofT      = reflect.TypeOf(KZGProof{})
+)
+
+// UnmarshalJSON parses a blob in hex syntax.
+func (b *Blob) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(blobT, input, b[:])
+}
+
+// MarshalText returns the hex representation of b.
+func (b Blob) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(b[:]).MarshalText()
+}
+
+// UnmarshalJSON parses a commitment in hex syntax.
+func (c *KZGCommitment) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(commitmentT, input, c[:])
+}
+
+// MarshalText returns the hex representation of c.
+func (c KZGCommitment) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(c[:]).MarshalText()
+}
+
+// UnmarshalJSON parses a proof in hex syntax.
+func (p *KZGProof) UnmarshalJSON(input []byte) error {
+	return hexutil.UnmarshalFixedJSON(proofT, input, p[:])
+}
+
+// MarshalText returns the hex representation of p.
+func (p KZGProof) MarshalText() ([]byte, error) {
+	return hexutil.Bytes(p[:]).MarshalText()
+}
+
+// BlobTxSidecar contains the blobs of a blob transaction.
+type BlobTxSidecar struct {
+	Blobs       Blobs     `json:"blobs"`       // Blobs needed by the blob pool
+	Commitments BlobKzgs  `json:"commitments"` // Commitments needed by the blob pool
+	Proofs      KZGProofs `json:"proofs"`      // Proofs needed by the blob pool
+}
 
 type BlobTxWrapper struct {
 	Tx          BlobTx
@@ -253,6 +299,99 @@ func (c KZGCommitment) ComputeVersionedHash() libcommon.Hash {
 	return libcommon.Hash(libkzg.KZGToVersionedHash(gokzg4844.KZGCommitment(c)))
 }
 
+// BlobTxSidecar encoderlp
+func (sc BlobTxSidecar) EncodeRLP(w io.Writer) error {
+	var b [33]byte
+	if err := EncodeStructSizePrefix(sc.payloadSize(), w, b[:]); err != nil {
+		return err
+	}
+
+	// blobs
+	if err := sc.Blobs.encodePayload(w, b[:], sc.Blobs.payloadSize()); err != nil {
+		return err
+	}
+
+	// commitments
+	if err := sc.Commitments.encodePayload(w, b[:], sc.Commitments.payloadSize()); err != nil {
+		return err
+	}
+
+	// proofs
+	if err := sc.Proofs.encodePayload(w, b[:], sc.Proofs.payloadSize()); err != nil {
+		return err
+	}
+	return nil
+}
+
+// BlobTxSidecar decoderlp
+func (sc *BlobTxSidecar) DecodeRLP(s *rlp.Stream) error {
+	_, err := s.List()
+	if err != nil {
+		return fmt.Errorf("open BlobTxSidecar: %w", err)
+	}
+
+	if err := sc.Blobs.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Blobs: %w", err)
+	}
+
+	if err := sc.Commitments.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Commitments: %w", err)
+	}
+
+	if err := sc.Proofs.DecodeRLP(s); err != nil {
+		return fmt.Errorf("decode Proofs: %w", err)
+	}
+
+	if err = s.ListEnd(); err != nil {
+		return fmt.Errorf("close BlobTxSidecar: %w", err)
+	}
+
+	return nil
+}
+
+/* BlobTxSidecar methods */
+
+func (sc BlobTxSidecar) payloadSize() int {
+	blobSize := sc.Blobs.payloadSize()
+	payloadSize := rlp2.ListPrefixLen(blobSize) + blobSize
+	commitmentSize := sc.Commitments.payloadSize()
+	payloadSize += rlp2.ListPrefixLen(commitmentSize) + commitmentSize
+	proofSize := sc.Proofs.payloadSize()
+	payloadSize += rlp2.ListPrefixLen(proofSize) + proofSize
+	return payloadSize
+}
+
+// ValidateBlobTxSidecar implements validate_blob_tx_sidecar from EIP-4844
+func (sc *BlobTxSidecar) ValidateBlobTxSidecar(blobVersionedHashes []libcommon.Hash) error {
+	l1 := len(blobVersionedHashes)
+	if l1 == 0 {
+		return fmt.Errorf("a blob tx must contain at least one blob")
+	}
+	l2 := len(sc.Commitments)
+	l3 := len(sc.Blobs)
+	l4 := len(sc.Proofs)
+	if l1 != l2 || l1 != l3 || l1 != l4 {
+		return fmt.Errorf("lengths don't match %v %v %v %v", l1, l2, l3, l4)
+	}
+	// the following check isn't strictly necessary as it would be caught by blob gas processing
+	// (and hence it is not explicitly in the spec for this function), but it doesn't hurt to fail
+	// early in case we are getting spammed with too many blobs or there is a bug somewhere:
+	if uint64(l1) > fixedgas.DefaultMaxBlobsPerBlock {
+		return fmt.Errorf("number of blobs exceeds max: %v", l1)
+	}
+	kzgCtx := libkzg.Ctx()
+	err := kzgCtx.VerifyBlobKZGProofBatch(toBlobs(sc.Blobs), toComms(sc.Commitments), toProofs(sc.Proofs))
+	if err != nil {
+		return fmt.Errorf("error during proof verification: %v", err)
+	}
+	for i, h := range blobVersionedHashes {
+		if computed := sc.Commitments[i].ComputeVersionedHash(); computed != h {
+			return fmt.Errorf("versioned hash %d supposedly %s but does not match computed %s", i, h, computed)
+		}
+	}
+	return nil
+}
+
 /* BlobTxWrapper methods */
 
 // validateBlobTransactionWrapper implements validate_blob_transaction_wrapper from EIP-4844
@@ -380,4 +519,12 @@ func (txw *BlobTxWrapper) MarshalBinary(w io.Writer) error {
 }
 func (txw BlobTxWrapper) EncodeRLP(w io.Writer) error {
 	return txw.Tx.EncodeRLP(w)
+}
+
+func (txw *BlobTxWrapper) BlobTxSidecar() *BlobTxSidecar {
+	return &BlobTxSidecar{
+		Blobs:       txw.Blobs.copy(),
+		Commitments: txw.Commitments.copy(),
+		Proofs:      txw.Proofs.copy(),
+	}
 }

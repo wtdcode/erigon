@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -263,8 +264,9 @@ type BlockHeadersPacket66 struct {
 
 // NewBlockPacket is the network packet for the block propagation message.
 type NewBlockPacket struct {
-	Block *types.Block
-	TD    *big.Int
+	Block    *types.Block
+	TD       *big.Int
+	Sidecars types.BlobSidecars
 }
 
 func (nbp NewBlockPacket) EncodeRLP(w io.Writer) error {
@@ -308,6 +310,12 @@ func (nbp NewBlockPacket) EncodeRLP(w io.Writer) error {
 			return err
 		}
 	}
+	// encode sidecars
+	if len(nbp.Sidecars) > 0 {
+		if err := rlp.Encode(w, nbp.Sidecars); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -327,15 +335,50 @@ func (nbp *NewBlockPacket) DecodeRLP(s *rlp.Stream) error {
 		return fmt.Errorf("read TD: %w", err)
 	}
 	nbp.TD = new(big.Int).SetBytes(b)
-	if err = s.ListEnd(); err != nil {
-		return err
+
+	// decode sidecars
+	if _, err = s.List(); err == nil {
+		nbp.Sidecars = types.BlobSidecars{}
+		for err == nil {
+			var sidecar types.BlobSidecar
+			if err = sidecar.DecodeRLP(s); err != nil {
+				break
+			}
+			nbp.Sidecars = append(nbp.Sidecars, &sidecar)
+		}
+		if !errors.Is(err, rlp.EOL) {
+			return err
+		}
+		// end of Sidecars
+		if err = s.ListEnd(); err != nil {
+			return err
+		}
+
+	} else if errors.Is(err, rlp.EOL) {
+		nbp.Sidecars = nil
+		return s.ListEnd()
 	}
 	return nil
 }
 
 // SanityCheck verifies that the values are reasonable, as a DoS protection
 func (request *NewBlockPacket) SanityCheck() error {
-	return request.Block.SanityCheck()
+	if err := request.Block.SanityCheck(); err != nil {
+		return err
+	}
+
+	if len(request.Sidecars) > 0 {
+		// todo 4844 do full sanity check for blob
+		for _, sidecar := range request.Sidecars {
+			lProofs := len(sidecar.Proofs)
+			lBlobs := len(sidecar.Blobs)
+			lCommitments := len(sidecar.Commitments)
+			if lProofs != lBlobs || lProofs != lCommitments || lCommitments != lBlobs {
+				return fmt.Errorf("mismatch of lengths of sidecar proofs %d, blobs %d, commitments %d", lProofs, lBlobs, lCommitments)
+			}
+		}
+	}
+	return nil
 }
 
 // GetBlockBodiesPacket represents a block body query.
@@ -378,16 +421,17 @@ type BlockBodiesRLPPacket66 struct {
 
 // Unpack retrieves the transactions, uncles, and withdrawals from the range packet and returns
 // them in a split flat format that's more consistent with the internal data structures.
-func (p *BlockRawBodiesPacket) Unpack() ([][][]byte, [][]*types.Header, []types.Withdrawals) {
+func (p *BlockRawBodiesPacket) Unpack() ([][][]byte, [][]*types.Header, []types.Withdrawals, []types.BlobSidecars) {
 	var (
 		txSet         = make([][][]byte, len(*p))
 		uncleSet      = make([][]*types.Header, len(*p))
 		withdrawalSet = make([]types.Withdrawals, len(*p))
+		sidecarsSet   = make([]types.BlobSidecars, len(*p))
 	)
 	for i, body := range *p {
-		txSet[i], uncleSet[i], withdrawalSet[i] = body.Transactions, body.Uncles, body.Withdrawals
+		txSet[i], uncleSet[i], withdrawalSet[i], sidecarsSet[i] = body.Transactions, body.Uncles, body.Withdrawals, body.Sidecars
 	}
-	return txSet, uncleSet, withdrawalSet
+	return txSet, uncleSet, withdrawalSet, sidecarsSet
 }
 
 // GetReceiptsPacket represents a block receipts query.
