@@ -445,6 +445,9 @@ const (
 	BeaconState = "BeaconState"
 	// [slot] => [signature + block without execution payload]
 	BeaconBlocks = "BeaconBlock"
+
+	EffectiveBalancesDump = "EffectiveBalancesDump"
+	BalancesDump          = "BalancesDump"
 	// [slot] => [attestation list (custom encoding)]
 	Attestetations = "Attestetations"
 
@@ -461,6 +464,9 @@ const (
 
 	LastBeaconSnapshot    = "LastBeaconSnapshot"
 	LastBeaconSnapshotKey = "LastBeaconSnapshotKey"
+
+	BlockRootToKzgCommitments = "BlockRootToKzgCommitments"
+	KzgCommitmentToBlob       = "KzgCommitmentToBlob"
 
 	// [Block Root] => [Parent Root]
 	BlockRootToParentRoot = "BlockRootToParentRoot"
@@ -498,8 +504,6 @@ const (
 	CurrentSyncCommittee       = "CurrentSyncCommittee"
 	HistoricalRoots            = "HistoricalRoots"
 	HistoricalSummaries        = "HistoricalSummaries"
-	CurrentEpochAttestations   = "EpochAttestations"
-	PreviousEpochAttestations  = "PreviousAttestations"
 	Eth1DataVotes              = "Eth1DataVotes"
 
 	IntraRandaoMixes = "IntraRandaoMixes" // [validator_index+slot] => [randao_mix]
@@ -671,6 +675,9 @@ var ChaindataTables = []string{
 	BlockRootToBlockHash,
 	BlockRootToBlockNumber,
 	LastBeaconSnapshot,
+	// Blob Storage
+	BlockRootToKzgCommitments,
+	KzgCommitmentToBlob,
 	// State Reconstitution
 	ValidatorPublicKeys,
 	InvertedValidatorPublicKeys,
@@ -694,16 +701,16 @@ var ChaindataTables = []string{
 	CurrentSyncCommittee,
 	HistoricalRoots,
 	HistoricalSummaries,
-	CurrentEpochAttestations,
-	PreviousEpochAttestations,
 	Eth1DataVotes,
 	IntraRandaoMixes,
 	ActiveValidatorIndicies,
+	EffectiveBalancesDump,
+	BalancesDump,
 }
 
 const (
 	RecentLocalTransaction = "RecentLocalTransaction" // sequence_u64 -> tx_hash
-	PoolTransaction        = "PoolTransaction"        // txHash -> sender_id_u64+tx_rlp
+	PoolTransaction        = "PoolTransaction"        // txHash -> sender+tx_rlp
 	PoolInfo               = "PoolInfo"               // option_key -> option_value
 )
 

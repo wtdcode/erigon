@@ -16,12 +16,14 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/exp/slices"
+
+	"github.com/ledgerwatch/erigon-lib/common/metrics"
 	"github.com/ledgerwatch/erigon-lib/kv/dbutils"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/etl"
 	"github.com/ledgerwatch/erigon-lib/kv"
-	"golang.org/x/exp/slices"
 
 	"github.com/ledgerwatch/erigon/dataflow"
 	"github.com/ledgerwatch/erigon/turbo/services"
@@ -559,6 +561,8 @@ func (hd *HeaderDownload) InsertHeader(hf FeedHeaderFunc, terminalTotalDifficult
 			hd.logger.Info(fmt.Sprintf("[%s] Inserting headers", logPrefix), "progress", hd.highestInDb, "queue", hd.insertQueue.Len())
 		default:
 		}
+		metrics.UpdateBlockConsumerHeaderDownloadDelay(link.header.Time, link.header.Number.Uint64(), hd.logger)
+
 		td, err := hf(link.header, link.headerRaw, hd.highestHashInDb, hd.highestInDb)
 		if err != nil {
 			return false, false, 0, lastTime, err
@@ -703,7 +707,11 @@ func (hd *HeaderDownload) ProcessHeadersPOS(csHeaders []ChainSegmentHeader, tx k
 					//return nil, nil
 				}
 			*/
-			hd.logger.Debug("[downloader] Unexpected header", "hash", headerHash, "expected", hd.posAnchor.parentHash, "peerID", common.Bytes2Hex(peerId[:]))
+
+			if hd.posAnchor.blockHeight == header.Number.Uint64()+1 {
+				hd.logger.Debug("[downloader] Unexpected header", "hash", headerHash, "expected", hd.posAnchor.parentHash, "peerID", common.Bytes2Hex(peerId[:]))
+			}
+
 			// Not penalise because we might have sent request twice
 			continue
 		}
