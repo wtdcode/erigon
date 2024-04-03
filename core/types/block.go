@@ -29,8 +29,6 @@ import (
 
 	"golang.org/x/crypto/sha3"
 
-	"github.com/ledgerwatch/erigon-lib/common/hexutil"
-
 	"github.com/gballet/go-verkle"
 
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
