@@ -150,6 +150,7 @@ func (m *Migrator) VerifyVersion(db kv.RwDB) error {
 }
 
 func (m *Migrator) Apply(db kv.RwDB, dataDir string, logger log.Logger) error {
+	logger.Info("[dbg] migrations", "name", m.Migrations)
 	if len(m.Migrations) == 0 {
 		return nil
 	}
@@ -170,7 +171,6 @@ func (m *Migrator) Apply(db kv.RwDB, dataDir string, logger log.Logger) error {
 		return fmt.Errorf("migrator.Apply: %w", err)
 	}
 
-	logger.Info("[dbg] migrations", "name", m.Migrations)
 	// migration names must be unique, protection against people's mistake
 	uniqueNameCheck := map[string]bool{}
 	for i := range m.Migrations {
