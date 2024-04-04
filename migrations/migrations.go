@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ledgerwatch/erigon-lib/common"
-
 	"github.com/ledgerwatch/erigon-lib/common/datadir"
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon/core/rawdb"
@@ -184,6 +183,7 @@ func (m *Migrator) Apply(db kv.RwDB, dataDir string, logger log.Logger) error {
 	for i := range m.Migrations {
 		v := m.Migrations[i]
 		if _, ok := applied[v.Name]; ok {
+			logger.Info("Applied migration skip", "name", v.Name)
 			continue
 		}
 
