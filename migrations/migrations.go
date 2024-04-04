@@ -183,9 +183,11 @@ func (m *Migrator) Apply(db kv.RwDB, dataDir string, logger log.Logger) error {
 
 	for i := range m.Migrations {
 		v := m.Migrations[i]
-		if _, ok := applied[v.Name]; ok {
-			logger.Info("Applied migration skip", "name", v.Name)
-			continue
+		if v.Name != SqueezeCommitmentFiles.Name {
+			if _, ok := applied[v.Name]; ok {
+				logger.Info("Applied migration skip", "name", v.Name)
+				continue
+			}
 		}
 
 		callbackCalled := false // commit function must be called if no error, protection against people's mistake
