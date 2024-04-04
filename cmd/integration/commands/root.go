@@ -80,6 +80,7 @@ func openDB(opts kv2.MdbxOpts, applyMigrations bool, logger log.Logger) (kv.RwDB
 		if err != nil {
 			return nil, err
 		}
+		logger.Info("[dbg] migrations", "has", has)
 		if has {
 			logger.Info("Re-Opening DB in exclusive mode to apply DB migrations")
 			db.Close()
