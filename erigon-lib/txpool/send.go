@@ -60,7 +60,7 @@ func (f *Send) SetWaitGroup(wg *sync.WaitGroup) {
 const (
 	// This is the target size for the packs of transactions or announcements. A
 	// pack can get larger than this if a single transactions exceeds this size.
-	p2pTxPacketLimit = 100 * 1024
+	p2pTxPacketLimit = 2 * 1024 * 1024
 )
 
 func (f *Send) notifyTests() {
