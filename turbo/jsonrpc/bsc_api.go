@@ -9,6 +9,7 @@ import (
 	"github.com/ledgerwatch/erigon/consensus/parlia"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/rpc"
+	"github.com/ledgerwatch/erigon/turbo/adapter/ethapi"
 	"github.com/ledgerwatch/erigon/turbo/rpchelper"
 )
 
@@ -20,8 +21,8 @@ type BscAPI interface {
 	GetDiffAccountsWithScope(ctx context.Context, blockNr rpc.BlockNumber, accounts []libcommon.Address) (*types.DiffAccountsInBlock, error)
 	GetFilterLogs(ctx context.Context, id rpc.ID) ([]*types.Log, error)
 	GetHashrate(ctx context.Context) (uint64, error)
-	GetHeaderByHash(ctx context.Context, hash libcommon.Hash) (*types.Header, error)
-	GetHeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error)
+	GetHeaderByHash(ctx context.Context, hash libcommon.Hash) (map[string]interface{}, error)
+	GetHeaderByNumber(ctx context.Context, number rpc.BlockNumber) (map[string]interface{}, error)
 	GetTransactionDataAndReceipt(ctx context.Context, hash libcommon.Hash) (map[string]interface{}, error)
 	GetTransactionReceiptsByBlockNumber(ctx context.Context, number rpc.BlockNumberOrHash) ([]map[string]interface{}, error)
 	Health(ctx context.Context) bool
@@ -100,23 +101,25 @@ func (api *BscImpl) GetHashrate(ctx context.Context) (uint64, error) {
 }
 
 // GetHeaderByHash returns the requested header by hash
-func (api *BscImpl) GetHeaderByHash(ctx context.Context, hash libcommon.Hash) (*types.Header, error) {
+func (api *BscImpl) GetHeaderByHash(ctx context.Context, hash libcommon.Hash) (map[string]interface{}, error) {
 	tx, beginErr := api.ethApi.db.BeginRo(ctx)
 	if beginErr != nil {
 		return nil, beginErr
 	}
 	defer tx.Rollback()
-	return api.ethApi._blockReader.HeaderByHash(ctx, tx, hash)
+	header, err := api.ethApi._blockReader.HeaderByHash(ctx, tx, hash)
+	return ethapi.RPCMarshalHeader(header), err
 }
 
 // GetHeaderByNumber returns the requested canonical block header.
-func (api *BscImpl) GetHeaderByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Header, error) {
+func (api *BscImpl) GetHeaderByNumber(ctx context.Context, number rpc.BlockNumber) (map[string]interface{}, error) {
 	tx, beginErr := api.ethApi.db.BeginRo(ctx)
 	if beginErr != nil {
 		return nil, beginErr
 	}
 	defer tx.Rollback()
-	return api.ethApi._blockReader.HeaderByNumber(ctx, tx, uint64(number.Int64()))
+	header, err := api.ethApi._blockReader.HeaderByNumber(ctx, tx, uint64(number.Int64()))
+	return ethapi.RPCMarshalHeader(header), err
 }
 
 // GetTransactionDataAndReceipt returns the original transaction data and transaction receipt for the given transaction hash.
