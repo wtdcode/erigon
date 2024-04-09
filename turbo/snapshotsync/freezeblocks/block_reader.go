@@ -511,6 +511,10 @@ func (r *BlockReader) BodyRlp(ctx context.Context, tx kv.Getter, hash common.Has
 	if r.bs != nil {
 		blobSidecars, found, err := r.bs.ReadBlobSidecars(ctx, blockHeight, hash)
 		if err == nil && found && len(blobSidecars) > 0 {
+			// Has to be there as it is optional
+			if body.Withdrawals == nil {
+				body.Withdrawals = make([]*types.Withdrawal, 0)
+			}
 			body.Sidecars = blobSidecars
 		}
 	}

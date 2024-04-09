@@ -707,7 +707,7 @@ func (rb RawBody) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen,
 	//size of Sidecars
 	if rb.Sidecars != nil {
 		for _, sidecar := range rb.Sidecars {
-			sidecarLen := sidecar.EncodingSize()
+			sidecarLen := sidecar.payloadSize()
 			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
 		}
 		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
@@ -1002,7 +1002,7 @@ func (bb Body) EncodingSize() int {
 	return payloadSize
 }
 
-func (bb Body) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLen, sidecarsLen int) {
+func (bb Body) payloadSize() (payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen int) {
 	// size of Transactions
 	for _, tx := range bb.Transactions {
 		txLen := tx.EncodingSize()
@@ -1029,7 +1029,7 @@ func (bb Body) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLen
 	//size of Sidecars
 	if bb.Sidecars != nil {
 		for _, sidecar := range bb.Sidecars {
-			sidecarLen := sidecar.EncodingSize()
+			sidecarLen := sidecar.payloadSize()
 			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
 		}
 		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
