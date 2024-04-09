@@ -5,6 +5,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
+	"math"
+	"strconv"
+
 	"github.com/ledgerwatch/erigon-lib/chain"
 	libcommon "github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/kv"
@@ -12,21 +16,9 @@ import (
 	"github.com/ledgerwatch/erigon/rlp"
 	"github.com/ledgerwatch/erigon/turbo/services"
 	"github.com/spf13/afero"
-	"io"
-	"math"
-	"strconv"
 )
 
 const subdivision = 10_000
-
-type BlobStorage interface {
-	WriteBlobSidecars(ctx context.Context, hash libcommon.Hash, blobSidecars []*types.BlobSidecar) error
-	RemoveBlobSidecars(ctx context.Context, number uint64, hash libcommon.Hash) error
-	ReadBlobSidecars(ctx context.Context, number uint64, hash libcommon.Hash) (out types.BlobSidecars, found bool, err error)
-	WriteStream(w io.Writer, number uint64, hash libcommon.Hash, idx uint64) error // Used for P2P networking
-	BlobTxCount(ctx context.Context, hash libcommon.Hash) (uint32, error)
-	Prune() error
-}
 
 type BlobStore struct {
 	db          kv.RwDB
@@ -36,7 +28,7 @@ type BlobStore struct {
 	blockReader services.BlockReader
 }
 
-func NewBlobStore(db kv.RwDB, fs afero.Fs, blocksKept uint64, chainConfig *chain.Config, blockReader services.BlockReader) BlobStorage {
+func NewBlobStore(db kv.RwDB, fs afero.Fs, blocksKept uint64, chainConfig *chain.Config, blockReader services.BlockReader) services.BlobStorage {
 	return &BlobStore{fs: fs, db: db, blocksKept: blocksKept, chainConfig: chainConfig, blockReader: blockReader}
 }
 

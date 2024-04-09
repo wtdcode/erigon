@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"io"
 
 	"github.com/ledgerwatch/log/v3"
 
@@ -70,6 +71,16 @@ type BodyReader interface {
 	BodyRlp(ctx context.Context, tx kv.Getter, hash common.Hash, blockNum uint64) (bodyRlp rlp.RawValue, err error)
 	Body(ctx context.Context, tx kv.Getter, hash common.Hash, blockNum uint64) (body *types.Body, txAmount uint32, err error)
 	HasSenders(ctx context.Context, tx kv.Getter, hash common.Hash, blockNum uint64) (bool, error)
+	WithSidecars(blobStorage BlobStorage)
+}
+
+type BlobStorage interface {
+	WriteBlobSidecars(ctx context.Context, hash common.Hash, blobSidecars []*types.BlobSidecar) error
+	RemoveBlobSidecars(ctx context.Context, number uint64, hash common.Hash) error
+	ReadBlobSidecars(ctx context.Context, number uint64, hash common.Hash) (out types.BlobSidecars, found bool, err error)
+	WriteStream(w io.Writer, number uint64, hash common.Hash, idx uint64) error // Used for P2P networking
+	BlobTxCount(ctx context.Context, hash common.Hash) (uint32, error)
+	Prune() error
 }
 
 type TxnReader interface {

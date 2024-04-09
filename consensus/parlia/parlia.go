@@ -6,15 +6,15 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/ledgerwatch/erigon-lib/common/cmp"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
-	"github.com/ledgerwatch/erigon/crypto/cryptopool"
-	"github.com/ledgerwatch/erigon/turbo/services"
 	"math/big"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/ledgerwatch/erigon-lib/common/cmp"
+	"github.com/ledgerwatch/erigon/crypto/cryptopool"
+	"github.com/ledgerwatch/erigon/turbo/services"
 
 	lru "github.com/hashicorp/golang-lru/arc/v2"
 	"github.com/ledgerwatch/erigon-lib/chain"
@@ -205,7 +205,7 @@ type Parlia struct {
 	config      *chain.ParliaConfig // Consensus engine configuration parameters for parlia consensus
 	genesisHash libcommon.Hash
 	db          kv.RwDB // Database to store and retrieve snapshot checkpoints
-	BlobStore   blob_storage.BlobStorage
+	BlobStore   services.BlobStorage
 	chainDb     kv.RwDB
 
 	recentSnaps *lru.ARCCache[libcommon.Hash, *Snapshot]         // Snapshots for recent block to speed up
@@ -234,7 +234,7 @@ type Parlia struct {
 func New(
 	chainConfig *chain.Config,
 	db kv.RwDB,
-	blobStore blob_storage.BlobStorage,
+	blobStore services.BlobStorage,
 	blockReader services.FullBlockReader,
 	chainDb kv.RwDB,
 	logger log.Logger,

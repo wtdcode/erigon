@@ -32,6 +32,7 @@ import (
 	"github.com/ledgerwatch/erigon-lib/kv/kvcfg"
 
 	"github.com/ledgerwatch/erigon/consensus"
+	"github.com/ledgerwatch/erigon/consensus/parlia"
 	"github.com/ledgerwatch/erigon/core/forkid"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/eth/ethconfig"
@@ -316,6 +317,10 @@ func NewMultiClient(
 		return nil, fmt.Errorf("recovery from DB failed: %w", err)
 	}
 	bd := bodydownload.NewBodyDownload(engine, blockBufferSize, int(syncCfg.BodyCacheLimit), blockReader, logger)
+
+	if parlia, ok := engine.(*parlia.Parlia); ok {
+		blockReader.WithSidecars(parlia.BlobStore)
+	}
 
 	cs := &MultiClient{
 		nodeName:                          nodeName,

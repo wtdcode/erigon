@@ -21,7 +21,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"io/fs"
 	"math"
 	"math/big"
@@ -631,7 +630,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 		snapDb     kv.RwDB
 		recents    *lru.ARCCache[libcommon.Hash, *bor.Snapshot]
 		signatures *lru.ARCCache[libcommon.Hash, libcommon.Address]
-		blobStore  blob_storage.BlobStorage
+		blobStore  services.BlobStorage
 	)
 	if bor, ok := backend.engine.(*bor.Bor); ok {
 		snapDb = bor.DB

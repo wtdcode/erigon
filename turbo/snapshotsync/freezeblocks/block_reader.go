@@ -34,6 +34,10 @@ type RemoteBlockReader struct {
 	client remote.ETHBACKENDClient
 }
 
+func (r *RemoteBlockReader) WithSidecars(storage services.BlobStorage) {
+	panic("not implemented")
+}
+
 func (r *RemoteBlockReader) CanPruneTo(uint64) uint64 {
 	panic("not implemented")
 }
@@ -299,12 +303,17 @@ func (r *RemoteBlockReader) Checkpoint(ctx context.Context, tx kv.Getter, spanId
 type BlockReader struct {
 	sn    *RoSnapshots
 	borSn *BorRoSnapshots
+	bs    services.BlobStorage
 }
 
 func NewBlockReader(snapshots services.BlockSnapshots, borSnapshots services.BlockSnapshots) *BlockReader {
 	borSn, _ := borSnapshots.(*BorRoSnapshots)
 	sn, _ := snapshots.(*RoSnapshots)
 	return &BlockReader{sn: sn, borSn: borSn}
+}
+
+func (r *BlockReader) WithSidecars(blobStorage services.BlobStorage) {
+	r.bs = blobStorage
 }
 
 func (r *BlockReader) CanPruneTo(currentBlockInDB uint64) uint64 {
@@ -499,6 +508,13 @@ func (r *BlockReader) BodyRlp(ctx context.Context, tx kv.Getter, hash common.Has
 	if err != nil {
 		return nil, err
 	}
+	if r.bs != nil {
+		blobSidecars, found, err := r.bs.ReadBlobSidecars(ctx, blockHeight, hash)
+		if err == nil && found && len(blobSidecars) > 0 {
+			body.Sidecars = blobSidecars
+		}
+	}
+
 	bodyRlp, err = rlp.EncodeToBytes(body)
 	if err != nil {
 		return nil, err
@@ -698,8 +714,7 @@ func (r *BlockReader) bodyFromSnapshot(blockHeight uint64, sn *Segment, buf []by
 	body := new(types.Body)
 	body.Uncles = b.Uncles
 	body.Withdrawals = b.Withdrawals
-	// TODO (matus)
-	// body.Sidecars = b.Sidecars
+
 	var txsAmount uint32
 	if b.TxAmount >= 2 {
 		txsAmount = b.TxAmount - 2

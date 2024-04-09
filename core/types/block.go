@@ -998,11 +998,11 @@ func (bfs *BodyForStorage) DecodeRLP(s *rlp.Stream) error {
 }
 
 func (bb Body) EncodingSize() int {
-	payloadSize, _, _, _ := bb.payloadSize()
+	payloadSize, _, _, _, _ := bb.payloadSize()
 	return payloadSize
 }
 
-func (bb Body) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLen int) {
+func (bb Body) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLen, sidecarsLen int) {
 	// size of Transactions
 	for _, tx := range bb.Transactions {
 		txLen := tx.EncodingSize()
@@ -1026,11 +1026,20 @@ func (bb Body) payloadSize() (payloadSize int, txsLen, unclesLen, withdrawalsLen
 		payloadSize += rlp2.ListPrefixLen(withdrawalsLen) + withdrawalsLen
 	}
 
-	return payloadSize, txsLen, unclesLen, withdrawalsLen
+	//size of Sidecars
+	if bb.Sidecars != nil {
+		for _, sidecar := range bb.Sidecars {
+			sidecarLen := sidecar.EncodingSize()
+			sidecarsLen += rlp2.ListPrefixLen(sidecarLen) + sidecarLen
+		}
+		payloadSize += rlp2.ListPrefixLen(sidecarsLen) + sidecarsLen
+	}
+
+	return payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen
 }
 
 func (bb Body) EncodeRLP(w io.Writer) error {
-	payloadSize, txsLen, unclesLen, withdrawalsLen := bb.payloadSize()
+	payloadSize, txsLen, unclesLen, withdrawalsLen, sidecarsLen := bb.payloadSize()
 	var b [33]byte
 	// prefix
 	if err := EncodeStructSizePrefix(payloadSize, w, b[:]); err != nil {
@@ -1061,6 +1070,17 @@ func (bb Body) EncodeRLP(w io.Writer) error {
 		}
 		for _, withdrawal := range bb.Withdrawals {
 			if err := withdrawal.EncodeRLP(w); err != nil {
+				return err
+			}
+		}
+	}
+	// encode Sidecars
+	if bb.Sidecars != nil {
+		if err := EncodeStructSizePrefix(sidecarsLen, w, b[:]); err != nil {
+			return err
+		}
+		for _, sidecar := range bb.Sidecars {
+			if err := sidecar.EncodeRLP(w); err != nil {
 				return err
 			}
 		}
