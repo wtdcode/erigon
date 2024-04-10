@@ -3,10 +3,10 @@ package stagedsync
 import (
 	"context"
 	"fmt"
-	"github.com/ledgerwatch/erigon/core"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"runtime"
 	"time"
+
+	"github.com/ledgerwatch/erigon/core"
 
 	"github.com/ledgerwatch/log/v3"
 
@@ -29,7 +29,7 @@ const requestLoopCutOff int = 1
 
 type BodiesCfg struct {
 	db              kv.RwDB
-	blobStore       blob_storage.BlobStorage
+	blobStore       services.BlobStorage
 	bd              *bodydownload.BodyDownload
 	bodyReqSend     func(context.Context, *bodydownload.BodyRequest) ([64]byte, bool)
 	penalise        func(context.Context, []headerdownload.PenaltyItem)
@@ -42,7 +42,7 @@ type BodiesCfg struct {
 	loopBreakCheck  func(int) bool
 }
 
-func StageBodiesCfg(db kv.RwDB, blobStore blob_storage.BlobStorage, bd *bodydownload.BodyDownload,
+func StageBodiesCfg(db kv.RwDB, blobStore services.BlobStorage, bd *bodydownload.BodyDownload,
 	bodyReqSend func(context.Context, *bodydownload.BodyRequest) ([64]byte, bool), penalise func(context.Context, []headerdownload.PenaltyItem),
 	blockPropagator adapter.BlockPropagator, timeout int,
 	chanConfig chain.Config,

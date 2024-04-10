@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"math/big"
 	"time"
 
@@ -467,7 +466,7 @@ func silkwormForExecutionStage(silkworm *silkworm.Silkworm, cfg *ethconfig.Confi
 func NewDefaultStages(ctx context.Context,
 	db kv.RwDB,
 	snapDb kv.RwDB,
-	blobStore blob_storage.BlobStorage,
+	blobStore services.BlobStorage,
 	p2pCfg p2p.Config,
 	cfg *ethconfig.Config,
 	controlServer *sentry_multi_client.MultiClient,
@@ -557,7 +556,7 @@ func NewDefaultStages(ctx context.Context,
 
 func NewPipelineStages(ctx context.Context,
 	db kv.RwDB,
-	blobStore blob_storage.BlobStorage,
+	blobStore services.BlobStorage,
 	cfg *ethconfig.Config,
 	p2pCfg p2p.Config,
 	controlServer *sentry_multi_client.MultiClient,
@@ -636,7 +635,7 @@ func NewPipelineStages(ctx context.Context,
 	}
 
 	return stagedsync.UploaderPipelineStages(ctx,
-		stagedsync.StageSnapshotsCfg(db, *controlServer.ChainConfig, cfg.Sync, dirs, blockRetire, snapDownloader, blockReader, notifications, cfg.HistoryV3, agg, cfg.InternalCL && cfg.CaplinConfig.Backfilling,cfg.CaplinConfig.BlobBackfilling, silkworm),
+		stagedsync.StageSnapshotsCfg(db, *controlServer.ChainConfig, cfg.Sync, dirs, blockRetire, snapDownloader, blockReader, notifications, cfg.HistoryV3, agg, cfg.InternalCL && cfg.CaplinConfig.Backfilling, cfg.CaplinConfig.BlobBackfilling, silkworm),
 		stagedsync.StageHeadersCfg(db, controlServer.Hd, controlServer.Bd, *controlServer.ChainConfig, cfg.Sync, controlServer.SendHeaderRequest, controlServer.PropagateNewBlockHashes, controlServer.Penalize, cfg.BatchSize, p2pCfg.NoDiscovery, blockReader, blockWriter, dirs.Tmp, notifications, forkValidator, cfg.StageSyncUpperBound, cfg.StageSyncStep, loopBreakCheck),
 		stagedsync.StageBlockHashesCfg(db, dirs.Tmp, controlServer.ChainConfig, blockWriter),
 		stagedsync.StageSendersCfg(db, controlServer.ChainConfig, false, dirs.Tmp, cfg.Prune, blockReader, controlServer.Hd, loopBreakCheck),
@@ -672,7 +671,7 @@ func NewPipelineStages(ctx context.Context,
 
 }
 
-func NewInMemoryExecution(ctx context.Context, db kv.RwDB, blobStore blob_storage.BlobStorage, cfg *ethconfig.Config, controlServer *sentry_multi_client.MultiClient,
+func NewInMemoryExecution(ctx context.Context, db kv.RwDB, blobStore services.BlobStorage, cfg *ethconfig.Config, controlServer *sentry_multi_client.MultiClient,
 	dirs datadir.Dirs, notifications *shards.Notifications, blockReader services.FullBlockReader, blockWriter *blockio.BlockWriter, agg *state.AggregatorV3,
 	silkworm *silkworm.Silkworm, logger log.Logger) *stagedsync.Sync {
 	return stagedsync.New(

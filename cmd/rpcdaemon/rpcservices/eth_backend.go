@@ -45,6 +45,10 @@ func NewRemoteBackend(client remote.ETHBACKENDClient, db kv.RoDB, blockReader se
 	}
 }
 
+func (back *RemoteBackend) WithSidecars(storage services.BlobStorage) {
+	panic("not implemented")
+}
+
 func (back *RemoteBackend) CanPruneTo(currentBlockInDB uint64) (canPruneBlocksTo uint64) {
 	return back.blockReader.CanPruneTo(currentBlockInDB)
 }

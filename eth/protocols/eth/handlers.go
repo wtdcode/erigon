@@ -147,7 +147,6 @@ func AnswerGetBlockBodiesQuery(db kv.Tx, query GetBlockBodiesPacket, blockReader
 		if number == nil {
 			continue
 		}
-		//TOOD(matus): get sidecars here
 		bodyRLP, _ := blockReader.BodyRlp(context.Background(), db, hash, *number)
 		if len(bodyRLP) == 0 {
 			continue

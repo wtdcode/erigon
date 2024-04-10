@@ -124,5 +124,5 @@ func (s *BlobSidecar) payloadSize() int {
 }
 
 func (s *BlobSidecar) EncodingSize() int {
-	return 1 + s.payloadSize()
+	return s.payloadSize()
 }

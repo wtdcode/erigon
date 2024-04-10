@@ -604,3 +604,106 @@ func TestCopyTxs(t *testing.T) {
 	copies := CopyTxs(txs)
 	assert.Equal(t, txs, copies)
 }
+
+func TestCanEncodeAndDecodeRawBody4844(t *testing.T) {
+	t.Parallel()
+	body := &RawBody{
+		Uncles: []*Header{
+			{
+				ParentHash:  libcommon.Hash{},
+				UncleHash:   libcommon.Hash{},
+				Coinbase:    libcommon.Address{},
+				Root:        libcommon.Hash{},
+				TxHash:      libcommon.Hash{},
+				ReceiptHash: libcommon.Hash{},
+				Bloom:       Bloom{},
+				Difficulty:  big.NewInt(100),
+				Number:      big.NewInt(1000),
+				GasLimit:    50,
+				GasUsed:     60,
+				Time:        90,
+				Extra:       []byte("testing"),
+			},
+			{
+				GasUsed:    108,
+				GasLimit:   100,
+				Difficulty: big.NewInt(99),
+				Number:     big.NewInt(1000),
+			},
+		},
+		Transactions: [][]byte{
+			{
+				0xc0 + 3, 10, 20, 30,
+			},
+			{
+				0xc0 + 3, 40, 50, 60,
+			},
+		},
+		Withdrawals: []*Withdrawal{},
+		Sidecars: []*BlobSidecar{
+			&BlobSidecar{
+				BlockNumber:   blockNumber,
+				BlockHash:     blockHash,
+				TxIndex:       txIndex,
+				TxHash:        txHash,
+				BlobTxSidecar: newRandBlobTxSidecar(1),
+			},
+			&BlobSidecar{
+				BlockNumber:   blockNumber,
+				BlockHash:     blockHash,
+				TxIndex:       txIndex,
+				TxHash:        txHash,
+				BlobTxSidecar: newRandBlobTxSidecar(2),
+			},
+		},
+	}
+	expectedJson, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writer := bytes.NewBuffer(nil)
+	err = body.EncodeRLP(writer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rlpBytes := libcommon.CopyBytes(writer.Bytes())
+	writer.Reset()
+	writer.WriteString(hexutility.Encode(rlpBytes))
+
+	var rawBody RawBody
+	fromHex := libcommon.CopyBytes(common.FromHex(writer.String()))
+	bodyReader := bytes.NewReader(fromHex)
+	stream := rlp.NewStream(bodyReader, 0)
+
+	err = rawBody.DecodeRLP(stream)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resultJson, err := json.Marshal(rawBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(rawBody.Transactions) != 2 {
+		t.Fatalf("expected there to be 1 transaction once decoded")
+	}
+	if rawBody.Transactions[0][1] != 10 {
+		t.Fatal("expected first element in transactions to be 10")
+	}
+	if rawBody.Transactions[1][3] != 60 {
+		t.Fatal("expected 2nd element in transactions to end in 60")
+	}
+	if rawBody.Uncles[0].GasLimit != 50 {
+		t.Fatal("expected gas limit of first uncle to be 50")
+	}
+	if rawBody.Uncles[1].GasLimit != 100 {
+		t.Fatal("expected gas limit of 2nd uncle to be 100")
+	}
+	if len(rawBody.Sidecars) != len(body.Sidecars) {
+		t.Fatal("sidecar length mismatch")
+	}
+	if string(resultJson) != string(expectedJson) {
+		t.Fatalf("encoded and decoded json do not match, got\n%s\nwant\n%s", resultJson, expectedJson)
+	}
+}
