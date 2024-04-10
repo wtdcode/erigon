@@ -5,12 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ledgerwatch/erigon/consensus/parlia"
-	"github.com/ledgerwatch/erigon/core/blob_storage"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/ledgerwatch/erigon/consensus/parlia"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/erigontech/mdbx-go/mdbx"
@@ -1652,7 +1652,7 @@ func newSync(ctx context.Context, db kv.RwDB, miningConfig *params.MiningConfig,
 		snapDb     kv.RwDB
 		recents    *lru.ARCCache[libcommon.Hash, *bor.Snapshot]
 		signatures *lru.ARCCache[libcommon.Hash, libcommon.Address]
-		blobStore  blob_storage.BlobStorage
+		blobStore  services.BlobStorage
 	)
 	if bor, ok := engine.(*bor.Bor); ok {
 		snapDb = bor.DB
