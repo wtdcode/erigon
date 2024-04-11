@@ -24,7 +24,7 @@ import (
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/rlp"
 	"github.com/ledgerwatch/secp256k1"
-	"github.com/prysmaticlabs/prysm/v4/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"math/big"
 
 	"github.com/holiman/uint256"
