@@ -42,7 +42,7 @@ endif
 
 GOPRIVATE = github.com/erigontech/silkworm-go
 
-PACKAGE = github.com/ledgerwatch/erigon
+PACKAGE = github.com/node-real/bsc-erigon
 
 GO_FLAGS += -trimpath -tags $(BUILD_TAGS) -buildvcs=false
 GO_FLAGS += -ldflags "-X ${PACKAGE}/params.GitCommit=${GIT_COMMIT} -X ${PACKAGE}/params.GitBranch=${GIT_BRANCH} -X ${PACKAGE}/params.GitTag=${GIT_TAG}"
@@ -246,7 +246,7 @@ install:
 	@echo "Copied files to $(DIST):"
 	@ls -al "$(DIST)"
 
-PACKAGE_NAME          := github.com/node-real/erigon
+PACKAGE_NAME          := github.com/node-real/bsc-erigon
 GOLANG_CROSS_VERSION  ?= v1.21.6
 
 .PHONY: release-dry-run
