@@ -1,4 +1,4 @@
-project_name: erigon
+project_name: bsc-erigon
 
 release:
   disable: false
@@ -14,7 +14,7 @@ builds:
     env:
       - CC=o64-clang
       - CXX=o64-clang++
-    tags: [ nosqlite, noboltdb, nosilkworm ]
+    tags: [ nosqlite, noboltdb, nosilkworm, netgo ]
     ldflags: -s -w
 
   - id: darwin-arm64
@@ -25,7 +25,7 @@ builds:
     env:
       - CC=oa64-clang
       - CXX=oa64-clang++
-    tags: [ nosqlite, noboltdb, nosilkworm ]
+    tags: [ nosqlite, noboltdb, nosilkworm, netgo ]
     ldflags: -s -w
 
   - id: linux-amd64
@@ -36,7 +36,7 @@ builds:
     env:
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
-    tags: [ nosqlite, noboltdb, nosilkworm ]
+    tags: [ nosqlite, noboltdb, nosilkworm, netgo ]
     ldflags: -s -w -extldflags "-static" # We need to build a static binary because we are building in a glibc based system and running in a musl container
 
   - id: linux-arm64
@@ -47,7 +47,7 @@ builds:
     env:
       - CC=aarch64-linux-gnu-gcc
       - CXX=aarch64-linux-gnu-g++
-    tags: [ nosqlite, noboltdb, nosilkworm ]
+    tags: [ nosqlite, noboltdb, nosilkworm, netgo ]
     ldflags: -s -w -extldflags "-static" # We need to build a static binary because we are building in a glibc based system and running in a musl container
 
   - id: windows-amd64
@@ -58,62 +58,12 @@ builds:
     env:
       - CC=x86_64-w64-mingw32-gcc
       - CXX=x86_64-w64-mingw32-g++
-    tags: [ nosqlite, noboltdb, nosilkworm ]
+    tags: [ nosqlite, noboltdb, nosilkworm, netgo ]
     ldflags: -s -w
 
 
 snapshot:
   name_template: "{{ .Tag }}.next"
-
-dockers:
-  - image_templates:
-      - thorax/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-amd64
-    dockerfile: Dockerfile.release
-    use: buildx
-    skip_push: true
-    goarch: amd64
-    ids:
-      - linux-amd64
-    build_flag_templates:
-      - --platform=linux/amd64
-
-  - image_templates:
-      - thorax/{{ .ProjectName }}:{{ .Version }}-arm64
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-arm64
-    dockerfile: Dockerfile.release
-    skip_push: true
-    use: buildx
-    goarch: arm64
-    ids:
-      - linux-arm64
-    build_flag_templates:
-      - --platform=linux/arm64/v8
-
-docker_manifests:
-  - name_template: thorax/{{ .ProjectName }}:{{ .Version }}
-    skip_push: true
-    image_templates:
-      - thorax/{{ .ProjectName }}:{{ .Version }}-amd64
-      - thorax/{{ .ProjectName }}:{{ .Version }}-arm64
-
-  - name_template: ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}
-    skip_push: true
-    image_templates:
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-arm64
-
-  - name_template: thorax/{{ .ProjectName }}:latest
-    skip_push: true
-    image_templates:
-      - thorax/{{ .ProjectName }}:{{ .Version }}-amd64
-      - thorax/{{ .ProjectName }}:{{ .Version }}-arm64
-
-  - name_template: ghcr.io/ledgerwatch/{{ .ProjectName }}:latest
-    skip_push: true
-    image_templates:
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/ledgerwatch/{{ .ProjectName }}:{{ .Version }}-arm64
 
 announce:
   slack:
