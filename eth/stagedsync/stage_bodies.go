@@ -402,13 +402,15 @@ func UnwindBodiesStage(u *UnwindState, tx kv.RwTx, cfg BodiesCfg, ctx context.Co
 	logEvery := time.NewTicker(logInterval)
 	defer logEvery.Stop()
 
-	for i := u.CurrentBlockNumber; i > u.UnwindPoint; i-- {
-		blockHash, err := rawdb.ReadCanonicalHash(tx, i)
-		if err != nil {
-			return err
-		}
-		if err = cfg.blobStore.RemoveBlobSidecars(ctx, i, blockHash); err != nil {
-			return err
+	if cfg.blobStore != nil {
+		for i := u.CurrentBlockNumber; i > u.UnwindPoint; i-- {
+			blockHash, err := rawdb.ReadCanonicalHash(tx, i)
+			if err != nil {
+				return err
+			}
+			if err = cfg.blobStore.RemoveBlobSidecars(ctx, i, blockHash); err != nil {
+				return err
+			}
 		}
 	}
 
