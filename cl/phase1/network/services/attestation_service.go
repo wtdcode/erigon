@@ -98,6 +98,7 @@ func (s *attestationService) ProcessMessage(
 	// i.e. attestation.data.slot + ATTESTATION_PROPAGATION_SLOT_RANGE >= current_slot >= attestation.data.slot (a client MAY queue future attestations for processing at the appropriate slot).
 	currentSlot := s.ethClock.GetCurrentSlot()
 	if currentSlot < slot || currentSlot > slot+s.netCfg.AttestationPropagationSlotRange {
+		fmt.Println("bad")
 		return fmt.Errorf("not in propagation range %w", ErrIgnore)
 	}
 	// [REJECT] The attestation's epoch matches its target -- i.e. attestation.data.target.epoch == compute_epoch_at_slot(attestation.data.slot)
@@ -203,6 +204,7 @@ func (s *attestationService) ProcessMessage(
 		startSlotAtEpoch,
 	) != s.forkchoiceStore.FinalizedCheckpoint().
 		BlockRoot() {
+		fmt.Println("d")
 		return fmt.Errorf("invalid finalized checkpoint %w", ErrIgnore)
 	}
 
