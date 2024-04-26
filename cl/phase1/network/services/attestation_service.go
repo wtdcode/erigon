@@ -136,6 +136,7 @@ func (s *attestationService) ProcessMessage(
 	}
 
 	if setBits == 0 {
+		fmt.Println("skip 0 bits")
 		return ErrIgnore // Ignore if it is just an empty bitlist
 	}
 	if setBits != 1 {
@@ -179,6 +180,7 @@ func (s *attestationService) ProcessMessage(
 	// [IGNORE] The block being voted for (attestation.data.beacon_block_root) has been seen (via both gossip and non-gossip sources)
 	// (a client MAY queue attestations for processing once block is retrieved).
 	if _, ok := s.forkchoiceStore.GetHeader(root); !ok {
+		fmt.Println("root skip")
 		return ErrIgnore
 	}
 
@@ -206,6 +208,7 @@ func (s *attestationService) ProcessMessage(
 
 	err = s.committeeSubscribe.CheckAggregateAttestation(att)
 	if errors.Is(err, aggregation.ErrIsSuperset) {
+		fmt.Println("somehow superset")
 		return ErrIgnore
 	}
 	return err
