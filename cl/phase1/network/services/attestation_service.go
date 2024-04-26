@@ -48,17 +48,25 @@ func NewAttestationService(
 ) AttestationService {
 	epochDuration := beaconCfg.SlotsPerEpoch * beaconCfg.SecondsPerSlot
 	return &attestationService{
-		forkchoiceStore:          forkchoiceStore,
-		committeeSubscribe:       committeeSubscribe,
-		ethClock:                 ethClock,
-		syncedDataManager:        syncedDataManager,
-		beaconCfg:                beaconCfg,
-		netCfg:                   netCfg,
-		validatorAttestationSeen: lru.NewWithTTL[uint64, uint64]("validator_attestation_seen", validatorAttestationCacheSize, time.Duration(epochDuration)),
+		forkchoiceStore:    forkchoiceStore,
+		committeeSubscribe: committeeSubscribe,
+		ethClock:           ethClock,
+		syncedDataManager:  syncedDataManager,
+		beaconCfg:          beaconCfg,
+		netCfg:             netCfg,
+		validatorAttestationSeen: lru.NewWithTTL[uint64, uint64](
+			"validator_attestation_seen",
+			validatorAttestationCacheSize,
+			time.Duration(epochDuration),
+		),
 	}
 }
 
-func (s *attestationService) ProcessMessage(ctx context.Context, subnet *uint64, att *solid.Attestation) error {
+func (s *attestationService) ProcessMessage(
+	ctx context.Context,
+	subnet *uint64,
+	att *solid.Attestation,
+) error {
 	var (
 		root           = att.AttestantionData().BeaconBlockRoot()
 		slot           = att.AttestantionData().Slot()
@@ -69,14 +77,20 @@ func (s *attestationService) ProcessMessage(ctx context.Context, subnet *uint64,
 	if headState == nil {
 		return ErrIgnore
 	}
-
+	fmt.Println("po")
 	// [REJECT] The committee index is within the expected range
 	committeeCount := computeCommitteeCountPerSlot(headState, slot, s.beaconCfg.SlotsPerEpoch)
 	if committeeIndex >= committeeCount {
 		return fmt.Errorf("committee index out of range, %d >= %d", committeeIndex, committeeCount)
 	}
 	// [REJECT] The attestation is for the correct subnet -- i.e. compute_subnet_for_attestation(committees_per_slot, attestation.data.slot, index) == subnet_id
-	subnetId := computeSubnetForAttestation(committeeCount, slot, committeeIndex, s.beaconCfg.SlotsPerEpoch, s.netCfg.AttestationSubnetCount)
+	subnetId := computeSubnetForAttestation(
+		committeeCount,
+		slot,
+		committeeIndex,
+		s.beaconCfg.SlotsPerEpoch,
+		s.netCfg.AttestationSubnetCount,
+	)
 	if subnet == nil || subnetId != *subnet {
 		return fmt.Errorf("wrong subnet")
 	}
@@ -99,7 +113,11 @@ func (s *attestationService) ProcessMessage(ctx context.Context, subnet *uint64,
 	expectedAggregationBitsLength := len(beaconCommittee)
 	actualAggregationBitsLength := utils.GetBitlistLength(bits)
 	if actualAggregationBitsLength != expectedAggregationBitsLength {
-		return fmt.Errorf("aggregation bits count mismatch: %d != %d", actualAggregationBitsLength, expectedAggregationBitsLength)
+		return fmt.Errorf(
+			"aggregation bits count mismatch: %d != %d",
+			actualAggregationBitsLength,
+			expectedAggregationBitsLength,
+		)
 	}
 
 	//[REJECT] The attestation is unaggregated -- that is, it has exactly one participating validator (len([bit for bit in aggregation_bits if bit]) == 1, i.e. exactly 1 bit is set).
@@ -167,13 +185,22 @@ func (s *attestationService) ProcessMessage(ctx context.Context, subnet *uint64,
 	// [REJECT] The attestation's target block is an ancestor of the block named in the LMD vote -- i.e.
 	// get_checkpoint_block(store, attestation.data.beacon_block_root, attestation.data.target.epoch) == attestation.data.target.root
 	startSlotAtEpoch := targetEpoch * s.beaconCfg.SlotsPerEpoch
-	if s.forkchoiceStore.Ancestor(root, startSlotAtEpoch) != att.AttestantionData().Target().BlockRoot() {
+	if s.forkchoiceStore.Ancestor(
+		root,
+		startSlotAtEpoch,
+	) != att.AttestantionData().
+		Target().
+		BlockRoot() {
 		return fmt.Errorf("invalid target block")
 	}
 	// [IGNORE] The current finalized_checkpoint is an ancestor of the block defined by attestation.data.beacon_block_root --
 	// i.e. get_checkpoint_block(store, attestation.data.beacon_block_root, store.finalized_checkpoint.epoch) == store.finalized_checkpoint.root
 	startSlotAtEpoch = s.forkchoiceStore.FinalizedCheckpoint().Epoch() * s.beaconCfg.SlotsPerEpoch
-	if s.forkchoiceStore.Ancestor(root, startSlotAtEpoch) != s.forkchoiceStore.FinalizedCheckpoint().BlockRoot() {
+	if s.forkchoiceStore.Ancestor(
+		root,
+		startSlotAtEpoch,
+	) != s.forkchoiceStore.FinalizedCheckpoint().
+		BlockRoot() {
 		return fmt.Errorf("invalid finalized checkpoint %w", ErrIgnore)
 	}
 
