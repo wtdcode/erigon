@@ -52,7 +52,7 @@ func (p *aggregationPoolImpl) AddAttestation(inAtt *solid.Attestation) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(common.Hash(hashRoot))
+	fmt.Println("Aggregate", common.Hash(hashRoot))
 
 	p.aggregatesLock.Lock()
 	defer p.aggregatesLock.Unlock()
@@ -98,7 +98,7 @@ func (p *aggregationPoolImpl) AddAttestation(inAtt *solid.Attestation) error {
 func (p *aggregationPoolImpl) GetAggregatationByRoot(root common.Hash) *solid.Attestation {
 	p.aggregatesLock.RLock()
 	defer p.aggregatesLock.RUnlock()
-	fmt.Println(root)
+	fmt.Println("GET", root)
 	att := p.aggregates[root]
 	if att == nil {
 		return nil
