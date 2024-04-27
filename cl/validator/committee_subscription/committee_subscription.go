@@ -23,10 +23,13 @@ var (
 	ErrIgnore                   = fmt.Errorf("ignore")
 	ErrCommitteeIndexOutOfRange = fmt.Errorf("committee index out of range")
 	ErrWrongSubnet              = fmt.Errorf("attestation is for the wrong subnet")
-	ErrNotInPropagationRange    = fmt.Errorf("attestation is not in propagation range. %w", ErrIgnore)
-	ErrEpochMismatch            = fmt.Errorf("epoch mismatch")
-	ErrExactlyOneBitSet         = fmt.Errorf("exactly one aggregation bit should be set")
-	ErrAggregationBitsMismatch  = fmt.Errorf("aggregation bits mismatch committee size")
+	ErrNotInPropagationRange    = fmt.Errorf(
+		"attestation is not in propagation range. %w",
+		ErrIgnore,
+	)
+	ErrEpochMismatch           = fmt.Errorf("epoch mismatch")
+	ErrExactlyOneBitSet        = fmt.Errorf("exactly one aggregation bit should be set")
+	ErrAggregationBitsMismatch = fmt.Errorf("aggregation bits mismatch committee size")
 )
 
 type CommitteeSubscribeMgmt struct {
@@ -75,7 +78,10 @@ type validatorSub struct {
 	validatorIdxs map[uint64]struct{}
 }
 
-func (c *CommitteeSubscribeMgmt) AddAttestationSubscription(ctx context.Context, p *cltypes.BeaconCommitteeSubscription) error {
+func (c *CommitteeSubscribeMgmt) AddAttestationSubscription(
+	ctx context.Context,
+	p *cltypes.BeaconCommitteeSubscription,
+) error {
 	var (
 		slot   = p.Slot
 		cIndex = p.CommitteeIndex
@@ -87,7 +93,13 @@ func (c *CommitteeSubscribeMgmt) AddAttestationSubscription(ctx context.Context,
 	}
 
 	commiteePerSlot := headState.CommitteeCount(p.Slot / c.beaconConfig.SlotsPerEpoch)
-	subnetId := subnets.ComputeSubnetForAttestation(commiteePerSlot, slot, cIndex, c.beaconConfig.SlotsPerEpoch, c.netConfig.AttestationSubnetCount)
+	subnetId := subnets.ComputeSubnetForAttestation(
+		commiteePerSlot,
+		slot,
+		cIndex,
+		c.beaconConfig.SlotsPerEpoch,
+		c.netConfig.AttestationSubnetCount,
+	)
 	// add validator to subscription
 	c.validatorSubsMutex.Lock()
 	if _, ok := c.validatorSubs[slot]; !ok {
@@ -111,8 +123,10 @@ func (c *CommitteeSubscribeMgmt) AddAttestationSubscription(ctx context.Context,
 
 	// set sentinel gossip expiration by subnet id
 	request := sentinel.RequestSubscribeExpiry{
-		Topic:          gossip.TopicNameBeaconAttestation(subnetId),
-		ExpiryUnixSecs: uint64(time.Now().Add(24 * time.Hour).Unix()), // temporarily set to 24 hours
+		Topic: gossip.TopicNameBeaconAttestation(subnetId),
+		ExpiryUnixSecs: uint64(
+			time.Now().Add(24 * time.Hour).Unix(),
+		), // temporarily set to 24 hours
 	}
 	if _, err := c.sentinel.SetSubscribeExpiry(ctx, &request); err != nil {
 		return err
@@ -128,7 +142,9 @@ func (c *CommitteeSubscribeMgmt) CheckAggregateAttestation(att *solid.Attestatio
 	c.validatorSubsMutex.RLock()
 	defer c.validatorSubsMutex.RUnlock()
 	if subs, ok := c.validatorSubs[slot]; ok {
+		fmt.Println("OK1")
 		if sub, ok := subs[committeeIndex]; ok && sub.aggregate {
+			fmt.Println("OK", ok, sub.aggregate)
 			// aggregate attestation
 			if err := c.aggregationPool.AddAttestation(att); err != nil {
 				return err
