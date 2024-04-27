@@ -141,6 +141,7 @@ func (c *CommitteeSubscribeMgmt) CheckAggregateAttestation(att *solid.Attestatio
 	)
 	c.validatorSubsMutex.RLock()
 	defer c.validatorSubsMutex.RUnlock()
+	fmt.Println("Ok2")
 	if subs, ok := c.validatorSubs[slot]; ok {
 		fmt.Println("OK1")
 		if sub, ok := subs[committeeIndex]; ok && sub.aggregate {
