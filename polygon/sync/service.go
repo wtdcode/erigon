@@ -14,6 +14,7 @@ import (
 	"github.com/ledgerwatch/erigon/eth/stagedsync"
 	"github.com/ledgerwatch/erigon/p2p/sentry"
 	"github.com/ledgerwatch/erigon/polygon/bor/borcfg"
+	"github.com/ledgerwatch/erigon/polygon/bridge"
 	"github.com/ledgerwatch/erigon/polygon/heimdall"
 	"github.com/ledgerwatch/erigon/polygon/p2p"
 )
@@ -25,9 +26,10 @@ type Service interface {
 type service struct {
 	sync *Sync
 
-	p2pService p2p.Service
-	storage    Storage
-	events     *TipEvents
+	p2pService    p2p.Service
+	storage       Storage
+	polygonBridge *bridge.Bridge
+	events        *TipEvents
 }
 
 func NewService(
@@ -38,6 +40,7 @@ func NewService(
 	statusDataProvider *sentry.StatusDataProvider,
 	heimdallUrl string,
 	executionEngine executionclient.ExecutionEngine,
+	polygonBridge *bridge.Bridge,
 ) Service {
 	borConfig := chainConfig.Bor.(*borcfg.BorConfig)
 	execution := NewExecutionClient(executionEngine)
@@ -91,10 +94,11 @@ func NewService(
 		logger,
 	)
 	return &service{
-		sync:       sync,
-		p2pService: p2pService,
-		storage:    storage,
-		events:     events,
+		sync:          sync,
+		p2pService:    p2pService,
+		polygonBridge: polygonBridge,
+		storage:       storage,
+		events:        events,
 	}
 }
 
@@ -130,6 +134,10 @@ func (s *service) Run(ctx context.Context) error {
 			serviceErr = err
 			cancel()
 		}
+	}()
+
+	go func() {
+		s.polygonBridge.Run()
 	}()
 
 	<-ctx.Done()

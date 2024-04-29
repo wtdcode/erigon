@@ -366,6 +366,9 @@ const (
 	BorMilestones  = "BorMilestones"             // milestone_id -> checkpoint (in JSON encoding)
 	BorCheckpoints = "BorCheckpoints"            // checkpoint_id -> checkpoint (in JSON encoding)
 
+	// Polygon Bridge
+	PolygonBridge = "Polygon"
+
 	// Downloader
 	BittorrentCompletion = "BittorrentCompletion"
 	BittorrentInfo       = "BittorrentInfo"
@@ -609,6 +612,7 @@ var ChaindataTables = []string{
 	BorSpans,
 	BorMilestones,
 	BorCheckpoints,
+	PolygonBridge,
 	TblAccountKeys,
 	TblAccountVals,
 	TblAccountHistoryKeys,
@@ -839,6 +843,7 @@ var BorTablesCfg = TableCfg{
 	BorSpans:       {Flags: DupSort},
 	BorCheckpoints: {Flags: DupSort},
 	BorMilestones:  {Flags: DupSort},
+	PolygonBridge:  {Flags: DupSort},
 }
 
 var TxpoolTablesCfg = TableCfg{}

@@ -43,6 +43,7 @@ import (
 	"github.com/ledgerwatch/erigon/polygon/bor/finality/whitelist"
 	"github.com/ledgerwatch/erigon/polygon/bor/statefull"
 	"github.com/ledgerwatch/erigon/polygon/bor/valset"
+	"github.com/ledgerwatch/erigon/polygon/bridge"
 	"github.com/ledgerwatch/erigon/polygon/heimdall"
 	"github.com/ledgerwatch/erigon/rlp"
 	"github.com/ledgerwatch/erigon/rpc"
@@ -285,6 +286,7 @@ type Bor struct {
 	chainConfig *chain.Config     // Chain config
 	config      *borcfg.BorConfig // Consensus engine configuration parameters for bor consensus
 	DB          kv.RwDB           // Database to store and retrieve snapshot checkpoints
+	Bridge      *bridge.Bridge
 	blockReader services.FullBlockReader
 
 	Recents    *lru.ARCCache[libcommon.Hash, *Snapshot]         // Snapshots for recent block to speed up reorgs
@@ -322,6 +324,7 @@ func New(
 	blockReader services.FullBlockReader,
 	spanner Spanner,
 	heimdallClient heimdall.HeimdallClient,
+	polygonBridge *bridge.Bridge,
 	genesisContracts GenesisContracts,
 	logger log.Logger,
 ) *Bor {
@@ -341,6 +344,7 @@ func New(
 		chainConfig:            chainConfig,
 		config:                 borConfig,
 		DB:                     db,
+		Bridge:                 polygonBridge,
 		blockReader:            blockReader,
 		Recents:                recents,
 		Signatures:             signatures,
@@ -1295,6 +1299,11 @@ func (c *Bor) Close() error {
 		if c.HeimdallClient != nil {
 			c.HeimdallClient.Close()
 		}
+
+		if c.Bridge != nil {
+			c.Bridge.Close()
+		}
+
 		// Close all bg processes
 		close(c.closeCh)
 	})

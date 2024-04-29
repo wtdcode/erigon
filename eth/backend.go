@@ -113,6 +113,7 @@ import (
 	"github.com/ledgerwatch/erigon/polygon/bor"
 	"github.com/ledgerwatch/erigon/polygon/bor/finality/flags"
 	"github.com/ledgerwatch/erigon/polygon/bor/valset"
+	bridge2 "github.com/ledgerwatch/erigon/polygon/bridge"
 	"github.com/ledgerwatch/erigon/polygon/heimdall"
 	polygonsync "github.com/ledgerwatch/erigon/polygon/sync"
 	"github.com/ledgerwatch/erigon/rpc"
@@ -915,6 +916,12 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 			return nil, errors.New("nil sentryClient for polygon sync")
 		}
 
+		// start bridge here?
+		var bridge *bridge2.Bridge
+		if borEngine, ok := backend.engine.(*bor.Bor); ok {
+			bridge = borEngine.Bridge
+		}
+
 		backend.polygonSyncService = polygonsync.NewService(
 			logger,
 			chainConfig,
@@ -923,6 +930,7 @@ func New(ctx context.Context, stack *node.Node, config *ethconfig.Config, logger
 			statusDataProvider,
 			config.HeimdallURL,
 			executionEngine,
+			bridge,
 		)
 	}
 

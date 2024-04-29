@@ -9,6 +9,7 @@ import (
 
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon/polygon/bor/borcfg"
+	"github.com/ledgerwatch/erigon/polygon/bridge"
 
 	"github.com/ledgerwatch/erigon-lib/kv"
 	"github.com/ledgerwatch/erigon/consensus"
@@ -107,12 +108,16 @@ func CreateConsensusEngine(ctx context.Context, nodeConfig *nodecfg.Config, chai
 			var db kv.RwDB
 
 			db, err = node.OpenDatabase(ctx, nodeConfig, kv.ConsensusDB, "bor", readonly, logger)
-
 			if err != nil {
 				panic(err)
 			}
 
-			eng = bor.New(chainConfig, db, blockReader, spanner, heimdallClient, genesisContractsClient, logger)
+			polygonBridge, err := bridge.NewBridge(ctx, nodeConfig, "polygon-bridge", readonly, logger)
+			if err != nil {
+				panic(err)
+			}
+
+			eng = bor.New(chainConfig, db, blockReader, spanner, heimdallClient, polygonBridge, genesisContractsClient, logger)
 		}
 	}
 
