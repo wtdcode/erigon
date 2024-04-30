@@ -9,7 +9,7 @@ import (
 	"github.com/ledgerwatch/erigon-lib/chain"
 	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/direct"
-	executionclient "github.com/ledgerwatch/erigon/cl/phase1/execution_client"
+	executionproto "github.com/ledgerwatch/erigon-lib/gointerfaces/execution"
 	"github.com/ledgerwatch/erigon/core/types"
 	"github.com/ledgerwatch/erigon/eth/stagedsync"
 	"github.com/ledgerwatch/erigon/p2p/sentry"
@@ -26,10 +26,10 @@ type Service interface {
 type service struct {
 	sync *Sync
 
-	p2pService    p2p.Service
-	storage       Storage
+	p2pService p2p.Service
+	store      Store
 	polygonBridge *bridge.Bridge
-	events        *TipEvents
+	events     *TipEvents
 }
 
 func NewService(
@@ -39,24 +39,24 @@ func NewService(
 	maxPeers int,
 	statusDataProvider *sentry.StatusDataProvider,
 	heimdallUrl string,
-	executionEngine executionclient.ExecutionEngine,
+	executionClient executionproto.ExecutionClient,
 	polygonBridge *bridge.Bridge,
 ) Service {
 	borConfig := chainConfig.Bor.(*borcfg.BorConfig)
-	execution := NewExecutionClient(executionEngine)
-	storage := NewStorage(logger, execution, maxPeers)
+	execution := NewExecutionClient(executionClient)
+	store := NewStore(logger, execution)
 	headersVerifier := VerifyAccumulatedHeaders
 	blocksVerifier := VerifyBlocks
 	p2pService := p2p.NewService(maxPeers, logger, sentryClient, statusDataProvider.GetStatusData)
 	heimdallClient := heimdall.NewHeimdallClient(heimdallUrl, logger)
-	heimdallService := heimdall.NewHeimdallNoStore(heimdallClient, logger)
+	heimdallService := heimdall.NewHeimdall(heimdallClient, logger)
 	blockDownloader := NewBlockDownloader(
 		logger,
 		p2pService,
 		heimdallService,
 		headersVerifier,
 		blocksVerifier,
-		storage,
+		store,
 	)
 	spansCache := NewSpansCache()
 	signaturesCache, err := lru.NewARC[common.Hash, common.Address](stagedsync.InMemorySignatures)
@@ -81,7 +81,7 @@ func NewService(
 	}
 	events := NewTipEvents(logger, p2pService, heimdallService)
 	sync := NewSync(
-		storage,
+		store,
 		execution,
 		headersVerifier,
 		blocksVerifier,
@@ -94,11 +94,11 @@ func NewService(
 		logger,
 	)
 	return &service{
-		sync:          sync,
-		p2pService:    p2pService,
+		sync:       sync,
+		p2pService: p2pService,
+		store:      store,
 		polygonBridge: polygonBridge,
-		storage:       storage,
-		events:        events,
+		events:     events,
 	}
 }
 
@@ -113,7 +113,7 @@ func (s *service) Run(ctx context.Context) error {
 	}()
 
 	go func() {
-		err := s.storage.Run(ctx)
+		err := s.store.Run(ctx)
 		if (err != nil) && (ctx.Err() == nil) {
 			serviceErr = err
 			cancel()
