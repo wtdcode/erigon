@@ -1220,7 +1220,7 @@ func (r *BlockReader) BorStartEventID(ctx context.Context, tx kv.Tx, hash common
 	return 0, nil
 }
 
-func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.Hash, blockHeight uint64) ([]rlp.RawValue, error) {
+func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, blockHash common.Hash, blockHeight uint64) ([]rlp.RawValue, error) {
 	maxBlockNumInFiles := r.FrozenBorBlocks()
 	if tx != nil && (maxBlockNumInFiles == 0 || blockHeight > maxBlockNumInFiles) {
 		c, err := tx.Cursor(kv.BorEventNums)
@@ -1266,7 +1266,7 @@ func (r *BlockReader) EventsByBlock(ctx context.Context, tx kv.Tx, hash common.H
 		}
 		return result, nil
 	}
-	borTxHash := bortypes.ComputeBorTxHash(blockHeight, hash)
+	borTxHash := bortypes.ComputeBorTxHash(blockHeight, blockHash)
 	view := r.borSn.View()
 	defer view.Close()
 	segments := view.Events()
