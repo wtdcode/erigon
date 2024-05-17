@@ -258,7 +258,8 @@ func DefaultStages(ctx context.Context,
 	if ots2Enabled {
 		ots2Stages := OtsStages(ctx, caCfg)
 
-		newStages := defaultStages[:len(defaultStages)-1]
+		newStages := make([]*Stage, 0, len(defaultStages)+1)
+		newStages = append(newStages, defaultStages[:len(defaultStages)-1]...)
 		newStages = append(newStages, ots2Stages...)
 		newStages = append(newStages, defaultStages[len(defaultStages)-1])
 		defaultStages = newStages
@@ -449,7 +450,8 @@ func PipelineStages(ctx context.Context, snapshots SnapshotsCfg, blockHashCfg Bl
 	if ots2Enabled {
 		ots2Stages := OtsStages(ctx, caCfg)
 
-		newStages := defaultStages[:len(defaultStages)-1]
+		newStages := make([]*Stage, 0, len(defaultStages)+1)
+		newStages = append(newStages, defaultStages[:len(defaultStages)-1]...)
 		newStages = append(newStages, ots2Stages...)
 		newStages = append(newStages, defaultStages[len(defaultStages)-1])
 		defaultStages = newStages
