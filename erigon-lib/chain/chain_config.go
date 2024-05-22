@@ -32,8 +32,8 @@ import (
 // that any network, identified by its genesis block, can have its own
 // set of configuration options.
 type Config struct {
-	ChainName string
-	ChainID   *big.Int `json:"chainId"` // chainId identifies the current chain and is used for replay protection
+	ChainName string   `json:"chainName"` // chain name, eg: mainnet, sepolia, bor-mainnet
+	ChainID   *big.Int `json:"chainId"`   // chainId identifies the current chain and is used for replay protection
 
 	Consensus ConsensusName `json:"consensus,omitempty"` // aura, ethash or clique
 
@@ -728,7 +728,7 @@ type Rules struct {
 	IsHomestead, IsTangerineWhistle, IsSpuriousDragon             bool
 	IsByzantium, IsConstantinople, IsPetersburg, IsIstanbul       bool
 	IsBerlin, IsLondon, IsShanghai, IsKepler, IsCancun            bool
-	IsSharding, IsPrague, IsNapoli                                bool
+	IsSharding, IsPrague, IsOsaka, IsNapoli                       bool
 	IsNano, IsMoran, IsGibbs, IsPlanck, IsLuban, IsPlato, IsHertz bool
 	IsHertzfix, IsFeynman, IsFeynmanFix, IsParlia, IsAura         bool
 	IsHaber                                                       bool
@@ -767,6 +767,7 @@ func (c *Config) Rules(num uint64, time uint64) *Rules {
 		IsFeynmanFix:       c.IsFeynmanFix(num, time),
 		IsCancun:           c.IsCancun(num, time),
 		IsHaber:            c.IsHaber(num, time),
+		IsOsaka:            c.IsOsaka(time),
 		IsAura:             c.Aura != nil,
 		IsParlia:           true,
 	}
