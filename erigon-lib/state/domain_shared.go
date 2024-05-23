@@ -59,8 +59,10 @@ func (l *KvList) Swap(i, j int) {
 }
 
 type distItem struct {
-	fname string
-	hits  uint64
+	fname    string
+	hits     uint64
+	grows    bool
+	prevRead []byte
 }
 
 type SharedDomains struct {
@@ -317,9 +319,12 @@ func (sd *SharedDomains) LatestCommitment(prefix []byte) ([]byte, uint64, error)
 
 	// GetfromFiles doesn't provide same semantics as getLatestFromDB - it returns start/end tx
 	// of file where the value is stored (not exact step when kv has been set)
-	v, _, startTx, endTx, err := sd.aggTx.d[kv.CommitmentDomain].getFromFiles(prefix)
+	v, found, startTx, endTx, err := sd.aggTx.d[kv.CommitmentDomain].getFromFiles(prefix)
 	if err != nil {
 		return nil, 0, fmt.Errorf("commitment prefix %x read error: %w", prefix, err)
+	}
+	if !found {
+		return nil, 0, nil
 	}
 
 	se := (endTx - 1) / sd.aggTx.a.StepSize()
@@ -334,6 +339,8 @@ func (sd *SharedDomains) LatestCommitment(prefix []byte) ([]byte, uint64, error)
 		}
 	}
 	dh.hits++
+	dh.grows = bytes.Compare(prefix, dh.prevRead) > 0
+	dh.prevRead = append(dh.prevRead[:0], prefix...)
 	sd.commitReadDist[int(cs-se)] = dh
 	sd.cmu.Unlock()
 
