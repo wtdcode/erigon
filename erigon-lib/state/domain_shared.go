@@ -9,6 +9,7 @@ import (
 	"math"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
@@ -57,6 +58,11 @@ func (l *KvList) Swap(i, j int) {
 	l.Vals[i], l.Vals[j] = l.Vals[j], l.Vals[i]
 }
 
+type distItem struct {
+	fname string
+	hits  uint64
+}
+
 type SharedDomains struct {
 	noFlush int
 
@@ -64,6 +70,9 @@ type SharedDomains struct {
 	sdCtx  *SharedDomainsCommitmentContext
 	roTx   kv.Tx
 	logger log.Logger
+
+	cmu            *sync.Mutex
+	commitReadDist map[int]distItem
 
 	txNum    uint64
 	blockNum atomic.Uint64
@@ -85,6 +94,9 @@ type HasAggTx interface {
 
 func NewSharedDomains(tx kv.Tx, logger log.Logger) (*SharedDomains, error) {
 	sd := &SharedDomains{
+		cmu:            new(sync.Mutex),
+		commitReadDist: make(map[int]distItem),
+
 		logger:  logger,
 		storage: btree2.NewMap[string, []byte](128),
 		//trace:   true,
@@ -309,6 +321,21 @@ func (sd *SharedDomains) LatestCommitment(prefix []byte) ([]byte, uint64, error)
 	if err != nil {
 		return nil, 0, fmt.Errorf("commitment prefix %x read error: %w", prefix, err)
 	}
+
+	se := (endTx - 1) / sd.aggTx.a.StepSize()
+	ss := startTx / sd.aggTx.a.StepSize()
+	cs := sd.TxNum() / sd.aggTx.a.StepSize()
+
+	sd.cmu.Lock()
+	dh, ok := sd.commitReadDist[int(cs-se)]
+	if !ok {
+		dh = distItem{
+			fname: fmt.Sprintf("%d-%d", ss, se),
+		}
+	}
+	dh.hits++
+	sd.commitReadDist[int(cs-se)] = dh
+	sd.cmu.Unlock()
 
 	if !sd.aggTx.a.commitmentValuesTransform || bytes.Equal(prefix, keyCommitmentState) {
 		return v, endTx / sd.aggTx.a.StepSize(), nil
@@ -556,7 +583,12 @@ func (sd *SharedDomains) SetTrace(b bool) {
 }
 
 func (sd *SharedDomains) ComputeCommitment(ctx context.Context, saveStateAfter bool, blockNum uint64, logPrefix string) (rootHash []byte, err error) {
-	return sd.sdCtx.ComputeCommitment(ctx, saveStateAfter, blockNum, logPrefix)
+	rootHash, err = sd.sdCtx.ComputeCommitment(ctx, saveStateAfter, blockNum, logPrefix)
+	sd.cmu.Lock()
+	fmt.Printf("commitment read distances %#+v\n", sd.commitReadDist)
+	clear(sd.commitReadDist)
+	sd.cmu.Unlock()
+	return
 }
 
 // IterateStoragePrefix iterates over key-value pairs of the storage domain that start with given prefix
