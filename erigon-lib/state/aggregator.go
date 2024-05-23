@@ -1523,6 +1523,7 @@ func (a *Aggregator) integrateMergedDirtyFiles(outs SelectedStaticFilesV3, in Me
 	}
 
 	for id, ii := range a.iis {
+		fmt.Printf("id %d ii=%v\n", id, ii)
 		ii.integrateMergedDirtyFiles(outs.ii[id].fi, in.iis[id])
 	}
 	return frozen
