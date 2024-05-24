@@ -3,15 +3,12 @@ package sync
 import (
 	"context"
 
-	lru "github.com/hashicorp/golang-lru/arc/v2"
 	"github.com/ledgerwatch/log/v3"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ledgerwatch/erigon-lib/chain"
-	"github.com/ledgerwatch/erigon-lib/common"
 	"github.com/ledgerwatch/erigon-lib/direct"
-	executionproto "github.com/ledgerwatch/erigon-lib/gointerfaces/execution"
-	"github.com/ledgerwatch/erigon/core/types"
-	"github.com/ledgerwatch/erigon/eth/stagedsync"
+	"github.com/ledgerwatch/erigon-lib/gointerfaces/executionproto"
 	"github.com/ledgerwatch/erigon/p2p/sentry"
 	"github.com/ledgerwatch/erigon/polygon/bor/borcfg"
 	"github.com/ledgerwatch/erigon/polygon/bridge"
@@ -26,15 +23,19 @@ type Service interface {
 type service struct {
 	sync *Sync
 
-	p2pService    p2p.Service
-	store         Store
-	polygonBridge *bridge.Bridge
-	events        *TipEvents
+	p2pService p2p.Service
+	store      Store
+	events     *TipEvents
+
+	heimdallService heimdall.Service
+	polygonBridge   *bridge.Bridge
 }
 
 func NewService(
 	logger log.Logger,
 	chainConfig *chain.Config,
+	dataDir string,
+	tmpDir string,
 	sentryClient direct.SentryClient,
 	maxPeers int,
 	statusDataProvider *sentry.StatusDataProvider,
@@ -50,6 +51,12 @@ func NewService(
 	p2pService := p2p.NewService(maxPeers, logger, sentryClient, statusDataProvider.GetStatusData)
 	heimdallClient := heimdall.NewHeimdallClient(heimdallUrl, logger)
 	heimdallService := heimdall.NewHeimdall(heimdallClient, logger)
+	heimdallServiceV2 := heimdall.NewService(
+		heimdallUrl,
+		dataDir,
+		tmpDir,
+		logger,
+	)
 	blockDownloader := NewBlockDownloader(
 		logger,
 		p2pService,
@@ -59,26 +66,7 @@ func NewService(
 		store,
 	)
 	spansCache := NewSpansCache()
-	signaturesCache, err := lru.NewARC[common.Hash, common.Address](stagedsync.InMemorySignatures)
-	if err != nil {
-		panic(err)
-	}
-	difficultyCalculator := NewDifficultyCalculator(borConfig, spansCache, nil, signaturesCache)
-	headerTimeValidator := NewHeaderTimeValidator(borConfig, spansCache, nil, signaturesCache)
-	headerValidator := NewHeaderValidator(chainConfig, borConfig, headerTimeValidator)
-	ccBuilderFactory := func(root *types.Header, span *heimdall.Span) CanonicalChainBuilder {
-		if span == nil {
-			panic("sync.Service: ccBuilderFactory - span is nil")
-		}
-		if spansCache.IsEmpty() {
-			panic("sync.Service: ccBuilderFactory - spansCache is empty")
-		}
-		return NewCanonicalChainBuilder(
-			root,
-			difficultyCalculator,
-			headerValidator,
-			spansCache)
-	}
+	ccBuilderFactory := NewCanonicalChainBuilderFactory(chainConfig, borConfig, spansCache)
 	events := NewTipEvents(logger, p2pService, heimdallService)
 	sync := NewSync(
 		store,
@@ -94,61 +82,28 @@ func NewService(
 		logger,
 	)
 	return &service{
-		sync:          sync,
-		p2pService:    p2pService,
-		store:         store,
-		polygonBridge: polygonBridge,
-		events:        events,
+		sync:       sync,
+		p2pService: p2pService,
+		store:      store,
+		events:     events,
+
+		heimdallService: heimdallServiceV2,
+		polygonBridge:   polygonBridge,
 	}
 }
 
-func (s *service) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+func (s *service) Run(parentCtx context.Context) error {
+	group, ctx := errgroup.WithContext(parentCtx)
 
-	var serviceErr error
-
-	go func() {
-		s.p2pService.Run(ctx)
-	}()
-
-	go func() {
-		err := s.store.Run(ctx)
-		if (err != nil) && (ctx.Err() == nil) {
-			serviceErr = err
-			cancel()
-		}
-	}()
-
-	go func() {
-		err := s.events.Run(ctx)
-		if (err != nil) && (ctx.Err() == nil) {
-			serviceErr = err
-			cancel()
-		}
-	}()
-
-	go func() {
-		err := s.sync.Run(ctx)
-		if (err != nil) && (ctx.Err() == nil) {
-			serviceErr = err
-			cancel()
-		}
-	}()
-
-	go func() {
-		err := s.polygonBridge.Run(ctx)
-		if (err != nil) && (ctx.Err() == nil) {
-			serviceErr = err
-			cancel()
-		}
-	}()
-
-	<-ctx.Done()
-
-	if serviceErr != nil {
-		return serviceErr
+	group.Go(func() error { s.p2pService.Run(ctx); return nil })
+	group.Go(func() error { return s.store.Run(ctx) })
+	group.Go(func() error { return s.events.Run(ctx) })
+	// TODO: remove the check when heimdall.NewService is functional
+	if s.heimdallService != nil {
+		group.Go(func() error { return s.heimdallService.Run(ctx) })
 	}
+	group.Go(func() error { return s.polygonBridge.Run(ctx) })
+	group.Go(func() error { return s.sync.Run(ctx) })
 
-	return ctx.Err()
+	return group.Wait()
 }

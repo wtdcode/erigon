@@ -36,7 +36,7 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 	for _, snaptype := range blockReader.BorSnapshots().Types() {
 		minSnapNum := minBlockNum
 
-		if available := blockReader.BorSnapshots().(*BorRoSnapshots).blocksAvailable(snaptype, false); available < minBlockNum {
+		if available := blockReader.BorSnapshots().SegmentsMax(); available < minBlockNum {
 			minSnapNum = available
 		}
 
@@ -101,7 +101,7 @@ func (br *BlockRetire) retireBorBlocks(ctx context.Context, minBlockNum uint64, 
 		return nil
 	}
 
-	err := merger.Merge(ctx, &snapshots.RoSnapshots, borsnaptype.BorSnapshotTypes, rangesToMerge, snapshots.Dir(), true /* doIndex */, onMerge, onDelete)
+	err := merger.Merge(ctx, &snapshots.RoSnapshots, borsnaptype.BorSnapshotTypes(), rangesToMerge, snapshots.Dir(), true /* doIndex */, onMerge, onDelete)
 
 	if err != nil {
 		return blocksRetired, err
@@ -127,7 +127,7 @@ type BorRoSnapshots struct {
 //   - gaps are not allowed
 //   - segment have [from:to] semantic
 func NewBorRoSnapshots(cfg ethconfig.BlocksFreezing, snapDir string, segmentsMin uint64, logger log.Logger) *BorRoSnapshots {
-	return &BorRoSnapshots{*newRoSnapshots(cfg, snapDir, borsnaptype.BorSnapshotTypes, segmentsMin, logger)}
+	return &BorRoSnapshots{*newRoSnapshots(cfg, snapDir, borsnaptype.BorSnapshotTypes(), segmentsMin, logger)}
 }
 
 func (s *BorRoSnapshots) Ranges() []Range {
@@ -149,7 +149,7 @@ func removeBorOverlaps(dir string, active []snaptype.FileInfo, max uint64) {
 	l := make([]snaptype.FileInfo, 0, len(list))
 
 	for _, f := range list {
-		if !(f.Type.Enum() == snaptype.Enums.BorSpans || f.Type.Enum() == snaptype.Enums.BorEvents) {
+		if !(f.Type.Enum() == borsnaptype.Enums.BorSpans || f.Type.Enum() == borsnaptype.Enums.BorEvents) {
 			continue
 		}
 		l = append(l, f)
@@ -167,7 +167,7 @@ func removeBorOverlaps(dir string, active []snaptype.FileInfo, max uint64) {
 		}
 
 		for _, a := range active {
-			if a.Type.Enum() != snaptype.Enums.BorSpans {
+			if a.Type.Enum() != borsnaptype.Enums.BorSpans {
 				continue
 			}
 
@@ -199,7 +199,7 @@ func removeBorOverlaps(dir string, active []snaptype.FileInfo, max uint64) {
 }
 
 func (s *BorRoSnapshots) ReopenFolder() error {
-	files, _, err := typedSegments(s.dir, s.segmentsMin.Load(), borsnaptype.BorSnapshotTypes, false)
+	files, _, err := typedSegments(s.dir, s.segmentsMin.Load(), borsnaptype.BorSnapshotTypes(), false)
 	if err != nil {
 		return err
 	}
