@@ -277,9 +277,9 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 			}
 
 			logBlockNumber := uint64(binary.BigEndian.Uint64(k[:8]))
-			if logBlockNumber != lastBlockNumber && len(blockLogs) != 0 {
+			if (logBlockNumber != lastBlockNumber || lastBlockNumber == 0) && len(blockLogs) != 0 {
 				if lastBlockNumber == 0 {
-					// This is the first block we met
+					// This is the first block we met, update it here
 					lastBlockNumber = logBlockNumber
 				}
 				blockLogs, err = api.updateLogsWithinBlocks(blockLogs, lastBlockNumber, ctx, tx)
@@ -291,6 +291,7 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 				// Clear block logs for the next block
 				blockLogs = make([]*types.Log, 0)
 			}
+			lastBlockNumber = logBlockNumber
 			var tx_logs types.Logs
 			if err := cbor.Unmarshal(&tx_logs, bytes.NewReader(v)); err != nil {
 				return logs, fmt.Errorf("receipt unmarshal failed:  %w", err)
