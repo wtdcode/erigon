@@ -87,6 +87,38 @@ func (api *BaseAPI) getReceipts(ctx context.Context, tx kv.Tx, block *types.Bloc
 	return receipts, nil
 }
 
+func (api *APIImpl) updateLogsWithinBlocks(blockLogs types.Logs, blockNumber uint64, ctx context.Context, tx kv.Tx) (types.Logs, error) {
+	// Update the logs of the previous block
+	for idx, log := range blockLogs {
+		log.Index = uint(idx)
+	}
+
+	blockHash, err := api._blockReader.CanonicalHash(ctx, tx, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := api._blockReader.BodyWithTransactions(ctx, tx, blockHash, blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	if body == nil {
+		return nil, fmt.Errorf("block not found %d", blockNumber)
+	}
+	for _, log := range blockLogs {
+		log.BlockNumber = blockNumber
+		log.BlockHash = blockHash
+		// bor transactions are at the end of the bodies transactions (added manually but not actually part of the block)
+		if log.TxIndex == uint(len(body.Transactions)) {
+			log.TxHash = bortypes.ComputeBorTxHash(blockNumber, blockHash)
+		} else {
+			log.TxHash = body.Transactions[log.TxIndex].Hash()
+		}
+	}
+
+	return blockLogs, nil
+}
+
 // GetLogs implements eth_getLogs. Returns an array of logs matching a given filter object.
 func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (types.Logs, error) {
 	var begin, end uint64
@@ -163,87 +195,122 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 	if api.historyV3(tx) {
 		return api.getLogsV3(ctx, tx.(kv.TemporalTx), begin, end, crit)
 	}
-	blockNumbers := bitmapdb.NewBitmap()
-	defer bitmapdb.ReturnToPool(blockNumbers)
-	if err := applyFilters(blockNumbers, tx, begin, end, crit); err != nil {
-		return logs, err
-	}
-	if blockNumbers.IsEmpty() {
-		return logs, nil
-	}
-	addrMap := make(map[common.Address]struct{}, len(crit.Addresses))
-	for _, v := range crit.Addresses {
-		addrMap[v] = struct{}{}
-	}
-	iter := blockNumbers.Iterator()
-	for iter.HasNext() {
-		if err := ctx.Err(); err != nil {
-			return nil, err
+	if len(crit.Addresses) != 0 && len(crit.Topics) != 0 {
+		// We are requested to filter logs by addresses or topics, therefore we have
+		// to query the bitmaps of corresponding tables.
+		blockNumbers := bitmapdb.NewBitmap()
+		defer bitmapdb.ReturnToPool(blockNumbers)
+		if err := applyFilters(blockNumbers, tx, begin, end, crit); err != nil {
+			return logs, err
+		}
+		if blockNumbers.IsEmpty() {
+			return logs, nil
+		}
+		addrMap := make(map[common.Address]struct{}, len(crit.Addresses))
+		for _, v := range crit.Addresses {
+			addrMap[v] = struct{}{}
+		}
+		iter := blockNumbers.Iterator()
+		for iter.HasNext() {
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
+
+			blockNumber := uint64(iter.Next())
+			var txIndex uint
+			var blockLogs types.Logs
+
+			it, err := tx.Prefix(kv.Log, hexutility.EncodeTs(blockNumber))
+			if err != nil {
+				return nil, err
+			}
+			for it.HasNext() {
+				k, v, err := it.Next()
+				if err != nil {
+					return logs, err
+				}
+
+				var tx_logs types.Logs
+				if err := cbor.Unmarshal(&tx_logs, bytes.NewReader(v)); err != nil {
+					return logs, fmt.Errorf("receipt unmarshal failed:  %w", err)
+				}
+				txIndex = uint(binary.BigEndian.Uint32(k[8:]))
+				for _, log := range tx_logs {
+					log.TxIndex = txIndex
+				}
+				blockLogs = append(blockLogs, tx_logs...)
+			}
+			if casted, ok := it.(kv.Closer); ok {
+				casted.Close()
+			}
+			if len(blockLogs) == 0 {
+				continue
+			}
+
+			blockLogs, err = api.updateLogsWithinBlocks(blockLogs, blockNumber, ctx, tx)
+			if err != nil {
+				return logs, err
+			}
+			// Apply filters
+			filtered := blockLogs.Filter(addrMap, crit.Topics)
+			logs = append(logs, filtered...)
 		}
 
-		blockNumber := uint64(iter.Next())
-		var logIndex uint
-		var txIndex uint
-		var blockLogs []*types.Log
-
-		it, err := tx.Prefix(kv.Log, hexutility.EncodeTs(blockNumber))
+	} else {
+		// No criterion is given, plain blocks fetching!
+		// Note the range is [begin, end] as eth_getLogs specified
+		it, err := tx.Range(kv.Log, hexutility.EncodeTs(begin), hexutility.EncodeTs(end+1))
 		if err != nil {
-			return nil, err
+			return logs, err
 		}
+		var blockLogs []*types.Log
+		var lastBlockNumber uint64 // 0 block doesn't have logs, we are safe
+
 		for it.HasNext() {
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
+
 			k, v, err := it.Next()
 			if err != nil {
 				return logs, err
 			}
 
-			var logs types.Logs
-			if err := cbor.Unmarshal(&logs, bytes.NewReader(v)); err != nil {
+			logBlockNumber := uint64(binary.BigEndian.Uint64(k[:8]))
+			if logBlockNumber != lastBlockNumber && len(blockLogs) != 0 {
+				blockLogs, err = api.updateLogsWithinBlocks(blockLogs, lastBlockNumber, ctx, tx)
+				if err != nil {
+					return logs, err
+				}
+				// Append to our results
+				logs = append(logs, blockLogs...)
+				// Clear block logs for the next block
+				blockLogs = make([]*types.Log, 0)
+			}
+			var tx_logs types.Logs
+			if err := cbor.Unmarshal(&tx_logs, bytes.NewReader(v)); err != nil {
 				return logs, fmt.Errorf("receipt unmarshal failed:  %w", err)
 			}
-			for _, log := range logs {
-				log.Index = logIndex
-				logIndex++
-			}
-			filtered := logs.Filter(addrMap, crit.Topics)
-			if len(filtered) == 0 {
-				continue
-			}
-			txIndex = uint(binary.BigEndian.Uint32(k[8:]))
-			for _, log := range filtered {
+			txIndex := uint(binary.BigEndian.Uint32(k[8:]))
+			for _, log := range tx_logs {
 				log.TxIndex = txIndex
 			}
-			blockLogs = append(blockLogs, filtered...)
+			blockLogs = append(blockLogs, tx_logs...)
 		}
+
+		// The potential last block
+		if len(blockLogs) != 0 {
+			blockLogs, err = api.updateLogsWithinBlocks(blockLogs, lastBlockNumber, ctx, tx)
+			if err != nil {
+				return logs, err
+			}
+			// Append to our results
+			logs = append(logs, blockLogs...)
+		}
+
 		if casted, ok := it.(kv.Closer); ok {
 			casted.Close()
 		}
-		if len(blockLogs) == 0 {
-			continue
-		}
-
-		blockHash, err := api._blockReader.CanonicalHash(ctx, tx, blockNumber)
-		if err != nil {
-			return nil, err
-		}
-
-		body, err := api._blockReader.BodyWithTransactions(ctx, tx, blockHash, blockNumber)
-		if err != nil {
-			return nil, err
-		}
-		if body == nil {
-			return nil, fmt.Errorf("block not found %d", blockNumber)
-		}
-		for _, log := range blockLogs {
-			log.BlockNumber = blockNumber
-			log.BlockHash = blockHash
-			// bor transactions are at the end of the bodies transactions (added manually but not actually part of the block)
-			if log.TxIndex == uint(len(body.Transactions)) {
-				log.TxHash = bortypes.ComputeBorTxHash(blockNumber, blockHash)
-			} else {
-				log.TxHash = body.Transactions[log.TxIndex].Hash()
-			}
-		}
-		logs = append(logs, blockLogs...)
 	}
 
 	return logs, nil
