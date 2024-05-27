@@ -278,6 +278,10 @@ func (api *APIImpl) GetLogs(ctx context.Context, crit filters.FilterCriteria) (t
 
 			logBlockNumber := uint64(binary.BigEndian.Uint64(k[:8]))
 			if logBlockNumber != lastBlockNumber && len(blockLogs) != 0 {
+				if lastBlockNumber == 0 {
+					// This is the first block we met
+					lastBlockNumber = logBlockNumber
+				}
 				blockLogs, err = api.updateLogsWithinBlocks(blockLogs, lastBlockNumber, ctx, tx)
 				if err != nil {
 					return logs, err
